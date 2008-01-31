@@ -1,0 +1,234 @@
+// YARD Grammar for the C language
+// Released under the MIT License by Christopher Diggins
+
+#ifndef JACTION_GRAMMAR_HPP
+#define JACTION_GRAMMAR_HPP
+
+namespace heron_grammar
+{
+	using namespace yard;
+	using namespace text_grammar;
+
+	struct Expr;
+	struct SimpleExpr;
+	struct Statement;
+
+	struct NewLine : 
+		Or<CharSeq<'\r', '\n'>, CharSeq<'\n'> > { };
+
+	struct LineComment : 
+		Seq<CharSeq<'/', '/'>, UntilPast<NewLine> > { };
+
+	struct FullComment : 
+		Seq<CharSeq<'/', '*'>, UntilPast<CharSeq<'*', '/'> > >	{ };
+
+	struct Comment :
+		Or<LineComment, FullComment> { };
+
+	struct WS : 
+		Star<Or<Char<' '>, Char<'\t'>, NewLine, Comment, Char<'\r'>, Char<'\v'>, Char<'\f'> > >	{ };
+
+	template<typename R>
+	struct Tok : 
+		Seq<R, WS> { };
+
+	struct Id : 
+		Tok<Ident> { };
+
+	template<typename T>
+	struct Keyword : 
+		Tok<Seq<T, NotAlphaNum > > { };
+
+	template<char C>
+    struct CharTok :
+		Seq<Char<C>, WS> { };
+
+	template<typename R, typename D>
+	struct DelimitedList : 
+	   Seq<R, Star<Seq<D, R> > >
+	{ };
+
+	template<typename R>
+	struct CommaList : 
+	   DelimitedList<R, CharTok<','> > { };
+
+	template<typename R>
+	struct Braced : 
+		Seq<CharTok<'{'>, R, CharTok<'}'> > { };
+
+	template<typename R>
+	struct BracedCommaList : 
+		Braced<CommaList<R> > { };
+
+	template<typename R>
+	struct Paranthesized  : 
+		Seq<CharTok<'('>, R, CharTok<')'> > { };
+
+	template<typename R>
+	struct ParanthesizedCommaList : 
+		Paranthesized<CommaList<R> > { };
+
+	template<typename R>
+	struct Bracketed : 
+		Seq<CharTok<'['>, R, CharTok<']'> >	{ };
+
+	template<typename R>
+	struct BracketedCommaList : 
+		Bracketed<CommaList<R> > { };
+
+	struct StringCharLiteral : 
+		Or<Seq<Char<'\\'>, NotChar<'\n'> >, AnyCharExcept<CharSet<'\n', '\"', '\'' > > > { };
+
+	struct CharLiteral : 
+		Seq<Char<'\''>, StringCharLiteral, Char<'\''> > { };
+
+	struct StringLiteral : 
+		Seq<Char<'\"'>, Star<StringCharLiteral>, Char<'\"'> > { };
+
+	struct BinaryDigit : 
+		Or<Char<'0'>, Char<'1'> > { };
+
+	struct BinNumber : 
+		Seq<CharSeq<'0', 'b'>, Plus<BinaryDigit>, NotAlphaNum, WS> { };
+
+	struct HexNumber : 
+		Seq<CharSeq<'0', 'x'>, Plus<HexDigit>, NotAlphaNum, WS> { };
+
+	struct DecNumber : 
+		Seq<Opt<Char<'-'> >, Plus<Digit>, Opt<Seq<Char<'.'>, Star<Digit> > >, NotAlphaNum, WS> { };
+
+	struct NEW : Keyword<CharSeq<'n','e','w'> > { };
+	struct DELETE : Keyword<CharSeq<'d','e','l','e','t','e'> > { };
+	struct VAR : Keyword<CharSeq<'v','a','r'> > { };
+	struct ELSE : Keyword<CharSeq<'e','l','s','e'> > { };
+	struct IF : Keyword<CharSeq<'i','f'> > { };
+	struct FOREACH : Keyword<CharSeq<'f','o','r','e','a','c','h'> > { };
+	struct WHILE : Keyword<CharSeq<'w','h','i','l','e'> > { };
+	struct IN : Keyword<CharSeq<'i','n'> > { };
+	struct CASE : Keyword<CharSeq<'c','a','s','e'> > { };
+	struct SWITCH : Keyword<CharSeq<'s','w','i','t','c','h'> > { };
+	struct RETURN : Keyword<CharSeq<'r','e','t','u','r','n'> > { };
+	struct DEFAULT : Keyword<CharSeq<'d','e','f','a','u','l','t'> > { };
+
+	struct Literal :
+		Tok<Or<BinNumber, HexNumber, DecNumber, CharLiteral, StringLiteral > > { };
+
+	struct Sym :
+		CharSetParser<CharSet<'~','!','@','#','$','%','^','&','*','-','+','|','\\','<','>','/','?'> > { };
+
+	struct ParamList :
+		ParanthesizedCommaList<Store<Expr> > { };
+
+	// TODO: allow more sophisticated types
+	struct TypeExpr : 
+		Store<Ident> { };
+
+	struct TypeDecl :
+		Seq<CharTok<':'>, Store<TypeExpr> > { };
+
+	struct Arg :
+		Seq<Store<Ident>, Opt<Store<TypeDecl> > > { };
+
+	struct ArgList :
+		ParanthesizedCommaList<Store<Arg> > { };
+
+	struct AnonFxn :
+		Seq<ArgList, Char<'='>, Char<'>'>, Opt<WS>, Statement> { };
+
+	struct Qualifier :
+		Seq<Store<SimpleExpr>, CharTok<'.'>, Opt<Qualifier> > { };
+
+	struct ReadVarOrProperty :
+		Seq<Opt<Qualifier>, Ident> { };
+
+	// TODO: should be a qualified identifier
+	struct NewExpr :
+		Seq<NEW, Store<Ident>, Store<ParamList> > { };
+
+	struct DelExpr :
+		Seq<DELETE, Store<Expr> > { };
+
+	struct FxnCall :
+		Seq<Store<Expr>, Store<ParamList> > { };
+
+	struct SimpleExpr :
+		Or<
+            Store<NewExpr>,
+            Store<DelExpr>,
+            Store<FxnCall>,
+            Store<ReadVarOrProperty>,
+            Store<Literal>,
+            Store<AnonFxn>,
+			Store<Paranthesized<Expr> >
+		> { };
+
+	struct CompoundExpr :
+		Plus<SimpleExpr> { };
+
+	struct Expr :
+		Or<SimpleExpr, CompoundExpr> { };
+
+	struct Initializer :
+		Seq<CharTok<'='>, Store<Expr> > { };
+
+	struct WriteVarOrProp :
+		Seq<Opt<Store<Qualifier> >, Store<Ident>, Initializer> { };
+
+	struct CodeBlock :
+		Seq<Char<'{'>, Store<Statement>, Char<'}'> > { };
+
+	struct VarDecl :
+		Seq<VAR, Store<Ident>, Opt<Initializer> > { };
+
+	struct ElseStatement :
+		Seq<ELSE, Store<CodeBlock> > { };
+
+	struct IfStatement :
+        Seq<IF, CharTok<'('>, Store<Expr>,
+			CharTok<'('>, Store<CodeBlock>, Opt<ElseStatement> > { };
+
+	struct ForEachStatement :
+		Seq<
+            FOREACH, CharTok<'('>, Store<Ident>,
+			IN, Store<Expr>, CharTok<')'>, Store<CodeBlock> > { };
+
+	struct ExprStatement :
+		Store<Expr> { };
+
+	struct ReturnStatement :
+		Seq<RETURN, Store<Expr> > { };	
+
+	struct CaseStatement :
+		Seq<CASE, Paranthesized<Store<Expr> >, Store<CodeBlock> > { };
+
+	struct DefaultStatement :
+		Seq<DEFAULT, Paranthesized<Store<Expr> >, Store<CodeBlock> > { };
+
+	struct SwitchStatement :
+		Seq<SWITCH, CharTok<'{'>, Paranthesized<Store<Expr> >, Star<CaseStatement>, 
+			Opt<DefaultStatement>, CharTok<'}'> > { };
+
+	struct WhileStatement :
+		Seq<WHILE, Paranthesized<Store<Expr> >, Store<CodeBlock> > { };
+
+    struct SimpleStatement :
+       Or<
+           Store<CodeBlock>,
+           Store<WriteVarOrProp>,
+           Store<VarDecl>,
+           Store<IfStatement>,
+           Store<ForEachStatement>,
+           Store<WhileStatement>,
+		   Store<ReturnStatement>,
+           Store<ExprStatement>
+       > { };
+
+	struct Statement :
+        Or<SimpleStatement, Seq<SimpleStatement, CharTok<';'>, Statement> > { };
+
+	struct StatementList :
+		Star<Store<Statement> > { };
+
+}
+
+#endif
