@@ -79,7 +79,6 @@ void ProcessStatement(Node* node)
 	}
 	else if (ti == typeid(WriteVarOrProp))
 	{
-		Node* q = node->GetFirstTypedChild<Qualifier>();
 		Node* id = node->GetFirstTypedChild<Ident>();
 		Node* init = node->GetFirstTypedChild<Initializer>();
 	}
@@ -112,31 +111,38 @@ void ProcessStatement(Node* node)
 	}
 }
 
+bool ProcessString(const char* input)
+{
+	size_t len = strlen(input);
+	Parser parser(input, input + len);
+	return parser.Parse<StatementList>();
+}
+
+void ProcessFile(const char* file)
+{
+	char* input = ReadFile(file);
+	ProcessString(input);
+	free(input);
+}
+
+void RunUnitTests() {
+	char* test1 =
+		"var x = 3 * 5;"
+		"var y = new JActionClass();";
+
+	ProcessString(test1);
+}
 
 int main(int argn, char* argv[])
 {	
 	printf("running %s\n", argv[0]);
 
-	//RunUnitTests();
+	RunUnitTests();
 
-	for (int i=1; i < argn; ++i)
-	{
-		char* input = ReadFile(argv[i]);
-		bool b = true;
-		size_t len = strlen(input);
-		int cnt = 1000; 
-		for (int j=0; j < cnt; ++j)
-		{
-			Parser parser(input, input + len);
-			b &= parser.Parse<StatementList>();
-		}
-		
-		if (b)
-			printf("successfullly parsed file %s %d times\n", argv[i], cnt); else
-			printf("failed to parse file %s\n", argv[i]);
-
-		free(input);
+	for (int i=1; i < argn; ++i) {
+		ProcessFile(argv[i]);
 	}
+
 	return 1;
 }
 

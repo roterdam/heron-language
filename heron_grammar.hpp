@@ -13,6 +13,12 @@ namespace heron_grammar
 	struct SimpleExpr;
 	struct Statement;
 
+	struct SymChar :
+		CharSetParser<CharSet<'.', '~','!','@','#','$','%','^','&','*','-','+','|','\\','<','>','/','?',','> > { };
+
+	struct Sym :
+		Or<Ident, Plus<SymChar> > { };
+
 	struct NewLine : 
 		Or<CharSeq<'\r', '\n'>, CharSeq<'\n'> > { };
 
@@ -33,7 +39,7 @@ namespace heron_grammar
 		Seq<R, WS> { };
 
 	struct Id : 
-		Tok<Ident> { };
+		Tok<Sym> { };
 
 	template<typename T>
 	struct Keyword : 
@@ -113,21 +119,18 @@ namespace heron_grammar
 	struct Literal :
 		Tok<Or<BinNumber, HexNumber, DecNumber, CharLiteral, StringLiteral > > { };
 
-	struct Sym :
-		CharSetParser<CharSet<'~','!','@','#','$','%','^','&','*','-','+','|','\\','<','>','/','?'> > { };
-
 	struct ParamList :
 		ParanthesizedCommaList<Store<Expr> > { };
 
 	// TODO: allow more sophisticated types
 	struct TypeExpr : 
-		Store<Ident> { };
+		Store<Sym> { };
 
 	struct TypeDecl :
 		Seq<CharTok<':'>, Store<TypeExpr> > { };
 
 	struct Arg :
-		Seq<Store<Ident>, Opt<Store<TypeDecl> > > { };
+		Seq<Store<Sym>, Opt<Store<TypeDecl> > > { };
 
 	struct ArgList :
 		ParanthesizedCommaList<Store<Arg> > { };
@@ -135,28 +138,26 @@ namespace heron_grammar
 	struct AnonFxn :
 		Seq<ArgList, Char<'='>, Char<'>'>, Opt<WS>, Statement> { };
 
+	/*
 	struct Qualifier :
-		Seq<Store<SimpleExpr>, CharTok<'.'>, Opt<Qualifier> > { };
+		Plus<Seq<Store<SimpleExpr>, CharTok<'.'> > > { };
 
 	struct ReadVarOrProperty :
-		Seq<Opt<Qualifier>, Ident> { };
+		Seq<Opt<Store<Qualifier> >, Sym> { };
+		*/
 
-	// TODO: should be a qualified identifier
+	// TODO: should be a qualified Symifier
 	struct NewExpr :
-		Seq<NEW, Store<Ident>, Store<ParamList> > { };
+		Seq<NEW, Store<Sym>, Store<ParamList> > { };
 
 	struct DelExpr :
 		Seq<DELETE, Store<Expr> > { };
-
-	struct FxnCall :
-		Seq<Store<Expr>, Store<ParamList> > { };
 
 	struct SimpleExpr :
 		Or<
             Store<NewExpr>,
             Store<DelExpr>,
-            Store<FxnCall>,
-            Store<ReadVarOrProperty>,
+            Store<Sym>,
             Store<Literal>,
             Store<AnonFxn>,
 			Store<Paranthesized<Expr> >
@@ -172,13 +173,13 @@ namespace heron_grammar
 		Seq<CharTok<'='>, Store<Expr> > { };
 
 	struct WriteVarOrProp :
-		Seq<Opt<Store<Qualifier> >, Store<Ident>, Initializer> { };
+		Seq<Store<Sym>, Initializer> { };
 
 	struct CodeBlock :
 		Seq<Char<'{'>, Store<Statement>, Char<'}'> > { };
 
 	struct VarDecl :
-		Seq<VAR, Store<Ident>, Opt<Initializer> > { };
+		Seq<VAR, Store<Sym>, Opt<Initializer> > { };
 
 	struct ElseStatement :
 		Seq<ELSE, Store<CodeBlock> > { };
@@ -189,7 +190,7 @@ namespace heron_grammar
 
 	struct ForEachStatement :
 		Seq<
-            FOREACH, CharTok<'('>, Store<Ident>,
+            FOREACH, CharTok<'('>, Store<Sym>,
 			IN, Store<Expr>, CharTok<')'>, Store<CodeBlock> > { };
 
 	struct ExprStatement :
