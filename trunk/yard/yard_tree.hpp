@@ -65,6 +65,7 @@ namespace yard
 			template<typename Rule_T>
 			TypedNode<Rule_T>* NewChild(TokenIter pos)
 			{
+				printf("%s\n", typeid(Rule_T).name());
 				assert(!IsCompleted());
 				TypedNode<Rule_T>* ret = new TypedNode<Rule_T>(pos, this);
 				AddChild(ret);
