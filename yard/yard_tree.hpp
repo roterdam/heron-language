@@ -47,7 +47,7 @@ namespace yard
 				mpParent = parent;
 				mbCompleted = false;
 			}		    
-			~AbstractNode()
+			virtual ~AbstractNode()
 			{
 				if (mpNext)
 					delete mpNext;
@@ -65,7 +65,7 @@ namespace yard
 			template<typename Rule_T>
 			TypedNode<Rule_T>* NewChild(TokenIter pos)
 			{
-				printf("%s\n", typeid(Rule_T).name());
+				//printf("%s\n", typeid(Rule_T).name());
 				assert(!IsCompleted());
 				TypedNode<Rule_T>* ret = new TypedNode<Rule_T>(pos, this);
 				AddChild(ret);
@@ -166,10 +166,7 @@ namespace yard
 			}   
 
 			// Virtual member function
-			virtual const type_info& GetRuleTypeInfo() 
-			{
-				return typeid(void);
-			}
+			virtual const type_info& GetRuleTypeInfo() = 0;
 		    
 		private:
 
@@ -243,7 +240,7 @@ namespace yard
 	    
 	private:
 		 
-		AbstractNode root;       
+		TypedNode<void> root;       
 		AbstractNode* current; 
 	};
 }

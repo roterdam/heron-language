@@ -16,9 +16,6 @@ namespace heron_grammar
 	struct SymChar :
 		CharSetParser<CharSet<'.', '~','!','@','#','$','%','^','&','*','-','+','|','\\','<','>','/','?',','> > { };
 
-	struct Sym :
-		Or<Ident, Plus<SymChar> > { };
-
 	struct NewLine : 
 		Or<CharSeq<'\r', '\n'>, CharSeq<'\n'> > { };
 
@@ -37,6 +34,9 @@ namespace heron_grammar
 	template<typename R>
 	struct Tok : 
 		Seq<R, WS> { };
+
+	struct Sym :
+		Seq<Or<Store<Ident>, Store<Plus<SymChar> > >, WS> { };
 
 	struct Id : 
 		Tok<Sym> { };
@@ -138,17 +138,8 @@ namespace heron_grammar
 	struct AnonFxn :
 		Seq<ArgList, Char<'='>, Char<'>'>, Opt<WS>, Statement> { };
 
-	/*
-	struct Qualifier :
-		Plus<Seq<Store<SimpleExpr>, CharTok<'.'> > > { };
-
-	struct ReadVarOrProperty :
-		Seq<Opt<Store<Qualifier> >, Sym> { };
-		*/
-
-	// TODO: should be a qualified Symifier
 	struct NewExpr :
-		Seq<NEW, Store<Sym>, Store<ParamList> > { };
+		Seq<NEW, Store<Expr>, Store<ParamList> > { };
 
 	struct DelExpr :
 		Seq<DELETE, Store<Expr> > { };
@@ -163,20 +154,14 @@ namespace heron_grammar
 			Store<Paranthesized<Expr> >
 		> { };
 
-	struct CompoundExpr :
-		Plus<SimpleExpr> { };
-
 	struct Expr :
-		Or<SimpleExpr, CompoundExpr> { };
+		Plus<SimpleExpr> { };
 
 	struct Initializer :
 		Seq<CharTok<'='>, Store<Expr> > { };
 
-	struct WriteVarOrProp :
-		Seq<Store<Sym>, Initializer> { };
-
 	struct CodeBlock :
-		Seq<Char<'{'>, Store<Statement>, Char<'}'> > { };
+		Seq<Char<'{'>, Star<Statement>, Char<'}'> > { };
 
 	struct VarDecl :
 		Seq<VAR, Store<Sym>, Opt<Initializer> > { };
@@ -185,12 +170,10 @@ namespace heron_grammar
 		Seq<ELSE, Store<CodeBlock> > { };
 
 	struct IfStatement :
-        Seq<IF, CharTok<'('>, Store<Expr>,
-			CharTok<'('>, Store<CodeBlock>, Opt<ElseStatement> > { };
+        Seq<IF, Paranthesized<Store<Expr> >, Store<CodeBlock>, Opt<ElseStatement> > { };
 
 	struct ForEachStatement :
-		Seq<
-            FOREACH, CharTok<'('>, Store<Sym>,
+		Seq<FOREACH, CharTok<'('>, Store<Sym>,
 			IN, Store<Expr>, CharTok<')'>, Store<CodeBlock> > { };
 
 	struct ExprStatement :
@@ -206,30 +189,32 @@ namespace heron_grammar
 		Seq<DEFAULT, Paranthesized<Store<Expr> >, Store<CodeBlock> > { };
 
 	struct SwitchStatement :
-		Seq<SWITCH, CharTok<'{'>, Paranthesized<Store<Expr> >, Star<CaseStatement>, 
-			Opt<DefaultStatement>, CharTok<'}'> > { };
+		Seq<SWITCH, CharTok<'{'>, Paranthesized<Store<Expr> >, Star<Store<CaseStatement> >, 
+			Opt<Store<DefaultStatement> >, CharTok<'}'> > { };
 
 	struct WhileStatement :
 		Seq<WHILE, Paranthesized<Store<Expr> >, Store<CodeBlock> > { };
+	
+	struct AssignmentStatement :
+		Seq<Store<Expr>, Initializer> { };
 
     struct SimpleStatement :
        Or<
            Store<CodeBlock>,
-           Store<WriteVarOrProp>,
            Store<VarDecl>,
            Store<IfStatement>,
            Store<ForEachStatement>,
            Store<WhileStatement>,
 		   Store<ReturnStatement>,
+		   Store<AssignmentStatement>,
            Store<ExprStatement>
        > { };
 
 	struct Statement :
-        Or<SimpleStatement, Seq<SimpleStatement, CharTok<';'>, Statement> > { };
+        Seq<SimpleStatement, Star<Seq<CharTok<';'>, SimpleStatement> >, Opt<CharTok<';'> > > { };
 
-	struct StatementList :
-		Star<Store<Statement> > { };
-
+	struct Program :
+		Star<Statement> { };
 }
 
 #endif

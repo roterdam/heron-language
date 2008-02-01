@@ -29,6 +29,7 @@ namespace yard
 		static bool Match(ParserState_T& p) 
 		{    
 			p.CreateNode<Rule_T>();  
+			//printf("created node %s\n", typeid(Rule_T).name());
 			bool b = false;
 
 			try {
@@ -42,10 +43,12 @@ namespace yard
 
 			if (b) {      
 				p.CompleteNode();
+				//printf("completed node %s\n", typeid(Rule_T).name());
 				return true;
 			}
 			else {
 				p.AbandonNode();
+				//printf("abandoned node %s\n", typeid(Rule_T).name());
 				return false;
 			}     
 		}
