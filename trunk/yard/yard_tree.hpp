@@ -165,7 +165,7 @@ namespace yard
 				return mpLast;
 			}   
 
-			// Virtual member function
+			// abstract member functions
 			virtual const type_info& GetRuleTypeInfo() = 0;
 		    
 		private:
@@ -180,7 +180,7 @@ namespace yard
 			TokenIter mpLast;
 		};	  
 
-		template<typename T>
+		template<typename Rule_T>
 		struct TypedNode : AbstractNode
 		{			
 			TypedNode(TokenIter pos, AbstractNode* parent) 
@@ -189,7 +189,7 @@ namespace yard
 			}
 
 			virtual const type_info& GetRuleTypeInfo() {
-				return typeid(T);
+				return typeid(Rule_T);
 			}
 		};
 
