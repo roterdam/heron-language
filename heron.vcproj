@@ -175,10 +175,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\heron_tests.hpp"
-				>
-			</File>
-			<File
 				RelativePath=".\yard\yard.hpp"
 				>
 			</File>

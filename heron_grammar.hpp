@@ -12,6 +12,7 @@ namespace heron_grammar
 	struct Expr;
 	struct SimpleExpr;
 	struct Statement;
+	struct StatementList;
 
 	struct SymChar :
 		CharSetParser<CharSet<'.', '~','!','@','#','$','%','^','&','*','-','+','|','\\','<','>','/','?',','> > { };
@@ -51,7 +52,7 @@ namespace heron_grammar
 
 	template<typename R, typename D>
 	struct DelimitedList : 
-	   Seq<R, Star<Seq<D, R> > >
+	   Or<Opt<R>, Seq<R, Plus<Seq<D, R> > > >
 	{ };
 
 	template<typename R>
@@ -130,19 +131,22 @@ namespace heron_grammar
 		Seq<CharTok<':'>, Store<TypeExpr> > { };
 
 	struct Arg :
-		Seq<Store<Sym>, Opt<Store<TypeDecl> > > { };
+		Seq<Store<Sym>, Opt<TypeDecl> > { };
 
 	struct ArgList :
 		ParanthesizedCommaList<Store<Arg> > { };
 
 	struct AnonFxn :
-		Seq<ArgList, Char<'='>, Char<'>'>, Opt<WS>, Statement> { };
+		Seq<Store<ArgList>, Char<'='>, Char<'>'>, Opt<WS>, Statement> { };
 
 	struct NewExpr :
 		Seq<NEW, Store<Expr>, Store<ParamList> > { };
 
 	struct DelExpr :
 		Seq<DELETE, Store<Expr> > { };
+
+	struct ParanthesizedExpr :
+		Paranthesized<Opt<Expr> > { };
 
 	struct SimpleExpr :
 		Or<
@@ -151,7 +155,7 @@ namespace heron_grammar
             Store<Sym>,
             Store<Literal>,
             Store<AnonFxn>,
-			Store<Paranthesized<Expr> >
+			Store<ParanthesizedExpr>
 		> { };
 
 	struct Expr :
@@ -161,7 +165,7 @@ namespace heron_grammar
 		Seq<CharTok<'='>, Store<Expr> > { };
 
 	struct CodeBlock :
-		Seq<Char<'{'>, Star<Statement>, Char<'}'> > { };
+		Braced<StatementList> { };
 
 	struct VarDecl :
 		Seq<VAR, Store<Sym>, Opt<Initializer> > { };
@@ -186,10 +190,10 @@ namespace heron_grammar
 		Seq<CASE, Paranthesized<Store<Expr> >, Store<CodeBlock> > { };
 
 	struct DefaultStatement :
-		Seq<DEFAULT, Paranthesized<Store<Expr> >, Store<CodeBlock> > { };
+		Seq<DEFAULT, Store<CodeBlock> > { };
 
 	struct SwitchStatement :
-		Seq<SWITCH, CharTok<'{'>, Paranthesized<Store<Expr> >, Star<Store<CaseStatement> >, 
+		Seq<SWITCH, Paranthesized<Store<Expr> >, CharTok<'{'>, Star<Store<CaseStatement> >, 
 			Opt<Store<DefaultStatement> >, CharTok<'}'> > { };
 
 	struct WhileStatement :
@@ -198,11 +202,12 @@ namespace heron_grammar
 	struct AssignmentStatement :
 		Seq<Store<Expr>, Initializer> { };
 
-    struct SimpleStatement :
+    struct Statement :
        Or<
            Store<CodeBlock>,
            Store<VarDecl>,
            Store<IfStatement>,
+           Store<SwitchStatement>,
            Store<ForEachStatement>,
            Store<WhileStatement>,
 		   Store<ReturnStatement>,
@@ -210,11 +215,11 @@ namespace heron_grammar
            Store<ExprStatement>
        > { };
 
-	struct Statement :
-        Seq<SimpleStatement, Star<Seq<CharTok<';'>, SimpleStatement> >, Opt<CharTok<';'> > > { };
+	struct StatementList :
+        Seq<Opt<Statement>, Star<Seq<CharTok<';'>, Statement> >, Opt<CharTok<';'> > > { };
 
 	struct Program :
-		Star<Statement> { };
+		StatementList { };
 }
 
 #endif

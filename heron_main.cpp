@@ -20,6 +20,7 @@ typedef Tree::AbstractNode Node;
 
 void OutputExpr(Node* node);
 void OutputStatement(Node* node);
+void OutputStatementList(Node* node);
 
 void Unimplemented()
 {
@@ -136,15 +137,15 @@ void OutputSimpleExpr(Node* node)
 		Node* body = args->GetSibling();
 		Output("new anon() { public Object Apply");
 		OutputArgList(args);
-		OutputLine("");
+		OutputLine(" {");
 		OutputStatement(body);
-		Output("}");
+		Output("} }");
 	}
-	else if (ti == typeid(Paranthesized<Expr>))
+	else if (ti == typeid(ParanthesizedExpr))
 	{
-		Node* expr = node->GetFirstChild();
+		//Node* expr = node->GetFirstChild();
 		Output("(");
-		Output(expr);
+		OutputExpr(node);
 		Output(")");
 	}
 	else 
@@ -170,7 +171,7 @@ void OutputStatement(Node* node)
 	if (ti == typeid(CodeBlock))
 	{		
 		OutputLine("{");
-		OutputStatement(node->GetFirstChild());
+		OutputStatementList(node);
 		OutputLine("}");
 	}
 	else if (ti == typeid(VarDecl))
@@ -191,7 +192,7 @@ void OutputStatement(Node* node)
 		Node* onTrue = cond->GetSibling();
 		Node* onFalse = onTrue->GetSibling();
 		Output("if (");
-		OutputExpr(onTrue);
+		OutputExpr(cond);
 		Output(")");
 		OutputStatement(onTrue);
 		if (onFalse != NULL) {
@@ -227,7 +228,12 @@ void OutputStatement(Node* node)
 		Output("JActionObject _switch_value = ");
 		Output(val);
 		OutputLine(";");
-		Output("if (false) { }");
+		OutputLine("if (false) { }");
+		while (cases != NULL)
+		{
+			OutputStatement(cases);
+			cases = cases->GetSibling();
+		}
 	}
 	else if (ti == typeid(CaseStatement))
 	{
@@ -235,19 +241,20 @@ void OutputStatement(Node* node)
 		Node* body = val->GetSibling();
 		Output("else if (_switch_value.equals(");
 		Output(val);
-		OutputLine(")");
-		Output(body);
+		OutputLine("))");
+		OutputStatement(body);
 	}
 	else if (ti == typeid(DefaultStatement))
 	{
 		Node* body = node->GetFirstChild();
 		Output("else");
-		Output(body);
+		OutputStatement(body);
 	}
 	else if (ti == typeid(ReturnStatement))
 	{
+		Node* expr = node->GetFirstChild();
 		Output("return ");
-		OutputExpr(node);
+		OutputExpr(expr);
 		OutputLine(";");
 	}
 	else if (ti == typeid(AssignmentStatement))
@@ -257,6 +264,7 @@ void OutputStatement(Node* node)
 		OutputExpr(lvalue);
 		Output(" = ");
 		OutputExpr(rvalue);
+		OutputLine(";");
 	}
 	else if (ti == typeid(ExprStatement))
 	{
@@ -270,7 +278,7 @@ void OutputStatement(Node* node)
 	}
 }
 
-void OutputStatements(Node* x)
+void OutputStatementList(Node* x)
 {
 	for (Node* child = x->GetFirstChild();
 		child != NULL;
@@ -290,9 +298,9 @@ bool ParseString(const char* input)
 		return false;
 
 	// Uncomment for debugging
-	//OutputParseTree(parser.GetAstRoot());
+	// OutputParseTree(parser.GetAstRoot());
 
-	OutputStatements(parser.GetAstRoot());
+	OutputStatementList(parser.GetAstRoot());
 	return true;
 }
 
@@ -339,7 +347,13 @@ void RunUnitTests() {
 	UnitTest("f(a,b.c)");
 	UnitTest("var x");
 	UnitTest("var x = 12");
-	UnitTest("() => 12");
+	UnitTest("() => return 12");
+	UnitTest("() => return 12;");
+	UnitTest("(x) => return x");
+	UnitTest("(x) => { return x }");
+	UnitTest("(x : int) => { return x; }");
+	UnitTest("(x, y) => return x + y");
+	UnitTest("(x : int, y : int) => return x * y");
 	UnitTest("return 12");
 	UnitTest("new x()");
 	UnitTest("delete x");
@@ -371,6 +385,7 @@ int main(int argn, char* argv[])
 		ParseFile(argv[i]);
 	}
 
+	//system("pause");
 	return 1;
 }
 
