@@ -15,7 +15,7 @@ namespace heron_grammar
 	struct StatementList;
 
 	struct SymChar :
-		CharSetParser<CharSet<'.', '~','!','@','#','$','%','^','&','*','-','+','|','\\','<','>','/','?',','> > { };
+		CharSetParser<CharSet<'~','!','@','#','$','%','^','&','*','-','+','|','\\','<','>','/','?',','> > { };
 
 	struct NewLine : 
 		Or<CharSeq<'\r', '\n'>, CharSeq<'\n'> > { };
@@ -38,6 +38,10 @@ namespace heron_grammar
 
 	struct Sym :
 		Seq<Or<Store<Ident>, Store<Plus<SymChar> > >, WS> { };
+
+	struct DotSym :
+		Seq<Char<'.'>, Sym> { };
+
 
 	struct Id : 
 		Tok<Sym> { };
@@ -153,6 +157,7 @@ namespace heron_grammar
             Store<NewExpr>,
             Store<DelExpr>,
             Store<Sym>,
+			Store<DotSym>,
             Store<Literal>,
             Store<AnonFxn>,
 			Store<ParanthesizedExpr>

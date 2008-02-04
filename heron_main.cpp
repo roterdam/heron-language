@@ -2,75 +2,18 @@
 
 //#define YARD_LOGGING
 
-#include "yard/yard.hpp"
-#include "heron_grammar.hpp"
-
-#include "misc/io.hpp"
-
 #include <string>
 #include <iostream>
 
-using namespace yard;
+#include "yard/yard.hpp"
+#include "misc/io.hpp"
+
+#include "heron_grammar.hpp"
+#include "heron_misc.hpp"
+#include "xml/yard_xml_grammar.hpp"
+#include "heron_xml_parser.hpp"
+
 using namespace heron_grammar;
-using namespace std;
-
-typedef TreeBuildingParser<char> Parser;
-typedef Parser::Tree Tree;
-typedef Tree::AbstractNode Node;
-
-void OutputExpr(Node* node);
-void OutputStatement(Node* node);
-void OutputStatementList(Node* node);
-
-void Unimplemented()
-{
-	assert(false);
-}
-
-void AstError(const char* x)
-{
-	perror(x);
-	assert(false);
-}
-
-string NodeToStr(Node* pNode)
-{
-	return string(pNode->GetFirstToken(), pNode->GetLastToken());
-}
-
-void OutputParseTree(Node* pNode, int n = 0)
-{
-	for (int i=0; i < n; ++i) printf("  ");
-	printf("%s\n", pNode->GetRuleTypeInfo().name());
-	for (Node* p = pNode->GetFirstChild(); p != NULL; p = p->GetSibling())
-		OutputParseTree(p, n + 1);
-}
-
-void Output(const string& s)
-{
-	std::cout << s;
-}
-
-void Output(Node* pNode)
-{
-	Output(NodeToStr(pNode));
-}
-
-void OutputLine()
-{
-	std::cout << endl;
-}
-
-void OutputLine(string s)
-{
-	std::cout << s << endl;
-}
-
-void OutputLine(Node* node)
-{
-	assert(node != NULL);
-	OutputLine(NodeToStr(node));
-}
 
 void OutputArg(Node* node)
 {
@@ -288,10 +231,10 @@ void OutputStatementList(Node* x)
 	}
 }
 
-bool ParseString(const char* input)
+bool ParseString(const char* s)
 {
-	size_t len = strlen(input);
-	Parser parser(input, input + len);
+	size_t len = strlen(s);
+	Parser parser(s, s + len);
 	bool b = parser.Parse<Program>();
 
 	if (!b) 
