@@ -148,7 +148,7 @@ namespace xml_grammar
 	{ };
 
 	struct Document : 
-		Seq<Prolog, Element, Star<Misc> > 
+		Seq<Prolog, Store<Element>, Star<Misc> > 
 	{ };
 	
 	struct S : 
@@ -423,26 +423,34 @@ namespace xml_grammar
 		>
 	{ };
 
+	struct TaggedContent :
+		Seq<Store<STag>, Store<Content>, Store<ETag> > 
+	{ };
+
 	struct Element :
-		Or<EmptyElemTag, Seq<STag, Content, ETag> >
+		Or<Store<EmptyElemTag>, Store<TaggedContent> >
+	{ };
+
+	struct Attributes :
+		Star<Seq<S, Store<Attribute> > >
 	{ };
 
 	struct STag :
 		Seq<
 			Char<'<'>, 
-			Name, 
-			Star<Seq<S, Attribute> >, 
+			Store<Name>, 
+			Store<Attributes>,
 			Opt<S>, 
 			Char<'>'>
 		>
 	{ };
 
 	struct Attribute :
-		Seq<Name, Eq, AttValue>
+		Seq<Store<Name>, Eq, Store<AttValue> >
 	{ };
 
 	struct ETag :
-		Seq<CharSeq<'<','/'>, Name, Opt<S>, Char<'>'> > 
+		Seq<CharSeq<'<','/'>, Store<Name>, Opt<S>, Char<'>'> > 
 	{ };
 
 	struct Content :
@@ -451,7 +459,7 @@ namespace xml_grammar
 			Star<
 				Seq<
 					Or<
-						Element,
+						Store<Element>,
 						Reference,
 						CDSect,
 						PI,

@@ -84,3 +84,8 @@ class output
     System.out.println("Hello World!"); // Display the string.
   }
 }
+
+//
+
+a . b = c;
+
