@@ -89,3 +89,10 @@ class output
 
 a . b = c;
 
+Symposium on Principles of Programming Languages, January 1416,  2004, Venice, Italy
+
+
+
+P. Hudak, S. Peyton Jones, P. Wadler, Arvind, B. Bontel, J. Fairbairn, J. Fasel, M. Guzman, K. Hammond, J. Hughs, T. Johnson, R. Kieburtz, W. Partain, and J. Peterson. Report on the Functional Programming Language Haskell (version 1.2). ACM SIGPLAN Notices, 27(5), July 1992.
+
+Bertrand Meyer, Object Oriented Software Construction Prentice-Hall, Englewood Cliffs, NJ, 1988

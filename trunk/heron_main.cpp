@@ -66,11 +66,13 @@ void OutputSimpleExpr(Node* node)
 	}
 	else if (ti == typeid(Sym))
 	{
+		Output("Eval(");
 		Output(node->GetFirstChild());
+		Output(")");
 	}
 	else if (ti == typeid(Literal))
 	{
-		Output("Object(");
+		Output("Eval(");
 		Output(node);
 		Output(")");
 	}
@@ -99,6 +101,11 @@ void OutputSimpleExpr(Node* node)
 
 void OutputExpr(Node* node)
 {
+	// TODO: a b c .d => apply(a, b, c).d
+	// TODO: a (b, c) . d => apply(a, b, c).d
+	// so I have to do some grouping here.
+	// I have to add an "Apply" function to the other guy.
+
 	for (Node* child = node->GetFirstChild(); child != NULL; child = child->GetSibling())
 	{
 		OutputSimpleExpr(child);
@@ -134,9 +141,9 @@ void OutputStatement(Node* node)
 		Node* cond = node->GetFirstChild();
 		Node* onTrue = cond->GetSibling();
 		Node* onFalse = onTrue->GetSibling();
-		Output("if (");
+		Output("if ((");
 		OutputExpr(cond);
-		Output(")");
+		Output(").equals(JATrue()))");
 		OutputStatement(onTrue);
 		if (onFalse != NULL) {
 			OutputLine("else");
@@ -159,16 +166,16 @@ void OutputStatement(Node* node)
 	{
 		Node* cond = node->GetFirstChild();
 		Node* body = cond->GetSibling();
-		Output("while ("); 
+		Output("while (("); 
 		OutputExpr(cond);
-		OutputLine(")");
+		OutputLine(").equals(JATrue()))");
 		OutputStatement(body);
 	}
 	else if (ti == typeid(SwitchStatement))
 	{
 		Node* val = node->GetFirstChild();
 		Node* cases = val->GetSibling();
-		Output("JActionObject _switch_value = ");
+		Output("Object _switch_value = ");
 		Output(val);
 		OutputLine(";");
 		OutputLine("if (false) { }");
@@ -328,7 +335,7 @@ int main(int argn, char* argv[])
 		ParseFile(argv[i]);
 	}
 
-	//system("pause");
+	system("pause");
 	return 1;
 }
 
