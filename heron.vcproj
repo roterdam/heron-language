@@ -175,6 +175,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\heron_misc.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\heron_xml_parser.hpp"
 				>
 			</File>
