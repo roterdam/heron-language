@@ -3,6 +3,7 @@
 
 = MultiStateButton =
 
+{{{
 class MultiStateButton :
 {
   attributes {
@@ -109,3 +110,4 @@ class MultiStateButton :
     }
   }
 }
+}}}
