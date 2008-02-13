@@ -337,7 +337,6 @@ int main(int argn, char* argv[])
 		ParseFile(argv[i]);
 	}
 
-	system("pause");
 	return 1;
 }
 

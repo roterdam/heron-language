@@ -18,8 +18,5 @@
 #include "yard_base_grammar.hpp"
 #include "yard_char_set.hpp"
 #include "yard_text_grammar.hpp"
-#include "yard_tester.hpp"
-
-
 
 #endif
