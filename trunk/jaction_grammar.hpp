@@ -22,7 +22,7 @@ namespace jaction_grammar
 
 	struct LineComment : 
 		Seq<CharSeq<'/', '/'>, UntilPast<NewLine> > { };
-
+	
 	struct FullComment : 
 		Seq<CharSeq<'/', '*'>, UntilPast<CharSeq<'*', '/'> > >	{ };
 
@@ -152,13 +152,12 @@ namespace jaction_grammar
 		Paranthesized<Opt<Expr> > { };
 
 	struct SimpleExpr :
-		Or<
-            Store<NewExpr>,
-            Store<DelExpr>,
-            Store<Sym>,
+		Or<Store<NewExpr>,
+			Store<DelExpr>,
+			Store<Sym>,
 			Store<DotSym>,
-            Store<Literal>,
-            Store<AnonFxn>,
+			Store<Literal>,
+			Store<AnonFxn>,
 			Store<ParanthesizedExpr>
 		> { };
 
@@ -207,21 +206,19 @@ namespace jaction_grammar
 		Seq<Store<Expr>, Initializer> { };
 
     struct Statement :
-       Or<
-           Store<CodeBlock>,
-           Store<VarDecl>,
-           Store<IfStatement>,
-           Store<SwitchStatement>,
-           Store<ForEachStatement>,
-           Store<WhileStatement>,
+       Or<Store<CodeBlock>,
+		   Store<VarDecl>,
+		   Store<IfStatement>,
+		   Store<SwitchStatement>,
+		   Store<ForEachStatement>,
+		   Store<WhileStatement>,
 		   Store<ReturnStatement>,
 		   Store<AssignmentStatement>,
-           Store<ExprStatement>
+		   Store<ExprStatement>
        > { };
 
 	struct StatementList :
         Seq<Opt<Statement>, Star<Seq<CharTok<';'>, Statement> >, Opt<CharTok<';'> > > { };
-
 }
 
 #endif
