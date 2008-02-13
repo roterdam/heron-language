@@ -69,6 +69,46 @@ namespace yard
 			: BasicParser<Token_T, Iter_T>(first, last), mTree(first)
         { }
 
+		void OutputLocation()
+		{
+			char line[257];
+			int nLine = 1;
+			Iterator pFirst = GetPos();
+			
+			Iterator pTmp = mBegin;
+			while (pTmp < pFirst) {
+				if (*pTmp++ == '\n')
+					++nLine;
+			}
+
+			while (pFirst > mBegin && *pFirst != '\n')
+				pFirst--;
+			if (*pFirst == '\n') {
+				++pFirst;
+			}
+			Iterator pLast = GetPos();
+			while (pLast < mEnd && *pLast != '\n') {
+				pLast++;
+			}
+			size_t n = pLast - pFirst;
+			n = n < 255 ? n : 255;
+			strncpy(line, pFirst, n);	
+			line[n] = '\0';
+
+			char marker[256];
+			n = GetPos() - pFirst;
+			n = n < 254 ? n : 254;
+			for (size_t i=0; i < n; ++i)
+				marker[i] = ' ';
+			marker[n] = '^';
+			marker[n + 1] = '\0';
+
+			printf("line number %d\n", nLine); 
+			printf("character number %d\n", GetPos() - mBegin); 
+			printf("%s\n", line); 
+			printf("%s\n", marker);
+		}
+
 		// Parse function
 		template<typename StartRule_T>
 		bool Parse()
@@ -77,6 +117,8 @@ namespace yard
 				return StartRule_T::Match(*this);
 			}
 			catch(...) {
+				printf("parsing error occured\n");
+				OutputLocation();
 				return false;
 			}
 		}
@@ -99,60 +141,6 @@ namespace yard
 		// Member fields
 		Tree		mTree;
     };  
-
-	////////////////////////////////////////////////////////////////////////
-	// A useful simple parser for parsing ascii text
-
-	struct SimpleTextParser
-		: BasicParser<char>
-	{   	            
-		// Constructor
-		SimpleTextParser(Iterator first, Iterator last) 
-			: BasicParser<char>(first, last)
-		{ }
-		
-        // Public typedefs 
-        typedef const char* Iterator;
-        typedef char Token; 
-
-		// Parse function
-		template<typename StartRule_T>
-		bool Parse() {
-			return StartRule_T::Match(*this);
-		}
-
-		// Called by Log functions
-		template<typename T>
-		void LogMessage(const T& x)
-		{
-			char line[256];
-			Iterator pFirst = GetPos();
-			while (pFirst > mBegin && *pFirst != '\n')
-				pFirst--;
-			if (*pFirst == '\n')
-				++pFirst;
-			Iterator pLast = GetPos();
-			while (pLast < mEnd && *pLast != '\n')
-				pLast++;
-			size_t n = pLast - pFirst;
-			n = n < 254 ? n : 254;
-			strncpy(line, pFirst, n);	
-			line[n] = '\0';
-
-			char marker[256];
-			n = GetPos() - pFirst;
-			n = n < 254 ? n : 254;
-			for (size_t i=0; i < n; ++i)
-				marker[i] = ' ';
-			marker[n] = '^';
-			marker[n + 1] = '\0';
-
-			printf("character number %d\n", GetPos() - mBegin); 
-			printf("%s\n", line); 
-			printf("%s\n", marker);
-		}
-	};  
-
  }
 
 #endif 

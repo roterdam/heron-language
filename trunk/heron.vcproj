@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="Windows-1252"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
@@ -179,7 +179,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\heron_xml_parser.hpp"
+				RelativePath=".\jaction_grammar.hpp"
 				>
 			</File>
 			<File
@@ -195,15 +195,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\yard\yard_error.hpp"
-				>
-			</File>
-			<File
 				RelativePath=".\yard\yard_parser.hpp"
-				>
-			</File>
-			<File
-				RelativePath=".\yard\yard_tester.hpp"
 				>
 			</File>
 			<File
@@ -235,6 +227,14 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\input\balls.hrn"
+			>
+		</File>
+		<File
+			RelativePath=".\JActionTemplate.java"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

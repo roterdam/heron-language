@@ -27,19 +27,47 @@ class List : ICollection
   }
 }
 
-class Set : : JActionObject, ICollection
-{
-}
-
-class Range : JActionObject, ICollection
-{
-}
-
 class JActionVariable : JActionObject
 {
 }
 
+class JActionVariableDeclaration : JActionOjbect
+
 class JActionProcedure : JActionObject
+{
+}
+
+class JActionFunction
+{
+  public JActionICollection Apply(JActionICollection args)
+  {
+    foreach (
+  }
+}
+
+
+
+class JActionIClassifier
+{
+  public JActionICollection GetClassMethods() { return NULL; }
+  public JActionICollection GetAttributes() { return NULL; }
+  public JActionICollection GetOperations() { return NULL; }
+}
+
+class JActionAttribute
+{
+  public JActionObject Read()
+  {
+  }
+
+  public void Write(JActionObject)
+  {
+  }
+}
+
+
+
+class JActionClassifierInstance
 {
 }
 
@@ -47,19 +75,42 @@ class JActionScope : JActionObject
 {
   public void Evaluate(JActionObject[] args)
   {
-    if (args.Count == 0)
+    switch (args.Count)
+    {
+      case (0)
+      {
+        throw Error();
+      }
+      case (1)
+      {
+        switch (args[0].TypeName)
+        {
+          case "IntLiteral"
+          {
+          }
+          case "CharLiteral"
+          {
+          }
+        }
+      }
+      default
+      {
+        if (args[1] is JActionFunction)
+        {
+        }
+        else if (args[2] is JActionFunction)
+        {
+        }
+        else
+        {
+          Error("Can't evaluate expression" is JActionFunction);
+        }
+      }
+      default
+      {
+      }
+    }
   }
-}
-
-class
-
-class JActionAttribute : JActionObject
-{
-}
-
-class JActionOperation : JActionProcedure
-{
-
 }
 
 class test2
@@ -85,14 +136,4 @@ class output
   }
 }
 
-//
 
-a . b = c;
-
-Symposium on Principles of Programming Languages, January 1416,  2004, Venice, Italy
-
-
-
-P. Hudak, S. Peyton Jones, P. Wadler, Arvind, B. Bontel, J. Fairbairn, J. Fasel, M. Guzman, K. Hammond, J. Hughs, T. Johnson, R. Kieburtz, W. Partain, and J. Peterson. Report on the Functional Programming Language Haskell (version 1.2). ACM SIGPLAN Notices, 27(5), July 1992.
-
-Bertrand Meyer, Object Oriented Software Construction Prentice-Hall, Englewood Cliffs, NJ, 1988
