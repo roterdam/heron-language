@@ -8,10 +8,11 @@
 #include "yard/yard.hpp"
 #include "misc/io.hpp"
 
+#include "jaction_grammar.hpp"
 #include "heron_grammar.hpp"
 #include "heron_misc.hpp"
 #include "xml/yard_xml_grammar.hpp"
-#include "heron_xml_parser.hpp"
+//#include "heron_xml_parser.hpp"
 
 using namespace heron_grammar;
 
@@ -238,11 +239,12 @@ void OutputStatementList(Node* x)
 	}
 }
 
+template<typename T>
 bool ParseString(const char* s)
 {
 	size_t len = strlen(s);
 	Parser parser(s, s + len);
-	bool b = parser.Parse<Program>();
+	bool b = parser.Parse<T>();
 
 	if (!b) 
 		return false;
@@ -257,14 +259,14 @@ bool ParseString(const char* s)
 void ParseFile(const char* file)
 {
 	char* input = ReadFile(file);
-	ParseString(input);
+	ParseString<Program>(input);
 	free(input);
 }
 
 void UnitTest(const char* x) 
 {
 	printf("input: %s\n", x);
-	if (!ParseString(x))
+	if (!ParseString<StatementList>(x))
 		printf("\nfailed to parse\n");
 	printf("\n");
 }
@@ -329,7 +331,7 @@ int main(int argn, char* argv[])
 {	
 	printf("running %s\n", argv[0]);
 
-	RunUnitTests();
+	//RunUnitTests();
 
 	for (int i=1; i < argn; ++i) {
 		ParseFile(argv[i]);
