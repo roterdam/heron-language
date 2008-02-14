@@ -9,6 +9,8 @@ void OutputExpr(Node* node);
 void OutputStatement(Node* node);
 void OutputStatementList(Node* node);
 
+int nIndent = 0;
+
 void Unimplemented()
 {
 	assert(false);
@@ -22,7 +24,12 @@ void AstError(const char* x)
 
 string NodeToStr(Node* pNode)
 {
-	return string(pNode->GetFirstToken(), pNode->GetLastToken());
+	string ret = string(pNode->GetFirstToken(), pNode->GetLastToken());
+	for (size_t i=0; i < ret.length(); ++i) {
+		if (ret[i] == ' ')
+			ret[i] = '#';
+	}
+	return ret;
 }
 
 void OutputParseTree(Node* pNode, int n = 0)
@@ -35,22 +42,33 @@ void OutputParseTree(Node* pNode, int n = 0)
 
 void Output(const string& s)
 {
+	for (size_t i=0; i < s.length(); ++i) {
+		if (s[i] == '{')
+			++nIndent;
+		else if (s[i] == '}')
+			--nIndent;
+	}
 	std::cout << s;
 }
 
-void Output(Node* pNode)
+void OutputRawNode(Node* pNode)
 {
+	if (pNode == NULL)
+		printf("missing node!\n");
 	Output(NodeToStr(pNode));
 }
 
 void OutputLine()
 {
 	std::cout << endl;
+	for (int i=0; i < nIndent; ++i)
+		std::cout << "  ";
 }
 
 void OutputLine(string s)
 {
-	std::cout << s << endl;
+	Output(s);
+	OutputLine();
 }
 
 void OutputLine(Node* node)

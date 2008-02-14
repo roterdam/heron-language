@@ -38,13 +38,10 @@ namespace jaction_grammar
 		Seq<R, WS> { };
 
 	struct Sym :
-		Seq<Or<Store<Ident>, CharSeq<'=','='>, Store<Plus<SymChar> > >, WS> { };
+		Tok<Or<Store<Ident>, Store<CharSeq<'=','='> >, Store<Plus<SymChar> > > > { };
 
 	struct DotSym :
 		Seq<Char<'.'>, Sym> { };
-
-	struct Id : 
-		Tok<Sym> { };
 
 	template<typename T>
 	struct Keyword : 
@@ -144,7 +141,7 @@ namespace jaction_grammar
 		ParanthesizedCommaList<Store<Expr> > { };
 
 	struct TypeArgs :
-		NoFailSeq<CharTok<'<'>, CommaList<TypeExpr>, CharTok<'>'> > { };
+		NoFailSeq<CharTok<'<'>, CommaList<Store<TypeExpr> >, CharTok<'>'> > { };
 
 	struct TypeExpr : 
 		Seq<Or<Store<Sym>, Store<Literal> >, Opt<TypeArgs> > { };

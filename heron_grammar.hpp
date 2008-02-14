@@ -87,11 +87,11 @@ namespace heron_grammar
 		NoFailSeq<CLASSES, StoreBracedList<Class> > { };
 
 	struct Domain :
-		NoFailSeq<DOMAIN, Store<Sym>, CharTok<'{'>, Opt<Imports>, Opt<Attributes>, Opt<Ops>, Opt<Classes>, CharTok<'}'> > { };
-		//NoFailSeq<Log<DOMAIN>, Log<Store<Sym> >, Log< CharTok<'{'> >, Log< Opt<Imports> >, Log< Opt<Attributes> >, Log< Opt<Ops> >, Log< Opt<Classes> >, Log< CharTok<'}'> > > { };
+		NoFailSeq<DOMAIN, Store<Sym>, CharTok<'{'>, Opt<Imports>, Opt<Attributes>, Opt<Operations>, Opt<Classes>, CharTok<'}'> > { };
+		//NoFailSeq<Log<DOMAIN>, Log<Store<Sym> >, Log< CharTok<'{'> >, Log< Opt<Imports> >, Log< Opt<Attributes> >, Log< Opt<Operations> >, Log< Opt<Classes> >, Log< CharTok<'}'> > > { };
 
 	struct Program :
-		Seq<WS, Star<Log<Store<Domain> > > > { };
+		Seq<WS, Star<Store<Domain> > > { };
 }	
 
 #endif
