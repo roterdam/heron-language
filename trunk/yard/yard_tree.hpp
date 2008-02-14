@@ -163,7 +163,13 @@ namespace yard
 			TokenIter GetLastToken() {
 				assert(IsCompleted());
 				return mpLast;
-			}   
+			}
+			template<typename F>
+			void ForEach(const F& f)
+			{
+				for (Node* child = x->GetFirstChild(); child != NULL; child = child->GetSibling())
+					f(child);
+			}
 
 			// abstract member functions
 			virtual const type_info& GetRuleTypeInfo() = 0;

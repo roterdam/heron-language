@@ -29,7 +29,7 @@ domain Balls
     Graphics;
   }
   operations {
-    distance(Point first, Point second) {
+    distance(first : Point, second : Point) {
       return sqrt(sqr(first.x - second.x) + sqr(first.y - second.y));
     }
   }
@@ -112,7 +112,7 @@ domain Balls
       }
       operations {
         updatePosition(secElapsed : Sec) {
-          pos.translate(dir.scaleBy(speed * secElapsed);
+          pos.translate(dir.scaleBy(speed * secElapsed));
         }
         computeCollision(ball : Ball) : Collision {
           // TODO:
@@ -157,12 +157,12 @@ domain Balls
       operations {
       }
       states {
-        onCollision(Collision col) {
+        onCollision(col : Collision) {
           entry {
             // TODO: Respond to collision correctly.
 
             // compute next collision of all balls
-            Collision next;
+            var next : Collision;
             var q : Collection<Collision>;
             q.clear();
             foreach (ball : Ball in Balls.Instances) {
