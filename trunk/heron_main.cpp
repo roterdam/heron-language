@@ -30,7 +30,7 @@ bool ParseString(const char* s)
 	// Uncomment for debugging
 	// OutputParseTree(parser.GetAstRoot());
 
-	OutputJava(parser.GetAstRoot());
+	OutputProgram(parser.GetAstRoot());
 	return true;
 }
 
@@ -114,6 +114,19 @@ int main(int argn, char* argv[])
 	for (int i=1; i < argn; ++i) {
 		ParseFile(argv[i]);
 	}
+
+	// TODO: output standard output into a file.
+	// then try to compile the file in Java.
+	// then find bugs and fix them. 
+	// Figure out what links are.
+	// Figure out how to deal with signals in Java.
+	// The simplest is a big state switch diagram.
+	// OnEvent(Object signal) { }; 
+	// Note: I can't avoid the fact that I am probably going to need to use threads.
+	// Every object is going to be have to registered as a listener probably.
+	// There is an event dispatcher. 
+	// Another possibility to bundle stateFlag with eventDispatch.
+	// Note that every state 
 
 	return 1;
 }

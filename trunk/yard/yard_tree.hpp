@@ -165,10 +165,15 @@ namespace yard
 				return mpLast;
 			}
 			template<typename F>
-			void ForEach(const F& f)
+			void ForEach(F f)
 			{
-				for (Node* child = x->GetFirstChild(); child != NULL; child = child->GetSibling())
+				for (Node* child = GetFirstChild(); child != NULL; child = child->GetSibling())
 					f(child);
+			}
+			template<typename T>
+			bool is()
+			{
+				return GetRuleTypeInfo() == typeid(T);
 			}
 
 			// abstract member functions
