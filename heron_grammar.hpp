@@ -21,60 +21,77 @@ namespace heron_grammar
 	struct ENTRY		: Keyword<CharSeq<'e','n','t','r','y'> > { };
 	struct ARROW		: Keyword<CharSeq<'-','>'> > { };
 	
-	struct AttDecl :
-		Seq<Store<Sym>, TypeDecl>  { };
+	struct Eos : CharTok<';'> { };
 
 	struct EntryProc :
 		NoFailSeq<ENTRY, CodeBlock> { };
 
 	struct Transition : 
-		Seq<Store<Sym>, ARROW, Store<Sym> > { };
+		NoFailSeq<Store<Sym>, ARROW, Store<Sym>, Eos > { };
 		
 	struct TransitionTable : 
-		NoFailSeq<TRANSITIONS, Braced<Store<Transition> > > { };
+		NoFailSeq<TRANSITIONS, StoreBracedList<Transition> > { };
 
 	struct State :
-		Seq<Store<Sym>, CharTok<'('>, Opt<Arg>, CharTok<')'>, CharTok<'{'>, Store<EntryProc>, Store<TransitionTable>, CharTok<'}'> > { };
+		NoFailSeq<Store<Sym>, CharTok<'('>, Opt<Store<Arg> >, CharTok<')'>, CharTok<'{'>, Store<EntryProc>, Store<TransitionTable>, CharTok<'}'> > { };
 
-	struct Atts :
-		NoFailSeq<ATTRIBUTES, Braced<AttDecl> > { };
+	struct Attribute :
+		NoFailSeq<Store<Sym>, Opt<TypeDecl>, Eos >  { };
+
+	struct Attributes :
+		NoFailSeq<ATTRIBUTES, StoreBracedList<Attribute> > { };
 	
-	struct LinkDecl :
-		Seq<Store<Sym>, TypeDecl> { };
+	struct Link :
+		NoFailSeq<Store<Sym>, TypeDecl, Eos > { };
+		//NoFailSeq<Log<Store<Sym> >, Log<TypeDecl>, Eos  > { };
 
 	struct Links : 
-		NoFailSeq<LINKS, Braced<LinkDecl> > { };
+		NoFailSeq<LINKS, StoreBracedList<Link> > { };
 	
-	struct OpDecl :
-		Seq<Store<Sym>, Store<ArgList>, Opt<Store<TypeDecl> >, Or<CharTok<';'>, Store<Statement> > > { };
+	struct Operation :
+		NoFailSeq<Store<Sym>, Store<ArgList>, Opt<Store<TypeDecl> >, Opt<Store<CodeBlock> >, Opt<Eos> > { };
+		//Seq<Log<Store<Sym> >, Log<Store<ArgList> >, Log<Opt<Store<TypeDecl> > >, Log<Opt<Store<Statement> > >, Log<Opt<Eos > > > { };
 
-	struct Ops :
-		NoFailSeq<OPERATIONS, Braced<OpDecl> > { };
+	struct Operations :
+		NoFailSeq<OPERATIONS, StoreBracedList<Operation> > { };
 
 	struct States :
-		NoFailSeq<STATES, Braced<Store<State> > > { };		
+		NoFailSeq<STATES, StoreBracedList<State> > { };		
 
 	struct Invariant : 
-		Seq<Store<Sym>, Store<CodeBlock> > { };
+		NoFailSeq<Store<Sym>, Store<CodeBlock> > { };
 
 	struct Invariants :
-		NoFailSeq<INVARIANTS, Braced<Store<Invariant> > > { };
+		NoFailSeq<INVARIANTS, StoreBracedList<Invariant> > { };
 
 	struct Class :
-		NoFailSeq<CLASS, Store<Sym>, CharTok<'{'>, Opt<Atts>, Opt<Ops>, Opt<States>, Opt<Links>, Opt<Invariants>, CharTok<'}'> > { };
+		NoFailSeq<
+			CLASS, 
+			Store<Sym>, 
+			CharTok<'{'>, 
+			Opt<Attributes>, 
+			Opt<Operations>, 
+			Opt<States>, 
+			Opt<Links>, 
+			Opt<Invariants>, 
+			CharTok<'}'> 
+		> { };
+
+	struct Import :
+		NoFailSeq<Store<Sym>, Eos > { };
 
 	struct Imports :
-		NoFailSeq<IMPORTS, Braced<Store<Sym> > > { };
+		NoFailSeq<IMPORTS, StoreBracedList<Import> > { };
 
 	struct Classes :
-		NoFailSeq<CLASSES, Braced<Store<Class> > > { };
+		NoFailSeq<CLASSES, StoreBracedList<Class> > { };
 
 	struct Domain :
-		NoFailSeq<Log<DOMAIN>, Log<Store<Sym> >, Log< CharTok<'{'> >, Log< Opt<Imports> >, Log< Opt<Atts> >, Log< Opt<Ops> >, Log< Opt<Classes> >, Log< CharTok<'}'> > > { };
-		//NoFailSeq<DOMAIN, Store<Sym>, CharTok<'{'>, Opt<Imports>, Opt<Atts>, Opt<Ops>, Opt<Classes>, CharTok<'}'> > { };
+		NoFailSeq<DOMAIN, Store<Sym>, CharTok<'{'>, Opt<Imports>, Opt<Attributes>, Opt<Ops>, Opt<Classes>, CharTok<'}'> > { };
+		//NoFailSeq<Log<DOMAIN>, Log<Store<Sym> >, Log< CharTok<'{'> >, Log< Opt<Imports> >, Log< Opt<Attributes> >, Log< Opt<Ops> >, Log< Opt<Classes> >, Log< CharTok<'}'> > > { };
 
 	struct Program :
 		Seq<WS, Star<Log<Store<Domain> > > > { };
-}
+}	
 
 #endif

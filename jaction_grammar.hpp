@@ -10,6 +10,7 @@ namespace jaction_grammar
 	using namespace text_grammar;
 
 	struct Expr;
+	struct TypeExpr;
 	struct SimpleExpr;
 	struct Statement;
 	struct StatementList;
@@ -37,7 +38,7 @@ namespace jaction_grammar
 		Seq<R, WS> { };
 
 	struct Sym :
-		Seq<Or<Store<Ident>, Store<Plus<SymChar> > >, WS> { };
+		Seq<Or<Store<Ident>, CharSeq<'=','='>, Store<Plus<SymChar> > >, WS> { };
 
 	struct DotSym :
 		Seq<Char<'.'>, Sym> { };
@@ -55,7 +56,7 @@ namespace jaction_grammar
 
 	template<typename R, typename D>
 	struct DelimitedList : 
-	   Or<Opt<R>, Seq<R, Plus<Seq<D, R> > > >
+	   Or<Seq<R, Plus<Seq<D, R> > >, Opt<R> >
 	{ };
 
 	template<typename R>
@@ -65,6 +66,14 @@ namespace jaction_grammar
 	template<typename R>
 	struct Braced : 
 		Seq<CharTok<'{'>, R, CharTok<'}'> > { };
+
+	template<typename R>
+	struct BracedList : 
+		Seq<CharTok<'{'>, Star<R>, CharTok<'}'> > { };
+
+	template<typename R>
+	struct StoreBracedList : 
+		Seq<CharTok<'{'>, Star<Store<R> >, CharTok<'}'> > { };
 
 	template<typename R>
 	struct BracedCommaList : 
@@ -77,6 +86,14 @@ namespace jaction_grammar
 	template<typename R>
 	struct ParanthesizedCommaList : 
 		Paranthesized<CommaList<R> > { };
+
+	template<typename R>
+	struct Angled : 
+		Seq<CharTok<'<'>, R, CharTok<'>'> > { };
+
+	template<typename R>
+	struct AngledCommaList : 
+		Angled<CommaList<R> > { };
 
 	template<typename R>
 	struct Bracketed : 
@@ -126,9 +143,11 @@ namespace jaction_grammar
 	struct ParamList :
 		ParanthesizedCommaList<Store<Expr> > { };
 
-	// TODO: allow more sophisticated types
+	struct TypeArgs :
+		NoFailSeq<CharTok<'<'>, CommaList<TypeExpr>, CharTok<'>'> > { };
+
 	struct TypeExpr : 
-		Store<Sym> { };
+		Seq<Or<Store<Sym>, Store<Literal> >, Opt<TypeArgs> > { };
 
 	struct TypeDecl :
 		Seq<CharTok<':'>, Store<TypeExpr> > { };
@@ -168,44 +187,47 @@ namespace jaction_grammar
 		Seq<CharTok<'='>, Store<Expr> > { };
 
 	struct CodeBlock :
-		Braced<StatementList> { };
+		NoFailSeq<CharTok<'{'>, StatementList, CharTok<'}'> > { };
 
 	struct VarDecl :
-		Seq<VAR, Store<Sym>, Opt<Initializer> > { };
+		NoFailSeq<VAR, Store<Sym>, Opt<TypeDecl>, Opt<Initializer> > { };
 
 	struct ElseStatement :
-		Seq<ELSE, Store<CodeBlock> > { };
+		NoFailSeq<ELSE, Store<CodeBlock> > { };
 
 	struct IfStatement :
-        Seq<IF, Paranthesized<Store<Expr> >, Store<CodeBlock>, Opt<ElseStatement> > { };
+        NoFailSeq<IF, Paranthesized<Store<Expr> >, Store<CodeBlock>, Opt<ElseStatement> > { };
 
 	struct ForEachStatement :
-		Seq<FOREACH, CharTok<'('>, Store<Sym>,
+		NoFailSeq<FOREACH, CharTok<'('>, Store<Sym>, Opt<TypeDecl>, 
 			IN, Store<Expr>, CharTok<')'>, Store<CodeBlock> > { };
 
 	struct ExprStatement :
 		Store<Expr> { };
 
 	struct ReturnStatement :
-		Seq<RETURN, Store<Expr> > { };	
+		NoFailSeq<RETURN, Store<Expr> > { };	
 
 	struct CaseStatement :
-		Seq<CASE, Paranthesized<Store<Expr> >, Store<CodeBlock> > { };
+		NoFailSeq<CASE, Paranthesized<Store<Expr> >, Store<CodeBlock> > { };
 
 	struct DefaultStatement :
-		Seq<DEFAULT, Store<CodeBlock> > { };
+		NoFailSeq<DEFAULT, Store<CodeBlock> > { };
 
 	struct SwitchStatement :
-		Seq<SWITCH, Paranthesized<Store<Expr> >, CharTok<'{'>, Star<Store<CaseStatement> >, 
+		NoFailSeq<SWITCH, Paranthesized<Store<Expr> >, CharTok<'{'>, Star<Store<CaseStatement> >, 
 			Opt<Store<DefaultStatement> >, CharTok<'}'> > { };
 
 	struct WhileStatement :
-		Seq<WHILE, Paranthesized<Store<Expr> >, Store<CodeBlock> > { };
+		NoFailSeq<WHILE, Paranthesized<Store<Expr> >, Store<CodeBlock> > { };
 	
 	struct AssignmentStatement :
 		Seq<Store<Expr>, Initializer> { };
 
-    struct Statement :
+	struct EmptyStatement :
+		CharTok<';'> { };
+
+	struct Statement :
        Or<Store<CodeBlock>,
 		   Store<VarDecl>,
 		   Store<IfStatement>,
@@ -214,11 +236,12 @@ namespace jaction_grammar
 		   Store<WhileStatement>,
 		   Store<ReturnStatement>,
 		   Store<AssignmentStatement>,
-		   Store<ExprStatement>
+		   Store<ExprStatement>,
+		   Store<EmptyStatement>
        > { };
 
 	struct StatementList :
-        Seq<Opt<Statement>, Star<Seq<CharTok<';'>, Statement> >, Opt<CharTok<';'> > > { };
+        Star<Statement> { };
 }
 
 #endif
