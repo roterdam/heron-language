@@ -1,0 +1,9 @@
+#summary How to access and compile the source.
+
+= Accessing and Compiling the Sources =
+
+If you want to access and compile the latest source code from the SVN repository on Windows I suggest using [http://www.microsoft.com/express/vc/ Microsoft Visual C++ Express] and [http://tortoisesvn.tigris.org/ Tortoise SVN]. 
+
+For connecting to the SVN repository you can follow the [http://code.google.com/p/heron-language/source/checkout instructions here].
+
+If you just want to browse the source online [http://code.google.com/p/heron-language/source/browse/trunk go here]. 
