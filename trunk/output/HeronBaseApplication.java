@@ -1,10 +1,13 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
+import java.util.ArrayList;
+
 import javax.swing.*;
 
 public class HeronBaseApplication extends JApplet 
 {
+	private static final long serialVersionUID = -4394966026114834504L;
 	final static int maxCharHeight = 15;
 	final static int minFontSize = 6;
 
@@ -30,39 +33,12 @@ public class HeronBaseApplication extends JApplet
 		setForeground(fg);
 	}
 
-	FontMetrics pickFont(Graphics2D g2, String longString, int xSpace) {
-		boolean fontFits = false;
-		Font font = g2.getFont();
-		FontMetrics fontMetrics = g2.getFontMetrics();
-		int size = font.getSize();
-		String name = font.getName();
-		int style = font.getStyle();
-
-		while (!fontFits) {
-			if ((fontMetrics.getHeight() <= maxCharHeight)
-					&& (fontMetrics.stringWidth(longString) <= xSpace)) {
-				fontFits = true;
-			} else {
-				if (size <= minFontSize) {
-					fontFits = true;
-				} else {
-					g2.setFont(font = new Font(name, style, --size));
-					fontMetrics = g2.getFontMetrics();
-				}
-			}
-		}
-
-		return fontMetrics;
-	}
-
 	public void paint(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;
 	
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		Dimension d = getSize();
-
-		fontMetrics = pickFont(g2, "Filled and Stroked GeneralPath", gridWidth);
 
 		Color fg3D = Color.lightGray;
 
@@ -71,8 +47,8 @@ public class HeronBaseApplication extends JApplet
 		g2.draw3DRect(3, 3, d.width - 7, d.height - 7, false);
 		g2.setPaint(fg);
 
-		for (int i=0; i < shapes.count(); ++i) {
-			g.paint(shapes[i]);
+		for (int i=0; i < shapes.size(); ++i) {
+			g2.draw(shapes.get(i));
 		}	
 	}
 	
@@ -81,7 +57,7 @@ public class HeronBaseApplication extends JApplet
 	}
 	
 	public static void drawOpenArc(double x, double y, double width, double height, double start, double finish) {
-		shapes.Add(new Arc2D.Double(x, y, width, height, radToDeg(start), radToDeg(finish), Arc2D.OPEN));
+		shapes.add(new Arc2D.Double(x, y, width, height, radToDeg(start), radToDeg(finish), Arc2D.OPEN));
 	}
 	
 	public static void drawCircle(double x, double y, double rad) {
@@ -100,14 +76,13 @@ public class HeronBaseApplication extends JApplet
 		shapes.clear();
 	}
 
-	public static void baseMain() {
+	public static void baseMain(JApplet applet) {
 		JFrame f = new JFrame("ShapesDemo2D");
 		f.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				System.exit(0);
 			}
-		});
-		JApplet applet = new output();
+		});		
 		f.getContentPane().add("Center", applet);
 		applet.init();
 		f.pack();

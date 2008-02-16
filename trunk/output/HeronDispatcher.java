@@ -1,28 +1,27 @@
-package jaction;
 
 import java.util.ArrayList;
 
-public class JASignalDispatcher {
-	public static void sendIn(JAObject target, Object data, int msec) {
-		sendAt(target, data, (new JADateTime()).addMSec(msec));
+public class HeronDispatcher {
+	public static void sendIn(HeronObject target, Object data, int msec) {
+		sendAt(target, data, (new HeronDateTime()).addMSec(msec));
 	}
-	public static void sendAt(JAObject target, Object data, JADateTime time) {
-		JASignal sig = new JASignal();
+	public static void sendAt(HeronObject target, Object data, HeronDateTime time) {
+		HeronSignal sig = new HeronSignal();
 		sig.data = data;
 		sig.scheduledTime = time;
 		sig.target = target;
 		signals.add(sig);
 	}
-	public static JASignal getNextSignal()
+	public static HeronSignal getNextSignal()
 	{
 		// Improvement: use a priority queue 
-		JASignal ret = null;
-		JADateTime now = new JADateTime();
+		HeronSignal ret = null;
+		HeronDateTime now = new HeronDateTime();
 		for (int i=0; i < signals.size(); ++i) {
 			if (ret == null)
 				ret = signals.get(i);
 			else {
-				JASignal tmp = signals.get(i);
+				HeronSignal tmp = signals.get(i);
 				if (tmp.scheduledTime.before(ret.scheduledTime) 
 					&& tmp.scheduledTime.before(now)) 
 					ret = signals.get(i);
@@ -35,7 +34,7 @@ public class JASignalDispatcher {
 	public static void dispatchSignal() {
 		Object o = new Object();
 		while (true) {
-			JASignal sig = getNextSignal();
+			HeronSignal sig = getNextSignal();
 			if (sig != null) {
 				sig.target.dispatch(sig); 
 			}
@@ -47,6 +46,6 @@ public class JASignalDispatcher {
 			}
 		}
 	}
-	public static ArrayList<JASignal> signals = new ArrayList<JASignal>();
+	public static ArrayList<HeronSignal> signals = new ArrayList<HeronSignal>();
 }
 
