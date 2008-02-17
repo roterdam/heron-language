@@ -3,6 +3,7 @@
 
 = Bouncing Balls Example =
 
+{{{
 domain Balls
 {
   imports {
@@ -192,3 +193,4 @@ domain Balls
     }
   }
 }
+}}}
