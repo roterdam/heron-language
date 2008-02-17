@@ -1,9 +1,23 @@
+/*
+	Authour: Christopher Diggins
+	License: MIT Licence 1.0
+	
+	Translates an AST generated from Heron code into Java
+*/
+
 using namespace heron_grammar;
 
 void OutputSym(Node* x)
 {
 	assert(x->is<Sym>());
-	OutputRawNode(x->GetFirstChild());
+
+	// HACK: this is just awful.
+	// I need to remap operators to values.
+	std::string s = NodeToStr(x->GetFirstChild());
+	if (s.compare("Real") == 0)
+		Output("double");
+	else
+		Output(s);
 }
 
 void OutputDotSym(Node* x)
@@ -377,7 +391,7 @@ void OutputStateProc(Node* x)
 	Output("(");
 	OutputArg(arg);
 	OutputLine(")");
-	OutputLine("{ __state__ = ");
+	Output("{ __state__ = ");
 	OutputInt(StateToInt(x));
 	OutputLine(";");
 	OutputStatement(code);	
@@ -393,7 +407,7 @@ void OutputClass(Node* x)
 	OutputLine(" extends HeronObject {");
 
 	// static instances field
-	OutputLine("public static Collection<");
+	Output("public static Collection<");
 	OutputSym(child);
 	Output("> instances = new Collection<");
 	OutputSym(child);

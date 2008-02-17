@@ -1,5 +1,9 @@
-// YARD Grammar for the JAction surface syntax for UML actions
-// Released under the MIT License by Christopher Diggins
+/*
+	Authour: Christopher Diggins
+	License: MIT Licence 1.0
+	
+	YARD Grammar for the JAction language
+*/
 
 #ifndef JACTION_GRAMMAR_HPP
 #define JACTION_GRAMMAR_HPP

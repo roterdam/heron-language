@@ -1,3 +1,10 @@
+/*
+	Authour: Christopher Diggins
+	License: MIT Licence 1.0
+	
+	Utility functions
+*/
+
 using namespace std;
 using namespace yard;
 
@@ -10,6 +17,15 @@ void OutputStatement(Node* node);
 void OutputStatementList(Node* node);
 
 int nIndent = 0;
+const char* outputPath = "";
+
+void RedirectToFile(const char* x)
+{
+	fflush(stdout);
+	char buffer[255];
+	sprintf(buffer, "%s\\%s", outputPath, x);
+	freopen(buffer, "w", stdout);
+}
 
 void Unimplemented()
 {

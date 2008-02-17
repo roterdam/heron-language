@@ -1,3 +1,10 @@
+/*
+	Authour: Christopher Diggins
+	License: MIT Licence 1.0
+	
+	Heron unit tests
+*/
+
 void UnitTest(const char* x) 
 {
 	printf("input: %s\n", x);

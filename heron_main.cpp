@@ -1,3 +1,8 @@
+/*
+	Authour: Christopher Diggins
+	License: MIT Licence 1.0
+*/
+
 #define _CRT_SECURE_NO_DEPRECATE
 
 //#define YARD_LOGGING
@@ -17,33 +22,30 @@
 
 using namespace heron_grammar;
 
+Parser parser;
+
 template<typename T>
-bool ParseString(const char* s)
+Node* ParseString(const char* s)
 {
-	size_t len = strlen(s);
-	Parser parser(s, s + len);
-	bool b = parser.Parse<T>();
+	size_t len = strlen(s);	
+	bool b = parser.Parse<T>(s, s + len);
 
 	if (!b) 
- 		return false;
+ 		return NULL;
 
 	// Uncomment for debugging
 	// OutputParseTree(parser.GetAstRoot());
 
-	OutputProgram(parser.GetAstRoot());
-	return true;
-}
-
-void ParseFile(const char* file)
-{
-	char* input = ReadFile(file);
-	ParseString<Program>(input);
-	free(input);
+	return parser.GetAstRoot();
 }
 
 
 int main(int argn, char* argv[])
 {	
+	printf("Heron to Java Compiler version 0.1\n");
+	printf("written by Christopher Diggins\n");
+	printf("licensed under the MIT license 1.0\n");
+	
 	if (argn != 3)
 	{
 		printf("Usage\n\n");
@@ -55,13 +57,34 @@ int main(int argn, char* argv[])
 
 	//RunUnitTests();
 
-	freopen(argv[1], "w", stdout);
+	outputPath = argv[1];
 
-	printf("public class Output extends HeronBaseApplication {\n");
-	for (int i=1; i < argn; ++i) {
-		ParseFile(argv[i]);
-	}
-	printf("}\n");
+	char* input = ReadFile(argv[2]);
+	Node* tree = ParseString<Program>(input);
+
+	RedirectToFile("Output.java");
+	OutputLine("public class Output extends HeronBaseApplication {");
+	
+	// Constructor 
+	OutputLine("public Output() {");
+	OutputLine("}");
+
+	// Main entry otuput
+	OutputLine("public static void main(String s[]) {");
+	// TODO: somehow I need to declare an initial state for a program
+	OutputLine("baseMain(new Output());");	
+	// TEMP: just send a signal to the painter. Let it do the things
+	// TEMP: create the core objects 
+	// NOTE: perhaps I just need a "main" domain operation? it could do the boring things like create objects, and set their initial states, etc. 
+	// TODO: isn't there going to be a need to have an initial state? An initial state is like a cosntructor, but it would be redundant to have
+	// an entry point in an initial state. So perhaps the "initial" state is mandatory, and can not have an entry procedure. It just exists 
+	// to establish transitions.
+	//OutputLine("_main();");
+	OutputLine("}");
+	OutputLine("}");
+	
+
+	free(input);
 	fflush(stdout);
 	fclose(stdout);
 
