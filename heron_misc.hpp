@@ -48,7 +48,12 @@ void Output(const string& s)
 		else if (s[i] == '}')
 			--nIndent;
 	}
-	std::cout << s;
+	printf("%s", s.c_str());
+}
+
+void OutputInt(int n)
+{
+	printf("%d", n);
 }
 
 void OutputRawNode(Node* pNode)
@@ -60,9 +65,9 @@ void OutputRawNode(Node* pNode)
 
 void OutputLine()
 {
-	std::cout << endl;
+	printf("\n");
 	for (int i=0; i < nIndent; ++i)
-		std::cout << "  ";
+		printf("  ");
 }
 
 void OutputLine(string s)

@@ -16,7 +16,7 @@ namespace jaction_grammar
 	struct StatementList;
 
 	struct SymChar :
-		CharSetParser<CharSet<'~','!','@','#','$','%','^','&','*','-','+','|','\\','<','>','/','?',','> > { };
+		CharSetParser<CharSet<'~','!','@','#','$','%','^','&','*','-','+','|','\\','<','>','/','?',',','='> > { };
 
 	struct NewLine : 
 		Or<CharSeq<'\r', '\n'>, CharSeq<'\n'> > { };
@@ -135,7 +135,7 @@ namespace jaction_grammar
 	struct DEFAULT : Keyword<CharSeq<'d','e','f','a','u','l','t'> > { };
 
 	struct Literal :
-		Tok<Or<BinNumber, HexNumber, DecNumber, CharLiteral, StringLiteral > > { };
+		Tok<Store<Or<BinNumber, HexNumber, DecNumber, CharLiteral, StringLiteral > > > { };
 
 	struct ParamList :
 		ParanthesizedCommaList<Store<Expr> > { };
@@ -144,10 +144,10 @@ namespace jaction_grammar
 		NoFailSeq<CharTok<'<'>, CommaList<Store<TypeExpr> >, CharTok<'>'> > { };
 
 	struct TypeExpr : 
-		Seq<Or<Store<Sym>, Store<Literal> >, Opt<TypeArgs> > { };
+		Seq<Or<Store<Sym>, Store<Literal> >, Opt<Store<TypeArgs> > > { };
 
 	struct TypeDecl :
-		Seq<CharTok<':'>, Store<TypeExpr> > { };
+		NoFailSeq<CharTok<':'>, Store<TypeExpr> > { };
 
 	struct Arg :
 		Seq<Store<Sym>, Opt<TypeDecl> > { };
@@ -159,10 +159,10 @@ namespace jaction_grammar
 		Seq<Store<ArgList>, Char<'='>, Char<'>'>, Opt<WS>, Statement> { };
 
 	struct NewExpr :
-		Seq<NEW, Store<Expr>, Store<ParamList> > { };
+		NoFailSeq<NEW, Store<TypeExpr>, Store<ParamList> > { };
 
 	struct DelExpr :
-		Seq<DELETE, Store<Expr> > { };
+		NoFailSeq<DELETE, Store<Expr> > { };
 
 	struct ParanthesizedExpr :
 		Paranthesized<Opt<Expr> > { };

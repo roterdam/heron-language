@@ -167,7 +167,17 @@ namespace yard
 			template<typename F>
 			void ForEach(F f)
 			{
-				for (Node* child = GetFirstChild(); child != NULL; child = child->GetSibling())
+				for (Node* child = GetFirstChild(); 
+					child != NULL; 
+					child = child->GetSibling())
+					f(child);
+			}
+			template<typename T, typename F>
+			void ForEachTyped(F f)
+			{
+				for (Node* child = GetFirstTypedChild<T>(); 
+					child != NULL; 
+					child = child->GetTypedSibling<T>())
 					f(child);
 			}
 			template<typename T>

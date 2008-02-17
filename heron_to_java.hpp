@@ -9,6 +9,7 @@ void OutputSym(Node* x)
 void OutputDotSym(Node* x)
 {
 	assert(x->is<DotSym>());
+	Output(".");
 	OutputRawNode(x->GetFirstChild());
 }
 
@@ -17,7 +18,6 @@ void OutputLiteral(Node* x)
 	assert(x->is<Literal>());
 	OutputRawNode(x->GetFirstChild());
 }
-
 
 void OutputType(Node* x)
 {
@@ -37,11 +37,38 @@ void OutputType(Node* x)
 	child = child->GetSibling();
 	if (child != NULL)
 	{
+		child = child->GetFirstChild();
 		Output("<");
 		OutputType(child);
 		for (;child != NULL; child = child->GetSibling()) {
 			Output(", ");
 			OutputType(child);
+		}
+		Output(">");
+	}
+}
+
+void OutputTypeExpr(Node* x) 
+{
+	assert(x->is<TypeExpr>());
+	Node* name = x->GetFirstChild();
+	if (name->is<Sym>())
+		OutputSym(name);
+	else if (name->is<Literal>())
+		OutputLiteral(name);
+	else 
+		printf("unrecognized type expression\n");
+	Node* args = name->GetSibling();
+	if (args != NULL)
+	{
+		Output("<");
+		Node* x = args->GetFirstChild(); 
+		while (x != NULL) 
+		{
+			OutputTypeExpr(x);
+			x = x->GetSibling();
+			if (x != NULL)
+				Output(", ");
 		}
 		Output(">");
 	}
@@ -93,6 +120,19 @@ void OutputFunction(Node* name, Node* arglist, Node* type, Node* code)
 	}
 }
 
+void OutputParams(Node* node) 
+{
+	Output("(");
+	Node* child = node->GetFirstChild();
+	while (child != NULL) {
+		OutputExpr(child);
+		child = child->GetSibling();
+		if (child != NULL)
+			Output(", ");
+	}
+	Output(")");
+}
+
 void OutputSimpleExpr(Node* node)
 {
 	assert(node != NULL);
@@ -103,10 +143,8 @@ void OutputSimpleExpr(Node* node)
 		Node* type = node->GetFirstChild();
 		Node* params = type->GetSibling();
 		Output("new ");
-		OutputExpr(type);
-		Output("(");
-		OutputExpr(params);
-		Output(")");
+		OutputTypeExpr(type);
+		OutputParams(params);
 	}
 	else if (ti == typeid(DelExpr))
 	{
@@ -116,15 +154,11 @@ void OutputSimpleExpr(Node* node)
 	}
 	else if (ti == typeid(Sym))
 	{
-		Output("Eval(");
 		OutputSym(node);
-		Output(")");
 	}
 	else if (ti == typeid(Literal))
 	{
-		Output("Eval(");
 		OutputLiteral(node);
-		Output(")");
 	}
 	else if (ti == typeid(AnonFxn))
 	{
@@ -138,7 +172,6 @@ void OutputSimpleExpr(Node* node)
 	}
 	else if (ti == typeid(ParanthesizedExpr))
 	{
-		//Node* expr = node->GetFirstChild();
 		Output("(");
 		OutputExpr(node);
 		Output(")");
@@ -180,9 +213,18 @@ void OutputStatement(Node* node)
 	}
 	else if (ti == typeid(VarDecl))
 	{
-		Node* sym = node->GetFirstChild();
-		Node* expr = sym->GetSibling();
-		Output("Object ");
+		Node* sym = node->GetFirstTypedChild<Sym>();
+		Node* type = node->GetFirstTypedChild<TypeExpr>();
+		Node* expr = node->GetFirstTypedChild<Expr>();
+		
+		if (type == NULL) {
+			Output("Object ");
+		}
+		else {
+			OutputType(type);
+			Output(" ");
+		}
+
 		OutputSym(sym);
 		if (expr != NULL) {
 			Output(" = ");
@@ -291,7 +333,7 @@ void OutputStatementList(Node* x)
 	x->ForEach(OutputStatement);
 }
 
-void OutputAttr(Node* x) 
+void OutputAttribute(Node* x) 
 {
 	Node* name = x->GetFirstChild();
 	Node* type = name->GetSibling();
@@ -301,18 +343,13 @@ void OutputAttr(Node* x)
 	OutputLine(";");
 }
 
-void OutputOp(Node* x)
+void OutputOperation(Node* x)
 {
 	Node* name = x->GetFirstTypedChild<Sym>();
 	Node* arglist = x->GetFirstTypedChild<ArgList>();
 	Node* type = x->GetFirstTypedChild<TypeExpr>();
 	Node* statement = x->GetFirstTypedChild<CodeBlock>();
 	OutputFunction(name, arglist, type, statement);
-}
-
-void OutputState(Node* x) 
-{
-	// TODO:
 }
 
 void OutputLink(Node* x) 
@@ -325,77 +362,113 @@ void OutputInv(Node* x)
 	// TODO:
 }
 
-void OutputClassElement(Node* x)
-{
-	assert(x != NULL);
-	const type_info& ti = x->GetRuleTypeInfo();
+int StateToInt(Node* x) {
+	return (int)x;
+}
 
-	if (ti == typeid(Attribute))
-		OutputAttr(x);
-	else if (ti == typeid(Operation))
-		OutputOp(x);
-	else if (ti == typeid(State))
-		OutputState(x);
-	else if (ti == typeid(Link))
-		OutputLink(x);
-	else if (ti == typeid(Invariant))
-		OutputInv(x);
-	else  
-		printf("Unrecognized class element %s\n", ti.name());
+void OutputStateProc(Node* x) 
+{
+	assert(x->is<State>());
+	Node* name = x->GetFirstTypedChild<Sym>();
+	Node* arg = x->GetFirstTypedChild<Arg>();
+	Node* code = x->GetFirstTypedChild<CodeBlock>();
+	Output("void ");
+	OutputSym(name);
+	Output("(");
+	OutputArg(arg);
+	OutputLine(")");
+	OutputLine("{ __state__ = ");
+	OutputInt(StateToInt(x));
+	OutputLine(";");
+	OutputStatement(code);	
+	OutputLine("}");
 }
 
 void OutputClass(Node* x) 
 {
 	assert(x->is<Class>());
 	Node* child = x->GetFirstChild();
-	Output("class ");
+	Output("public class ");
 	OutputSym(child);
-	OutputLine(" {");
-	for (child = child->GetSibling(); child != NULL; child = child->GetSibling())
-		OutputClassElement(child);
+	OutputLine(" extends HeronObject {");
+
+	// static instances field
+	OutputLine("public static Collection<");
+	OutputSym(child);
+	Output("> instances = new Collection<");
+	OutputSym(child);
+	OutputLine(">();");
+	
+	// constructor
+	Output("public ");
+	OutputSym(child);
+	OutputLine("() {");
+	OutputLine("instances.add(this);");
+	OutputLine("}");
+
+	OutputLine("// attributes");
+	x->ForEachTyped<Attribute>(OutputAttribute);
+	OutputLine("// operations");
+	x->ForEachTyped<Operation>(OutputOperation);
+	OutputLine("// state entry procedures");
+	x->ForEachTyped<State>(OutputStateProc);
 	OutputLine("}");
 }
 
 void OutputDomainImport(Node* x) {
-	// TEMP: does nothing
+	// TEMP: does nothing for now
 }
 
 void OutputDomainAttr(Node* x) {
-	// TEMP: does nothing	
+	// TEMP: does nothing for now
 }
 
 void OutputDomainOp(Node* x) {
-	// TEMP: does nothing
-}
-
-void OutputDomainElement(Node* x)
-{
-	assert(x != NULL);
-	const type_info& ti = x->GetRuleTypeInfo();
-
-	if (ti == typeid(Attribute))
-		OutputDomainAttr(x);
-	else if (ti == typeid(Operation))
-		OutputDomainOp(x);
-	else if (ti == typeid(Import))
-		OutputDomainImport(x);
-	else if (ti == typeid(Class))
-		OutputClass(x);
-	else  
-		printf("Unrecognized domain element %s\n", ti.name());
+	// TEMP: does nothing for now
 }
 
 void OutputDomain(Node* x)
 {
 	assert(x->is<Domain>());
-	Node* child = x->GetFirstChild();
-	Output("package ");
-	OutputSym(child);
-	OutputLine(";");	
+	x->ForEachTyped<Class>(OutputClass);
+}
+
+void OutputTransition(int nState, Node* state, Node* transition) {
+	assert(state->is<State>());
+	assert(transition->is<Transition>());
+	Node* signalType = transition->GetFirstChild();
+	Node* stateName = signalType->GetSibling();
+	Output("else if ((__state__ == ");
+	printf("%d", nState);
+	Output("&& signal.type.equals(");
+	OutputSym(signalType);
+	OutputLine(".getClass<Object>())) {");
+
+	// Call the procedure associate with the state transition
+	OutputSym(stateName);
+	Output("(signal);");
+	OutputLine("}");
+}
+
+void OutputDispatch(Node* x)
+{
+	assert(x->is<Class>());
 	
-	// imports
-	for (child = child->GetSibling(); child != NULL; child = child->GetSibling())
-		OutputDomainElement(child);
+	OutputLine("public void onSignal(HeronSignal signal) {");
+	OutputLine("if (false) {");
+	OutputLine("}");
+	Node* state = x->GetFirstTypedChild<State>();
+	int nState = 0;
+	while (state != NULL) {
+		Node* transitions = state->GetFirstTypedChild<Transition>();
+		Node* transition = transitions->GetFirstChild();
+		while (transition != NULL) {
+			OutputTransition(nState, state, transition);
+		}
+		state = state->GetTypedSibling<State>();
+		++nState;
+	}
+	OutputLine("}");
 }
 
 void OutputProgram(Node* x)

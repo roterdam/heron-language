@@ -24,7 +24,7 @@ namespace heron_grammar
 	struct Eos : CharTok<';'> { };
 
 	struct EntryProc :
-		NoFailSeq<ENTRY, CodeBlock> { };
+		NoFailSeq<ENTRY, Store<CodeBlock> > { };
 
 	struct Transition : 
 		NoFailSeq<Store<Sym>, ARROW, Store<Sym>, Eos > { };
@@ -33,7 +33,7 @@ namespace heron_grammar
 		NoFailSeq<TRANSITIONS, StoreBracedList<Transition> > { };
 
 	struct State :
-		NoFailSeq<Store<Sym>, CharTok<'('>, Opt<Store<Arg> >, CharTok<')'>, CharTok<'{'>, Store<EntryProc>, Store<TransitionTable>, CharTok<'}'> > { };
+		NoFailSeq<Store<Sym>, CharTok<'('>, Store<Arg>, CharTok<')'>, CharTok<'{'>, EntryProc, Store<TransitionTable>, CharTok<'}'> > { };
 
 	struct Attribute :
 		NoFailSeq<Store<Sym>, Opt<TypeDecl>, Eos >  { };

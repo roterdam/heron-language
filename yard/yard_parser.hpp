@@ -103,10 +103,10 @@ namespace yard
 			marker[n] = '^';
 			marker[n + 1] = '\0';
 
-			printf("line number %d\n", nLine); 
-			printf("character number %d\n", GetPos() - mBegin); 
-			printf("%s\n", line); 
-			printf("%s\n", marker);
+			fprintf(stderr, "line number %d\n", nLine); 
+			fprintf(stderr, "character number %d\n", GetPos() - mBegin); 
+			fprintf(stderr, "%s\n", line); 
+			fprintf(stderr, "%s\n", marker);
 		}
 
 		// Parse function
@@ -117,7 +117,7 @@ namespace yard
 				return StartRule_T::Match(*this);
 			}
 			catch(...) {
-				printf("parsing error occured\n");
+				fprintf(stderr, "parsing error occured\n");
 				OutputLocation();
 				return false;
 			}
