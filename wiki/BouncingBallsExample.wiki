@@ -1,0 +1,194 @@
+#summary Shows a simple example of Heron, using the examples of bouncing balls.
+#labels Example
+
+= Bouncing Balls Example =
+
+domain Balls
+{
+  imports {
+    Math;
+    Graphics;
+  }
+  operations {
+    distance(first : Point, second : Point) {
+      return sqrt(sqr(first.x - second.x) + sqr(first.y - second.y));
+    }
+  }
+  classes {
+    class Point {
+      attributes {
+        x : Real;
+        y : Real;
+      }
+      operations {
+        translate(v : Vector) {
+          x = x + v.x;
+          y = y + v.y;
+        }
+        difference(pt : Point) : Vector {
+          return new Vector(pt.x - x, pt.y - y);
+        }
+        distance(pt : Point) : Real {
+          return difference(pt).length();
+        }
+        asVector() : Vector {
+          return new Vector(x, y);
+        }
+      }
+    }
+    class Vector {
+      attributes {
+        x : Real;
+        y : Real;
+      }
+      operations {
+        add(v : Vector) : Vector {
+          return new Vector(x + v.x, y + v.y);
+        }
+        constructor(x : Real, y : Real) : Vector {
+          result.x = x;
+          result.y = y;
+          return result;
+        }
+        dot(v : Vector) : Real {
+          return x * v.x + y * v.y;
+        }
+        length() : Real {
+          return sqrt(sqr(x) + sqr(y));
+        }
+        theta(v : Vector) : Real {
+          return acos(dot(v) / (length() * v.length()));
+        }
+        tangent() : Vector {
+          return new Vector(y, -x);
+        }
+      }
+    }
+    
+    class Line {
+      attributes {
+        begin : Point;
+        end : Point;
+      }
+      operations {
+        length() : Real {
+          return distance(begin, end);
+        }
+      }
+    }
+    
+    class Wall {
+      attributes {
+        line : Line;
+      }
+    }
+    
+    class Ball {
+      attributes {
+        pos : Point;
+        dir : Vector;
+        speed : Real;
+        radius : Real;
+      }
+      operations {
+        updatePosition(secElapsed : Sec) {
+          pos.translate(dir.scaleBy(speed * secElapsed));
+        }
+        computeCollision(ball : Ball) : Collision {
+          // TODO:
+        }
+        computeCollision(wall : Wall) : Collision {
+          // TODO:
+        }
+        computeCollisions() : Collection<Collisions> {
+          foreach (ball : Ball in Balls.instances()) {
+            result.Add(computeCollision(ball));
+          }
+          foreach (wall : Wall in Walls.instances()) {
+            result.Add(computeCollision(wall));
+          }
+        }
+      }
+    }
+    
+    class Box {
+      attributes {
+        walls : Collection;
+      }
+      links {
+        walls : R1<Wall>;
+      }
+      invariants {
+        fourWalls {
+          return walls.count() == 4;
+        }
+      }
+    }
+    
+    class Collision {
+      attributes {
+        time : Sec;
+        target1 : Ball;
+        target2 : Either<Ball, Wall>;
+      }
+    }
+    
+    class CollisionManager {
+      operations {
+      }
+      states {
+        onCollision(col : Collision) {
+          entry {
+            // TODO: Respond to collision correctly.
+
+            // compute next collision of all balls
+            var next : Collision;
+            var q : Collection<Collision>;
+            q.clear();
+            foreach (ball : Ball in Balls.Instances) {
+              q.addRange(ball.ComputeCollisions());
+            }
+            q.min((x : Collision) => { return x.time; });
+            this.sendIn(onCollision, q.time);
+          }
+          transitions {
+            col -> onCollision;
+          }
+        }
+      }
+    }
+    
+    // Should there be a differentiation between events and other kinds of classes?
+    // As far as I can tell: no.
+    class PaintEvent {
+      attributes {
+        frequency : Real;
+      }
+    }
+    
+    class Painter {
+      states 
+      {
+        painting(evt : PaintEvent)
+        {
+          entry
+          {
+            Clear();
+            foreach (ball : Ball in Balls.instances()) {
+              ball.updatePosition(paintEvent.frequency);
+              DrawChord(ball.pos.x, ball.pos.y, ball.pos.radius, 0, pi * 2);
+            }
+            Render();
+
+            // Resend same signals
+            this.sendIn(evt, evt.frequency);
+          }
+          transitions
+          {
+            paintEvent -> painting;
+          }
+        }
+      }
+    }
+  }
+}
