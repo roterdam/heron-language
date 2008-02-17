@@ -1,5 +1,9 @@
-// YARD Grammar for the C language
-// Released under the MIT License by Christopher Diggins
+/*
+	Authour: Christopher Diggins
+	License: MIT Licence 1.0
+	
+	YARD Grammar for the Heron language
+*/
 
 #ifndef HERON_GRAMMAR_HPP
 #define HERON_GRAMMAR_HPP
