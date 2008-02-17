@@ -9,4 +9,9 @@ public class HeronObject {
 		// Do nothing by default
 		// active objects should overload this function 	
 	}
+	public void unrecognizedState() {
+		throw new Exception("unrecognized state");
+	}
+
+	protected int __state__ = 0;
 }

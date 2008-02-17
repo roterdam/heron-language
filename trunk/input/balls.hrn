@@ -1,27 +1,3 @@
-domain Graphics
-{
-  operations {
-    Render();
-    Clear();
-    ViewPortWidth() : Real;
-    ViewPortHeight() : Real;
-    DrawLine(x1 : Real, y1 : Real, x2 : Real, y2 : Real);
-    DrawChord(x : Real, y : Real, radius : Real, begin : Real, end : Real);
-  }
-}
-
-domain Math
-{
-  attributes {
-    pi : Real;
-  }
-  operations {
-    acos(x : Real) : Real;
-    sqr(x : Real) : Real;
-    sqrt(x : Real) : Real;
-  }
-}
-
 domain Balls
 {
   imports {
@@ -41,8 +17,8 @@ domain Balls
       }
       operations {
         translate(v : Vector) {
-          x += v.x;
-          y += v.y;
+          x = x + v.x;
+          y = y + v.y;
         }
         difference(pt : Point) : Vector {
           return new Vector(pt.x - x, pt.y - y);
@@ -55,7 +31,6 @@ domain Balls
         }
       }
     }
-
     class Vector {
       attributes {
         x : Real;
@@ -63,7 +38,7 @@ domain Balls
       }
       operations {
         add(v : Vector) : Vector {
-          return new(x + v.x, y + v.y);
+          return new Vector(x + v.x, y + v.y);
         }
         constructor(x : Real, y : Real) : Vector {
           result.x = x;
@@ -84,7 +59,7 @@ domain Balls
         }
       }
     }
-
+    
     class Line {
       attributes {
         begin : Point;
@@ -96,13 +71,13 @@ domain Balls
         }
       }
     }
-
+    
     class Wall {
       attributes {
         line : Line;
       }
     }
-
+    
     class Ball {
       attributes {
         pos : Point;
@@ -130,7 +105,7 @@ domain Balls
         }
       }
     }
-
+    
     class Box {
       attributes {
         walls : Collection;
@@ -144,7 +119,7 @@ domain Balls
         }
       }
     }
-
+    
     class Collision {
       attributes {
         time : Sec;
@@ -152,7 +127,7 @@ domain Balls
         target2 : Either<Ball, Wall>;
       }
     }
-
+    
     class CollisionManager {
       operations {
       }
@@ -177,7 +152,7 @@ domain Balls
         }
       }
     }
-
+    
     // Should there be a differentiation between events and other kinds of classes?
     // As far as I can tell: no.
     class PaintEvent {
@@ -185,10 +160,9 @@ domain Balls
         frequency : Real;
       }
     }
-
-    class Painter
-    {
-      states
+    
+    class Painter {
+      states 
       {
         painting(evt : PaintEvent)
         {
