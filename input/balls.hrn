@@ -4,11 +4,22 @@ domain Balls
     Math;
     Graphics;
   }
+
   operations {
-    distance(first : Point, second : Point) {
+    distance(first : Point, second : Point) : Real {
       return sqrt(sqr(first.x - second.x) + sqr(first.y - second.y));
     }
+    sqrt(x : Real) : Real {
+      return Math.sqrt(x);
+    }
+    sqr(x : Real) : Real {
+      return x * x;
+    }
+    acos(x : Real) : Real {
+      return Math.acos(x);
+    }
   }
+
   classes {
     class Point {
       attributes {
@@ -31,35 +42,38 @@ domain Balls
         }
       }
     }
+
     class Vector {
       attributes {
         x : Real;
         y : Real;
       }
       operations {
+        constructor(x : Real, y : Real) : Vector {
+          this.x = x;
+          this.y = y;
+        }
         add(v : Vector) : Vector {
           return new Vector(x + v.x, y + v.y);
         }
-        constructor(x : Real, y : Real) : Vector {
-          result.x = x;
-          result.y = y;
-          return result;
+        scaleBy(s : Real) : Vector {
+          return new Vector(x * s, y * s);
         }
         dot(v : Vector) : Real {
           return x * v.x + y * v.y;
         }
         length() : Real {
-          return sqrt(sqr(x) + sqr(y));
+          return Balls.sqrt(Balls.sqr(x) + Balls.sqr(y));
         }
         theta(v : Vector) : Real {
-          return acos(dot(v) / (length() * v.length()));
+          return Balls.acos(dot(v) / (length() * v.length()));
         }
         tangent() : Vector {
           return new Vector(y, -x);
         }
       }
     }
-    
+
     class Line {
       attributes {
         begin : Point;
@@ -67,17 +81,17 @@ domain Balls
       }
       operations {
         length() : Real {
-          return distance(begin, end);
+          return Balls.distance(begin, end);
         }
       }
     }
-    
+
     class Wall {
       attributes {
         line : Line;
       }
     }
-    
+
     class Ball {
       attributes {
         pos : Point;
@@ -86,26 +100,30 @@ domain Balls
         radius : Real;
       }
       operations {
-        updatePosition(secElapsed : Sec) {
-          pos.translate(dir.scaleBy(speed * secElapsed));
+        updatePosition(intElapsed : int) {
+          pos.translate(dir.scaleBy(speed * intElapsed));
         }
         computeCollision(ball : Ball) : Collision {
           // TODO:
+          return null;
         }
         computeCollision(wall : Wall) : Collision {
           // TODO:
+          return null;
         }
-        computeCollisions() : Collection<Collisions> {
-          foreach (ball : Ball in Balls.instances()) {
-            result.Add(computeCollision(ball));
+        computeCollisions() : Collection<Collision> {
+          Collection<Collision> result = new Collection<Collision>();
+          foreach (ball : Ball in Ball.instances) {
+            result.add(computeCollision(ball));
           }
-          foreach (wall : Wall in Walls.instances()) {
-            result.Add(computeCollision(wall));
+          foreach (wall : Wall in Wall.instances) {
+            result.add(computeCollision(wall));
           }
+          return result;
         }
       }
     }
-    
+
     class Box {
       attributes {
         walls : Collection;
@@ -119,29 +137,29 @@ domain Balls
         }
       }
     }
-    
+
     class Collision {
       attributes {
-        time : Sec;
+        time : int;
         target1 : Ball;
         target2 : Either<Ball, Wall>;
       }
     }
-    
+
     class CollisionManager {
       operations {
       }
       states {
         onCollision(col : Collision) {
           entry {
-            // TODO: Respond to collision correctly.
+            // TODO: Respond to collisions correctly.
 
             // compute next collision of all balls
             var next : Collision;
             var q : Collection<Collision>;
             q.clear();
-            foreach (ball : Ball in Balls.Instances) {
-              q.addRange(ball.ComputeCollisions());
+            foreach (ball : Ball in Ball.Instances) {
+              q.concat(ball.ComputeCollisions());
             }
             q.min((x : Collision) => { return x.time; });
             this.sendIn(onCollision, q.time);
@@ -152,7 +170,7 @@ domain Balls
         }
       }
     }
-    
+
     // Should there be a differentiation between events and other kinds of classes?
     // As far as I can tell: no.
     class PaintEvent {
@@ -160,16 +178,16 @@ domain Balls
         frequency : Real;
       }
     }
-    
+
     class Painter {
-      states 
+      states
       {
         painting(evt : PaintEvent)
         {
           entry
           {
             Clear();
-            foreach (ball : Ball in Balls.instances()) {
+            foreach (ball : Ball in Ball.instances) {
               ball.updatePosition(paintEvent.frequency);
               DrawChord(ball.pos.x, ball.pos.y, ball.pos.radius, 0, pi * 2);
             }

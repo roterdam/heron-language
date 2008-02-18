@@ -36,7 +36,7 @@ void OutputLiteral(Node* x)
 void OutputType(Node* x)
 {
 	if (x == NULL) {
-		Output("Object");
+		Output("void");
 		return;
 	}
 	if (!x->is<TypeExpr>())
@@ -51,38 +51,13 @@ void OutputType(Node* x)
 	child = child->GetSibling();
 	if (child != NULL)
 	{
-		child = child->GetFirstChild();
 		Output("<");
+		child = child->GetFirstChild();
 		OutputType(child);
+		child = child->GetSibling();
 		for (;child != NULL; child = child->GetSibling()) {
 			Output(", ");
 			OutputType(child);
-		}
-		Output(">");
-	}
-}
-
-void OutputTypeExpr(Node* x) 
-{
-	assert(x->is<TypeExpr>());
-	Node* name = x->GetFirstChild();
-	if (name->is<Sym>())
-		OutputSym(name);
-	else if (name->is<Literal>())
-		OutputLiteral(name);
-	else 
-		printf("unrecognized type expression\n");
-	Node* args = name->GetSibling();
-	if (args != NULL)
-	{
-		Output("<");
-		Node* x = args->GetFirstChild(); 
-		while (x != NULL) 
-		{
-			OutputTypeExpr(x);
-			x = x->GetSibling();
-			if (x != NULL)
-				Output(", ");
 		}
 		Output(">");
 	}
@@ -93,7 +68,10 @@ void OutputArg(Node* x)
 	assert(x->is<Arg>());
 	Node* name = x->GetFirstTypedChild<Sym>();
 	Node* type = x->GetFirstTypedChild<TypeExpr>();
-	OutputType(type);
+	if (type == NULL)
+		Output("Object"); 
+	else
+		OutputType(type);
 	Output(" ");
 	OutputSym(name);
 }
@@ -111,22 +89,36 @@ void OutputArgList(Node* x)
 	Output(")");
 }
 
-void OutputFunction(Node* name, Node* arglist, Node* type, Node* code)
+void OutputFunction(std::string name, std::string className, Node* arglist, Node* type, Node* code, bool bStatic)
 {
-	if (code == NULL) 
+	if (bStatic)
+		Output("static ");
+
+	if (name.compare("constructor") == 0)
 	{
-		Output("abstract ");
+		Output("public ");
+		Output(className);
+		OutputArgList(arglist);
+		OutputLine("{");	
+		OutputStatement(code);
+		OutputLine("}");
+	}
+	else if (code == NULL) 
+	{
+		// TODO: also mark classes as abstract
+		Output("public abstract ");
 		OutputType(type); 
 		Output(" ");
-		OutputSym(name);
+		Output(name);
 		OutputArgList(arglist);
 		OutputLine(";");
 	}
 	else
 	{
+		Output("public ");
 		OutputType(type); 
 		Output(" ");
-		OutputSym(name);
+		Output(name);
 		OutputArgList(arglist);
 		OutputLine("{");	
 		OutputStatement(code);
@@ -157,7 +149,7 @@ void OutputSimpleExpr(Node* node)
 		Node* type = node->GetFirstChild();
 		Node* params = type->GetSibling();
 		Output("new ");
-		OutputTypeExpr(type);
+		OutputType(type);
 		OutputParams(params);
 	}
 	else if (ti == typeid(DelExpr))
@@ -264,10 +256,13 @@ void OutputStatement(Node* node)
 	{
 		Node* sym = node->GetFirstTypedChild<Sym>();
 		Node* coll = node->GetFirstTypedChild<Expr>();		
-		Node* type = node->GetFirstTypedChild<TypeDecl>();
+		Node* type = node->GetFirstTypedChild<TypeExpr>();
 		Node* body = node->GetFirstTypedChild<CodeBlock>();
 		Output("for (");
-		OutputType(type);
+		if (type == NULL)
+			Output("Object");
+		else
+			OutputType(type);
 		Output(" ");
 		OutputSym(sym);
 		Output(" : ");
@@ -357,13 +352,26 @@ void OutputAttribute(Node* x)
 	OutputLine(";");
 }
 
-void OutputOperation(Node* x)
+void OutputOperation(Node* x, std::string className, bool bStatic)
 {
+	assert(x->is<Operation>());
 	Node* name = x->GetFirstTypedChild<Sym>();
 	Node* arglist = x->GetFirstTypedChild<ArgList>();
 	Node* type = x->GetFirstTypedChild<TypeExpr>();
 	Node* statement = x->GetFirstTypedChild<CodeBlock>();
-	OutputFunction(name, arglist, type, statement);
+	OutputFunction(NodeToStr(name), className, arglist, type, statement, bStatic);
+}
+
+void OutputOperations(Node* x, bool bStatic)
+{
+	assert(x->is<Class>() || x->is<Domain>());
+	std::string name = NodeToStr(x->GetFirstChild()->GetFirstChild());
+
+	Node* op = x->GetFirstTypedChild<Operation>();
+	while (op != NULL) {
+		OutputOperation(op, name, bStatic);
+		op = op->GetTypedSibling<Operation>();
+	}
 }
 
 void OutputLink(Node* x) 
@@ -390,8 +398,8 @@ void OutputStateProc(Node* x)
 	OutputSym(name);
 	Output("(");
 	OutputArg(arg);
-	OutputLine(")");
-	Output("{ __state__ = ");
+	OutputLine(") {");
+	Output("__state__ = ");
 	OutputInt(StateToInt(x));
 	OutputLine(";");
 	OutputStatement(code);	
@@ -402,20 +410,24 @@ void OutputClass(Node* x)
 {
 	assert(x->is<Class>());
 	Node* child = x->GetFirstChild();
+
+	std::string name = NodeToStr(child->GetFirstChild());
+	RedirectOutput(name.c_str());
+
 	Output("public class ");
-	OutputSym(child);
+	Output(name);
 	OutputLine(" extends HeronObject {");
 
 	// static instances field
 	Output("public static Collection<");
 	OutputSym(child);
 	Output("> instances = new Collection<");
-	OutputSym(child);
+	Output(name);
 	OutputLine(">();");
 	
 	// constructor
 	Output("public ");
-	OutputSym(child);
+	Output(name);
 	OutputLine("() {");
 	OutputLine("instances.add(this);");
 	OutputLine("}");
@@ -423,10 +435,12 @@ void OutputClass(Node* x)
 	OutputLine("// attributes");
 	x->ForEachTyped<Attribute>(OutputAttribute);
 	OutputLine("// operations");
-	x->ForEachTyped<Operation>(OutputOperation);
+	OutputOperations(x, false);
 	OutputLine("// state entry procedures");
 	x->ForEachTyped<State>(OutputStateProc);
 	OutputLine("}");
+	fflush(stdout);
+	fclose(stdout);
 }
 
 void OutputDomainImport(Node* x) {
@@ -445,9 +459,32 @@ void OutputDomain(Node* x)
 {
 	assert(x->is<Domain>());
 	x->ForEachTyped<Class>(OutputClass);
+	
+	Node* child = x->GetFirstChild();
+
+	std::string name = NodeToStr(child->GetFirstChild());
+	RedirectOutput(name.c_str());
+
+	Output("public class ");
+	Output(name);
+	OutputLine(" {");
+
+	OutputLine("// attributes");
+
+	// TODO:
+	// OutputAttributes(x, true);
+
+	OutputLine("// operations");
+	OutputOperations(x, true);
+
+	OutputLine("}");
+
+	fflush(stdout);
+	fclose(stdout);
 }
 
-void OutputTransition(int nState, Node* state, Node* transition) {
+void OutputTransition(int nState, Node* state, Node* transition) 
+{
 	assert(state->is<State>());
 	assert(transition->is<Transition>());
 	Node* signalType = transition->GetFirstChild();
@@ -487,6 +524,6 @@ void OutputDispatch(Node* x)
 
 void OutputProgram(Node* x)
 {
-	x->ForEach(OutputDomain);
+	x->ForEachTyped<Domain>(OutputDomain);
 }
 

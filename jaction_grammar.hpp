@@ -18,6 +18,7 @@ namespace jaction_grammar
 	struct SimpleExpr;
 	struct Statement;
 	struct StatementList;
+	struct CodeBlock;
 
 	struct SymChar :
 		CharSetParser<CharSet<'~','!','@','#','$','%','^','&','*','-','+','|','\\','<','>','/','?',',','='> > { };
@@ -55,10 +56,35 @@ namespace jaction_grammar
     struct CharTok :
 		Seq<Char<C>, WS> { };
 
+	// Note: we can get in trouble storing things using a delimited list,
+	// or any sequence for that matter. You can end up creating nodes that 
+	// were successful matches but the sequence was not successful. 
+	// (or something like that). I am not 100% sure what the consequences are
 	template<typename R, typename D>
 	struct DelimitedList : 
 	   Or<Seq<R, Plus<Seq<D, R> > >, Opt<R> >
 	{ };
+
+	template<typename First, typename T, typename Last>
+	struct StoreList :
+		Seq<
+			First, 
+			Or<
+				Last, 
+				Seq<
+					Store<T>, 
+					Star<
+						Seq<
+							CharTok<','>, 
+							Store<T> 
+						> 
+					>,
+					Last
+				>
+			> 
+		>
+	{ };
+
 
 	template<typename R>
 	struct CommaList : 
@@ -87,22 +113,6 @@ namespace jaction_grammar
 	template<typename R>
 	struct ParanthesizedCommaList : 
 		Paranthesized<CommaList<R> > { };
-
-	template<typename R>
-	struct Angled : 
-		Seq<CharTok<'<'>, R, CharTok<'>'> > { };
-
-	template<typename R>
-	struct AngledCommaList : 
-		Angled<CommaList<R> > { };
-
-	template<typename R>
-	struct Bracketed : 
-		Seq<CharTok<'['>, R, CharTok<']'> >	{ };
-
-	template<typename R>
-	struct BracketedCommaList : 
-		Bracketed<CommaList<R> > { };
 
 	struct StringCharLiteral : 
 		Or<Seq<Char<'\\'>, NotChar<'\n'> >, AnyCharExcept<CharSet<'\n', '\"', '\'' > > > { };
@@ -142,10 +152,10 @@ namespace jaction_grammar
 		Tok<Store<Or<BinNumber, HexNumber, DecNumber, CharLiteral, StringLiteral > > > { };
 
 	struct ParamList :
-		ParanthesizedCommaList<Store<Expr> > { };
+		StoreList<CharTok<'('>, Expr, CharTok<')'> > { };
 
 	struct TypeArgs :
-		NoFailSeq<CharTok<'<'>, CommaList<Store<TypeExpr> >, CharTok<'>'> > { };
+		StoreList<CharTok<'<'>, TypeExpr, CharTok<'>'> > { };
 
 	struct TypeExpr : 
 		Seq<Or<Store<Sym>, Store<Literal> >, Opt<Store<TypeArgs> > > { };
@@ -157,10 +167,11 @@ namespace jaction_grammar
 		Seq<Store<Sym>, Opt<TypeDecl> > { };
 
 	struct ArgList :
-		ParanthesizedCommaList<Store<Arg> > { };
+		StoreList<CharTok<'('>, Arg, CharTok<')'> >
+	{ };
 
 	struct AnonFxn :
-		Seq<Store<ArgList>, Char<'='>, Char<'>'>, Opt<WS>, Statement> { };
+		Seq<Store<ArgList>, Char<'='>, Char<'>'>, Opt<WS>, Store<CodeBlock> > { };
 
 	struct NewExpr :
 		NoFailSeq<NEW, Store<TypeExpr>, Store<ParamList> > { };
@@ -169,7 +180,7 @@ namespace jaction_grammar
 		NoFailSeq<DELETE, Store<Expr> > { };
 
 	struct ParanthesizedExpr :
-		Paranthesized<Opt<Expr> > { };
+		NoFailSeq<CharTok<'('>, Opt<Expr>, CharTok<')'> > { };
 
 	struct SimpleExpr :
 		Or<Store<NewExpr>,
