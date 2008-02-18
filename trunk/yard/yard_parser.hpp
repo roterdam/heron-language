@@ -15,15 +15,22 @@ namespace yard
 	template<typename Token_T, typename Iter_T = const Token_T*>
     struct BasicParser
     {   
+        // Public typedefs 
+        typedef Iter_T Iterator;
+        typedef Token_T Token; 
+
 		// Constructor
-        BasicParser(Iter_T first, Iter_T last) 
-            : mBegin(first), mEnd(last), mIter(first)
+        BasicParser() 
         { }
 
 		// Parse function
 		template<typename StartRule_T>
-		bool Parse()
+		bool Parse(Iterator first, Iterator last)
 		{
+			mBegin = first;
+			mEnd = last; 
+			mIter = first;
+
 			try {
 				return StartRule_T::Match(*this);
 			}
@@ -31,10 +38,6 @@ namespace yard
 				return false;
 			}
 		}
-
-        // Public typedefs 
-        typedef Iter_T Iterator;
-        typedef Token_T Token; 
                 
         // Input pointer functions 
         Token GetElem() { return *mIter; }  
@@ -65,8 +68,8 @@ namespace yard
 	struct TreeBuildingParser : BasicParser<Token_T, Iter_T>
     {   
 		// Constructor
-        TreeBuildingParser(Iter_T first, Iter_T last) 
-			: BasicParser<Token_T, Iter_T>(first, last), mTree(first)
+        TreeBuildingParser() 
+			: BasicParser<Token_T, Iter_T>(), mTree()
         { }
 
 		void OutputLocation()
@@ -111,8 +114,12 @@ namespace yard
 
 		// Parse function
 		template<typename StartRule_T>
-		bool Parse()
+		bool Parse(Iterator first, Iterator last)
 		{
+			mBegin = first;
+			mEnd = last; 
+			mIter = first;
+
 			try {
 				return StartRule_T::Match(*this);
 			}
@@ -139,7 +146,7 @@ namespace yard
 	protected:
 
 		// Member fields
-		Tree		mTree;
+		Tree mTree;
     };  
  }
 

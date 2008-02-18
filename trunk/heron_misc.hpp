@@ -19,11 +19,11 @@ void OutputStatementList(Node* node);
 int nIndent = 0;
 const char* outputPath = "";
 
-void RedirectToFile(const char* x)
+void RedirectOutput(const char* x)
 {
 	fflush(stdout);
 	char buffer[255];
-	sprintf(buffer, "%s\\%s", outputPath, x);
+	sprintf(buffer, "%s\\%s.java", outputPath, x);
 	freopen(buffer, "w", stdout);
 }
 

@@ -22,8 +22,8 @@ namespace yard
 	template<typename Iter_T>
 	struct Ast
 	{
-		Ast(Iter_T begin) 
-			: current(NULL), root(begin, NULL)
+		Ast() 
+			: current(NULL), root(NULL, NULL)
 		{ 
 			current = &root;
 		}

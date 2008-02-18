@@ -53,8 +53,8 @@ namespace heron_grammar
 		NoFailSeq<LINKS, StoreBracedList<Link> > { };
 	
 	struct Operation :
-		NoFailSeq<Store<Sym>, Store<ArgList>, Opt<Store<TypeDecl> >, Opt<Store<CodeBlock> >, Opt<Eos> > { };
-		//Seq<Log<Store<Sym> >, Log<Store<ArgList> >, Log<Opt<Store<TypeDecl> > >, Log<Opt<Store<Statement> > >, Log<Opt<Eos > > > { };
+		NoFailSeq<Store<Sym>, Store<ArgList>, Opt<TypeDecl>, Opt<Store<CodeBlock> >, Opt<Eos> > { };
+		//Seq<Log<Store<Sym> >, Log<Store<ArgList> >, Log<Opt<TypeDecl> >, Log<Opt<Store<Statement> > >, Log<Opt<Eos > > > { };
 
 	struct Operations :
 		NoFailSeq<OPERATIONS, StoreBracedList<Operation> > { };

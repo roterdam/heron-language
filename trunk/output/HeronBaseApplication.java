@@ -72,6 +72,20 @@ public class HeronBaseApplication extends JApplet
 		return (360 * rad) / (2 * Math.PI);
 	}
 	
+	public static double pi = Math.PI;
+	
+	public static double sqr(double x) {
+		return x * x;
+	}
+	
+	public static double acos(double x) {
+		return Math.acos(x);
+	}
+	
+	public static double sqrt(double x) {
+		return Math.sqrt(x);
+	}
+	
 	public static void clear() {
 		shapes.clear();
 	}
