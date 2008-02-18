@@ -1,4 +1,4 @@
-domain Balls
+domain Demo
 {
   imports {
     Math;
@@ -6,6 +6,20 @@ domain Balls
   }
 
   operations {
+    initialize() {
+      var x0 : int = 5;
+      var y0 : int = 5;
+      var x1 : int = 195;
+      var y1 : int = 195;
+      new Wall(x0,y0,x1,y0);
+      new Wall(x1,y0,x1,y1);
+      new Wall(x1,y1,x0,y1);
+      new Wall(x0,y1,x0,y0);
+      new Ball(new Point(100,100), new Vector(20,10), 10);
+      var painter : Painter = new Painter();
+      painter.send(new PaintEvent(100));
+    }
+
     distance(first : Point, second : Point) : Real {
       return sqrt(sqr(first.x - second.x) + sqr(first.y - second.y));
     }
@@ -27,9 +41,13 @@ domain Balls
         y : Real;
       }
       operations {
-        translate(v : Vector) {
-          x = x + v.x;
-          y = y + v.y;
+        constructor(x : Real, y : Real) {
+          this.x = x;
+          this.y = y;
+        }
+        translate(v : Vector) : Point {
+          Point result = new Point(x + v.x, y + v.y);
+          return result;
         }
         difference(pt : Point) : Vector {
           return new Vector(pt.x - x, pt.y - y);
@@ -56,17 +74,17 @@ domain Balls
         add(v : Vector) : Vector {
           return new Vector(x + v.x, y + v.y);
         }
-        scaleBy(s : Real) : Vector {
+        scale(s : Real) : Vector {
           return new Vector(x * s, y * s);
         }
         dot(v : Vector) : Real {
           return x * v.x + y * v.y;
         }
         length() : Real {
-          return Balls.sqrt(Balls.sqr(x) + Balls.sqr(y));
+          return Demo.sqrt(Demo.sqr(x) + Demo.sqr(y));
         }
         theta(v : Vector) : Real {
-          return Balls.acos(dot(v) / (length() * v.length()));
+          return Demo.acos(dot(v) / (length() * v.length()));
         }
         tangent() : Vector {
           return new Vector(y, -x);
@@ -80,8 +98,12 @@ domain Balls
         end : Point;
       }
       operations {
+        constructor(x0 : Real, y0 : Real, x1 : Real, y1 : Real) {
+          begin = new Point(x0, y0);
+          end = new Point(x1, y1);
+        }
         length() : Real {
-          return Balls.distance(begin, end);
+          return Demo.distance(begin, end);
         }
       }
     }
@@ -90,18 +112,25 @@ domain Balls
       attributes {
         line : Line;
       }
+      operations {
+        constructor(x0 : Real, y0 : Real, x1 : Real, y1 : Real) {
+          line = new Line(x0, y0, x1, y1);
+        }
+      }
     }
 
     class Ball {
       attributes {
         pos : Point;
-        dir : Vector;
-        speed : Real;
+        // Note: the type should encode the units
+        vec : Vector;
         radius : Real;
       }
       operations {
-        updatePosition(intElapsed : int) {
-          pos.translate(dir.scaleBy(speed * intElapsed));
+        constructor(pos : Point, vec : Vector, radius : Real) {
+          this.pos = pos;
+          this.vec = vec;
+          this.radius = radius;
         }
         computeCollision(ball : Ball) : Collision {
           // TODO:
@@ -120,6 +149,9 @@ domain Balls
             result.add(computeCollision(wall));
           }
           return result;
+        }
+        updatePosition(elapsedMSec : Real) {
+          pos = pos.translate(vec.scale(elapsedMSec / 1000.0));
         }
       }
     }
@@ -142,7 +174,7 @@ domain Balls
       attributes {
         time : int;
         target1 : Ball;
-        target2 : Either<Ball, Wall>;
+        target2 : Object;
       }
     }
 
@@ -156,13 +188,13 @@ domain Balls
 
             // compute next collision of all balls
             var next : Collision;
-            var q : Collection<Collision>;
+            var q : Collection<Collision> = new Collection<Collision>();
             q.clear();
-            foreach (ball : Ball in Ball.Instances) {
-              q.concat(ball.ComputeCollisions());
+            foreach (ball : Ball in Ball.instances) {
+              q.concat(ball.computeCollisions());
             }
-            q.min((x : Collision) => { return x.time; });
-            this.sendIn(onCollision, q.time);
+            next = q.min((x : Collision) => { return x.time; });
+            this.sendIn(col, next.time);
           }
           transitions {
             col -> onCollision;
@@ -175,7 +207,12 @@ domain Balls
     // As far as I can tell: no.
     class PaintEvent {
       attributes {
-        frequency : Real;
+        frequency : int;
+      }
+      operations {
+        constructor(freq : int) {
+          frequency = freq;
+        }
       }
     }
 
@@ -186,12 +223,18 @@ domain Balls
         {
           entry
           {
-            Clear();
-            foreach (ball : Ball in Ball.instances) {
-              ball.updatePosition(paintEvent.frequency);
-              DrawChord(ball.pos.x, ball.pos.y, ball.pos.radius, 0, pi * 2);
+            Demo.clear();
+
+            foreach (wall : Wall in Wall.instances) {
+              Demo.drawLine(wall.line.begin.x, wall.line.begin.y, wall.line.end.x, wall.line.end.y);
             }
-            Render();
+
+            foreach (ball : Ball in Ball.instances) {
+              ball.updatePosition(evt.frequency);
+              Demo.drawCircle(ball.pos.x, ball.pos.y, ball.radius);
+            }
+
+            Demo.render();
 
             // Resend same signals
             this.sendIn(evt, evt.frequency);

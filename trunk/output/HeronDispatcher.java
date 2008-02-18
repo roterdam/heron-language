@@ -1,7 +1,9 @@
 
 import java.util.ArrayList;
 
-public class HeronDispatcher {
+public class HeronDispatcher extends Thread {
+	public static ArrayList<HeronSignal> signals = new ArrayList<HeronSignal>();
+
 	public static void sendIn(HeronObject target, Object data, int msec) {
 		sendAt(target, data, (new HeronDateTime()).addMSec(msec));
 	}
@@ -14,7 +16,7 @@ public class HeronDispatcher {
 	}
 	public static HeronSignal getNextSignal()
 	{
-		// Improvement: use a priority queue 
+		// Improvement: use a priority queue
 		HeronSignal ret = null;
 		HeronDateTime now = new HeronDateTime();
 		for (int i=0; i < signals.size(); ++i) {
@@ -31,21 +33,11 @@ public class HeronDispatcher {
 			signals.remove(ret);
 		return ret;
 	}
-	public static void dispatchSignal() {
-		Object o = new Object();
-		while (true) {
-			HeronSignal sig = getNextSignal();
-			if (sig != null) {
-				sig.target.dispatch(sig); 
-			}
-			// Improvement: wait the precise amount of time needed
-			try {
-				o.wait(10);
-			}
-			catch (Exception e) {			
-			}
+	public static void dispatchNextSignal() {
+		HeronSignal sig = getNextSignal();
+		if (sig != null) {
+			sig.target.dispatch(sig);
 		}
 	}
-	public static ArrayList<HeronSignal> signals = new ArrayList<HeronSignal>();
 }
 
