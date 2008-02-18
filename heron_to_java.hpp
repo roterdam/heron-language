@@ -139,6 +139,31 @@ void OutputParams(Node* node)
 	Output(")");
 }
 
+void OutputArgListAsVars(Node* node)
+{
+	assert(node->is<ArgList>());
+	Node* arg = node->GetFirstTypedChild<Arg>();
+	for (int n = 0; arg != NULL; ++n, arg = arg->GetTypedSibling<Arg>())
+	{
+		Node* type = arg->GetFirstTypedChild<TypeExpr>();
+		Node* sym = arg->GetFirstTypedChild<Sym>();
+		if (type == NULL)
+			Output("Object");
+		else
+			OutputType(type);
+		Output(" ");
+		OutputSym(sym);
+		Output(" = (");
+		if (type == NULL)
+			Output("Object");
+		else
+			OutputType(type);
+		Output(")_args.get(");
+		OutputInt(n);
+		OutputLine(");");
+	}
+}
+
 void OutputSimpleExpr(Node* node)
 {
 	assert(node != NULL);
@@ -168,13 +193,15 @@ void OutputSimpleExpr(Node* node)
 	}
 	else if (ti == typeid(AnonFxn))
 	{
+		// TODO: support multiple return results
 		Node* args = node->GetFirstChild();
 		Node* body = args->GetSibling();
-		Output("new anon() { public Object Apply");
-		OutputArgList(args);
-		OutputLine(" {");
+		OutputLine("new AnonymousFunction() {");
+		OutputLine("public Object Apply(Collection<Object> _args) {");
+		OutputArgListAsVars(args);
 		OutputStatement(body);
-		Output("} }");
+		OutputLine("}");
+		OutputLine("}");
 	}
 	else if (ti == typeid(ParanthesizedExpr))
 	{
@@ -236,7 +263,6 @@ void OutputStatement(Node* node)
 			Output(" = ");
 			OutputExpr(expr);
 		}
-		OutputLine(";");
 	}
 	else if (ti == typeid(IfStatement))
 	{
@@ -394,7 +420,7 @@ void OutputStateProc(Node* x)
 	Node* name = x->GetFirstTypedChild<Sym>();
 	Node* arg = x->GetFirstTypedChild<Arg>();
 	Node* code = x->GetFirstTypedChild<CodeBlock>();
-	Output("void ");
+	Output("public void ");
 	OutputSym(name);
 	Output("(");
 	OutputArg(arg);
@@ -467,11 +493,18 @@ void OutputDomain(Node* x)
 
 	Output("public class ");
 	Output(name);
-	OutputLine(" {");
+	OutputLine(" extends HeronApplication {");
 
-	OutputLine("// attributes");
+	OutputLine("// main entry point");
+	OutputLine("public static void main(String s[]) {");
+	Output("baseMain(new ");
+	Output(name);
+	OutputLine("());");
+	Output("initialize();");
+	OutputLine("}");
 
-	// TODO:
+	// TODO: output domain attributes 
+	// OutputLine("// attributes");
 	// OutputAttributes(x, true);
 
 	OutputLine("// operations");
