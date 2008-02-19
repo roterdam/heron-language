@@ -37,7 +37,7 @@ namespace heron_grammar
 		NoFailSeq<TRANSITIONS, StoreBracedList<Transition> > { };
 
 	struct State :
-		NoFailSeq<Store<Sym>, CharTok<'('>, Store<Arg>, CharTok<')'>, CharTok<'{'>, EntryProc, Store<TransitionTable>, CharTok<'}'> > { };
+		NoFailSeq<Store<Sym>, CharTok<'('>, Opt<Store<Arg> >, CharTok<')'>, CharTok<'{'>, Opt<EntryProc>, Store<TransitionTable>, CharTok<'}'> > { };
 
 	struct Attribute :
 		NoFailSeq<Store<Sym>, Opt<TypeDecl>, Eos >  { };
@@ -47,14 +47,12 @@ namespace heron_grammar
 	
 	struct Link :
 		NoFailSeq<Store<Sym>, TypeDecl, Eos > { };
-		//NoFailSeq<Log<Store<Sym> >, Log<TypeDecl>, Eos  > { };
 
 	struct Links : 
 		NoFailSeq<LINKS, StoreBracedList<Link> > { };
 	
 	struct Operation :
 		NoFailSeq<Store<Sym>, Store<ArgList>, Opt<TypeDecl>, Opt<Store<CodeBlock> >, Opt<Eos> > { };
-		//Seq<Log<Store<Sym> >, Log<Store<ArgList> >, Log<Opt<TypeDecl> >, Log<Opt<Store<Statement> > >, Log<Opt<Eos > > > { };
 
 	struct Operations :
 		NoFailSeq<OPERATIONS, StoreBracedList<Operation> > { };
@@ -92,7 +90,6 @@ namespace heron_grammar
 
 	struct Domain :
 		NoFailSeq<DOMAIN, Store<Sym>, CharTok<'{'>, Opt<Imports>, Opt<Attributes>, Opt<Operations>, Opt<Classes>, CharTok<'}'> > { };
-		//NoFailSeq<Log<DOMAIN>, Log<Store<Sym> >, Log< CharTok<'{'> >, Log< Opt<Imports> >, Log< Opt<Attributes> >, Log< Opt<Operations> >, Log< Opt<Classes> >, Log< CharTok<'}'> > > { };
 
 	struct Program :
 		Seq<WS, Star<Store<Domain> > > { };

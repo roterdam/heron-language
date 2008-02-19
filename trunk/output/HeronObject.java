@@ -3,9 +3,9 @@ public class HeronObject {
 		sendIn(o, 0);
 	}
 	public void sendIn(Object o, int msec) {
-		HeronDispatcher.sendIn(this, o, msec);
+		HeronApplication.theApp.sendIn(this, o, msec);
 	}
-	public void dispatch(HeronSignal sig) {
+	public void onSignal(HeronSignal signal) {		
 		// Do nothing by default
 		// active objects should overload this function 	
 	}

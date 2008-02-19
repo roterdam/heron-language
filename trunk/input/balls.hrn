@@ -132,12 +132,36 @@ domain Demo
           this.vec = vec;
           this.radius = radius;
         }
-        computeCollision(ball : Ball) : Collision {
-          // TODO:
-          return null;
-        }
-        computeCollision(wall : Wall) : Collision {
-          // TODO:
+        computeCollision(wall : Wall) : Collision
+        {
+          var num : Real = abs((x2 - x1) * (y1 - t * y0) - (x1 - t * x0) * (y2 - y1))
+          var den : Real = sqrt(sqr(x2 - x1) + sqr(y2 - y1));
+          var dist : Real = num / den;
+
+          /*
+          From: http://mathworld.wolfram.com/Point-LineDistance2-Dimensional.html
+
+          abs((x2 - x1) * (y1 - t * y0) - (x1 - t * x0) * (y2 - y1)) / sqrt(sqr(x2 - x1) + sqr(y2 - y1)) = rad;
+          abs((x2 - x1) * (y1 - t * y0) - (x1 - t * x0) * (y2 - y1)) = rad * sqrt(sqr(x2 - x1) + sqr(y2 - y1))
+          let dx = x2 - x1;
+          let dy = y2 - y1;
+          abs((dx) * (y1 - t * y0) - (x1 - t * x0) * (dy)) = rad * sqrt(sqr(dx) + sqr(dy))
+          let den = sqrt(sqr(dx) + sqr(dy))
+          abs((dx) * (y1 - t * y0) - (x1 - t * x0) * (dy)) = rad * den
+          +/-((dx) * (y1 - t * y0) - (x1 - t * x0) * (dy)) = rad * den
+          (dx) * (y1 - t * y0) - (x1 - t * x0) * (dy) = +/-(rad * den);
+          ((dx * y1) - (t * y0 * dx)) - ((dy * x1) - (t * x0 * dy) = +/-(rad * den);
+          (dx * y1) - (t * y0 * dx) - (dy * x1) + (t * x0 * dy) = +/-(rad * den);
+          - (t * y0 * dx) + (t * x0 * dy) = +/-(rad * den) - (dx * y1) + (dy * x1) ;
+          let ydx = y0 * dx;
+          let xdy = x0 * dy;
+          - (t * ydx) + (t * xdy) = +/-(rad * den) - (dx * y1) + (dy * x1) ;
+          t * (-ydx + xdx) = +/-(rad * den) - (dx * y1) + (dy * x1) ;
+          t = (+/-(rad * den) - (dx * y1) + (dy * x1)) / (-ydx + xdx)
+          */
+
+          // solve for t and dist = rad
+
           return null;
         }
         computeCollisions() : Collection<Collision> {
@@ -164,6 +188,7 @@ domain Demo
         walls : R1<Wall>;
       }
       invariants {
+        // NOTE: invariants are not yet verified
         fourWalls {
           return walls.count() == 4;
         }
@@ -174,30 +199,37 @@ domain Demo
       attributes {
         time : int;
         target1 : Ball;
-        target2 : Object;
+        target2 : Wall;
       }
     }
 
     class CollisionManager {
       operations {
+        generateNextCollision() : Collision {
+          var next : Collision;
+          var q : Collection<Collision> = new Collection<Collision>();
+          q.clear();
+          foreach (ball : Ball in Ball.instances) {
+            q.concat(ball.computeCollisions());
+          }
+          next = q.min((x : Collision) => { return x.time; });
+          this.sendIn(col, next.time);
+        }
       }
       states {
+        initial() {
+          transitions {
+            Collision -> painting;
+          }
+        }
         onCollision(col : Collision) {
           entry {
-            // TODO: Respond to collisions correctly.
+            // TODO: Respond to collisions
 
-            // compute next collision of all balls
-            var next : Collision;
-            var q : Collection<Collision> = new Collection<Collision>();
-            q.clear();
-            foreach (ball : Ball in Ball.instances) {
-              q.concat(ball.computeCollisions());
-            }
-            next = q.min((x : Collision) => { return x.time; });
-            this.sendIn(col, next.time);
+            generateNextCollision();
           }
           transitions {
-            col -> onCollision;
+            Collision -> onCollision;
           }
         }
       }
@@ -205,6 +237,7 @@ domain Demo
 
     // Should there be a differentiation between events and other kinds of classes?
     // As far as I can tell: no.
+    // Except for the fact there are some problems with "instances".
     class PaintEvent {
       attributes {
         frequency : int;
@@ -217,12 +250,14 @@ domain Demo
     }
 
     class Painter {
-      states
-      {
-        painting(evt : PaintEvent)
-        {
-          entry
-          {
+      states {
+        initial() {
+          transitions {
+            PaintEvent -> painting;
+          }
+        }
+        painting(evt : PaintEvent)  {
+          entry {
             Demo.clear();
 
             foreach (wall : Wall in Wall.instances) {
@@ -239,9 +274,8 @@ domain Demo
             // Resend same signals
             this.sendIn(evt, evt.frequency);
           }
-          transitions
-          {
-            paintEvent -> painting;
+          transitions {
+            PaintEvent -> painting;
           }
         }
       }
