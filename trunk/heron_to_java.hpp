@@ -68,6 +68,7 @@ void OutputArg(Node* x)
 	assert(x->is<Arg>());
 	Node* name = x->GetFirstTypedChild<Sym>();
 	Node* type = x->GetFirstTypedChild<TypeExpr>();
+	Output("final ");
 	OutputType(type, "Object");
 	Output(" ");
 	OutputSym(name);
@@ -97,7 +98,7 @@ void OutputFunction(std::string name, std::string className, Node* arglist, Node
 		Output(className);
 		OutputArgList(arglist);
 		OutputLine("{");	
-		OutputLine("instances.add(this);");
+		//OutputLine("instances.add(this);");
 		OutputStatement(code);
 		OutputLine("}");
 	}
@@ -189,7 +190,7 @@ void OutputSimpleExpr(Node* node)
 		Node* args = node->GetFirstChild();
 		Node* body = args->GetSibling();
 		OutputLine("new AnonymousFunction() {");
-		OutputLine("public Object Apply(Collection<Object> _args) {");
+		OutputLine("public Object apply(Collection<Object> _args) {");
 		OutputArgListAsVars(args);
 		OutputStatement(body);
 		OutputLine("}");
@@ -254,9 +255,9 @@ void OutputStatement(Node* node)
 		Node* cond = node->GetFirstChild();
 		Node* onTrue = cond->GetSibling();
 		Node* onFalse = onTrue->GetSibling();
-		Output("if ((");
+		Output("if (");
 		OutputExpr(cond);
-		Output(").equals(JATrue()))");
+		Output(")");
 		OutputStatement(onTrue);
 		if (onFalse != NULL) {
 			OutputLine("else");
@@ -350,10 +351,12 @@ void OutputStatementList(Node* x)
 	x->ForEach(OutputStatement);
 }
 
-void OutputAttribute(Node* x) 
+void OutputAttribute(Node* x, bool bStatic) 
 {
 	Node* name = x->GetFirstChild();
 	Node* type = name->GetSibling();
+	Output("public ");
+	if (bStatic) Output("static ");
 	OutputType(type, "Object");
 	Output(" ");
 	OutputSym(name);	
@@ -379,6 +382,17 @@ void OutputOperations(Node* x, bool bStatic)
 	while (op != NULL) {
 		OutputOperation(op, name, bStatic);
 		op = op->GetTypedSibling<Operation>();
+	}
+}
+
+void OutputAttributes(Node* x, bool bStatic)
+{
+	assert(x->is<Class>() || x->is<Domain>());
+
+	Node* op = x->GetFirstTypedChild<Attribute>();
+	while (op != NULL) {
+		OutputAttribute(op, bStatic);
+		op = op->GetTypedSibling<Attribute>();
 	}
 }
 
@@ -483,6 +497,8 @@ void OutputClass(Node* x)
 	Node* child = x->GetFirstChild();
 
 	std::string name = NodeToStr(child->GetFirstChild());
+	
+	// used to output classes to new files
 	RedirectOutput(name.c_str());
 
 	Output("public class ");
@@ -490,21 +506,21 @@ void OutputClass(Node* x)
 	OutputLine(" extends HeronObject {");
 
 	// static instances field
-	Output("public static Collection<");
-	OutputSym(child);
-	Output("> instances = new Collection<");
-	Output(name);
-	OutputLine(">();");
+	//Output("public static Collection<");
+	//OutputSym(child);
+	//Output("> instances = new Collection<");
+	//Output(name);
+	//OutputLine(">();");
 	
-	// constructor
-	Output("public ");
-	Output(name);
-	OutputLine("() {");
-	OutputLine("instances.add(this);");
-	OutputLine("}");
+	// default empty constructor
+	//Output("public ");
+	//Output(name);
+	//OutputLine("() {");
+	//OutputLine("instances.add(this);");
+	//OutputLine("}");
 
 	OutputLine("// attributes");
-	x->ForEachTyped<Attribute>(OutputAttribute);
+	OutputAttributes(x, false);
 	OutputLine("// operations");
 	OutputOperations(x, false);
 	OutputLine("// state entry procedures");
@@ -514,8 +530,6 @@ void OutputClass(Node* x)
 	OutputDispatch(x);
 
 	OutputLine("}");
-	fflush(stdout);
-	fclose(stdout);
 }
 
 void OutputDomainImport(Node* x) {
@@ -533,6 +547,7 @@ void OutputDomainOp(Node* x) {
 void OutputDomain(Node* x)
 {
 	assert(x->is<Domain>());
+	
 	x->ForEachTyped<Class>(OutputClass);
 	
 	Node* child = x->GetFirstChild();
@@ -553,12 +568,15 @@ void OutputDomain(Node* x)
 	OutputLine("theApp.dispatchNextSignal();");
 	OutputLine("}");
 
-	// TODO: output domain attributes 
-	// OutputLine("// attributes");
-	// OutputAttributes(x, true);
+	OutputLine("// attributes");
+	OutputAttributes(x, true);
 
 	OutputLine("// operations");
 	OutputOperations(x, true);
+
+	// TEMP: comment out these lines if we want to output java files on new classes
+	//OutputLine("// classes");
+	//x->ForEachTyped<Class>(OutputClass);
 
 	OutputLine("}");
 

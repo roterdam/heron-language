@@ -7,15 +7,15 @@ public class HeronDateTime  {
 		calendar = GregorianCalendar.getInstance();
 	}
 	public HeronDateTime(Calendar cal) {
-		calendar = cal;
+		calendar = (Calendar)cal.clone();
 	}
-	public int getMSec() {
-		return calendar.get(Calendar.MILLISECOND);
+	public long getMSec() {
+		return calendar.getTimeInMillis();
 	}
-	public int getMSecElapsedUntil(HeronDateTime time) {
+	public long getMSecElapsedUntil(HeronDateTime time) {
 		return getMSec() - time.getMSec();
 	}
-	public int getMSecElapsedSince() {
+	public long getMSecElapsedSince() {
 		return getMSecElapsedUntil(new HeronDateTime());
 	}
 	public HeronDateTime addMSec(int n) {
@@ -24,12 +24,9 @@ public class HeronDateTime  {
 		return new HeronDateTime(cal);
 	}
 	public boolean before(HeronDateTime time) { 
-		return getMSecElapsedUntil(time) > 0;
+		return calendar.before(time.calendar);
 	}
 	public boolean after(HeronDateTime time) {
-		return getMSecElapsedUntil(time) < 0;
-	}
-	public boolean close(HeronDateTime time) {
-		return getMSecElapsedUntil(time) == 0;
+		return time.calendar.before(calendar);
 	}
 }

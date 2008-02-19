@@ -127,13 +127,13 @@ namespace jaction_grammar
 		Or<Char<'0'>, Char<'1'> > { };
 
 	struct BinNumber : 
-		Seq<CharSeq<'0', 'b'>, Plus<BinaryDigit>, NotAlphaNum, WS> { };
+		Seq<CharSeq<'0', 'b'>, Plus<BinaryDigit> > { };
 
 	struct HexNumber : 
-		Seq<CharSeq<'0', 'x'>, Plus<HexDigit>, NotAlphaNum, WS> { };
+		Seq<CharSeq<'0', 'x'>, Plus<HexDigit> > { };
 
 	struct DecNumber : 
-		Seq<Opt<Char<'-'> >, Plus<Digit>, Opt<Seq<Char<'.'>, Star<Digit> > >, NotAlphaNum, WS> { };
+		Seq<Opt<Char<'-'> >, Plus<Digit>, Opt<Seq<Char<'.'>, Star<Digit> > > > { };
 
 	struct NEW : Keyword<CharSeq<'n','e','w'> > { };
 	struct DELETE : Keyword<CharSeq<'d','e','l','e','t','e'> > { };
@@ -199,7 +199,7 @@ namespace jaction_grammar
 		Seq<CharTok<'='>, Store<Expr> > { };
 
 	struct CodeBlock :
-		NoFailSeq<CharTok<'{'>, StatementList, CharTok<'}'> > { };
+		NoFailSeq<CharTok<'{'>, StatementList, Finao<CharTok<'}'> > > { };
 
 	struct VarDecl :
 		NoFailSeq<VAR, Store<Sym>, Opt<TypeDecl>, Opt<Initializer> > { };
