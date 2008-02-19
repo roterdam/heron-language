@@ -41,10 +41,12 @@ void AstError(const char* x)
 string NodeToStr(Node* pNode)
 {
 	string ret = string(pNode->GetFirstToken(), pNode->GetLastToken());
+	/*
+	// TEMP: used for debugging
 	for (size_t i=0; i < ret.length(); ++i) {
 		if (ret[i] == ' ')
 			ret[i] = '#';
-	}
+	}*/
 	return ret;
 }
 
