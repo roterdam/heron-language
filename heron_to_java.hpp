@@ -33,10 +33,10 @@ void OutputLiteral(Node* x)
 	OutputRawNode(x->GetFirstChild());
 }
 
-void OutputType(Node* x)
+void OutputType(Node* x, std::string def)
 {
 	if (x == NULL) {
-		Output("void");
+		Output(def);
 		return;
 	}
 	if (!x->is<TypeExpr>())
@@ -53,11 +53,11 @@ void OutputType(Node* x)
 	{
 		Output("<");
 		child = child->GetFirstChild();
-		OutputType(child);
+		OutputType(child, "???");
 		child = child->GetSibling();
 		for (;child != NULL; child = child->GetSibling()) {
 			Output(", ");
-			OutputType(child);
+			OutputType(child, "???");
 		}
 		Output(">");
 	}
@@ -68,10 +68,7 @@ void OutputArg(Node* x)
 	assert(x->is<Arg>());
 	Node* name = x->GetFirstTypedChild<Sym>();
 	Node* type = x->GetFirstTypedChild<TypeExpr>();
-	if (type == NULL)
-		Output("Object"); 
-	else
-		OutputType(type);
+	OutputType(type, "Object");
 	Output(" ");
 	OutputSym(name);
 }
@@ -100,6 +97,7 @@ void OutputFunction(std::string name, std::string className, Node* arglist, Node
 		Output(className);
 		OutputArgList(arglist);
 		OutputLine("{");	
+		OutputLine("instances.add(this);");
 		OutputStatement(code);
 		OutputLine("}");
 	}
@@ -107,7 +105,7 @@ void OutputFunction(std::string name, std::string className, Node* arglist, Node
 	{
 		// TODO: also mark classes as abstract
 		Output("public abstract ");
-		OutputType(type); 
+		OutputType(type, "void"); 
 		Output(" ");
 		Output(name);
 		OutputArgList(arglist);
@@ -116,7 +114,7 @@ void OutputFunction(std::string name, std::string className, Node* arglist, Node
 	else
 	{
 		Output("public ");
-		OutputType(type); 
+		OutputType(type, "void"); 
 		Output(" ");
 		Output(name);
 		OutputArgList(arglist);
@@ -147,17 +145,11 @@ void OutputArgListAsVars(Node* node)
 	{
 		Node* type = arg->GetFirstTypedChild<TypeExpr>();
 		Node* sym = arg->GetFirstTypedChild<Sym>();
-		if (type == NULL)
-			Output("Object");
-		else
-			OutputType(type);
+		OutputType(type, "Object");
 		Output(" ");
 		OutputSym(sym);
 		Output(" = (");
-		if (type == NULL)
-			Output("Object");
-		else
-			OutputType(type);
+		OutputType(type, "Object");
 		Output(")_args.get(");
 		OutputInt(n);
 		OutputLine(");");
@@ -174,7 +166,7 @@ void OutputSimpleExpr(Node* node)
 		Node* type = node->GetFirstChild();
 		Node* params = type->GetSibling();
 		Output("new ");
-		OutputType(type);
+		OutputType(type, "Object");
 		OutputParams(params);
 	}
 	else if (ti == typeid(DelExpr))
@@ -249,15 +241,8 @@ void OutputStatement(Node* node)
 		Node* sym = node->GetFirstTypedChild<Sym>();
 		Node* type = node->GetFirstTypedChild<TypeExpr>();
 		Node* expr = node->GetFirstTypedChild<Expr>();
-		
-		if (type == NULL) {
-			Output("Object ");
-		}
-		else {
-			OutputType(type);
-			Output(" ");
-		}
-
+		OutputType(type, "Object");
+		Output(" ");
 		OutputSym(sym);
 		if (expr != NULL) {
 			Output(" = ");
@@ -285,10 +270,7 @@ void OutputStatement(Node* node)
 		Node* type = node->GetFirstTypedChild<TypeExpr>();
 		Node* body = node->GetFirstTypedChild<CodeBlock>();
 		Output("for (");
-		if (type == NULL)
-			Output("Object");
-		else
-			OutputType(type);
+		OutputType(type, "Object");
 		Output(" ");
 		OutputSym(sym);
 		Output(" : ");
@@ -372,7 +354,7 @@ void OutputAttribute(Node* x)
 {
 	Node* name = x->GetFirstChild();
 	Node* type = name->GetSibling();
-	OutputType(type);
+	OutputType(type, "Object");
 	Output(" ");
 	OutputSym(name);	
 	OutputLine(";");
@@ -411,6 +393,10 @@ void OutputInv(Node* x)
 }
 
 int StateToInt(Node* x) {
+	std::string name = NodeToStr(x->GetFirstChild()->GetFirstChild());
+	if (name.compare("initial") == 0) {
+		return 0;
+	}
 	return (int)x;
 }
 
@@ -420,15 +406,74 @@ void OutputStateProc(Node* x)
 	Node* name = x->GetFirstTypedChild<Sym>();
 	Node* arg = x->GetFirstTypedChild<Arg>();
 	Node* code = x->GetFirstTypedChild<CodeBlock>();
+	
+	// There is no procedure associated with the "initial" state
+	std::string sName = NodeToStr(name->GetFirstChild());
+	if (sName.compare("initial") == 0)
+	{
+		assert(arg == NULL);
+		assert(code == NULL);
+		return; 
+	}
+	else
+	{
+		assert(arg != NULL);
+	}
+
 	Output("public void ");
-	OutputSym(name);
-	Output("(");
-	OutputArg(arg);
-	OutputLine(") {");
+	Output(sName);	
+	OutputLine("(HeronSignal __event__) {");
+	OutputType(arg->GetFirstTypedChild<TypeExpr>(), "Object");
+	Output(" ");
+	OutputSym(arg->GetFirstTypedChild<Sym>());
+	Output(" = (");
+	OutputType(arg->GetFirstTypedChild<TypeExpr>(), "Object");
+	OutputLine(")__event__.data;");
 	Output("__state__ = ");
 	OutputInt(StateToInt(x));
 	OutputLine(";");
-	OutputStatement(code);	
+
+	if (code != NULL)
+		OutputStatement(code);	
+
+	OutputLine("}");
+}
+
+void OutputTransition(Node* state, Node* transition) 
+{
+	assert(state->is<State>());
+	assert(transition->is<Transition>());
+	Node* signalType = transition->GetFirstChild();
+	Node* stateName = signalType->GetSibling();
+	Output("else if ((__state__ == ");
+	printf("%d", StateToInt(state));
+	Output(") && (signal.data instanceof ");
+	OutputSym(signalType);
+	OutputLine(")) {");
+
+	// Call the procedure associate with the state transition
+	OutputSym(stateName);
+	OutputLine("(signal);");
+	OutputLine("}");
+}
+
+void OutputDispatch(Node* x)
+{
+	assert(x->is<Class>());
+	
+	OutputLine("public void onSignal(HeronSignal signal) {");
+	OutputLine("if (false) {");
+	OutputLine("}");
+	Node* state = x->GetFirstTypedChild<State>();
+	while (state != NULL) {
+		Node* transitions = state->GetFirstTypedChild<TransitionTable>();
+		Node* transition = transitions->GetFirstTypedChild<Transition>();
+		while (transition != NULL) {
+			OutputTransition(state, transition);
+			transition = transition->GetTypedSibling<Transition>();
+		}
+		state = state->GetTypedSibling<State>();
+	}
 	OutputLine("}");
 }
 
@@ -464,6 +509,10 @@ void OutputClass(Node* x)
 	OutputOperations(x, false);
 	OutputLine("// state entry procedures");
 	x->ForEachTyped<State>(OutputStateProc);
+
+	OutputLine("// dispatch function");
+	OutputDispatch(x);
+
 	OutputLine("}");
 	fflush(stdout);
 	fclose(stdout);
@@ -500,7 +549,8 @@ void OutputDomain(Node* x)
 	Output("baseMain(new ");
 	Output(name);
 	OutputLine("());");
-	Output("initialize();");
+	OutputLine("initialize();");
+	OutputLine("theApp.dispatchNextSignal();");
 	OutputLine("}");
 
 	// TODO: output domain attributes 
@@ -514,45 +564,6 @@ void OutputDomain(Node* x)
 
 	fflush(stdout);
 	fclose(stdout);
-}
-
-void OutputTransition(int nState, Node* state, Node* transition) 
-{
-	assert(state->is<State>());
-	assert(transition->is<Transition>());
-	Node* signalType = transition->GetFirstChild();
-	Node* stateName = signalType->GetSibling();
-	Output("else if ((__state__ == ");
-	printf("%d", nState);
-	Output("&& signal.type.equals(");
-	OutputSym(signalType);
-	OutputLine(".getClass<Object>())) {");
-
-	// Call the procedure associate with the state transition
-	OutputSym(stateName);
-	Output("(signal);");
-	OutputLine("}");
-}
-
-void OutputDispatch(Node* x)
-{
-	assert(x->is<Class>());
-	
-	OutputLine("public void onSignal(HeronSignal signal) {");
-	OutputLine("if (false) {");
-	OutputLine("}");
-	Node* state = x->GetFirstTypedChild<State>();
-	int nState = 0;
-	while (state != NULL) {
-		Node* transitions = state->GetFirstTypedChild<Transition>();
-		Node* transition = transitions->GetFirstChild();
-		while (transition != NULL) {
-			OutputTransition(nState, state, transition);
-		}
-		state = state->GetTypedSibling<State>();
-		++nState;
-	}
-	OutputLine("}");
 }
 
 void OutputProgram(Node* x)
