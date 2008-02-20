@@ -7,5 +7,3 @@ The following are UML class and state diagrams for the [http://code.google.com/p
 http://www.heron-language.com/BouncingBallsClassDiagram.png
 
 http://www.heron-language.com/BouncingBallsStateDiagram.png
-
-
