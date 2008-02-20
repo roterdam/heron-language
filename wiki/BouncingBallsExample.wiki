@@ -3,6 +3,8 @@
 
 = Bouncing Balls Example =
 
+The following code animates four circles that bounce off the walls of a box but ignore each other. Using the Heron to Java compiler an applet was created which you can see at http://www.heron-language.com/demo.html
+
 {{{
 domain Demo
 {
