@@ -559,7 +559,13 @@ void OutputDomain(Node* x)
 	Output(name);
 	OutputLine(" extends HeronApplication {");
 
-	OutputLine("// main entry point");
+	OutputLine("// applet entry point");
+	OutputLine("public void init() {");
+	OutputLine("super.init();");
+	OutputLine("initialize();");
+	OutputLine("}");
+
+	OutputLine("// application entry point");
 	OutputLine("public static void main(String s[]) {");
 	Output("baseMain(new ");
 	Output(name);
