@@ -5,7 +5,7 @@
 
 The following code animates four circles that bounce off the walls of a box but ignore each other. Using the Heron to Java compiler an applet was created which you can see at http://www.heron-language.com/demo.html. 
 
-The class and state diagram can be found at http://code.google.com/p/heron-language/wiki/BouncingBallsDiagrams 
+The class and state diagram can be found at http://code.google.com/p/heron-language/wiki/BouncingBallDiagrams 
 
 {{{
 domain Demo
