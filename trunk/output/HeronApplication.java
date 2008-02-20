@@ -40,17 +40,13 @@ public class HeronApplication extends JApplet
 			BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash1, 0.0f);
 	Dimension totalSize;
 	FontMetrics fontMetrics;
-		
-	
-	// TODO: remove
-	//static HeronDispatcher dispatcher = new HeronDispatcher(paintingLock);
 	
 	public static JFrame frame = null;
 	public static HeronApplication theApp = null;
 	public Dispatcher dispatcher;
 
 	public void init() {
-		// Initialize drawing colors
+		theApp = this;
 		setBackground(bg);
 		setForeground(fg);	
 		dispatcher = new Dispatcher();
@@ -136,11 +132,11 @@ public class HeronApplication extends JApplet
 			}
 		});		
 		frame.getContentPane().add("Center", theApp);
-		theApp.init();
 		frame.pack();
 		frame.setSize(new Dimension(550, 500));
 		frame.setVisible(true);
 		render();		
+		theApp.init();
 	}
 	
 	public static void error(String s) {

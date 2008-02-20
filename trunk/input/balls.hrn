@@ -217,7 +217,7 @@ domain Demo
           return result;
         }
         bounceOffWall(wall : Wall) {
-            var w : Vector = new Vector(col.wall.line);
+            var w : Vector = new Vector(wall.line);
             var n : Vector = w.normal();
             var pn : Vector = vec.proj(n);
             var pw : Vector = vec.proj(w);
