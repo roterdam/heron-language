@@ -2,7 +2,7 @@
 
 = Introduction =
 
-The following are UML class and state diagrams for the [http://code.google.com/p/heron-language/w/BouncingBallsExample bouncing balls demo]. 
+The following are UML class and state diagrams for the [http://code.google.com/p/heron-language/wiki/BouncingBallsExample bouncing balls demo]. 
 
 http://www.heron-language.com/BouncingBallsClassDiagram.png
 
