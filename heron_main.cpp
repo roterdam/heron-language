@@ -16,33 +16,16 @@
 #include "jaction_grammar.hpp"
 #include "heron_grammar.hpp"
 #include "heron_misc.hpp"
+#include "heron_parser.hpp"
+#include "heron_unit_tests.hpp"
 #include "xml/yard_xml_grammar.hpp"
-//#include "heron_xml_parser.hpp"
 #include "heron_to_java.hpp"
 
 using namespace heron_grammar;
 
-Parser parser;
-
-template<typename T>
-Node* ParseString(const char* s)
-{
-	size_t len = strlen(s);	
-	bool b = parser.Parse<T>(s, s + len);
-
-	if (!b) 
- 		return NULL;
-
-	// Uncomment for debugging
-	// OutputParseTree(parser.GetAstRoot());
-
-	return parser.GetAstRoot();
-}
-
-
 int main(int argn, char* argv[])
 {	
-	printf("Heron to Java Compiler version 0.1\n");
+	printf("Heron to Java Compiler version 0.2\n");
 	printf("written by Christopher Diggins\n");
 	printf("licensed under the MIT license 1.0\n");
 	
@@ -55,14 +38,19 @@ int main(int argn, char* argv[])
 
 	printf("running %s\n", argv[0]);
 
-	//RunUnitTests();
+	RunUnitTests();
 
 	outputPath = argv[1];
 
 	char* input = ReadFile(argv[2]);
 	Node* tree = ParseString<Program>(input);
 
-	OutputProgram(tree);
+	if (tree != NULL) {
+		OutputProgram(tree);
+	}
+	else {
+		getchar();
+	}
 
 	free(input);
 	fflush(stdout);

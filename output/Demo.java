@@ -12,17 +12,27 @@ public class Demo extends HeronApplication {
     }
   // attributes
   public static Painter painter;
+  public static Shooter shooter;
+  public static int boxLeft;
+  public static int boxTop;
+  public static int boxWidth;
+  public static int boxHeight;
   public static Collection<Wall> walls;
   public static Collection<Ball> balls;
   // operations
   static public void initialize(){
     {
-      int x0 = 100 ;
-      int y0 = 100 ;
-      int x1 = 300 ;
-      int y1 = 300 ;
+      boxLeft = 100 ;
+      boxTop = 100 ;
+      boxWidth = 200 ;
+      boxHeight = 200 ;
+      int x0 = boxLeft ;
+      int y0 = boxTop ;
+      int x1 = x0 + boxWidth ;
+      int y1 = y0 + boxHeight ;
       walls = new Collection<Wall>() ;
       balls = new Collection<Ball>() ;
+      shooter = new Shooter(0 , 10 , 10 ) ;
       walls .add (new Wall(x0 , y0 , x1 , y0 ) ) ;
       walls .add (new Wall(x1 , y0 , x1 , y1 ) ) ;
       walls .add (new Wall(x1 , y1 , x0 , y1 ) ) ;
@@ -34,6 +44,11 @@ public class Demo extends HeronApplication {
       balls .add (new Ball(new Point(150 , 250 ) , new Vector(0 , 100 ) , 30 ) ) ;
       painter = new Painter() ;
       painter .generateNextEvent () ;
+      }
+    }
+  static public Point boxCenter(){
+    {
+      return new Point(boxLeft + (boxWidth / 2 ) , botTop + (boxHeight / 2 ) ) ;
       }
     }
   static public double distance(final Point first, final Point second){

@@ -76,7 +76,7 @@ namespace heron_grammar
 			Opt<States>, 
 			Opt<Links>, 
 			Opt<Invariants>, 
-			CharTok<'}'> 
+			Finao<CharTok<'}'> > 
 		> { };
 
 	struct Import :

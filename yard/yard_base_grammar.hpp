@@ -61,7 +61,8 @@ namespace yard
 		template<typename ParserState_T>
 		static bool Match(ParserState_T& p) {    
 			if (!Rule_T::template Match(p)) {
-				throw 0;   
+				printf("error occured when parsing %s\n", typeid(Rule_T).name());
+				throw 0;
 			}
 			return true;
 		}
