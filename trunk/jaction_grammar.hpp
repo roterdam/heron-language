@@ -21,7 +21,7 @@ namespace jaction_grammar
 	struct CodeBlock;
 
 	struct SymChar :
-		CharSetParser<CharSet<'~','!','@','#','$','%','^','&','*','-','+','|','\\','<','>','/','?',',','='> > { };
+		CharSetParser<CharSet<'~','!','@','#','$','%','^','&','*','-','+','|','\\','<','>','/','?',','> > { };
 
 	struct NewLine : 
 		Or<CharSeq<'\r', '\n'>, CharSeq<'\n'> > { };
@@ -201,8 +201,11 @@ namespace jaction_grammar
 	struct CodeBlock :
 		NoFailSeq<CharTok<'{'>, StatementList, Finao<CharTok<'}'> > > { };
 
+	struct Eos : 
+		CharTok<';'> { };
+
 	struct VarDecl :
-		NoFailSeq<VAR, Store<Sym>, Opt<TypeDecl>, Opt<Initializer> > { };
+		NoFailSeq<VAR, Store<Sym>, Opt<TypeDecl>, Opt<Initializer>, Eos > { };
 
 	struct ElseStatement :
 		NoFailSeq<ELSE, Store<CodeBlock> > { };
@@ -215,10 +218,10 @@ namespace jaction_grammar
 			IN, Store<Expr>, CharTok<')'>, Store<CodeBlock> > { };
 
 	struct ExprStatement :
-		Store<Expr> { };
+		Seq<Store<Expr>, Eos> { };
 
 	struct ReturnStatement :
-		NoFailSeq<RETURN, Store<Expr> > { };	
+		NoFailSeq<RETURN, Store<Expr>, Eos> { };	
 
 	struct CaseStatement :
 		NoFailSeq<CASE, Paranthesized<Store<Expr> >, Store<CodeBlock> > { };
@@ -234,10 +237,10 @@ namespace jaction_grammar
 		NoFailSeq<WHILE, Paranthesized<Store<Expr> >, Store<CodeBlock> > { };
 	
 	struct AssignmentStatement :
-		Seq<Store<Expr>, Initializer> { };
+		Seq<Store<Expr>, NoFailSeq<Initializer, Eos> > { };
 
 	struct EmptyStatement :
-		CharTok<';'> { };
+		Eos { };
 
 	struct Statement :
        Or<Store<CodeBlock>,
@@ -254,6 +257,7 @@ namespace jaction_grammar
 
 	struct StatementList :
         Star<Statement> { };
+	
 }
 
 #endif

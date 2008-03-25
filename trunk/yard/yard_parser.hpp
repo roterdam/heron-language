@@ -72,25 +72,31 @@ namespace yard
 			: BasicParser<Token_T, Iter_T>(), mTree()
         { }
 
+        // Public typedefs 
+        typedef typename Iter_T Iterator;
+        typedef typename Token_T Token; 
+		typedef typename Ast<Iterator> Tree;
+		typedef typename Tree::AbstractNode Node;
+
 		void OutputLocation()
 		{
 			char line[257];
 			int nLine = 1;
-			Iterator pFirst = GetPos();
+			Iterator pFirst = this->GetPos();
 			
-			Iterator pTmp = mBegin;
+			Iterator pTmp = this->mBegin;
 			while (pTmp < pFirst) {
 				if (*pTmp++ == '\n')
 					++nLine;
 			}
 
-			while (pFirst > mBegin && *pFirst != '\n')
+			while (pFirst > this->mBegin && *pFirst != '\n')
 				pFirst--;
 			if (*pFirst == '\n') {
 				++pFirst;
 			}
-			Iterator pLast = GetPos();
-			while (pLast < mEnd && *pLast != '\n') {
+			Iterator pLast = this->GetPos();
+			while (pLast < this->mEnd && *pLast != '\n') {
 				pLast++;
 			}
 			size_t n = pLast - pFirst;
@@ -99,7 +105,7 @@ namespace yard
 			line[n] = '\0';
 
 			char marker[256];
-			n = GetPos() - pFirst;
+			n = this->GetPos() - pFirst;
 			n = n < 254 ? n : 254;
 			for (size_t i=0; i < n; ++i)
 				marker[i] = ' ';
@@ -107,7 +113,7 @@ namespace yard
 			marker[n + 1] = '\0';
 
 			fprintf(stderr, "line number %d\n", nLine); 
-			fprintf(stderr, "character number %d\n", GetPos() - mBegin); 
+			fprintf(stderr, "character number %d\n", this->GetPos() - this->mBegin); 
 			fprintf(stderr, "%s\n", line); 
 			fprintf(stderr, "%s\n", marker);
 		}
@@ -116,9 +122,9 @@ namespace yard
 		template<typename StartRule_T>
 		bool Parse(Iterator first, Iterator last)
 		{
-			mBegin = first;
-			mEnd = last; 
-			mIter = first;
+			this->mBegin = first;
+			this->mEnd = last; 
+			this->mIter = first;
 
 			try {
 				return StartRule_T::Match(*this);
@@ -129,12 +135,6 @@ namespace yard
 				return false;
 			}
 		}
-
-        // Public typedefs 
-        typedef Iter_T Iterator;
-        typedef Token_T Token; 
-		typedef Ast<Iterator> Tree;
-		typedef typename Tree::AbstractNode Node;
                 
 		// AST functions
 		Node* GetAstRoot() { return mTree.GetRoot(); }

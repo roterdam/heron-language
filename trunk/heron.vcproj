@@ -43,6 +43,7 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				DisableLanguageExtensions="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
@@ -178,11 +179,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\heron_parser.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\heron_to_java.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\heron_unit_test.hpp"
+				RelativePath=".\heron_unit_tests.hpp"
 				>
 			</File>
 			<File

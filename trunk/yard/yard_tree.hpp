@@ -204,6 +204,8 @@ namespace yard
 		template<typename Rule_T>
 		struct TypedNode : AbstractNode
 		{			
+			typedef typename AbstractNode::TokenIter TokenIter;
+
 			TypedNode(TokenIter pos, AbstractNode* parent) 
 				: AbstractNode(pos, parent)
 			{  

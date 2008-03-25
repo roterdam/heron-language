@@ -24,16 +24,24 @@ domain Demo {
   attributes {
     painter : Painter;
     shooter : Shooter;
+    boxLeft : int;
+    boxTop : int;
+    boxWidth : int;
+    boxHeight : int;
     walls : Collection<Wall>;
     balls : Collection<Ball>;
   }
 
   operations {
     initialize() {
-      var x0 : int = 100;
-      var y0 : int = 100;
-      var x1 : int = 300;
-      var y1 : int = 300;
+      boxLeft = 100;
+      boxTop = 100;
+      boxWidth = 200;
+      boxHeight = 200;
+      var x0 : int = boxLeft;
+      var y0 : int = boxTop;
+      var x1 : int = x0 + boxWidth;
+      var y1 : int = y0 + boxHeight;
       walls = new Collection<Wall>();
       balls = new Collection<Ball>();
       shooter = new Shooter(0, 10, 10);
@@ -49,7 +57,9 @@ domain Demo {
       painter = new Painter();
       painter.generateNextEvent();
     }
-
+    boxCenter() : Point {
+      return new Point(boxLeft + (boxWidth / 2), botTop + (boxHeight / 2));
+    }
     distance(first : Point, second : Point) : Real {
       return sqrt(sqr(first.x - second.x) + sqr(first.y - second.y));
     }
@@ -76,6 +86,94 @@ domain Demo {
   }
 
   classes {
+    class Point {
+      attributes {
+        x : Real;
+        y : Real;
+      }
+      operations {
+        constructor(x : Real, y : Real) {
+          this.x = x;
+          this.y = y;
+        }
+        translate(v : Vector) : Point {
+          return new Point(x + v.x, y + v.y);
+        }
+        difference(pt : Point) : Vector {
+          return new Vector(pt.x - x, pt.y - y);
+        }
+        distance(pt : Point) : Real {
+          return difference(pt).length();
+        }
+        asVector() : Vector {
+          return new Vector(x, y);
+        }
+      }
+    }
+
+    class Vector {
+      attributes {
+        x : Real;
+        y : Real;
+      }
+      operations {
+        constructor(x : Real, y : Real) {
+          this.x = x;
+          this.y = y;
+        }
+        constructor(line : Line) {
+          this.x = line.begin.x - line.end.x;
+          this.y = line.begin.y - line.end.y;
+        }
+        add(v : Vector) : Vector {
+          return new Vector(x + v.x, y + v.y);
+        }
+        sub(v : Vector) : Vector {
+          return new Vector(v.x - x, v.y - y);
+        }
+        scale(s : Real) : Vector {
+          return new Vector(x * s, y * s);
+        }
+        dot(v : Vector) : Real {
+          return x * v.x + y * v.y;
+        }
+        normal() : Vector {
+          return new Vector(-y, x);
+        }
+        normalize() : Vector {
+          return new Vector(x / length(), y / length());
+        }
+        length() : Real {
+          return Demo.sqrt(Demo.sqr(x) + Demo.sqr(y));
+        }
+        theta(v : Vector) : Real {
+          return Demo.acos(dot(v) / (length() * v.length()));
+        }
+        tangent() : Vector {
+          return new Vector(y, -x);
+        }
+        proj(v : Vector) : Vector {
+          return v.scale(dot(v) / Demo.sqr(v.length()));
+        }
+      }
+    }
+
+    class Line {
+      attributes {
+        begin : Point;
+        end : Point;
+      }
+      operations {
+        constructor(x0 : Real, y0 : Real, x1 : Real, y1 : Real) {
+          begin = new Point(x0, y0);
+          end = new Point(x1, y1);
+        }
+        length() : Real {
+          return Demo.distance(begin, end);
+        }
+      }
+    }
+
     class Wall {
       attributes {
         line : Line;
@@ -100,8 +198,8 @@ domain Demo {
 	      this.width = width;
 	    }	    
 	    getPoints() : Collection<Point> {
-		  var result = new Collection<Point>();
-		  var pt1 : Point = new Point(-(width / 2), length / 2));
+		  var result : Collection<Point> = new Collection<Point>();
+		  var pt1 : Point = new Point(-(width / 2), length / 2);
 		  var pt2 : Point = new Point(width / 2, length / 2);
 		  var pt3 : Point = new Point(0, -(length / 2));		  
 		  result.Add(pt1);
@@ -109,6 +207,7 @@ domain Demo {
 		  result.Add(pt3);
 		  return result;
 	    }
+	  }
     }
     
     class Ball {
@@ -136,9 +235,13 @@ domain Demo {
           var dx : Real = x2 - x1;
           var dy : Real = y2 - y1;
 
-          var t1 : Real = ((radius * den) - (dx * y1) + (dx * y0) + (dy * x1) - (dy * x0)) / (-dx * yt + dy * xt);
-          var t2 : Real = (-(radius * den) - (dx * y1) + (dx * y0) + (dy * x1) - (dy * x0)) / (-dx * yt + dy * xt);
+          var t1 : Real = ((radius * den) - (dx * y1) + (dx * y0) + (dy * x1) - (dy * x0)) 
+			/ (-dx * yt + dy * xt);
+          var t2 : Real = (-(radius * den) - (dx * y1) + (dx * y0) + (dy * x1) - (dy * x0)) 
+			/ (-dx * yt + dy * xt);
+			
           var t : Real = Demo.min(t1, t2);
+          
           if (t1 <= 0.0) {
             if (t2 <= 0.0) {
               return null;
@@ -223,9 +326,6 @@ domain Demo {
         }
       }
     }
-    
-    class EventGenerator {
-    }
 
     class Painter {
       attributes {
@@ -273,6 +373,20 @@ domain Demo {
         drawShooter() {
           // Note: a "fold" function would be more elegant
           var pts : Collection<Point> = Demo.shooter.getPoints();
+          var origin : Point : new Point(0, 0);
+          
+          // Rotates points about origin
+          pts = pts.map(
+		    (pt : Point) => { 
+		       return pt.rotate(origin, Demo.shooter.angle); 
+		     });
+		     
+		  // Translate points to center of box
+          pts = pts.map(
+            (pt : Point) => { 
+              return pt.translate(Demo.getBoxCenter());
+            });            
+          
           var i : int = 1;
           while (i < pts.Count) {
             var pt1 : Point = pts.getAt(i - 1);
@@ -280,9 +394,10 @@ domain Demo {
             Demo.drawLine(pt1.x, pt1.y, pt2.x, pt2.y);
             ++i;
           }
-          if (pts.Count > 0) {
+          if (pts.Count > 1) {
             var pt1 : Point = pts.getAt(0);
-            Demo.drawLine(
+            var pt2 : Point = pts.getAt(pts.Count - 1);
+            Demo.drawLine(pt1.x, pt1.y, pt2.x, pt2.y);
           }
         }
       }
@@ -329,13 +444,13 @@ domain Demo {
         }
         onKey(evt : KeyEvent) {
           entry {
-            if (evt.Key == Keys.LeftArrow) {
+            if (evt.Key == Keyboard.LeftArrow) {
               Demo.shooter.TurnLeft();
             }
-            else if (evt.Key == Keys.RightArrow) {
+            else if (evt.Key == Keyboard.RightArrow) {
               Demo.shooter.TurnRight();
             }
-            else if (evt.Key == Keys.Space) {
+            else if (evt.Key == Keyboard.Space) {
               Demo.shooter.Shoot();
             }            
           }

@@ -11,8 +11,7 @@ public class Point extends HeronObject {
     }
   public Point translate(final Vector v){
     {
-      Point result = new Point(x + v .x , y + v .y ) ;
-      return result ;
+      return new Point(x + v .x , y + v .y ) ;
       }
     }
   public Vector difference(final Point pt){
