@@ -11,7 +11,7 @@
 #include <iostream>
 
 #include "yard/yard.hpp"
-#include "misc/io.hpp"
+#include "yard/yard_io.hpp"
 
 #include "jaction_grammar.hpp"
 #include "heron_grammar.hpp"
