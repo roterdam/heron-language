@@ -106,6 +106,15 @@ namespace yard
 			{
 				return mpChild != NULL;
 			}
+			int GetNumChildren() {
+				int result = 0;
+				AbstractNode* p = mpChild;
+				while (p != NULL) {
+					++result;
+					p = p->mpNext;
+				}
+				return result;
+			}
 			AbstractNode* GetFirstChild()
 			{
 				return mpChild;
