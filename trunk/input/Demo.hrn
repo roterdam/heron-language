@@ -1,18 +1,3 @@
-/*
-	TODO: 
-	- seperate this into multiple domains
-	- add interfaces
-	- add support for tags
-	- add some basic type-inference
-	- increase usage of immutability 
-		- mutable or immutable tags?
-	- add verification phase
-	- add bridge operations and domains
-	- support "auto" transitions	
-	- provide built-in support for "KeyEvents"
-*/
-
-
 domain Demo {
 
   imports {
@@ -55,6 +40,7 @@ domain Demo {
       balls.add(new Ball(new Point(250,250), new Vector(-100,0), 25));
       balls.add(new Ball(new Point(150,250), new Vector(0,100), 30));
       painter = new Painter();
+      registerKeyListener(painter);
       painter.generateNextEvent();
     }
     boxCenter() : Point {
@@ -68,6 +54,12 @@ domain Demo {
     }
     sqr(x : Real) : Real {
       return x * x;
+    }
+    sin(x : Real) : Real {
+      return Math.sin(x);
+    }
+    cos(x : Real) : Real {
+      return Math.cos(x);
     }
     acos(x : Real) : Real {
       return Math.acos(x);
@@ -107,6 +99,11 @@ domain Demo {
         }
         asVector() : Vector {
           return new Vector(x, y);
+        }
+        rotate(pt : Point, th : Real) : Point {
+          var x1 : Real = x * Demo.cos(th) - y * Demo.sin(th);
+          var y1 : Real = x * Demo.sin(th) + y * Demo.cos(th);
+          return new Point(x1, y1);
         }
       }
     }
@@ -260,12 +257,115 @@ domain Demo {
           }
           return new CollisionEvent(Demo.floor(t * 1000), this, wall);
         }
+        computeBallCollisionEvent(ball : Ball) : BallBallCollisionEvent {           
+        	// dist = (x1 - x2)(x1 - x2) + (y1 - y2)(y1 - y2)
+			// dist = (x1 x1) - 2*x1*x2 + (x2*x2) + ...
+			// var ax : Real = x1 * x1;
+			// var bx : Real = -2 * x1 * x2;
+			// var cx : Real = x2 * x2;			
+			// var dy : Real = y1 * y1;
+			// var ey : Real = -2 * y1 * y2;
+			// var fy : Real = y2 * y2;
+			// x1 = ox1 + t*dx1
+			// x2 = ox2 + t*dx2
+			// y1 = oy1 + t*dy1
+			// y2 = oy2 + t*dy2
+			// ax = ox1^2 + 2*t*ox1*dx1 + t^2*dx1^2
+			// bx = -2*ox1*ox2 - 2*t*dx1*ox2 - 2*ox1*t*dx2 - 2*t^2*dx1*dx2)
+			// cx = ox2^2 + 2*t*ox2*dx2 + t^2*dx2^2
+			// dy = oy1^2 + 2*t*oy1*dy1 + t^2*dy1^2
+			// ey = -2*oy1*oy2 - 2*t*dy1*oy2 - 2*oy1*t*dy2 - 2*t^2*dy1*dy2)
+			// fy = oy2^2 + 2*t*oy2*dy2 + t^2*dy2^2
+			// dist = ax + bx + cx + dy + ey + fy;
+
+			var ox1 : Real = pos.x;
+			var oy1 : Real = pos.y;
+			var ox2 : Real = ball.pos.x;
+			var oy2 : Real = ball.pos.y;
+			var dx1 : Real = vec.x;
+			var dy1 : Real = vec.y;
+			var dx2 : Real = ball.vec.x;
+			var dy2 : Real = ball.vec.y;
+						
+			dist = radius + ball.radius;
+			
+			// dist = a*x^2 + b*x + c						
+			var a : Real = sqr(dx1) - 2*dx1*dx2 + sqr(dx2) + sqr(dy1) - 2*dy1*dy2 + sqr(dy2);
+			var b : Real = -2*dx1*ox2 - 2*ox1*dx2 + 2*ox2*dx2 + 2*oy1*dy1 - 2*dy1*oy2 - 2*oy1*dy2
+			var c : Real = sqr(ox1) - 2*ox1*ox2 + ox2*ox2 + oy1*oy1 - 2*oy1*oy2 + oy2*oy2;
+			
+			c = c - dist;
+
+			if (a == 0.0) 
+				return null;
+
+			var t1 : Real;
+			var t2 : Real;
+									
+			var b24ac : Real = sqr(b) - 4*a*c;						
+			
+			if (b24ac < 0.0) 
+				return null;
+				
+			}
+			
+			if (a != 0) 
+			{
+			}
+			
+			x = (-b +/- sqrt(b2 - 4ac)) / 2a;
+        
+          var x0 : Real = pos.x;
+          var y0 : Real = pos.y;
+          var xt : Real = vec.x;
+          var yt : Real = vec.y;
+          var x1 : Real = wall.line.begin.x;
+          var y1 : Real = wall.line.begin.y;
+          var x2 : Real = wall.line.end.x;
+          var y2 : Real = wall.line.end.y;
+          var den : Real = Demo.sqrt(Demo.sqr(x2 - x1) + Demo.sqr(y2 - y1));
+          var dx : Real = x2 - x1;
+          var dy : Real = y2 - y1;
+
+          var t1 : Real = ((radius * den) - (dx * y1) + (dx * y0) + (dy * x1) - (dy * x0)) 
+			/ (-dx * yt + dy * xt);
+          var t2 : Real = (-(radius * den) - (dx * y1) + (dx * y0) + (dy * x1) - (dy * x0)) 
+			/ (-dx * yt + dy * xt);
+			
+          var t : Real = Demo.min(t1, t2);
+          
+          if (t1 <= 0.0) {
+            if (t2 <= 0.0) {
+              return null;
+            }
+            else {
+              t = t2;
+            }
+          }
+          else {
+            if (t2 < 0) {
+              t = t1;
+            }
+            else {
+              t = Demo .min (t1 , t2 ) ;
+            }
+          }
+          return new CollisionEvent(Demo.floor(t * 1000), this, wall);
+        }
         computeCollisionEvents() : Collection<CollisionEvent> {
           var result : Collection<CollisionEvent> = new Collection<CollisionEvent>();
           foreach (wall : Wall in Demo.walls) {
-            CollisionEvent collision = computeCollisionEvent(wall);
+            CollisionEvent collision = computeWallCollisionEvent(wall);
             if (collision != null) {
               result.add(collision);
+            }
+          }
+          foreach (ball : Ball in Demo.balls) {
+            if (ball != this) {
+              CollisionEvent collision = computeBallCollisionEvent(ball);
+              if (collision != null) {
+                result.add(collision);
+              }
             }
           }
           return result;
@@ -286,9 +386,17 @@ domain Demo {
       }
     }
     
-    class BallBallCollisionEvent {
-      attributes {
+    class CollisionEvent {
+	  attributes {
         timeElapsed : Real;
+      }
+    }
+    
+    class BallBallCollisionEvent {
+      subclasses {
+        CollisionEvent;
+      }
+      attributes {
         ball1 : Ball;
         ball2 : Ball;
       }
@@ -302,8 +410,10 @@ domain Demo {
     }
     
     class BallWallCollisionEvent {
+      subclasses {
+        CollisionEvent;
+      }
       attributes {
-        timeElapsed : Real;
         ball : Ball;
         wall : Wall;
       }
@@ -339,7 +449,7 @@ domain Demo {
         }
         generateNextEvent()  {
           generateNextEvent(null, null);
-        }
+        }        
         generateNextEvent(lastBall : Ball, lastWall : Wall)  {
           var next : CollisionEvent;
           var q : Collection<CollisionEvent> = new Collection<CollisionEvent>();
@@ -373,7 +483,7 @@ domain Demo {
         drawShooter() {
           // Note: a "fold" function would be more elegant
           var pts : Collection<Point> = Demo.shooter.getPoints();
-          var origin : Point : new Point(0, 0);
+          var origin : Point = new Point(0, 0);
           
           // Rotates points about origin
           pts = pts.map(

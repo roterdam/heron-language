@@ -15,8 +15,7 @@ void OutputSym(Node* x)
 	// I need to remap operators to values.
 	std::string s = NodeToStr(x->GetFirstChild());
 	if (s.compare("Real") == 0)
-		Output("double");
-	else
+		Output("double"); else
 		Output(s);
 }
 
@@ -249,6 +248,7 @@ void OutputStatement(Node* node)
 			Output(" = ");
 			OutputExpr(expr);
 		}
+		OutputLine(";");
 	}
 	else if (ti == typeid(IfStatement))
 	{
@@ -330,11 +330,13 @@ void OutputStatement(Node* node)
 		OutputExpr(lvalue);
 		Output(" = ");
 		OutputExpr(rvalue);
+		OutputLine(";");
 	}
 	else if (ti == typeid(ExprStatement))
 	{
 		Node* expr = node->GetFirstChild();
 		OutputExpr(expr);
+		OutputLine(";");
 	}
 	else if (ti == typeid(EmptyStatement))
 	{
@@ -503,7 +505,21 @@ void OutputClass(Node* x)
 
 	Output("public class ");
 	Output(name);
-	OutputLine(" extends HeronObject {");
+	Node* subclasses = x->GetFirstTypedChild<Subclasses>();
+	if (subclasses != NULL && subclasses->GetNumChildren() > 0) {
+		if (subclasses->GetNumChildren() > 1) {
+			printf("multiple super-classes not currently supported\n");
+			assert(false);
+		}
+		Node* subclass = subclasses->GetFirstChild();
+		Node* subclassName = subclass->GetFirstChild();
+		Output(" extends "); 
+		OutputSym(subclassName);
+		OutputLine("{");
+	}
+	else {
+		OutputLine(" extends HeronObject {");
+	}
 
 	// static instances field
 	//Output("public static Collection<");

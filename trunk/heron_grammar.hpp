@@ -17,6 +17,7 @@ namespace heron_grammar
 	struct DOMAIN		: Keyword<CharSeq<'d','o','m','a','i','n'> > { };
 	struct IMPORTS		: Keyword<CharSeq<'i','m','p','o','r','t','s'> > { };
 	struct LINKS		: Keyword<CharSeq<'l','i','n','k','s'> > { };
+	struct SUBCLASSES   : Keyword<CharSeq<'s','u','b','c','l','a','s','s','e','s'> > { };
 	struct STATES		: Keyword<CharSeq<'s','t','a','t','e','s'> > { };
 	struct ATTRIBUTES	: Keyword<CharSeq<'a','t','t','r','i','b','u','t','e','s'> > { };
 	struct OPERATIONS	: Keyword<CharSeq<'o','p','e','r','a','t','i','o','n','s'> > { };
@@ -52,7 +53,7 @@ namespace heron_grammar
 		NoFailSeq<LINKS, StoreBracedList<Link> > { };
 	
 	struct Operation :
-		NoFailSeq<Store<Sym>, Store<ArgList>, Opt<TypeDecl>, Opt<Store<CodeBlock> >, Opt<Eos> > { };
+		NoFailSeq<Store<Sym>, Store<ArgList>, Opt<TypeDecl>, Or<Store<CodeBlock>, Eos> > { };
 
 	struct Operations :
 		NoFailSeq<OPERATIONS, StoreBracedList<Operation> > { };
@@ -66,17 +67,25 @@ namespace heron_grammar
 	struct Invariants :
 		NoFailSeq<INVARIANTS, StoreBracedList<Invariant> > { };
 
+	struct Subclass : 
+		NoFailSeq<Store<Sym>, Eos> 
+	{ };
+
+	struct Subclasses : 
+		NoFailSeq<SUBCLASSES, StoreBracedList<Subclass> > { };
+
 	struct Class :
 		NoFailSeq<
 			CLASS, 
 			Store<Sym>, 
 			CharTok<'{'>, 
+			Opt<Subclasses>,
 			Opt<Attributes>, 
 			Opt<Operations>, 
 			Opt<States>, 
 			Opt<Links>, 
 			Opt<Invariants>, 
-			Finao<CharTok<'}'> > 
+			CharTok<'}'> 
 		> { };
 
 	struct Import :

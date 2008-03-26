@@ -4,7 +4,7 @@ import java.awt.geom.*;
 import java.util.ArrayList;
 import javax.swing.*;
 
-public class HeronApplication extends JApplet 
+public class HeronApplication extends JApplet implements KeyListener
 {
 	public class Dispatcher extends Thread
 	{
@@ -12,6 +12,7 @@ public class HeronApplication extends JApplet
 		{
 			while (true) {
 				try { 
+					// TODO: compute exactly the right amount of time to wait. 
 					wait(10);
 					HeronApplication.theApp.dispatchNextSignal();
 				}
@@ -20,6 +21,8 @@ public class HeronApplication extends JApplet
 			}
 		}
 	}
+
+	final static HeronObject heronKeyListener;
 	
 	private static final long serialVersionUID = -4394966026114834504L;
 	final static int maxCharHeight = 15;
@@ -131,6 +134,7 @@ public class HeronApplication extends JApplet
 				System.exit(0);
 			}
 		});		
+		frame.addKeyListener(theApp);
 		frame.getContentPane().add("Center", theApp);
 		frame.pack();
 		frame.setSize(new Dimension(550, 500));
@@ -184,4 +188,27 @@ public class HeronApplication extends JApplet
 			sig.target.onSignal(sig);
 		}
 	}
+	
+    public void keyPressed(KeyEvent e) {
+		if (heronKeyListener != null) {
+		  HeronSignal sig = new HeronSignal();
+		  sig.data = e;
+		  sig.scheduledTime = new HeronDateTime();
+		  sig.target = heronKeyListener;			
+		  heronKeyListener.onSignal(sig);
+		}
+    }
+    
+    public void registerKeyListener(HeronObject o) {
+       heronKeyListener = o;
+    }
+    
+	public void keyReleased(KeyEvent e) {
+		// do nothing
+	}
+	
+    void keyTyped(KeyEvent e) {
+		// do nothing
+    }
+	
 }

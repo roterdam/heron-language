@@ -335,7 +335,7 @@ namespace yard
 		, typename T8 = True_T
 		, typename T9 = True_T
 	>
-	struct NoFailSeq : FinaoIf<T0, Seq<T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+	struct NoFailSeq : Seq<T0, Finao<T1>, Finao<T2>, Finao<T3>, Finao<T4>, Finao<T5>, Finao<T6>, Finao<T7>, Finao<T8>, Finao<T9> >
 	{ };
 
 	// While rule T matches goes on to match U

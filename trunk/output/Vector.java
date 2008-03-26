@@ -17,53 +17,43 @@ public class Vector extends HeronObject {
     }
   public Vector add(final Vector v){
     {
-      return new Vector(x + v .x , y + v .y ) ;
-      }
+      return new Vector(x + v .x , y + v .y ) }
     }
   public Vector sub(final Vector v){
     {
-      return new Vector(v .x - x , v .y - y ) ;
-      }
+      return new Vector(v .x - x , v .y - y ) }
     }
   public Vector scale(final double s){
     {
-      return new Vector(x * s , y * s ) ;
-      }
+      return new Vector(x * s , y * s ) }
     }
   public double dot(final Vector v){
     {
-      return x * v .x + y * v .y ;
-      }
+      return x * v .x + y * v .y }
     }
   public Vector normal(){
     {
-      return new Vector(- y , x ) ;
-      }
+      return new Vector(- y , x ) }
     }
   public Vector normalize(){
     {
-      return new Vector(x / length () , y / length () ) ;
-      }
+      return new Vector(x / length () , y / length () ) }
     }
   public double length(){
     {
-      return Demo .sqrt (Demo .sqr (x ) + Demo .sqr (y ) ) ;
-      }
+      return Demo .sqrt (Demo .sqr (x ) + Demo .sqr (y ) ) }
     }
   public double theta(final Vector v){
     {
-      return Demo .acos (dot (v ) / (length () * v .length () ) ) ;
-      }
+      return Demo .acos (dot (v ) / (length () * v .length () ) ) }
     }
   public Vector tangent(){
     {
-      return new Vector(y , - x ) ;
-      }
+      return new Vector(y , - x ) }
     }
   public Vector proj(final Vector v){
     {
-      return v .scale (dot (v ) / Demo .sqr (v .length () ) ) ;
-      }
+      return v .scale (dot (v ) / Demo .sqr (v .length () ) ) }
     }
   // state entry procedures
   // dispatch function

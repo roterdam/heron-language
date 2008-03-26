@@ -5,8 +5,8 @@ public class Painter extends HeronObject {
   // operations
   public Painter(){
     {
-      paintFrequency = 50.0 ;
-      timeToNextPaint = paintFrequency ;
+      paintFrequency  = 50.0 ;
+      timeToNextPaint  = paintFrequency ;
       }
     }
   public void generateNextEvent(){
@@ -27,40 +27,58 @@ public class Painter extends HeronObject {
         public Object apply(Collection<Object> _args) {
           CollisionEvent x = (CollisionEvent)_args.get(0);
           {
-            return (x .ball != lastBall ) || (x .wall != lastWall ) ;
-            }
+            return (x .ball != lastBall ) || (x .wall != lastWall ) }
           }
         }
        ) ;
-      next = q .min (new AnonymousFunction() {
+      next  = q .min (new AnonymousFunction() {
         public Object apply(Collection<Object> _args) {
           CollisionEvent x = (CollisionEvent)_args.get(0);
           {
-            return x .timeElapsed ;
-            }
+            return x .timeElapsed }
           }
         }
        ) ;
-      if (next != null ){
-        if (next .timeElapsed < timeToNextPaint ){
-          timeToNextPaint = timeToNextPaint - next .timeElapsed ;
-          this .sendIn (next , (int ) next .timeElapsed ) ;
-          }
-        else
-        {
-          this .sendIn (new PaintEvent(timeToNextPaint ) , (int ) timeToNextPaint ) ;
+      if (next != null )unhandled statement type: struct jaction_grammar::Statement
+else
+      unhandled statement type: struct jaction_grammar::Statement
+}
+    }
+  public void drawShooter(){
+    {
+      Collection<Point> pts = Demo .shooter .getPoints () ;
+      Point origin = new Point(0 , 0 ) ;
+      pts  = pts .map (new AnonymousFunction() {
+        public Object apply(Collection<Object> _args) {
+          Point pt = (Point)_args.get(0);
+          {
+            return pt .rotate (origin , Demo .shooter .angle ) }
           }
         }
-      else
+       ) ;
+      pts  = pts .map (new AnonymousFunction() {
+        public Object apply(Collection<Object> _args) {
+          Point pt = (Point)_args.get(0);
+          {
+            return pt .translate (Demo .getBoxCenter () ) }
+          }
+        }
+       ) ;
+      int i = 1 ;
+      while ((i < pts .Count ).equals(JATrue()))
       {
-        Demo .error ("could not compute next collision" ) ;
+        Point pt1 = pts .getAt (i - 1 ) ;
+        Point pt2 = pts .getAt (i ) ;
+        Demo .drawLine (pt1 .x , pt1 .y , pt2 .x , pt2 .y ) ;
+        ++ i ;
         }
-      }
+      if (pts .Count > 1 )unhandled statement type: struct jaction_grammar::Statement
+}
     }
   // state entry procedures
   public void onCollision(HeronSignal __event__) {
     CollisionEvent col = (CollisionEvent)__event__.data;
-    __state__ = 4821096;
+    __state__ = 4997560;
     {
       Demo .updateBallPositions (col .timeElapsed ) ;
       col .ball .bounceOffWall (col .wall ) ;
@@ -69,9 +87,9 @@ public class Painter extends HeronObject {
     }
   public void onPaint(HeronSignal __event__) {
     PaintEvent evt = (PaintEvent)__event__.data;
-    __state__ = 4827144;
+    __state__ = 5002840;
     {
-      timeToNextPaint = paintFrequency ;
+      timeToNextPaint  = paintFrequency ;
       Demo .clear () ;
       Demo .updateBallPositions (evt .timeElapsed ) ;
       for (Wall wall : Demo .walls )
@@ -82,31 +100,44 @@ public class Painter extends HeronObject {
       {
         Demo .drawCircle (ball .pos .x , ball .pos .y , ball .radius ) ;
         }
+      drawShooter () ;
       Demo .render () ;
       generateNextEvent () ;
       }
+    }
+  public void onKey(HeronSignal __event__) {
+    KeyEvent evt = (KeyEvent)__event__.data;
+    __state__ = 5017624;
+    {
+      if (evt .Key == Keyboard .LeftArrow )unhandled statement type: struct jaction_grammar::Statement
+else
+      unhandled statement type: struct jaction_grammar::Statement
+}
     }
   // dispatch function
   public void onSignal(HeronSignal signal) {
     if (false) {
       }
-    else if ((__state__ == 0) && (signal.data instanceof CollisionEvent)) {
-      onCollision(signal);
+    else if ((__state__ == 0) && (signal.data instanceof BallWallCollisionEvent)) {
+      onBallWallCollision(signal);
+      }
+    else if ((__state__ == 0) && (signal.data instanceof BallBallCollisionEvent)) {
+      onBallBallCollsion(signal);
       }
     else if ((__state__ == 0) && (signal.data instanceof PaintEvent)) {
       onPaint(signal);
       }
-    else if ((__state__ == 4821096) && (signal.data instanceof CollisionEvent)) {
-      onCollision(signal);
+    else if ((__state__ == 0) && (signal.data instanceof KeyboardEvent)) {
+      onKeyboard(signal);
       }
-    else if ((__state__ == 4821096) && (signal.data instanceof PaintEvent)) {
-      onPaint(signal);
+    else if ((__state__ == 4997560) && (signal.data instanceof auto)) {
+      initial(signal);
       }
-    else if ((__state__ == 4827144) && (signal.data instanceof CollisionEvent)) {
-      onCollision(signal);
+    else if ((__state__ == 5002840) && (signal.data instanceof auto)) {
+      initial(signal);
       }
-    else if ((__state__ == 4827144) && (signal.data instanceof PaintEvent)) {
-      onPaint(signal);
+    else if ((__state__ == 5017624) && (signal.data instanceof auto)) {
+      initial(signal);
       }
     }
   }

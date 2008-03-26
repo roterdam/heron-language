@@ -21,7 +21,7 @@ namespace jaction_grammar
 	struct CodeBlock;
 
 	struct SymChar :
-		CharSetParser<CharSet<'~','!','@','#','$','%','^','&','*','-','+','|','\\','<','>','/','?',','> > { };
+		CharSetParser<CharSet<'~','!','@','#','$','%','^','&','*','-','+','|','\\','<','>','/','?',',', '='> > { };
 
 	struct NewLine : 
 		Or<CharSeq<'\r', '\n'>, CharSeq<'\n'> > { };
@@ -42,12 +42,6 @@ namespace jaction_grammar
 	struct Tok : 
 		Seq<R, WS> { };
 
-	struct Sym :
-		Tok<Or<Store<Ident>, Store<CharSeq<'=','='> >, Store<Plus<SymChar> > > > { };
-
-	struct DotSym :
-		Seq<Char<'.'>, Sym> { };
-
 	template<typename T>
 	struct Keyword : 
 		Tok<Seq<T, NotAlphaNum > > { };
@@ -56,10 +50,12 @@ namespace jaction_grammar
     struct CharTok :
 		Seq<Char<C>, WS> { };
 
-	// Note: we can get in trouble storing things using a delimited list,
-	// or any sequence for that matter. You can end up creating nodes that 
-	// were successful matches but the sequence was not successful. 
-	// (or something like that). I am not 100% sure what the consequences are
+	struct Sym :
+		Tok<Or<Store<Ident>, Store<Plus<SymChar> > > > { };
+
+	struct DotSym :
+		Seq<Char<'.'>, Sym> { };
+
 	template<typename R, typename D>
 	struct DelimitedList : 
 	   Or<Seq<R, Plus<Seq<D, R> > >, Opt<R> >
@@ -208,10 +204,10 @@ namespace jaction_grammar
 		NoFailSeq<VAR, Store<Sym>, Opt<TypeDecl>, Opt<Initializer>, Eos > { };
 
 	struct ElseStatement :
-		NoFailSeq<ELSE, Store<CodeBlock> > { };
+		NoFailSeq<ELSE, Store<Statement> > { };
 
 	struct IfStatement :
-        NoFailSeq<IF, Paranthesized<Store<Expr> >, Store<CodeBlock>, Opt<ElseStatement> > { };
+        NoFailSeq<IF, Paranthesized<Store<Expr> >, Store<Statement>, Opt<ElseStatement> > { };
 
 	struct ForEachStatement :
 		NoFailSeq<FOREACH, CharTok<'('>, Store<Sym>, Opt<TypeDecl>, 
@@ -237,7 +233,7 @@ namespace jaction_grammar
 		NoFailSeq<WHILE, Paranthesized<Store<Expr> >, Store<CodeBlock> > { };
 	
 	struct AssignmentStatement :
-		Seq<Store<Expr>, NoFailSeq<Initializer, Eos> > { };
+		Seq<Store<SimpleExpr>, NoFailSeq<Initializer, Eos> > { };
 
 	struct EmptyStatement :
 		Eos { };
