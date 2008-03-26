@@ -154,7 +154,7 @@ namespace jaction_grammar
 		StoreList<CharTok<'<'>, TypeExpr, CharTok<'>'> > { };
 
 	struct TypeExpr : 
-		Seq<Or<Store<Sym>, Store<Literal> >, Opt<Store<TypeArgs> > > { };
+		Seq<Store<Sym>, Store<Literal> >, Opt<Store<TypeArgs> > > { };
 
 	struct TypeDecl :
 		NoFailSeq<CharTok<':'>, Store<TypeExpr> > { };

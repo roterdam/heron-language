@@ -240,22 +240,16 @@ domain Demo {
           var t : Real = Demo.min(t1, t2);
           
           if (t1 <= 0.0) {
-            if (t2 <= 0.0) {
-              return null;
-            }
-            else {
+            if (t2 <= 0.0) 
+              return null; else 
               t = t2;
-            }
           }
           else {
-            if (t2 < 0) {
-              t = t1;
-            }
-            else {
+            if (t2 < 0) 
+              t = t1; else 
               t = Demo .min (t1 , t2 ) ;
-            }
           }
-          return new CollisionEvent(Demo.floor(t * 1000), this, wall);
+          return new BallWallCollisionEvent(Demo.floor(t * 1000), this, wall);
         }
         computeBallCollisionEvent(ball : Ball) : BallBallCollisionEvent {           
         	// dist = (x1 - x2)(x1 - x2) + (y1 - y2)(y1 - y2)
@@ -299,58 +293,25 @@ domain Demo {
 			if (a == 0.0) 
 				return null;
 
-			var t1 : Real;
-			var t2 : Real;
-									
 			var b24ac : Real = sqr(b) - 4*a*c;						
 			
 			if (b24ac < 0.0) 
 				return null;
-				
+			
+			var t1 : Real = (-b + sqrt(b24ac)) / (2 * a);
+			var t2 : Real = (-b - sqrt(b24ac)) / (2 * a);
+			
+			if (t1 <= 0.0) {
+			  if (t2 <= 0.0) 
+			    return null; else 
+			    t = t2;
 			}
-			
-			if (a != 0) 
-			{
-			}
-			
-			x = (-b +/- sqrt(b2 - 4ac)) / 2a;
-        
-          var x0 : Real = pos.x;
-          var y0 : Real = pos.y;
-          var xt : Real = vec.x;
-          var yt : Real = vec.y;
-          var x1 : Real = wall.line.begin.x;
-          var y1 : Real = wall.line.begin.y;
-          var x2 : Real = wall.line.end.x;
-          var y2 : Real = wall.line.end.y;
-          var den : Real = Demo.sqrt(Demo.sqr(x2 - x1) + Demo.sqr(y2 - y1));
-          var dx : Real = x2 - x1;
-          var dy : Real = y2 - y1;
-
-          var t1 : Real = ((radius * den) - (dx * y1) + (dx * y0) + (dy * x1) - (dy * x0)) 
-			/ (-dx * yt + dy * xt);
-          var t2 : Real = (-(radius * den) - (dx * y1) + (dx * y0) + (dy * x1) - (dy * x0)) 
-			/ (-dx * yt + dy * xt);
-			
-          var t : Real = Demo.min(t1, t2);
-          
-          if (t1 <= 0.0) {
-            if (t2 <= 0.0) {
-              return null;
+			else {
+			  if (t2 < 0) 
+			    t = t1; else 
+			    t = Demo .min (t1 , t2 ) ;
             }
-            else {
-              t = t2;
-            }
-          }
-          else {
-            if (t2 < 0) {
-              t = t1;
-            }
-            else {
-              t = Demo .min (t1 , t2 ) ;
-            }
-          }
-          return new CollisionEvent(Demo.floor(t * 1000), this, wall);
+		    return new BallWallCollisionEvent(Demo.floor(t * 1000), this, wall);								
         }
         computeCollisionEvents() : Collection<CollisionEvent> {
           var result : Collection<CollisionEvent> = new Collection<CollisionEvent>();
