@@ -283,9 +283,9 @@ void OutputStatement(Node* node)
 	{
 		Node* cond = node->GetFirstChild();
 		Node* body = cond->GetSibling();
-		Output("while (("); 
+		Output("while ("); 
 		OutputExpr(cond);
-		OutputLine(").equals(JATrue()))");
+		OutputLine(")");
 		OutputStatement(body);
 	}
 	else if (ti == typeid(SwitchStatement))
@@ -322,6 +322,7 @@ void OutputStatement(Node* node)
 		Node* expr = node->GetFirstChild();
 		Output("return ");
 		OutputExpr(expr);
+		OutputLine(";");
 	}
 	else if (ti == typeid(AssignmentStatement))
 	{
@@ -345,6 +346,7 @@ void OutputStatement(Node* node)
 	else 
 	{		
 		printf("unhandled statement type: %s\n", ti.name());
+		throw 0;
 	}
 }
 

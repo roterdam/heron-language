@@ -17,11 +17,17 @@ public class Demo extends HeronApplication {
   public static int boxTop;
   public static int boxWidth;
   public static int boxHeight;
+  public static int leftArrow;
+  public static int rightArrow;
+  public static int space;
   public static Collection<Wall> walls;
   public static Collection<Ball> balls;
   // operations
   static public void initialize(){
     {
+      leftArrow  = 0 ;
+      rightArrow  = 1 ;
+      space  = 2 ;
       boxLeft  = 100 ;
       boxTop  = 100 ;
       boxWidth  = 200 ;
@@ -43,45 +49,53 @@ public class Demo extends HeronApplication {
       balls .add (new Ball(new Point(250 , 250 ) , new Vector(- 100 , 0 ) , 25 ) ) ;
       balls .add (new Ball(new Point(150 , 250 ) , new Vector(0 , 100 ) , 30 ) ) ;
       painter  = new Painter() ;
-      registerKeyListener (painter ) ;
       painter .generateNextEvent () ;
       }
     }
   static public Point boxCenter(){
     {
-      return new Point(boxLeft + (boxWidth / 2 ) , botTop + (boxHeight / 2 ) ) }
+      return new Point(boxLeft + (boxWidth / 2 ) , boxTop + (boxHeight / 2 ) ) ;
+      }
     }
   static public double distance(final Point first, final Point second){
     {
-      return sqrt (sqr (first .x - second .x ) + sqr (first .y - second .y ) ) }
+      return sqrt (sqr (first .x - second .x ) + sqr (first .y - second .y ) ) ;
+      }
     }
   static public double sqrt(final double x){
     {
-      return Math .sqrt (x ) }
+      return Math .sqrt (x ) ;
+      }
     }
   static public double sqr(final double x){
     {
-      return x * x }
+      return x * x ;
+      }
     }
   static public double sin(final double x){
     {
-      return Math .sin (x ) }
+      return Math .sin (x ) ;
+      }
     }
   static public double cos(final double x){
     {
-      return Math .cos (x ) }
+      return Math .cos (x ) ;
+      }
     }
   static public double acos(final double x){
     {
-      return Math .acos (x ) }
+      return Math .acos (x ) ;
+      }
     }
   static public double min(final double x, final double y){
     {
-      return Math .min (x , y ) }
+      return Math .min (x , y ) ;
+      }
     }
   static public int floor(final double x){
     {
-      return (int ) Math .floor (x ) }
+      return (int ) Math .floor (x ) ;
+      }
     }
   static public void updateBallPositions(final double elapsedMSec){
     {

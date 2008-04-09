@@ -22,7 +22,7 @@ public class HeronApplication extends JApplet implements KeyListener
 		}
 	}
 
-	final static HeronObject heronKeyListener;
+	static HeronObject heronKeyListener;
 	
 	private static final long serialVersionUID = -4394966026114834504L;
 	final static int maxCharHeight = 15;
@@ -199,7 +199,7 @@ public class HeronApplication extends JApplet implements KeyListener
 		}
     }
     
-    public void registerKeyListener(HeronObject o) {
+    public static void registerKeyListener(HeronObject o) {
        heronKeyListener = o;
     }
     
@@ -207,7 +207,7 @@ public class HeronApplication extends JApplet implements KeyListener
 		// do nothing
 	}
 	
-    void keyTyped(KeyEvent e) {
+    public void keyTyped(KeyEvent e) {
 		// do nothing
     }
 	
