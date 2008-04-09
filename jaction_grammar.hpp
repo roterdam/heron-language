@@ -154,7 +154,7 @@ namespace jaction_grammar
 		StoreList<CharTok<'<'>, TypeExpr, CharTok<'>'> > { };
 
 	struct TypeExpr : 
-		Seq<Store<Sym>, Store<Literal> >, Opt<Store<TypeArgs> > > { };
+		Seq<Store<Sym>, Opt<Store<TypeArgs> > > { };
 
 	struct TypeDecl :
 		NoFailSeq<CharTok<':'>, Store<TypeExpr> > { };
@@ -204,10 +204,10 @@ namespace jaction_grammar
 		NoFailSeq<VAR, Store<Sym>, Opt<TypeDecl>, Opt<Initializer>, Eos > { };
 
 	struct ElseStatement :
-		NoFailSeq<ELSE, Store<Statement> > { };
+		NoFailSeq<ELSE, Statement> { };
 
 	struct IfStatement :
-        NoFailSeq<IF, Paranthesized<Store<Expr> >, Store<Statement>, Opt<ElseStatement> > { };
+        NoFailSeq<IF, Paranthesized<Store<Expr> >, Statement, Opt<ElseStatement> > { };
 
 	struct ForEachStatement :
 		NoFailSeq<FOREACH, CharTok<'('>, Store<Sym>, Opt<TypeDecl>, 

@@ -11,7 +11,7 @@ public class Ball extends HeronObject {
       this .radius = radius ;
       }
     }
-  public BallWallCollisionEvent computeWallCollisionEvent(final Wall wall){
+  public WallCollisionEvent computeWallCollisionEvent(final Wall wall){
     {
       double x0 = pos .x ;
       double y0 = pos .y ;
@@ -27,31 +27,54 @@ public class Ball extends HeronObject {
       double t1 = ((radius * den ) - (dx * y1 ) + (dx * y0 ) + (dy * x1 ) - (dy * x0 ) ) / (- dx * yt + dy * xt ) ;
       double t2 = (- (radius * den ) - (dx * y1 ) + (dx * y0 ) + (dy * x1 ) - (dy * x0 ) ) / (- dx * yt + dy * xt ) ;
       double t = Demo .min (t1 , t2 ) ;
-      if (t1 <= 0.0 )unhandled statement type: struct jaction_grammar::Statement
-else
-      unhandled statement type: struct jaction_grammar::Statement
-return new CollisionEvent(Demo .floor (t * 1000 ) , this , wall ) }
+      if (t1 <= 0.0 ){
+        if (t2 <= 0.0 )return null ;
+        else
+        t  = t2 ;
+        }
+      else
+      {
+        if (t2 < 0 )t  = t1 ;
+        else
+        t  = Demo .min (t1 , t2 ) ;
+        }
+      return new WallCollisionEvent(Demo .floor (t * 1000 ) , this , wall ) ;
+      }
     }
-  public BallBallCollisionEvent computeBallCollisionEvent(final Ball ball){
+  public BallCollisionEvent computeBallCollisionEvent(final Ball ball){
     {
-      double x0 = pos .x ;
-      double y0 = pos .y ;
-      double xt = vec .x ;
-      double yt = vec .y ;
-      double x1 = wall .line .begin .x ;
-      double y1 = wall .line .begin .y ;
-      double x2 = wall .line .end .x ;
-      double y2 = wall .line .end .y ;
-      double den = Demo .sqrt (Demo .sqr (x2 - x1 ) + Demo .sqr (y2 - y1 ) ) ;
-      double dx = x2 - x1 ;
-      double dy = y2 - y1 ;
-      double t1 = ((radius * den ) - (dx * y1 ) + (dx * y0 ) + (dy * x1 ) - (dy * x0 ) ) / (- dx * yt + dy * xt ) ;
-      double t2 = (- (radius * den ) - (dx * y1 ) + (dx * y0 ) + (dy * x1 ) - (dy * x0 ) ) / (- dx * yt + dy * xt ) ;
+      double ox1 = pos .x ;
+      double oy1 = pos .y ;
+      double ox2 = ball .pos .x ;
+      double oy2 = ball .pos .y ;
+      double dx1 = vec .x ;
+      double dy1 = vec .y ;
+      double dx2 = ball .vec .x ;
+      double dy2 = ball .vec .y ;
+      double dist = radius + ball .radius ;
+      double a = Demo .sqr (dx1 ) - 2 * dx1 * dx2 + Demo .sqr (dx2 ) + Demo .sqr (dy1 ) - 2 * dy1 * dy2 + Demo .sqr (dy2 ) ;
+      double b = - 2 * dx1 * ox2 - 2 * ox1 * dx2 + 2 * ox2 * dx2 + 2 * oy1 * dy1 - 2 * dy1 * oy2 - 2 * oy1 * dy2 ;
+      double c = Demo .sqr (ox1 ) - 2 * ox1 * ox2 + ox2 * ox2 + oy1 * oy1 - 2 * oy1 * oy2 + oy2 * oy2 ;
+      c  = c - dist ;
+      if (a == 0.0 )return null ;
+      double b24ac = Demo .sqr (b ) - 4 * a * c ;
+      if (b24ac < 0.0 )return null ;
+      double t1 = (- b + Demo .sqrt (b24ac ) ) / (2 * a ) ;
+      double t2 = (- b - Demo .sqrt (b24ac ) ) / (2 * a ) ;
       double t = Demo .min (t1 , t2 ) ;
-      if (t1 <= 0.0 )unhandled statement type: struct jaction_grammar::Statement
-else
-      unhandled statement type: struct jaction_grammar::Statement
-return new CollisionEvent(Demo .floor (t * 1000 ) , this , wall ) }
+      if (t1 <= 0.0 ){
+        if (t2 <= 0.0 )return null ;
+        else
+        t  = t2 ;
+        }
+      else
+      {
+        if (t2 < 0 )t  = t1 ;
+        else
+        t  = Demo .min (t1 , t2 ) ;
+        }
+      return new BallCollisionEvent(Demo .floor (t * 1000 ) , this , ball ) ;
+      }
     }
   public Collection<CollisionEvent> computeCollisionEvents(){
     {
@@ -59,13 +82,12 @@ return new CollisionEvent(Demo .floor (t * 1000 ) , this , wall ) }
       for (Wall wall : Demo .walls )
       {
         CollisionEvent collision = computeWallCollisionEvent (wall ) ;
-        if (collision != null )unhandled statement type: struct jaction_grammar::Statement
-}
-      for (Ball ball : Demo .balls )
-      {
-        if (ball != this )unhandled statement type: struct jaction_grammar::Statement
-}
-      return result }
+        if (collision != null ){
+          result .add (collision ) ;
+          }
+        }
+      return result ;
+      }
     }
   public void bounceOffWall(final Wall wall){
     {

@@ -11,7 +11,8 @@ public class Line extends HeronObject {
     }
   public double length(){
     {
-      return Demo .distance (begin , end ) }
+      return Demo .distance (begin , end ) ;
+      }
     }
   // state entry procedures
   // dispatch function

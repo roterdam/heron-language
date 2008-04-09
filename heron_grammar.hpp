@@ -79,7 +79,10 @@ namespace heron_grammar
 			CLASS, 
 			Store<Sym>, 
 			CharTok<'{'>, 
-			Opt<Subclasses>,
+			// NOTE: I can't decide whether I think each section should be a child or not.
+			// I think that probably this approach used for "subclasses" should be applied to each other 
+			// section
+			Opt<Store<Subclasses> >,
 			Opt<Attributes>, 
 			Opt<Operations>, 
 			Opt<States>, 

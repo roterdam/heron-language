@@ -24,16 +24,29 @@ public class Collection<T> extends ArrayList<T> {
 		return ret;
 	}
 	
-	public void filter(AnonymousFunction f) {
+	Collection<T> filter(AnonymousFunction f) {
+		Collection<T> ret = new Collection<T>();
 		Collection<Object> args = new Collection<Object>();
 		args.add(null);		
 		for (int i=size() - 1; i >= 0; --i) {
 			args.set(0, get(i));
 			boolean bTmp = (Boolean)f.apply(args);
-			if (!bTmp) {
-				remove(i);
+			if (bTmp) {
+				ret.add(get(i));
 			}
 		}			
+		return ret;
+	}
+	
+	Collection<T> map(AnonymousFunction f) {
+		Collection<T> ret = new Collection<T>();
+		Collection<Object> args = new Collection<Object>();
+		args.add(null);		
+		for (int i=size() - 1; i >= 0; --i) {
+			args.set(0, get(i));
+			ret.add((T)f.apply(args));
+		}			
+		return ret;
 	}
 		
 	public void concat(Collection<T> coll) {
