@@ -320,16 +320,16 @@ namespace HeronEngine
                     return new Name(child.ToString());
                 case "int":
                     i++;
-                    return new Literal<int>(int.Parse(sVal));
+                    return new IntLiteral(int.Parse(sVal));
                 case "char":
                     i++;
-                    return new Literal<char>(CharFromLiteral(sVal));
+                    return new CharLiteral(CharFromLiteral(sVal));
                 case "string":
                     i++;
-                    return new Literal<string>(StringFromLiteral(sVal));
+                    return new StringLiteral(StringFromLiteral(sVal));
                 case "float":
                     i++;
-                    return new Literal<float>(float.Parse(sVal));
+                    return new FloatLiteral(float.Parse(sVal));
                 case "bin":
                     i++;
                     throw new Exception("binary literals not yet supported");
@@ -489,7 +489,7 @@ namespace HeronEngine
             }
             else if (ChildNodeMatches(x, ref i, "!="))
             {
-                r = new BinaryOperator("==", r, CreateRelExpr(x, ref i));
+                r = new BinaryOperator("!=", r, CreateRelExpr(x, ref i));
             }
             return r;
         }
