@@ -124,6 +124,31 @@ namespace HeronTests
 
         static void SimpleEvalExprTests()
         {
+            Util.TestEvalExpr("1", "1");
+            Util.TestEvalExpr("(1)", "1");
+            Util.TestEvalExpr("1 + 2", "3");
+            Util.TestEvalExpr("(1 + 2)", "3");
+            Util.TestEvalExpr("4 / 2", "2");
+            Util.TestEvalExpr("4 % 2", "0");
+            Util.TestEvalExpr("4 % 3", "1");
+            Util.TestEvalExpr("2 * 3 + 2", "8");
+            Util.TestEvalExpr("2 * (3 + 2)", "10");
+            Util.TestEvalExpr("2 * (3 - 2)", "1");
+            Util.TestEvalExpr("1 < 2", "True");
+            Util.TestEvalExpr("1 <= 2", "True");
+            Util.TestEvalExpr("1 >= 2", "False");
+            Util.TestEvalExpr("1 == 1", "True");
+            Util.TestEvalExpr("1 != 1", "False");
+            Util.TestEvalExpr("1 == 2", "False");
+            Util.TestEvalExpr("1 != 2", "True");
+            Util.TestEvalExpr("1.0 < 2.3", "True");
+            Util.TestEvalExpr("180.23 <= 2.34203", "False");
+            Util.TestEvalExpr("1 >= 2", "False");
+            Util.TestEvalExpr("1 == 1", "True");
+            Util.TestEvalExpr("1.0 != 1.0", "False");
+            Util.TestEvalExpr("1.123 == 0.2", "False");
+            Util.TestEvalExpr("1 != 2", "True");
+            Util.TestEvalExpr("1.0 + 2.5", "3.5");
         }
 
         static void SimplePegTests()

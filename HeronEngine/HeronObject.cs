@@ -45,6 +45,11 @@ namespace HeronEngine
         {
             throw new Exception("unimplemented");
         }
+
+        public virtual HObject Invoke(string s, HObject[] args)
+        {
+            throw new Exception("method invocation not supported on default object");
+        }
     }
 
     public class SystemObject : HObject
@@ -61,15 +66,286 @@ namespace HeronEngine
             return obj;
         }
 
-        public override bool ToBool()
+        public override string ToString()
         {
-            // TODO: add more checks
-            return (bool)obj;
+            return obj.ToString();
+        }
+
+        public override HObject Invoke(string s, HObject[] args)
+        {
+            throw new Exception("unimplemented");
+        }
+    }
+
+    public class IntObject : HObject
+    {
+        int val;
+
+        public IntObject(int x)
+        {
+            val = x;
         }
 
         public override string ToString()
         {
-            return obj.ToString();
+            return val.ToString();
+        }
+
+        public override object ToDotNetObject()
+        {
+            return val;
+        }
+
+        public override HObject Invoke(string s, HObject[] args)
+        {
+            throw new Exception("unimplemented");
+        }
+
+        public int GetInteger()
+        {
+            return val;
+        }
+
+        public HObject InvokeUnaryOperator(string s)
+        {
+            switch (s)
+            {
+                case "-": return new IntObject(-val);
+                case "~": return new IntObject(~val);
+                default:
+                    throw new Exception("Unary operation: '" + s + "' not supported by integers");
+            }
+        }
+
+        public HObject InvokeBinaryOperator(string s, int arg)
+        {
+            switch (s)
+            {
+                case "+": return new IntObject(val + arg);
+                case "-": return new IntObject(val - arg);
+                case "*": return new IntObject(val * arg);
+                case "/": return new IntObject(val / arg);
+                case "%": return new IntObject(val % arg);
+                case "==": return new BoolObject(val == arg);
+                case "!=": return new BoolObject(val != arg);
+                case "<": return new BoolObject(val < arg);
+                case ">": return new BoolObject(val > arg);
+                case "<=": return new BoolObject(val <= arg);
+                case ">=": return new BoolObject(val >= arg);
+                default:
+                    throw new Exception("Binary operation: '" + s + "' not supported by integers");
+            }
+        }
+    }
+
+    public class CharObject : HObject
+    {
+        char val;
+
+        public CharObject(char x)
+        {
+            val = x;
+        }
+
+        public override string ToString()
+        {
+            return val.ToString();
+        }
+
+        public override object ToDotNetObject()
+        {
+            return val;
+        }
+
+        public override HObject Invoke(string s, HObject[] args)
+        {
+            throw new Exception("unimplemented");
+        }
+
+        public char GetChar()
+        {
+            return val;
+        }
+
+        public HObject InvokeUnaryOperator(string s)
+        {
+            switch (s)
+            {
+                default:
+                    throw new Exception("Unary operation: '" + s + "' not supported by chars");
+            }
+        }
+
+        public HObject InvokeBinaryOperator(string s, char arg)
+        {
+            switch (s)
+            {
+                default:
+                    throw new Exception("Binary operation: '" + s + "' not supported by chars");
+            }
+        }
+    }
+
+    public class FloatObject : HObject
+    {
+        double val;
+
+        public FloatObject(double x)
+        {
+            val = x;
+        }
+
+        public override string ToString()
+        {
+            return val.ToString();
+        }
+
+        public override object ToDotNetObject()
+        {
+            return val;
+        }
+
+        public override HObject Invoke(string s, HObject[] args)
+        {
+            throw new Exception("unimplemented");
+        }
+
+        public double GetDouble()
+        {
+            return val;
+        }
+
+        public HObject InvokeUnaryOperator(string s)
+        {
+            switch (s)
+            {
+                case "-": return new FloatObject(-val);
+                default:
+                    throw new Exception("Unary operation: '" + s + "' not supported by integers");
+            }
+        }
+
+        public HObject InvokeBinaryOperator(string s, double arg) 
+        {
+            switch (s)
+            {
+                case "+": return new FloatObject(val + arg);
+                case "-": return new FloatObject(val - arg);
+                case "*": return new FloatObject(val * arg);
+                case "/": return new FloatObject(val / arg);
+                case "%": return new FloatObject(val % arg);
+                case "==": return new BoolObject(val == arg);
+                case "!=": return new BoolObject(val != arg);
+                case "<": return new BoolObject(val < arg);
+                case ">": return new BoolObject(val > arg);
+                case "<=": return new BoolObject(val <= arg);
+                case ">=": return new BoolObject(val >= arg);
+                default:
+                    throw new Exception("Binary operation: '" + s + "' not supported by floats");
+            }
+        }
+    }
+
+    public class BoolObject : HObject
+    {
+        bool val;
+
+        public BoolObject(bool x)
+        {
+            val = x;
+        }
+
+        public override string ToString()
+        {
+            return val.ToString();
+        }
+
+        public override object ToDotNetObject()
+        {
+            return val;
+        }
+
+        public override HObject Invoke(string s, HObject[] args)
+        {
+            throw new Exception("unimplemented");
+        }
+
+        public bool GetBool()
+        {
+            return val;
+        }
+
+        public HObject InvokeUnaryOperator(string s)
+        {
+            switch (s)
+            {
+                case "!": return new BoolObject(!val);
+                default:
+                    throw new Exception("Unary operation: '" + s + "' not supported by booleans");
+            }
+        }
+
+        public HObject InvokeBinaryOperator(string s, bool arg)
+        {
+            switch (s)
+            {
+                case "==": return new BoolObject(val == arg);
+                case "!=": return new BoolObject(val != arg);
+                case "&&": return new BoolObject(val && arg);
+                case "||": return new BoolObject(val || arg);
+                case "^^": return new BoolObject(val ^ arg);
+                default:
+                    throw new Exception("Binary operation: '" + s + "' not supported by booleans");
+            }
+        }
+    }
+
+    public class StringObject : HObject
+    {
+        string val;
+
+        public StringObject(string x)
+        {
+            val = x;
+        }
+
+        public override string ToString()
+        {
+            return val.ToString();
+        }
+
+        public override object ToDotNetObject()
+        {
+            return val;
+        }
+
+        public override HObject Invoke(string s, HObject[] args)
+        {
+            throw new Exception("unimplemented");
+        }
+
+        public string GetString()
+        {
+            return val;
+        }
+
+        public HObject InvokeUnaryOperator(string s)
+        {
+            switch (s)
+            {
+                default:
+                    throw new Exception("Unary operation: '" + s + "' not supported by integers");
+            }
+        }
+
+        public HObject InvokeBinaryOperator(string s, string arg)
+        {
+            switch (s)
+            {
+                case "+": return new StringObject(val + arg);
+                default:
+                    throw new Exception("Binary operation: '" + s + "' not supported by strings");
+            }
         }
     }
 
@@ -186,6 +462,11 @@ namespace HeronEngine
             }
             r += " }";
             return r;
+        }
+
+        public override HObject Invoke(string s, HObject[] args)
+        {
+            throw new Exception("unimplemented");
         }
     }
 }

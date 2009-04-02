@@ -159,23 +159,83 @@ namespace HeronEngine
         }
     }
 
-    public class Literal<T> : Expr
+    public class IntLiteral : Expr
     {
-        public T value;
+        IntObject val;
 
-        public Literal(T x)
+        public IntLiteral(int x)
         {
-            value = x;
+            val = new IntObject(x);
         }
 
         public override HObject Eval(Environment env)
         {
-            throw new NotImplementedException();
+            return val;
         }
 
         public override string ToString()
         {
-            return value.ToString();
+            return val.ToString();
+        }
+    }
+
+    public class FloatLiteral : Expr
+    {
+        FloatObject val;
+
+        public FloatLiteral(double x)
+        {
+            val = new FloatObject(x);
+        }
+
+        public override HObject Eval(Environment env)
+        {
+            return val;
+        }
+
+        public override string ToString()
+        {
+            return val.ToString();
+        }
+    }
+
+    public class CharLiteral : Expr
+    {
+        CharObject val;
+
+        public CharLiteral(char x)
+        {
+            val = new CharObject(x);
+        }
+
+        public override HObject Eval(Environment env)
+        {
+            return val;
+        }
+
+        public override string ToString()
+        {
+            return val.ToString();
+        }
+    }
+
+    public class StringLiteral : Expr
+    {
+        StringObject val;
+
+        public StringLiteral(string x)
+        {
+            val = new StringObject(x);
+        }
+
+        public override HObject Eval(Environment env)
+        {
+            return val;
+        }
+
+        public override string ToString()
+        {
+            return val.ToString();
         }
     }
 
@@ -256,7 +316,6 @@ namespace HeronEngine
                 case "-":
                     HObject o = operand.Eval(env);
                     return o.Invoke("-", new HObject[] { });
-                    break;
                 default:
                     throw new Exception("unary expression '" + op + "' is not supported");
             }
@@ -283,9 +342,68 @@ namespace HeronEngine
 
         public override HObject Eval(Environment env)
         {
-            HObject x = operand1.Eval(env);
-            HObject y = operand2.Eval(env);
-            return x.Invoke(op, new HObject[] { y });
+            Object a = operand1.Eval(env).ToDotNetObject();
+            Object b = operand2.Eval(env).ToDotNetObject();
+
+            if (a.GetType() == typeof(int))
+            {
+                if (b.GetType() == typeof(int))
+                {
+                    IntObject x = new IntObject((int)a);
+                    return x.InvokeBinaryOperator(op, (int)b);
+                }
+                else if (b.GetType() == typeof(double))
+                {
+                    FloatObject x = new FloatObject((int)a);
+                    return x.InvokeBinaryOperator(op, (double)b);
+                }
+                else
+                {
+                    throw new Exception("Incompatible types for binary operator " + a.GetType() + " and " + b.GetType());
+                }
+            }
+            else if (a.GetType() == typeof(double))
+            {
+                if (b.GetType() == typeof(int))
+                {
+                    FloatObject x = new FloatObject((double)a);
+                    return x.InvokeBinaryOperator(op, (int)b);
+                }
+                else if (b.GetType() == typeof(double))
+                {
+                    FloatObject x = new FloatObject((double)a);
+                    return x.InvokeBinaryOperator(op, (double)b);
+                }
+                else
+                {
+                    throw new Exception("Incompatible types for binary operator " + op + " : " + a.GetType() + " and " + b.GetType());
+                }
+            }
+            else if (a.GetType() == typeof(char))
+            {
+                CharObject x = new CharObject((char)a);
+                if (b.GetType() != typeof(char))
+                    throw new Exception("Incompatible types for binary operator " + op + " : " + a.GetType() + " and " + b.GetType());
+                return x.InvokeBinaryOperator(op, (char)b);
+            }
+            else if (a.GetType() == typeof(string))
+            {
+                StringObject x = new StringObject((string)a);
+                if (b.GetType() != typeof(string))
+                    throw new Exception("Incompatible types for binary operator " + op + " : " + a.GetType() + " and " + b.GetType());
+                return x.InvokeBinaryOperator(op, (string)b);
+            }
+            else if (a.GetType() == typeof(bool))
+            {
+                BoolObject x = new BoolObject((bool)a);
+                if (b.GetType() != typeof(bool))
+                    throw new Exception("Incompatible types for binary operator " + op + " : " + a.GetType() + " and " + b.GetType());
+                return x.InvokeBinaryOperator(op, (bool)b);
+            }
+            else
+            {
+                throw new Exception("The type " + a.GetType() + " does not support binary operators");
+            }
         }
 
         public override string ToString()
