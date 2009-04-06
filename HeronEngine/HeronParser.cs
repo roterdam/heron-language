@@ -44,17 +44,17 @@ namespace HeronEngine
         }
 
         #region construct parsing functions
-        static public HeronModule CreateModule(AstNode x)
+        static public Module CreateModule(AstNode x)
         {
-            HeronModule r = new HeronModule();
+            Module r = new Module();
             foreach (AstNode node in x.GetChildren())
                 r.classes.Add(CreateClass(node));
             return r;
         }
 
-        static public Class CreateClass(AstNode x)
+        static public HeronClass CreateClass(AstNode x)
         {
-            Class r = new Class();
+            HeronClass r = new HeronClass();
             r.name = x.GetChild("name").ToString();
 
             AstNode methods = x.GetChild("methods");

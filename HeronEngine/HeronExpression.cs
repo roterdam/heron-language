@@ -5,7 +5,10 @@ using System.Text;
 
 namespace HeronEngine
 {
-    public abstract class Expr : HObject
+    /// <summary>
+    /// An expression in its represtantation as part of the abstract syntax tree.     
+    /// </summary>
+    public abstract class Expr
     {
         protected void Error(string s)
         {
@@ -18,9 +21,12 @@ namespace HeronEngine
                 Error(s);
         }
 
-        public abstract HObject Eval(Environment env);
+        public abstract HeronObject Eval(Environment env);
     }
 
+    /// <summary>
+    /// A list of expressions, used primarily for passing arguments to functions
+    /// </summary>
     public class ExprList : List<Expr>
     {
         public override string ToString()
@@ -34,6 +40,14 @@ namespace HeronEngine
             s += ")";
             return s;
         }
+
+        public HeronObject[] Eval(Environment env)
+        {
+            List<HeronObject> list = new List<HeronObject>();
+            foreach (Expr x in this)
+                list.Add(x.Eval(env));
+            return list.ToArray();
+        }
     }
 
     public class VarAssignment : Expr
@@ -41,10 +55,10 @@ namespace HeronEngine
         public string name;
         public Expr rvalue; 
 
-        public override HObject Eval(Environment env)
+        public override HeronObject Eval(Environment env)
         {
-            env.SetVar(name, rvalue);
-            return HObject.Void;
+            env.SetVar(name, rvalue.Eval(env));
+            return HeronObject.Void;
         }
 
         public override string ToString()
@@ -66,14 +80,14 @@ namespace HeronEngine
             this.rvalue = rvalue;
         }
 
-        public override HObject Eval(Environment env)
+        public override HeronObject Eval(Environment env)
         {
-            HObject x = self.Eval(env);
+            HeronObject x = self.Eval(env);
             if (!(x is Instance))
                 Error("Left-side of field selector does not evaluate to a classifier instance");
             Instance i = x as Instance;              
             i.SetFieldValue(name, rvalue.Eval(env));
-            return HObject.Void;
+            return HeronObject.Void;
         }
 
         public override string ToString()
@@ -93,9 +107,9 @@ namespace HeronEngine
             this.name = name;
         }
 
-        public override HObject Eval(Environment env)
+        public override HeronObject Eval(Environment env)
         {
-            HObject x = self.Eval(env);
+            HeronObject x = self.Eval(env);
             Assure(x is Instance, "left-side of field selector is not an object");
             Instance i = x as Instance;
             return i.GetFieldValue(name);
@@ -120,13 +134,13 @@ namespace HeronEngine
             this.rvalue = val;
         }
 
-        public override HObject Eval(Environment env)
+        public override HeronObject Eval(Environment env)
         {
-            HObject o = coll.Eval(env);
-            HObject i = index.Eval(env);
-            HObject v = rvalue.Eval(env);
+            HeronObject o = coll.Eval(env);
+            HeronObject i = index.Eval(env);
+            HeronObject v = rvalue.Eval(env);
             o.SetAt(i, v);
-            return HObject.Void;
+            return HeronObject.Void;
         }
 
         public override string ToString()
@@ -146,10 +160,10 @@ namespace HeronEngine
             this.index = index;
         }
 
-        public override HObject Eval(Environment env)
+        public override HeronObject Eval(Environment env)
         {
-            HObject o = coll.Eval(env);
-            HObject i = index.Eval(env);
+            HeronObject o = coll.Eval(env);
+            HeronObject i = index.Eval(env);
             return o.GetAt(i);
         }
 
@@ -159,83 +173,55 @@ namespace HeronEngine
         }
     }
 
-    public class IntLiteral : Expr
+    public class Literal<T> : Expr where T : HeronObject
     {
-        IntObject val;
+        T val;
 
+        public Literal(T x)
+        {
+            val = x;
+        }
+
+        public override HeronObject Eval(Environment env)
+        {
+            return val;
+        }
+
+        public override string ToString()
+        {
+            return val.ToString();
+        }
+    }
+
+    public class IntLiteral : Literal<IntObject>
+    {
         public IntLiteral(int x)
+            : base(new IntObject(x))
         {
-            val = new IntObject(x);
-        }
-
-        public override HObject Eval(Environment env)
-        {
-            return val;
-        }
-
-        public override string ToString()
-        {
-            return val.ToString();
         }
     }
 
-    public class FloatLiteral : Expr
+    public class FloatLiteral : Literal<FloatObject>
     {
-        FloatObject val;
-
         public FloatLiteral(double x)
+            : base(new FloatObject(x))
         {
-            val = new FloatObject(x);
-        }
-
-        public override HObject Eval(Environment env)
-        {
-            return val;
-        }
-
-        public override string ToString()
-        {
-            return val.ToString();
         }
     }
 
-    public class CharLiteral : Expr
+    public class CharLiteral : Literal<CharObject> 
     {
-        CharObject val;
-
         public CharLiteral(char x)
+            : base(new CharObject(x))
         {
-            val = new CharObject(x);
-        }
-
-        public override HObject Eval(Environment env)
-        {
-            return val;
-        }
-
-        public override string ToString()
-        {
-            return val.ToString();
         }
     }
 
-    public class StringLiteral : Expr
+    public class StringLiteral : Literal<StringObject>
     {
-        StringObject val;
-
         public StringLiteral(string x)
+            : base(new StringObject(x))
         {
-            val = new StringObject(x);
-        }
-
-        public override HObject Eval(Environment env)
-        {
-            return val;
-        }
-
-        public override string ToString()
-        {
-            return val.ToString();
         }
     }
 
@@ -248,7 +234,7 @@ namespace HeronEngine
             name = s;
         }
 
-        public override HObject Eval(Environment env)
+        public override HeronObject Eval(Environment env)
         {
             return env.GetVar(name);
         }
@@ -270,7 +256,7 @@ namespace HeronEngine
             this.args = args;
         }
         
-        public override HObject Eval(Environment env)
+        public override HeronObject Eval(Environment env)
         {
             throw new NotImplementedException();
         }
@@ -284,17 +270,40 @@ namespace HeronEngine
     public class New : Expr
     {
         public string type;
+        string basetype;
         public ExprList args;
 
         public New(string type, ExprList args)
         {
             this.type = type;
+            basetype = HeronType.StripTemplateArgs(type);
             this.args = args;
         }
 
-        public override HObject Eval(Environment env)
+        public override HeronObject Eval(Environment env)
         {
-            return env.Instantiate(type);
+            // Convert things like List<int> to List
+            HeronObject var = env.GetVar(basetype);            
+
+            if (!(var is HeronType))
+                throw new Exception("only types can be instantiated, " + var + " is not a type it is a " + var.GetType());
+            
+            if (var is HeronClass)
+            {
+                HeronClass c = var as HeronClass;
+                HeronObject r = c.Instantiate(env, args.Eval(env));
+                return r;
+            }
+            else if (var is DotNetType)
+            {
+                DotNetType t = var as DotNetType;
+                HeronObject r = t.Instantiate(env, args.Eval(env));
+                return r;
+            }
+            else
+            {
+                throw new Exception("The type " + basetype + " is not recognized as an instantiable type");
+            }
         }
     }
 
@@ -309,16 +318,10 @@ namespace HeronEngine
             operand = x;
         }
 
-        public override HObject Eval(Environment env)
+        public override HeronObject Eval(Environment env)
         {
-            switch (op)
-            {
-                case "-":
-                    HObject o = operand.Eval(env);
-                    return o.Invoke("-", new HObject[] { });
-                default:
-                    throw new Exception("unary expression '" + op + "' is not supported");
-            }
+            HeronObject o = operand.Eval(env);
+            return o.InvokeUnaryOperator(op);
         }
 
         public override string ToString()
@@ -340,65 +343,58 @@ namespace HeronEngine
             operand2 = y;
         }
 
-        public override HObject Eval(Environment env)
+        public override HeronObject Eval(Environment env)
         {
-            Object a = operand1.Eval(env).ToDotNetObject();
-            Object b = operand2.Eval(env).ToDotNetObject();
+            HeronObject a = operand1.Eval(env);
+            HeronObject b = operand2.Eval(env);
 
-            if (a.GetType() == typeof(int))
+            if (a is IntObject)
             {
-                if (b.GetType() == typeof(int))
+                if (b is IntObject)
                 {
-                    IntObject x = new IntObject((int)a);
-                    return x.InvokeBinaryOperator(op, (int)b);
+                    return (a as IntObject).InvokeBinaryOperator(op, b as IntObject);
                 }
-                else if (b.GetType() == typeof(double))
+                else if (b is FloatObject)
                 {
-                    FloatObject x = new FloatObject((int)a);
-                    return x.InvokeBinaryOperator(op, (double)b);
+                    return (new FloatObject((a as IntObject).GetValue())).InvokeBinaryOperator(op, b as FloatObject);
                 }
                 else
                 {
                     throw new Exception("Incompatible types for binary operator " + a.GetType() + " and " + b.GetType());
                 }
             }
-            else if (a.GetType() == typeof(double))
+            else if (a is FloatObject)
             {
-                if (b.GetType() == typeof(int))
+                if (b is IntObject)
                 {
-                    FloatObject x = new FloatObject((double)a);
-                    return x.InvokeBinaryOperator(op, (int)b);
+                    return (a as FloatObject).InvokeBinaryOperator(op, new FloatObject((b as IntObject).GetValue()));
                 }
-                else if (b.GetType() == typeof(double))
+                else if (b is FloatObject)
                 {
-                    FloatObject x = new FloatObject((double)a);
-                    return x.InvokeBinaryOperator(op, (double)b);
+                    return (a as FloatObject).InvokeBinaryOperator(op, b as FloatObject);
                 }
                 else
                 {
                     throw new Exception("Incompatible types for binary operator " + op + " : " + a.GetType() + " and " + b.GetType());
                 }
             }
-            else if (a.GetType() == typeof(char))
+            else if (a is CharObject)
             {
-                CharObject x = new CharObject((char)a);
-                if (b.GetType() != typeof(char))
+                if (!(b is CharObject))
                     throw new Exception("Incompatible types for binary operator " + op + " : " + a.GetType() + " and " + b.GetType());
-                return x.InvokeBinaryOperator(op, (char)b);
+                return (a as CharObject).InvokeBinaryOperator(op, b as CharObject);
             }
-            else if (a.GetType() == typeof(string))
+            else if (a is StringObject)
             {
-                StringObject x = new StringObject((string)a);
-                if (b.GetType() != typeof(string))
+                if (!(b is StringObject))
                     throw new Exception("Incompatible types for binary operator " + op + " : " + a.GetType() + " and " + b.GetType());
-                return x.InvokeBinaryOperator(op, (string)b);
+                return (a as StringObject).InvokeBinaryOperator(op, b as StringObject);
             }
-            else if (a.GetType() == typeof(bool))
+            else if (a is BoolObject)
             {
-                BoolObject x = new BoolObject((bool)a);
-                if (b.GetType() != typeof(bool))
+                if (!(b is BoolObject))
                     throw new Exception("Incompatible types for binary operator " + op + " : " + a.GetType() + " and " + b.GetType());
-                return x.InvokeBinaryOperator(op, (bool)b);
+                return (a as BoolObject).InvokeBinaryOperator(op, b as BoolObject);
             }
             else
             {

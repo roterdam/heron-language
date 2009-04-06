@@ -2,21 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Reflection;
 
 namespace HeronEngine
 {
-    public class HObject
+    public class HeronObject
     {
         string type = "undefined";
 
-        public static HObject Void = new HObject("void");
-        public static HObject Null = new HObject("null");
+        public static HeronObject Void = new HeronObject("void");
+        public static HeronObject Null = new HeronObject("null");
 
-        public HObject()
+        public HeronObject()
         {            
         }
 
-        public HObject(string type)
+        public HeronObject(string type)
         {
             this.type = type;
         }
@@ -36,27 +37,38 @@ namespace HeronEngine
             throw new Exception("Cannot convert " + type + " into System.Boolean");
         }
 
-        public virtual HObject GetAt(HObject index)
+        public virtual HeronObject GetAt(HeronObject index)
         {
             throw new Exception("unimplemented");
         }
 
-        public virtual void SetAt(HObject index, HObject val)
+        public virtual void SetAt(HeronObject index, HeronObject val)
         {
             throw new Exception("unimplemented");
         }
 
-        public virtual HObject Invoke(string s, HObject[] args)
+        public virtual HeronObject Invoke(Environment env, string s, HeronObject self, HeronObject[] args)
         {
-            throw new Exception("method invocation not supported on default object");
+            throw new Exception("method invocation not supported on " + ToString());
         }
+
+        public virtual HeronObject InvokeUnaryOperator(string s)
+        {
+            throw new Exception("unary operator invocation not supported on " + ToString());
+        }
+
+        public virtual HeronObject InvokeBinaryOperator(string s, HeronObject x)
+        {
+            throw new Exception("binary operator invocation not supported on " + ToString());
+        }
+
     }
 
-    public class SystemObject : HObject
+    public class DotNetObject : HeronObject
     {
         Object obj;
 
-        public SystemObject(Object obj)
+        public DotNetObject(Object obj)
         {
             this.obj = obj;
         }
@@ -71,19 +83,30 @@ namespace HeronEngine
             return obj.ToString();
         }
 
-        public override HObject Invoke(string s, HObject[] args)
+        public override HeronObject Invoke(Environment env, string s, HeronObject self, HeronObject[] args)
         {
-            throw new Exception("unimplemented");
+            Object[] objs = HeronType.HeronObjectArrayToDotNetArray(args);
+            Type[] types = HeronType.ObjectsToTypes(objs);
+            Type type = obj.GetType();
+            MethodInfo mi = type.GetMethod(s, types);
+            if (mi == null)
+                throw new Exception("unable to find  method " + s + " on the dot net object " + obj.ToString() + " with supplied argument types");
+            Object r = mi.Invoke(self.ToDotNetObject(), objs);
+            return new DotNetObject(r);
         }
     }
 
-    public class IntObject : HObject
+    public class PrimitiveObject<T> : HeronObject 
     {
-        int val;
+        T val;
 
-        public IntObject(int x)
+        public PrimitiveObject(T x)
         {
             val = x;
+        }
+
+        public PrimitiveObject()
+        {
         }
 
         public override string ToString()
@@ -96,78 +119,81 @@ namespace HeronEngine
             return val;
         }
 
-        public override HObject Invoke(string s, HObject[] args)
-        {
-            throw new Exception("unimplemented");
-        }
-
-        public int GetInteger()
+        public T GetValue()
         {
             return val;
         }
+    }
 
-        public HObject InvokeUnaryOperator(string s)
+    public class IntObject : PrimitiveObject<int>
+    {
+        public IntObject(int x)
+            : base(x)
+        {
+        }
+
+        public IntObject()
+        {
+        }
+
+        public override HeronObject Invoke(Environment env, string s, HeronObject self, HeronObject[] args)
+        {
+            throw new Exception("No methods available on Int object");
+        }
+
+        public override HeronObject InvokeUnaryOperator(string s)
         {
             switch (s)
             {
-                case "-": return new IntObject(-val);
-                case "~": return new IntObject(~val);
+                case "-": return new IntObject(-GetValue());
+                case "~": return new IntObject(~GetValue());
                 default:
                     throw new Exception("Unary operation: '" + s + "' not supported by integers");
             }
         }
 
-        public HObject InvokeBinaryOperator(string s, int arg)
+        public override HeronObject InvokeBinaryOperator(string s, HeronObject x)
         {
+            if (!(x is IntObject))
+                throw new Exception("binary operation not supported on differently typed objects");
+
+            int arg = (x as IntObject).GetValue();
             switch (s)
             {
-                case "+": return new IntObject(val + arg);
-                case "-": return new IntObject(val - arg);
-                case "*": return new IntObject(val * arg);
-                case "/": return new IntObject(val / arg);
-                case "%": return new IntObject(val % arg);
-                case "==": return new BoolObject(val == arg);
-                case "!=": return new BoolObject(val != arg);
-                case "<": return new BoolObject(val < arg);
-                case ">": return new BoolObject(val > arg);
-                case "<=": return new BoolObject(val <= arg);
-                case ">=": return new BoolObject(val >= arg);
+                case "+": return new IntObject(GetValue() + arg);
+                case "-": return new IntObject(GetValue() - arg);
+                case "*": return new IntObject(GetValue() * arg);
+                case "/": return new IntObject(GetValue() / arg);
+                case "%": return new IntObject(GetValue() % arg);
+                case "==": return new BoolObject(GetValue() == arg);
+                case "!=": return new BoolObject(GetValue() != arg);
+                case "<": return new BoolObject(GetValue() < arg);
+                case ">": return new BoolObject(GetValue() > arg);
+                case "<=": return new BoolObject(GetValue() <= arg);
+                case ">=": return new BoolObject(GetValue() >= arg);
                 default:
                     throw new Exception("Binary operation: '" + s + "' not supported by integers");
             }
         }
     }
 
-    public class CharObject : HObject
+    public class CharObject : PrimitiveObject<char>
     {
-        char val;
-
         public CharObject(char x)
+            : base(x)
         {
-            val = x;
         }
 
-        public override string ToString()
+        public CharObject()
         {
-            return val.ToString();
         }
 
-        public override object ToDotNetObject()
+        public override HeronObject Invoke(Environment env, string s, HeronObject self, HeronObject[] args)
         {
-            return val;
+            throw new Exception("No methods available on Char object");
         }
 
-        public override HObject Invoke(string s, HObject[] args)
-        {
-            throw new Exception("unimplemented");
-        }
-
-        public char GetChar()
-        {
-            return val;
-        }
-
-        public HObject InvokeUnaryOperator(string s)
+        public override HeronObject InvokeUnaryOperator(string s)
         {
             switch (s)
             {
@@ -176,7 +202,7 @@ namespace HeronEngine
             }
         }
 
-        public HObject InvokeBinaryOperator(string s, char arg)
+        public override HeronObject InvokeBinaryOperator(string s, HeronObject x)
         {
             switch (s)
             {
@@ -186,150 +212,117 @@ namespace HeronEngine
         }
     }
 
-    public class FloatObject : HObject
+    public class FloatObject : PrimitiveObject<double>
     {
-        double val;
-
         public FloatObject(double x)
+            : base(x)
         {
-            val = x;
         }
 
-        public override string ToString()
+        public FloatObject()
         {
-            return val.ToString();
         }
 
-        public override object ToDotNetObject()
+        public override HeronObject Invoke(Environment env, string s, HeronObject self, HeronObject[] args)
         {
-            return val;
+            throw new Exception("No methods available on Float object");
         }
 
-        public override HObject Invoke(string s, HObject[] args)
-        {
-            throw new Exception("unimplemented");
-        }
-
-        public double GetDouble()
-        {
-            return val;
-        }
-
-        public HObject InvokeUnaryOperator(string s)
+        public override HeronObject InvokeUnaryOperator(string s)
         {
             switch (s)
             {
-                case "-": return new FloatObject(-val);
+                case "-": return new FloatObject(-GetValue());
                 default:
                     throw new Exception("Unary operation: '" + s + "' not supported by integers");
             }
         }
 
-        public HObject InvokeBinaryOperator(string s, double arg) 
+        public override HeronObject InvokeBinaryOperator(string s, HeronObject x) 
         {
+            if (!(x is FloatObject))
+                throw new Exception("binary operation not supported on differently typed objects");
+            double arg = (x as FloatObject).GetValue();
             switch (s)
             {
-                case "+": return new FloatObject(val + arg);
-                case "-": return new FloatObject(val - arg);
-                case "*": return new FloatObject(val * arg);
-                case "/": return new FloatObject(val / arg);
-                case "%": return new FloatObject(val % arg);
-                case "==": return new BoolObject(val == arg);
-                case "!=": return new BoolObject(val != arg);
-                case "<": return new BoolObject(val < arg);
-                case ">": return new BoolObject(val > arg);
-                case "<=": return new BoolObject(val <= arg);
-                case ">=": return new BoolObject(val >= arg);
+                case "+": return new FloatObject(GetValue() + arg);
+                case "-": return new FloatObject(GetValue() - arg);
+                case "*": return new FloatObject(GetValue() * arg);
+                case "/": return new FloatObject(GetValue() / arg);
+                case "%": return new FloatObject(GetValue() % arg);
+                case "==": return new BoolObject(GetValue() == arg);
+                case "!=": return new BoolObject(GetValue() != arg);
+                case "<": return new BoolObject(GetValue() < arg);
+                case ">": return new BoolObject(GetValue() > arg);
+                case "<=": return new BoolObject(GetValue() <= arg);
+                case ">=": return new BoolObject(GetValue() >= arg);
                 default:
                     throw new Exception("Binary operation: '" + s + "' not supported by floats");
             }
         }
     }
 
-    public class BoolObject : HObject
+    public class BoolObject : PrimitiveObject<bool>
     {
-        bool val;
-
         public BoolObject(bool x)
+            : base(x)
         {
-            val = x;
         }
 
-        public override string ToString()
+        public BoolObject()
         {
-            return val.ToString();
         }
 
-        public override object ToDotNetObject()
+        public override HeronObject Invoke(Environment env, string s, HeronObject self, HeronObject[] args)
         {
-            return val;
+            throw new Exception("No methods available on Bool object");
         }
 
-        public override HObject Invoke(string s, HObject[] args)
-        {
-            throw new Exception("unimplemented");
-        }
-
-        public bool GetBool()
-        {
-            return val;
-        }
-
-        public HObject InvokeUnaryOperator(string s)
+        public override HeronObject InvokeUnaryOperator(string s)
         {
             switch (s)
             {
-                case "!": return new BoolObject(!val);
+                case "!": return new BoolObject(!GetValue());
                 default:
                     throw new Exception("Unary operation: '" + s + "' not supported by booleans");
             }
         }
 
-        public HObject InvokeBinaryOperator(string s, bool arg)
+        public override HeronObject InvokeBinaryOperator(string s, HeronObject x)
         {
+            if (!(x is BoolObject))
+                throw new Exception("binary operation not supported on differently typed objects");
+            bool arg = (x as BoolObject).GetValue();
             switch (s)
             {
-                case "==": return new BoolObject(val == arg);
-                case "!=": return new BoolObject(val != arg);
-                case "&&": return new BoolObject(val && arg);
-                case "||": return new BoolObject(val || arg);
-                case "^^": return new BoolObject(val ^ arg);
+                case "==": return new BoolObject(GetValue() == arg);
+                case "!=": return new BoolObject(GetValue() != arg);
+                case "&&": return new BoolObject(GetValue() && arg);
+                case "||": return new BoolObject(GetValue() || arg);
+                case "^^": return new BoolObject(GetValue() ^ arg);
                 default:
                     throw new Exception("Binary operation: '" + s + "' not supported by booleans");
             }
         }
     }
 
-    public class StringObject : HObject
+    public class StringObject : PrimitiveObject<string>
     {
-        string val;
-
         public StringObject(string x)
+            : base(x)
         {
-            val = x;
         }
 
-        public override string ToString()
+        public StringObject()
         {
-            return val.ToString();
         }
 
-        public override object ToDotNetObject()
+        public override HeronObject Invoke(Environment env, string s, HeronObject self, HeronObject[] args)
         {
-            return val;
+            throw new Exception("No methods available on String object");
         }
 
-        public override HObject Invoke(string s, HObject[] args)
-        {
-            throw new Exception("unimplemented");
-        }
-
-        public string GetString()
-        {
-            return val;
-        }
-
-        public HObject InvokeUnaryOperator(string s)
+        public override HeronObject InvokeUnaryOperator(string s)
         {
             switch (s)
             {
@@ -338,30 +331,36 @@ namespace HeronEngine
             }
         }
 
-        public HObject InvokeBinaryOperator(string s, string arg)
+        public override HeronObject InvokeBinaryOperator(string s, HeronObject x)
         {
+            if (!(x is StringObject))
+                throw new Exception("binary operation not supported on differently typed objects");
+            string arg = (x as StringObject).GetValue();
             switch (s)
             {
-                case "+": return new StringObject(val + arg);
+                case "+": return new StringObject(GetValue() + arg);
                 default:
                     throw new Exception("Binary operation: '" + s + "' not supported by strings");
             }
         }
     }
 
-    public class Collection : HObject
+    public class ListObject : HeronObject
     {
+        List<HeronObject> list = new List<HeronObject>();
     }
 
     /// <summary>
-    /// An instance of a Heron class.
+    /// An instance of a Heron class. A HeronObject is more general in that it includes 
+    /// primitive objects and .NET objects which are not part of the HeronClass 
+    /// hierarchy.
     /// </summary>
-    public class Instance : HObject
+    public class Instance : HeronObject
     {
-        public Class hclass;
+        public HeronClass hclass;
         public ObjectTable fields = new ObjectTable();
 
-        public Instance(Class c)
+        public Instance(HeronClass c)
         {
             hclass = c;
         }
@@ -401,7 +400,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="name"></param>
         /// <param name="val"></param>
-        public void SetFieldValue(string name, HObject val)
+        public void SetFieldValue(string name, HeronObject val)
         {
             AssureFieldExists(name);
             fields[name] = val;
@@ -422,7 +421,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="name"></param>
         /// <param name="val"></param>
-        public void AddField(string name, HObject val)
+        public void AddField(string name, HeronObject val)
         {
             AssureFieldDoesntExist(name);
             fields.Add(name, val);
@@ -433,7 +432,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="name"></param>
         /// <param name="val"></param>
-        public void AddOrSetFieldValue(string name, HObject val)
+        public void AddOrSetFieldValue(string name, HeronObject val)
         {
             if (HasField(name))
                 fields[name] = val;
@@ -445,7 +444,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public HObject GetFieldValue(string name)
+        public HeronObject GetFieldValue(string name)
         {
             AssureFieldExists(name);
             return fields[name];
@@ -464,8 +463,9 @@ namespace HeronEngine
             return r;
         }
 
-        public override HObject Invoke(string s, HObject[] args)
+        public override HeronObject Invoke(Environment env, string s, HeronObject self, HeronObject[] args)
         {
+            Function f = hclass.FindMethod(s, args);
             throw new Exception("unimplemented");
         }
     }

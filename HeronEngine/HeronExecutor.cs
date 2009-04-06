@@ -2,10 +2,107 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Peg;
+using ViewportLib;
+using HeronTests;
 
 namespace HeronEngine
 {
-    class HeronExecutor
+    /// <summary>
+    /// Encapsulates the following components:
+    /// - concrete syntax tree parser (Parser)
+    /// - abstract syntax tree parser (HeronParser)
+    /// - lexical environment (Environment)
+    /// - evaluator (Expression and Statement)
+    /// </summary>
+    public class HeronExecutor
     {
+        Environment env = new Environment();
+
+        public HeronExecutor()
+        {
+            RegisterPrimitives();
+        }
+
+        void RegisterPrimitiveType(string name)
+        {
+            env.AddVar(name, new HeronPrimitive(name));
+        }
+
+        void RegisterDotNetType(string name, Type t)
+        {
+            env.AddVar(name, new DotNetType(name, t));
+        }
+
+        void RegisterPrimitives()
+        {
+            RegisterPrimitiveType("Int");
+            RegisterPrimitiveType("Float");
+            RegisterPrimitiveType("Char");
+            RegisterPrimitiveType("String");
+            RegisterPrimitiveType("List");
+            
+            RegisterDotNetType("Viewport", typeof(Viewport));
+        }
+
+        public HeronObject EvalExpr(string s)
+        {
+            Expr x = ParseExpr(s);
+            HeronObject o = x.Eval(env);
+            return o;
+        }
+
+        #region static public functions
+        static public Expr ParseExpr(string s)
+        {
+            AstNode node = ParserState.Parse(HeronGrammar.Expr(), s);
+            if (node.GetLabel() != "ast")
+                throw new Exception("no root AST node");
+            if (node.GetNumChildren() != 1)
+                throw new Exception("more than one child node parsed");
+            node = node.GetChild(0);
+            if (node == null)
+                return null;
+            Expr r = HeronParser.CreateExpr(node);
+            return r;
+        }
+
+        static public Statement ParseStatement(string s)
+        {
+            AstNode node = ParserState.Parse(HeronGrammar.Statement(), s);
+            if (node.GetLabel() != "ast")
+                throw new Exception("no root AST node");
+            if (node.GetNumChildren() != 1)
+                throw new Exception("more than one child node parsed");
+            node = node.GetChild(0);
+            if (node == null)
+                return null;
+            Statement r = HeronParser.CreateStatement(node);
+            return r;
+        }
+
+        static public Module ParseModule(string s)
+        {
+            AstNode node = ParserState.Parse(HeronGrammar.Module(), s);
+            if (node.GetLabel() != "ast")
+                throw new Exception("no root AST node");
+            if (node.GetNumChildren() != 1)
+                throw new Exception("more than one child node parsed");
+            node = node.GetChild(0);
+            if (node == null)
+                return null;
+            Module r = HeronParser.CreateModule(node);
+            return r;
+        }
+
+        /// <summary>
+        /// Entry point for the application. 
+        /// </summary>
+        /// <param name="args"></param>
+        static public void Main(string[] args)
+        {
+            HeronTests.HeronTests.MainTest();
+        }
+        #endregion 
     }
 }

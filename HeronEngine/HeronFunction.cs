@@ -9,15 +9,15 @@ namespace HeronEngine
     /// <summary>
     /// Represents the definition of a Heron function or member function
     /// </summary>
-    public class Function : HObject
+    public class Function : HeronObject
     {
         public string name;
-        public Class hclass;
+        public HeronClass hclass;
         public Statement body;
         public FormalArgs formals;
         public string rettype;
 
-        public void Call(Environment env, Instance self, HObject[] args)
+        public void Call(Environment env, Instance self, HeronObject[] args)
         {
             if (self == null)
             {
@@ -29,7 +29,7 @@ namespace HeronEngine
             }
         }
 
-        private void PushArgsAsScope(Environment env, HObject[] args)
+        private void PushArgsAsScope(Environment env, HeronObject[] args)
         {
             int n = formals.Count;
             Trace.Assert(n == args.Length);
@@ -37,7 +37,7 @@ namespace HeronEngine
                 env.AddVar(formals[i].name, args[i]);
         }
 
-        private void CallAsMethod(Environment env, Instance self, HObject[] args)
+        private void CallAsMethod(Environment env, Instance self, HeronObject[] args)
         {
             // Create a stack frame 
             env.PushNewFrame(this, self);
@@ -61,7 +61,7 @@ namespace HeronEngine
             env.PopFrame(); 
         }
 
-        private void CallAsFunction(Environment env, HObject[] args)
+        private void CallAsFunction(Environment env, HeronObject[] args)
         {
             // Create a stack frame 
             env.PushNewFrame(this, null);
@@ -79,12 +79,12 @@ namespace HeronEngine
             env.PopFrame();
         }
 
-        private void VerifyArgTypes(HObject[] args)
+        private void VerifyArgTypes(HeronObject[] args)
         {
             // TODO:
         }
 
-        private void VerifySelfType(HObject self)
+        private void VerifySelfType(HeronObject self)
         {
             // TODO:
         }

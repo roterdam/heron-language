@@ -8,6 +8,10 @@ using System.Diagnostics;
 
 namespace Peg
 {
+    /// <summary>
+    /// Used to identify where an error occured in an input string. 
+    /// Such as the line number and character number.
+    /// </summary>
     public class ParsingException : Exception
     {
         public int index;
@@ -27,7 +31,11 @@ namespace Peg
         }
     }
     
-    public class Parser
+    /// <summary>
+    /// Store everything related to the state of the parser, including the input string,
+    /// current index, concrete syntax tree, and current tree node being build.
+    /// </summary>
+    public class ParserState
     {
         int mIndex;
         int mExtent;
@@ -35,7 +43,7 @@ namespace Peg
         AstNode mTree;
         AstNode mCur;
 
-        public Parser(string s)
+        public ParserState(string s)
         {
             mIndex = 0;
             mExtent = 0;
@@ -208,7 +216,7 @@ namespace Peg
 
         public static AstNode Parse(Peg.Grammar.Rule g, string s)
         {
-            Parser p = new Parser(s);
+            ParserState p = new ParserState(s);
             return p.Parse(g);
         }
     }
