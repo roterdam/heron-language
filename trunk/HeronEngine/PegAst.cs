@@ -34,14 +34,14 @@ namespace Peg
             return mnBegin;
         }
 
-        public AstNode Add(string sLabel, Parser p)
+        public AstNode Add(string sLabel, ParserState p)
         {
             AstNode ret = new AstNode(sLabel, p.GetIndex(), msText, this);
             mChildren.Add(ret);
             return ret;
         }
 
-        public void Complete(Parser p)
+        public void Complete(ParserState p)
         {
             mnCount = p.GetIndex() - mnBegin;
         }

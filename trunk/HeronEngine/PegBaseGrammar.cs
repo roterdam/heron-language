@@ -40,7 +40,13 @@ namespace Peg
         /// </summary>
         public abstract class Rule
         {
-            public abstract bool Match(Parser p);
+            /// <summary>
+            /// Returns true if the rule matches the sub-string starting at the current location 
+            /// in the parser object. 
+            /// </summary>
+            /// <param name="p"></param>
+            /// <returns></returns>
+            public abstract bool Match(ParserState p);
         }
 
         /// <summary>
@@ -62,7 +68,7 @@ namespace Peg
                 mRule = r;
             }
 
-            public override bool Match(Parser p)
+            public override bool Match(ParserState p)
             {
                 p.CreateNode(msLabel);
                 bool result = mRule.Match(p);
@@ -98,7 +104,7 @@ namespace Peg
                 mDeleg = deleg;
             }
 
-            public override bool Match(Parser p)
+            public override bool Match(ParserState p)
             {
                 return mDeleg().Match(p);
             }
@@ -132,7 +138,7 @@ namespace Peg
                 msMsg = s;
             }
 
-            public override bool Match(Parser p)
+            public override bool Match(ParserState p)
             {
                 if (!mRule.Match(p))
                 {
@@ -157,7 +163,7 @@ namespace Peg
                 mRules = xs;
             }
 
-            public override bool Match(Parser p)
+            public override bool Match(ParserState p)
             {
                 int iter = p.GetIndex();
                 foreach (Rule r in mRules)
@@ -201,7 +207,7 @@ namespace Peg
                 mRules = xs;
             }
 
-            public override bool Match(Parser p)
+            public override bool Match(ParserState p)
             {
                 foreach (Rule r in mRules)
                 {
@@ -238,7 +244,7 @@ namespace Peg
                 mRule = r;
             }
 
-            public override bool Match(Parser p)
+            public override bool Match(ParserState p)
             {
                 mRule.Match(p);
                 return true;
@@ -265,7 +271,7 @@ namespace Peg
                 mRule = r;
             }
 
-            public override bool Match(Parser p)
+            public override bool Match(ParserState p)
             {
                 while (mRule.Match(p))
                 { }
@@ -291,7 +297,7 @@ namespace Peg
                 mRule = r;
             }
 
-            public override bool Match(Parser p)
+            public override bool Match(ParserState p)
             {
                 if (!mRule.Match(p))
                     return false;
@@ -313,7 +319,7 @@ namespace Peg
         /// </summary>
         public class EndOfInputRule : Rule
         {
-            public override bool Match(Parser p)
+            public override bool Match(ParserState p)
             {
                 return p.AtEnd();
             }
@@ -336,7 +342,7 @@ namespace Peg
                 mRule = r;
             }
 
-            public override bool Match(Parser p)
+            public override bool Match(ParserState p)
             {
                 int pos = p.GetIndex();
                 if (mRule.Match(p))
@@ -366,7 +372,7 @@ namespace Peg
                 mData = x;
             }
 
-            public override bool Match(Parser p)
+            public override bool Match(ParserState p)
             {
                 if (p.AtEnd()) return false;
                 if (p.GetChar() == mData)
@@ -396,7 +402,7 @@ namespace Peg
                 mData = x;
             }
 
-            public override bool Match(Parser p)
+            public override bool Match(ParserState p)
             {
                 if (p.AtEnd()) return false;
                 int pos = p.GetIndex();
@@ -426,7 +432,7 @@ namespace Peg
         /// </summary>
         public class AnyCharRule : Rule
         {
-            public override bool Match(Parser p)
+            public override bool Match(ParserState p)
             {
                 if (!p.AtEnd())
                 {
@@ -453,7 +459,7 @@ namespace Peg
                 mData = s;
             }
 
-            public override bool Match(Parser p)
+            public override bool Match(ParserState p)
             {
                 if (p.AtEnd()) 
                     return false;
@@ -489,7 +495,7 @@ namespace Peg
                 Trace.Assert(mFirst < mLast);
             }
 
-            public override bool Match(Parser p)
+            public override bool Match(ParserState p)
             {
                 if (p.AtEnd()) return false;
                 if (p.GetChar() >= mFirst && p.GetChar() <= mLast)
@@ -521,7 +527,7 @@ namespace Peg
                 mTerm = term;
             }
 
-            public override bool Match(Parser p)
+            public override bool Match(ParserState p)
             {
                 int pos = p.GetIndex();
                 while (!mTerm.Match(p))

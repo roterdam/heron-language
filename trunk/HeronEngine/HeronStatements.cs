@@ -5,7 +5,7 @@ using System.Text;
 
 namespace HeronEngine
 {
-    public abstract class Statement : HObject 
+    public abstract class Statement 
     {
         public abstract void Execute(Environment env);
     }

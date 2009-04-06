@@ -9,7 +9,7 @@ namespace HeronEngine
     /// This is an association list of objects with names.
     /// This is mostly used as a mechanism for creating scoped names.
     /// </summary>
-    public class ObjectTable : Dictionary<String, HObject>
+    public class ObjectTable : Dictionary<String, HeronObject>
     {
     }
 
@@ -21,7 +21,7 @@ namespace HeronEngine
     /// </summary>
     public class Frame : Stack<ObjectTable>
     {
-        public Frame(Function f, HObject self)
+        public Frame(Function f, HeronObject self)
         {
             this.function = f;
             this.self = self;
@@ -35,7 +35,7 @@ namespace HeronEngine
         /// <summary>
         /// The 'this' pointer if applicable 
         /// </summary>
-        public HObject self;
+        public HeronObject self;
        
     }
 
@@ -44,17 +44,13 @@ namespace HeronEngine
     /// It is organized as a stack of frames. It has a temporary "result" variable
     /// and a list of arguments.
     /// </summary>
-    public class Environment : HObject
+    public class Environment : HeronObject
     {
-        /// <summary>
-        /// The last activation record. Useful for debugging, and retrieving return resultws
-        /// </summary>
-        public Frame last;
-
+        #region fields
         /// <summary>
         /// The current result value
         /// </summary>
-        public HObject result;
+        public HeronObject result;
 
         /// <summary>
         /// A flag that is set to true when a return statement occurs. 
@@ -64,10 +60,18 @@ namespace HeronEngine
         /// <summary>
         /// A list of call stack frames 
         /// </summary>
-        public Stack<Frame> frames = new Stack<Frame>();
+        Stack<Frame> frames = new Stack<Frame>();
+        #endregion
+
+        public Environment()
+        {
+            PushNewFrame(null, null);
+            PushScope();
+        }
 
         /// <summary>
-        /// Not an assertion. Used primarily to check for run-time errors.
+        /// Throw an exception if condition is not true. However, not an assertion. 
+        /// This is used to check for exceptional run-time condition.
         /// </summary>
         /// <param name="b"></param>
         /// <param name="s"></param>
@@ -84,7 +88,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="f"></param>
         /// <param name="self"></param>
-        public void PushNewFrame(Function f, HObject self)
+        public void PushNewFrame(Function f, HeronObject self)
         {
             Assure(!bReturning, "can not push a new frame while returning from another");
             frames.Push(new Frame(f, self));
@@ -113,7 +117,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="s"></param>
         /// <param name="o"></param>
-        public void AddVar(string s, HObject o)
+        public void AddVar(string s, HeronObject o)
         {
             if (frames.Peek().Peek().ContainsKey(s))
                 throw new Exception(s + " is already declared in the scope");
@@ -126,7 +130,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="s"></param>
         /// <param name="o"></param>
-        public void SetVar(string s, HObject o)
+        public void SetVar(string s, HeronObject o)
         {
             frames.Peek().Peek()[s] = o;
         }
@@ -173,7 +177,7 @@ namespace HeronEngine
         /// to executing statement groups that execution should terminate.
         /// </summary>
         /// <param name="ret"></param>
-        public void Return(HObject ret)
+        public void Return(HeronObject ret)
         {
             Assure(!bReturning, "internal error, returning flag was not reset");
         }
@@ -184,7 +188,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="s"></param>
         /// <returns></returns>
-        public HObject GetVar(string s)
+        public HeronObject GetVar(string s)
         {
             if (frames.Count == 0)
                 return null;
@@ -192,20 +196,6 @@ namespace HeronEngine
                 if (tbl.ContainsKey(s))
                     return tbl[s];
             return null;
-        }
-
-        /// <summary>
-        /// Takes the name of a type, and creates an instance of that type
-        /// </summary>
-        /// <param name="s"></param>
-        /// <returns></returns>
-        public Instance Instantiate(string s)
-        {
-            HObject o = GetVar(s);
-            if (!(o is Class))
-                throw new Exception(s + " can not be instantiated");
-            Class c = o as Class;
-            return c.Instantiate(this);
         }
     }
 }

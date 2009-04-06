@@ -16,7 +16,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents the formal argument to a function or member. 
+    /// Represents the formal argument to a function
     /// </summary>
     public class FormalArg
     {
@@ -35,7 +35,7 @@ namespace HeronEngine
     /// A class derives from HObject because it can be treated like a value 
     /// in Heron.
     /// </summary>
-    public class Class : HObject
+    public class HeronClass : HeronType
     {
         public string name;
         public FunctionTable methods = new FunctionTable();
@@ -46,26 +46,56 @@ namespace HeronEngine
         /// </summary>
         /// <param name="env"></param>
         /// <returns></returns>
-        public Instance Instantiate(Environment env)
+        public override HeronObject Instantiate(Environment env, HeronObject[] args)
         {
             Instance r = new Instance(this);
-            foreach (Field f in fields)
-                r.AddField(f.name, null);
+            foreach (Field field in fields)
+                r.AddField(field.name, null);
+            Function ctor = FindMethod("constructor", args);
+            if (ctor != null)
+                ctor.Call(env, r, args);
             return r;
         }
 
-        /// TODO: figure out what the story is going to be for classes 
-        /// that represent built-in types. 
+        public List<Function> FindMethodGroup(string name)
+        {
+            if (!methods.ContainsKey(name))
+                return null;
+            return methods[name];
+        }
+
+        public Function FindMethod(string name, HeronObject[] args)
+        {
+            List<Function> methods = FindMethodGroup(name);
+            if (methods == null)
+                return null;
+            switch (methods.Count)
+            {
+                case 0:
+                    return null;
+                case 1:
+                    return methods[0];
+                default:
+                    // TODO: preform method resolution
+                    throw new Exception("Multiple methods found mathcing " + name);
+            }
+        }
     }
 
-    public class HeronModule
+    /// <summary>
+    /// Represents a list of classes.
+    /// </summary>
+    public class Module
     {
-        public List<Class> classes = new List<Class>();
+        public List<HeronClass> classes = new List<HeronClass>();
     }
 
+    /// <summary>
+    /// Represents a simple list of programs.
+    /// </summary>
     public class HeronProgram
     {
-        public List<HeronModule> modules = new List<HeronModule>();
+        public List<Module> modules = new List<Module>();
     }
 }
     
