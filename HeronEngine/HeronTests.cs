@@ -89,7 +89,24 @@ namespace HeronTests
         static public void RunFileTest(string file)
         {
             string sModule = Util.Util.ReadFromFile(file);
-            HeronExecutor.ParseModule(sModule);
+            try
+            {
+                vm.EvalModule(sModule);
+            }
+            catch (ParsingException e)
+            {
+                Console.WriteLine("Parsing exception occured in file " + file);
+                Console.WriteLine("at character " + e.col + " of line " + e.row);
+                Console.WriteLine("while parsing rule " + e.rule.ToString());
+                Console.WriteLine(e.line);
+                Console.WriteLine(e.ptr);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error occured when parsing file " + file);
+                Console.WriteLine(e.Message);
+            }
+               
         }
 
         static public void MainTest()

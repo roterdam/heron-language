@@ -41,6 +41,27 @@ namespace HeronEngine
         public FunctionTable methods = new FunctionTable();
         public List<Field> fields = new List<Field>();
 
+        class NewFunction : Function
+        {
+            HeronClass c;
+
+            public NewFunction(HeronClass c)
+            {
+                this.c = c;
+                name = "New";
+            }
+
+            public override void Call(Environment env, Instance self, HeronObject[] args)
+            {
+                HeronObject r = c.Instantiate(env, args);
+            }
+        }
+
+        public HeronClass()
+        {
+            methods.Add(new NewFunction(this));
+        }
+
         /// <summary>
         /// Creates an instance of this class.
         /// </summary>
@@ -87,7 +108,16 @@ namespace HeronEngine
     /// </summary>
     public class Module
     {
+        public string name;
         public List<HeronClass> classes = new List<HeronClass>();
+
+        public HeronClass GetMainClass()
+        {
+            foreach (HeronClass c in classes)
+                if (c.name == "Main")
+                    return c;
+            return null;
+        }
     }
 
     /// <summary>

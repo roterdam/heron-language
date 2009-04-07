@@ -240,12 +240,17 @@ namespace HeronEngine
         }
 	    public static Rule Statement()
         {
-            return Choice(Choice(CodeBlock(), VarDecl(), IfStatement(), SwitchStatement(), ForEachStatement()),
-                Choice(WhileStatement(), ReturnStatement(), DeleteStatement(), ExprStatement(), EmptyStatement()));
-        }        
+            return Choice(
+                Choice(CodeBlock(), VarDecl(), IfStatement(), SwitchStatement(), ForEachStatement(), ForStatement()),
+Choice(WhileStatement(), ReturnStatement(), DeleteStatement(), ExprStatement(), EmptyStatement()));
+        }
+        public static Rule Braced(Rule r)
+        {
+            return NoFailSeq(Token("{"), r, Token("}"));
+        }
         public static Rule BracedGroup(Rule r)
         {
-            return NoFailSeq(Token("{"), Star(r), Token("}"));
+            return Braced(Star(r));
         }
         public static Rule Field()
         {
@@ -291,10 +296,27 @@ namespace HeronEngine
         {
             return Store("annotations", NoFailSeq(Token("["), CommaList(Annotation()), Token("]")));
         }
+        public static Rule Implements()
+        {
+            return Store("implements", NoFailSeq(Token("implements"), BracedGroup(Seq(TypeExpr(), Eos()))));
+        }
+        public static Rule Inherits()
+        {
+            return Store("inherits", NoFailSeq(Token("inherits"), BracedGroup(Seq(TypeExpr(), Eos()))));
+        }
         public static Rule Class()
         {
-            return Store("class", Seq(Opt(Annotations()), NoFailSeq(Token("class"), Name(), Token("{"),
-                Opt(Fields()), Opt(Methods()), Opt(States()), Token("}")))); 
+            return Store("class", Seq(Opt(Annotations()), NoFailSeq(Token("class"), Name(), 
+                Braced(Seq(Opt(Inherits()), Opt(Implements()), Opt(Methods()), Opt(Fields()), Opt(States())))))); 
+        }
+        public static Rule Interface()
+        {
+            return Store("interface", Seq(Opt(Annotations()), NoFailSeq(Token("interface"), Name(), 
+                Braced(Seq(Opt(Inherits()), Opt(Methods()))))));
+        }
+        public static Rule TopLevel()
+        {
+            return Choice(Class(), Interface());
         }
         public static Rule Fields()
         {
@@ -304,11 +326,7 @@ namespace HeronEngine
         {
             return Store("methods", NoFailSeq(Token("methods"), BracedGroup(Method())));
         }
-        public static Rule Classes()
-        {
-            return Store("classes", NoFailSeq(Token("classes"), BracedGroup(Class())));
-        }
-        public static Rule Import()
+       public static Rule Import()
         {
             return Store("import", NoFailSeq(Name(), Eos()));
         }
@@ -318,8 +336,7 @@ namespace HeronEngine
         }
         public static Rule Module()
         {
-            return Store("module", NoFailSeq(Token("module"), Name(), Token("{"),
-                Seq(Opt(Imports()), Opt(Fields()), Opt(Methods()), Opt(Classes()), NoFail(Token("}"), "expected attributes, operations, classes, associations or '}'"))));
+            return Store("module", NoFailSeq(Token("module"), Name(), BracedGroup(TopLevel())));
         }
         #endregion
     }

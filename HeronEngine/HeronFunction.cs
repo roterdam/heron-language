@@ -17,7 +17,7 @@ namespace HeronEngine
         public FormalArgs formals;
         public string rettype;
 
-        public void Call(Environment env, Instance self, HeronObject[] args)
+        public virtual void Call(Environment env, Instance self, HeronObject[] args)
         {
             if (self == null)
             {

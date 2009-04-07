@@ -267,6 +267,32 @@ namespace HeronEngine
         }
     }
 
+    public class MethodCall : Expr
+    {
+        public Expr self;
+        public string name;
+        public ExprList args;
+
+        public MethodCall(Expr self, string name, ExprList args)
+        {
+            this.self = self;
+            this.name = name;
+            this.args = args;
+        }
+        
+        public override HeronObject Eval(Environment env)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string ToString()
+        {
+            return self.ToString() + "." + name + args.ToString();
+        }
+    }
+
+    /* TODO: delete
+     * 
     public class New : Expr
     {
         public string type;
@@ -306,6 +332,7 @@ namespace HeronEngine
             }
         }
     }
+     */
 
     public class UnaryOperator : Expr
     {

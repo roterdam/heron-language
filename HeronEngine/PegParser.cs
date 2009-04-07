@@ -19,6 +19,7 @@ namespace Peg
         public int col;
         public string line;
         public string ptr;
+        public Grammar.Rule rule;
 
         public ParsingException(string s, int index, int row, int col, string line)
             : base(s + " at " + line)
@@ -79,7 +80,7 @@ namespace Peg
             while (n < GetDataLength() && cnt < nLine)
             {
                 if (mData[n] == '\n')
-                    ++nLine;
+                    ++cnt;
                 ++n;
             }
             if (n >= GetDataLength())
