@@ -132,18 +132,27 @@ namespace Peg
 
             public NoFailRule(Rule r, string s)
             {
-
                 Trace.Assert(r != null);
                 mRule = r;
                 msMsg = s;
+            }
+
+            public NoFailRule(Rule r)
+            {
+                Trace.Assert(r != null);
+                mRule = r;
             }
 
             public override bool Match(ParserState p)
             {
                 if (!mRule.Match(p))
                 {
-                    p.ThrowError("Parsing error in node '" + 
-                        p.GetCurrentNode().GetLabel() + "': " + msMsg, p.GetIndex());
+                    string msg = "Parsing error in node '";
+                    msg += p.GetCurrentNode().GetLabel();
+                    msg += "' ";
+                    if (msMsg != null)
+                        msg += ": " + msMsg;
+                    p.ThrowError(msg, p.GetIndex());
                 }
                 return true;
             }
@@ -560,7 +569,7 @@ namespace Peg
         public static Rule CharRange(char first, char last) { return new CharRangeRule(first, last); }
         public static Rule Store(string sLabel, Rule x) { return new AstNodeRule(sLabel, x); }
         public static Rule NoFail(Rule r, string s) { return new NoFailRule(r, s); }
-        public static Rule NoFail(Rule r) { return new NoFailRule(r, "unspecified error"); }
+        public static Rule NoFail(Rule r) { return new NoFailRule(r); }
         public static Rule Seq(Rule x0, Rule x1) { return new SeqRule(new Rule[] { x0, x1 }); }
         public static Rule Seq(Rule x0, Rule x1, Rule x2) { return new SeqRule(new Rule[] { x0, x1, x2 }); }
         public static Rule Seq(Rule x0, Rule x1, Rule x2, Rule x3) { return new SeqRule(new Rule[] { x0, x1, x2, x3 }); }

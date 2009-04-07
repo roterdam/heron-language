@@ -45,12 +45,34 @@ namespace HeronEngine
             RegisterDotNetType("Viewport", typeof(Viewport));
         }
 
+        #region evaluation functions
         public HeronObject EvalExpr(string s)
         {
             Expr x = ParseExpr(s);
             HeronObject o = x.Eval(env);
             return o;
         }
+
+        public void EvalModule(string s)
+        {
+            Module m = ParseModule(s);
+            EvalModule(m);
+        }
+
+        public void EvalModule(Module m)
+        {
+            env.PushScope();
+
+            foreach (HeronClass c in m.classes)
+                env.AddVar(c.name, c);
+
+            HeronClass main = m.GetMainClass();
+            if (main == null)
+                throw new Exception("Could not evaluate module " + m.name + " without a class named Main");
+
+            HeronObject inst = main.Instantiate(env, new HeronObject[] { });            
+        }
+        #endregion
 
         #region static public functions
         static public Expr ParseExpr(string s)
