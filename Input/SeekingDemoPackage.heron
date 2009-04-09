@@ -83,7 +83,7 @@ module SeekingDemoPackage
 	  Constructor()
 	  {
 		var target = NewRandomPosition();
-		sharedBehavior = TargetedBehavior.New(target);
+		sharedBehavior = SeekingBehavior.New(target);
 		inertia = 0.3;
 		drawer = DrawingSystem.New();
 		for (i=0; i < 20; i++) {
@@ -91,7 +91,7 @@ module SeekingDemoPackage
 		  InitializeCharacter(c);
 		  characters.Add(c);
 		}
-		var timer = TimingSystem.New();
+		var timer = TimeSystem.New();
 		timer.main = this;
 		time.msecDelay = 50;
 		timer.StartTimerLoop();

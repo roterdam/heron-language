@@ -50,50 +50,46 @@ namespace HeronEngine
         }
     }
 
-    public class VarAssignment : Expr
+    public class Assignment : Expr
     {
-        public string name;
-        public Expr rvalue; 
-
-        public override HeronObject Eval(Environment env)
-        {
-            env.SetVar(name, rvalue.Eval(env));
-            return HeronObject.Void;
-        }
-
-        public override string ToString()
-        {
-            return name + " = " + rvalue.ToString();
-        }
-    }
-
-    public class WriteField : Expr
-    {
-        public string name;
-        public Expr self;
+        public Expr lvalue;
         public Expr rvalue;
 
-        public WriteField(Expr self, string name, Expr rvalue)
+        public Assignment(Expr lvalue, Expr rvalue)
         {
-            this.name = name;
-            this.self = self;
+            this.lvalue = lvalue;
             this.rvalue = rvalue;
         }
 
         public override HeronObject Eval(Environment env)
         {
-            HeronObject x = self.Eval(env);
-            if (!(x is Instance))
-                Error("Left-side of field selector does not evaluate to a classifier instance");
-            Instance i = x as Instance;              
-            i.SetFieldValue(name, rvalue.Eval(env));
-            return HeronObject.Void;
+            HeronObject right = rvalue.Eval(env);
+
+            if (lvalue is Name)
+            {
+                // TODO:
+                throw new Exception("Unimplemented");
+            }
+            else if (lvalue is ReadField)
+            {
+                // TODO:
+                throw new Exception("Unimplemented");
+            }
+            else if (lvalue is ReadAt)
+            {
+                // TODO:
+                throw new Exception("Unimplemented");
+            }
+            else
+            {
+                throw new Exception("Cannot assign to expression " + lvalue.ToString());
+            }
         }
 
         public override string ToString()
         {
-            return "(" + self.ToString() + "." + name + " = " + rvalue.ToString() + ")";
-        }        
+            return lvalue.ToString() + " = " + rvalue.ToString();
+        }
     }
 
     public class ReadField : Expr
@@ -236,7 +232,10 @@ namespace HeronEngine
 
         public override HeronObject Eval(Environment env)
         {
-            return env.GetVar(name);
+            HeronObject r = env.LookupName(name);
+            if (r == null)
+                throw new Exception("Could not find the name " + name + " in the environment");
+            return r;
         }
 
         public override string ToString()
@@ -247,92 +246,29 @@ namespace HeronEngine
 
     public class FunCall : Expr
     {
-        public Expr function;
+        public Expr funexpr;
         public ExprList args;
 
         public FunCall(Expr f, ExprList args)
         {
-            this.function = f;
+            funexpr = f;
             this.args = args;
         }
         
         public override HeronObject Eval(Environment env)
         {
-            throw new NotImplementedException();
+            Console.WriteLine("Calling function " + funexpr.ToString());
+            HeronObject[] argvals = args.Eval(env);
+            HeronObject f = funexpr.Eval(env);
+            return f.Call(env, argvals);
         }
 
         public override string ToString()
         {
-            return function.ToString() + args.ToString();
+            return funexpr.ToString() + args.ToString();
         }
     }
 
-    public class MethodCall : Expr
-    {
-        public Expr self;
-        public string name;
-        public ExprList args;
-
-        public MethodCall(Expr self, string name, ExprList args)
-        {
-            this.self = self;
-            this.name = name;
-            this.args = args;
-        }
-        
-        public override HeronObject Eval(Environment env)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override string ToString()
-        {
-            return self.ToString() + "." + name + args.ToString();
-        }
-    }
-
-    /* TODO: delete
-     * 
-    public class New : Expr
-    {
-        public string type;
-        string basetype;
-        public ExprList args;
-
-        public New(string type, ExprList args)
-        {
-            this.type = type;
-            basetype = HeronType.StripTemplateArgs(type);
-            this.args = args;
-        }
-
-        public override HeronObject Eval(Environment env)
-        {
-            // Convert things like List<int> to List
-            HeronObject var = env.GetVar(basetype);            
-
-            if (!(var is HeronType))
-                throw new Exception("only types can be instantiated, " + var + " is not a type it is a " + var.GetType());
-            
-            if (var is HeronClass)
-            {
-                HeronClass c = var as HeronClass;
-                HeronObject r = c.Instantiate(env, args.Eval(env));
-                return r;
-            }
-            else if (var is DotNetType)
-            {
-                DotNetType t = var as DotNetType;
-                HeronObject r = t.Instantiate(env, args.Eval(env));
-                return r;
-            }
-            else
-            {
-                throw new Exception("The type " + basetype + " is not recognized as an instantiable type");
-            }
-        }
-    }
-     */
 
     public class UnaryOperator : Expr
     {

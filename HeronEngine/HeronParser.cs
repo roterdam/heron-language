@@ -399,15 +399,7 @@ namespace HeronEngine
                 else if (tmp.GetLabel() == "paranexpr")
                 {
                     i++;
-                    if (r is ReadField)
-                    {
-                        ReadField rf = r as ReadField;
-                        r = new MethodCall(rf.self, rf.name, CreateArgList(tmp));
-                    }
-                    else
-                    {
-                        r = new FunCall(r, CreateArgList(tmp));
-                    }
+                    r = new FunCall(r, CreateArgList(tmp));
                 }
                 else if (tmp.ToString() == ".")
                 {
@@ -424,7 +416,7 @@ namespace HeronEngine
                 {                    
                     // You can't have anything to the left of ++
                     i++;
-                    return MakeAssignment(x, r, new BinaryOperator("+", r, new IntLiteral(1)));
+                    return new Assignment(r, new BinaryOperator("+", r, new IntLiteral(1)));
                 }
                 else
                 {
@@ -554,35 +546,6 @@ namespace HeronEngine
             return r;
         }
 
-        static private Expr MakeAssignment(AstNode x, Expr lvalue, Expr rvalue)
-        {
-            if (lvalue is ReadField)
-            {
-                ReadField rf = lvalue as ReadField;
-                WriteField r = new WriteField(rf.self, rf.name, rvalue);
-                return r;
-            }
-            if (lvalue is ReadAt)
-            {
-                ReadAt tmp = lvalue as ReadAt;
-                WriteAt r = new WriteAt(tmp.coll, tmp.index, rvalue);
-                return r;
-            }
-            else if (lvalue is Name)
-            {
-                Name var = lvalue as Name;
-                VarAssignment r = new VarAssignment();
-                r.name = var.name;
-                r.rvalue = rvalue;
-                return r;
-            }
-            else 
-            {
-                Assure(x, false, "Illegal assignment target");                
-                // Unreachable code, but necc. to avoid warnings   
-                return null; 
-            }
-        }
 
         static Expr CreateAssignmentExpr(AstNode x, ref int i)
         {
@@ -598,27 +561,27 @@ namespace HeronEngine
                 case "=":
                     if (++i >= x.GetNumChildren())
                         throw new Exception("illegal expression");
-                    return MakeAssignment(x, r, CreateCondExpr(x, ref i));
+                    return new Assignment(r, CreateCondExpr(x, ref i));
                 case "+=":
                     if (++i >= x.GetNumChildren())
                         throw new Exception("illegal expression");
-                    return MakeAssignment(x, r, new BinaryOperator("+", r, CreateCondExpr(x, ref i)));
+                    return new Assignment(r, new BinaryOperator("+", r, CreateCondExpr(x, ref i)));
                 case "-=":
                     if (++i >= x.GetNumChildren())
                         throw new Exception("illegal expression");
-                    return MakeAssignment(x, r, new BinaryOperator("-", r, CreateCondExpr(x, ref i)));
+                    return new Assignment(r, new BinaryOperator("-", r, CreateCondExpr(x, ref i)));
                 case "*=":
                     if (++i >= x.GetNumChildren())
                         throw new Exception("illegal expression");
-                    return MakeAssignment(x, r, new BinaryOperator("*", r, CreateCondExpr(x, ref i)));
+                    return new Assignment(r, new BinaryOperator("*", r, CreateCondExpr(x, ref i)));
                 case "/=":
                     if (++i >= x.GetNumChildren())
                         throw new Exception("illegal expression");
-                    return MakeAssignment(x, r, new BinaryOperator("/", r, CreateCondExpr(x, ref i)));
+                    return new Assignment(r, new BinaryOperator("/", r, CreateCondExpr(x, ref i)));
                 case "%=":
                     if (++i >= x.GetNumChildren())
                         throw new Exception("illegal expression");
-                    return MakeAssignment(x, r, new BinaryOperator("%", r, CreateCondExpr(x, ref i)));
+                    return new Assignment(r, new BinaryOperator("%", r, CreateCondExpr(x, ref i)));
                 default:
                     // TODO: support other assignment operators.
                     return r;

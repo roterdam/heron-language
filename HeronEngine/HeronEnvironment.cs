@@ -7,10 +7,14 @@ namespace HeronEngine
 {
     /// <summary>
     /// This is an association list of objects with names.
-    /// This is mostly used as a mechanism for creating scoped names.
+    /// This is used as a mechanism for creating scoped names.
     /// </summary>
     public class ObjectTable : Dictionary<String, HeronObject>
     {
+        public void Add(VarObject o)
+        {
+            Add(o.name, o);
+        }
     }
 
     /// <summary>
@@ -21,10 +25,25 @@ namespace HeronEngine
     /// </summary>
     public class Frame : Stack<ObjectTable>
     {
-        public Frame(Function f, HeronObject self)
+        public Frame(Function f, Instance self)
         {
             this.function = f;
             this.self = self;
+        }
+
+        public HeronObject LookupName(string s)
+        {
+            foreach (ObjectTable tbl in this)
+                if (tbl.ContainsKey(s))
+                    return tbl[s];
+
+            if (self.HasField(s))
+                return self.GetFieldValue(s);
+
+            if (self.HasMethod(s))
+                return self.GetMethod(s);
+
+            return null;
         }
 
         /// <summary>
@@ -35,8 +54,7 @@ namespace HeronEngine
         /// <summary>
         /// The 'this' pointer if applicable 
         /// </summary>
-        public HeronObject self;
-       
+        public Instance self;       
     }
 
     /// <summary>
@@ -50,7 +68,7 @@ namespace HeronEngine
         /// <summary>
         /// The current result value
         /// </summary>
-        public HeronObject result;
+        private HeronObject result;
 
         /// <summary>
         /// A flag that is set to true when a return statement occurs. 
@@ -61,12 +79,20 @@ namespace HeronEngine
         /// A list of call stack frames 
         /// </summary>
         Stack<Frame> frames = new Stack<Frame>();
+
+        /// <summary>
+        /// This is for containing names at the module level.
+        /// Currently only the top of the stack is used as a single shared global module scope 
+        /// I plan eventually on adding import statements.
+        /// </summary>
+        Stack<ObjectTable> moduleScopes = new Stack<ObjectTable>();
         #endregion
 
         public Environment()
         {
             PushNewFrame(null, null);
             PushScope();
+            PushModuleScope();
         }
 
         /// <summary>
@@ -78,9 +104,7 @@ namespace HeronEngine
         private void Assure(bool b, string s)
         {
             if (!b)
-            {
                 throw new Exception("error occured: " + s);
-            }
         }
 
         /// <summary>
@@ -88,9 +112,9 @@ namespace HeronEngine
         /// </summary>
         /// <param name="f"></param>
         /// <param name="self"></param>
-        public void PushNewFrame(Function f, HeronObject self)
+        public void PushNewFrame(Function f, Instance self)
         {
-            Assure(!bReturning, "can not push a new frame while returning from another");
+            Assure(!bReturning, "cannot push a new frame while returning from another");
             frames.Push(new Frame(f, self));
         }
 
@@ -100,6 +124,14 @@ namespace HeronEngine
         public void PushScope()
         {
             PushScope(new ObjectTable());
+        }
+
+        /// <summary>
+        /// Creates a new module namespace. 
+        /// </summary>
+        public void PushModuleScope()
+        {
+            moduleScopes.Push(new ObjectTable());
         }
 
         /// <summary>
@@ -183,19 +215,58 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Looks up the value (which is possibly also a type) associated with the name.
-        /// Looks in each scope starting with the most recently created until a match is found.
+        /// Looks up the value or type associated with the name.
+        /// Looks in each scope in the currenst stack frame until a match is found.
+        /// If no match is found then the various module scopes are searched.
         /// </summary>
         /// <param name="s"></param>
         /// <returns></returns>
-        public HeronObject GetVar(string s)
+        public HeronObject LookupName(string s)
         {
-            if (frames.Count == 0)
-                return null;
-            foreach (ObjectTable tbl in frames.Peek())
-                if (tbl.ContainsKey(s))
-                    return tbl[s];
+            if (frames.Count != 0)
+            {
+                HeronObject r = frames.Peek().LookupName(s);
+                if (r != null)
+                    return r;
+            }
+            foreach (ObjectTable scope in moduleScopes)
+            {
+                if (scope.ContainsKey(s))
+                    return scope[s];
+            }
             return null;
+        }
+
+        /// <summary>
+        /// Gets the value set by the previous "return".
+        /// Resets the result as well. So any subsequent calls will
+        /// return null, until return is called on it.
+        /// </summary>
+        /// <returns></returns>
+        public HeronObject GetLastResult()
+        {
+            HeronObject r = result;
+            result = null;
+            return result;
+        }
+
+        /// <summary>
+        /// Adds a new name to the top-most module namespace
+        /// </summary>
+        public void AddModuleVar(string s, HeronObject o)
+        {
+            if (moduleScopes.Peek().ContainsKey(s))
+                throw new Exception(s + " is already declared in the top-level module scope");
+            moduleScopes.Peek().Add(s, o);
+        }
+
+        /// <summary>
+        /// Gets the current activation record.
+        /// </summary>
+        /// <returns></returns>
+        public Frame GetCurrentFrame()
+        {
+            return frames.Peek();
         }
     }
 }
