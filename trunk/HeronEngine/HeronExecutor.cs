@@ -26,12 +26,12 @@ namespace HeronEngine
 
         void RegisterPrimitiveType(string name)
         {
-            env.AddVar(name, new HeronPrimitive(name));
+            env.AddModuleVar(name, new HeronPrimitive(name));
         }
 
         void RegisterDotNetType(string name, Type t)
         {
-            env.AddVar(name, new DotNetType(name, t));
+            env.AddModuleVar(name, new DotNetType(name, t));
         }
 
         void RegisterPrimitives()
@@ -61,10 +61,8 @@ namespace HeronEngine
 
         public void EvalModule(Module m)
         {
-            env.PushScope();
-
             foreach (HeronClass c in m.classes)
-                env.AddVar(c.name, c);
+                env.AddModuleVar(c.name, c);
 
             HeronClass main = m.GetMainClass();
             if (main == null)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace HeronEngine
 {
@@ -47,9 +48,14 @@ namespace HeronEngine
             throw new Exception("unimplemented");
         }
 
-        public virtual HeronObject Invoke(Environment env, string s, HeronObject self, HeronObject[] args)
+        public virtual HeronObject Call(Environment env, HeronObject[] args)
         {
-            throw new Exception("method invocation not supported on " + ToString());
+            throw new Exception(ToString() + " is not recognized a function object");
+        }
+
+        public virtual void Assign(Environment env, HeronObject x)
+        {            
+            throw new Exception("Cannot assign to object " + ToString());
         }
 
         public virtual HeronObject InvokeUnaryOperator(string s)
@@ -61,7 +67,43 @@ namespace HeronEngine
         {
             throw new Exception("binary operator invocation not supported on " + ToString());
         }
+    }
 
+    public class DotNetClass : HeronObject
+    {
+        public override HeronObject Call(Environment env, HeronObject[] args)
+        {
+            throw new Exception("unimplemented");
+            /*
+            Object[] objs = HeronType.HeronObjectArrayToDotNetArray(args);
+            Type[] types = HeronType.ObjectsToTypes(objs);
+            Type type = obj.GetType();
+            MethodInfo mi = type.GetMethod(s, types);
+            if (mi == null)
+                throw new Exception("unable to find  method " + s + " on the dot net object " + obj.ToString() + " with supplied argument types");
+            Object r = mi.Invoke(obj, objs);
+            return new DotNetObject(r);
+             */
+        }
+    }
+
+    public class DotNetMethod : HeronObject
+    {
+        MethodInfo mi;
+        HeronObject self;
+
+        public DotNetMethod(MethodInfo mi, HeronObject self)
+        {
+            this.mi = mi;
+            this.self = self;
+        }
+
+        public override HeronObject Call(Environment env, HeronObject[] args)
+        {
+            Object[] objs = HeronType.HeronObjectArrayToDotNetArray(args);
+            Object r = mi.Invoke(self, objs);
+            return new DotNetObject(r);
+        }
     }
 
     public class DotNetObject : HeronObject
@@ -82,19 +124,8 @@ namespace HeronEngine
         {
             return obj.ToString();
         }
-
-        public override HeronObject Invoke(Environment env, string s, HeronObject self, HeronObject[] args)
-        {
-            Object[] objs = HeronType.HeronObjectArrayToDotNetArray(args);
-            Type[] types = HeronType.ObjectsToTypes(objs);
-            Type type = obj.GetType();
-            MethodInfo mi = type.GetMethod(s, types);
-            if (mi == null)
-                throw new Exception("unable to find  method " + s + " on the dot net object " + obj.ToString() + " with supplied argument types");
-            Object r = mi.Invoke(self.ToDotNetObject(), objs);
-            return new DotNetObject(r);
-        }
     }
+
 
     public class PrimitiveObject<T> : HeronObject 
     {
@@ -134,11 +165,6 @@ namespace HeronEngine
 
         public IntObject()
         {
-        }
-
-        public override HeronObject Invoke(Environment env, string s, HeronObject self, HeronObject[] args)
-        {
-            throw new Exception("No methods available on Int object");
         }
 
         public override HeronObject InvokeUnaryOperator(string s)
@@ -188,11 +214,6 @@ namespace HeronEngine
         {
         }
 
-        public override HeronObject Invoke(Environment env, string s, HeronObject self, HeronObject[] args)
-        {
-            throw new Exception("No methods available on Char object");
-        }
-
         public override HeronObject InvokeUnaryOperator(string s)
         {
             switch (s)
@@ -221,11 +242,6 @@ namespace HeronEngine
 
         public FloatObject()
         {
-        }
-
-        public override HeronObject Invoke(Environment env, string s, HeronObject self, HeronObject[] args)
-        {
-            throw new Exception("No methods available on Float object");
         }
 
         public override HeronObject InvokeUnaryOperator(string s)
@@ -273,11 +289,6 @@ namespace HeronEngine
         {
         }
 
-        public override HeronObject Invoke(Environment env, string s, HeronObject self, HeronObject[] args)
-        {
-            throw new Exception("No methods available on Bool object");
-        }
-
         public override HeronObject InvokeUnaryOperator(string s)
         {
             switch (s)
@@ -315,11 +326,6 @@ namespace HeronEngine
 
         public StringObject()
         {
-        }
-
-        public override HeronObject Invoke(Environment env, string s, HeronObject self, HeronObject[] args)
-        {
-            throw new Exception("No methods available on String object");
         }
 
         public override HeronObject InvokeUnaryOperator(string s)
@@ -416,6 +422,19 @@ namespace HeronEngine
             return fields.ContainsKey(name);
         }
 
+        public bool HasMethod(string name)
+        {
+            return hclass.methods.ContainsKey(name);
+        }
+
+        public FunctionObject GetMethod(string name)
+        {
+            // TODO: fix this, it is currently a hack.
+            // I need to figure out how to deal with fact that methods can be 
+            // overloaded.
+            return new FunctionObject(hclass.methods[name][0], this);
+        }
+
         /// <summary>
         /// Adds a field. Field must not already exist. 
         /// </summary>
@@ -462,11 +481,55 @@ namespace HeronEngine
             r += " }";
             return r;
         }
+    }
+    
+    /// <summary>
+    /// Represents an object that can be "called", or invoked.
+    /// </summary>
+    public class FunctionObject : HeronObject
+    {
+        Instance self;
+        Function fun;
 
-        public override HeronObject Invoke(Environment env, string s, HeronObject self, HeronObject[] args)
+        public FunctionObject(Function f, Instance self)
         {
-            Function f = hclass.FindMethod(s, args);
-            throw new Exception("unimplemented");
+            this.self = self;
+            fun = f;
+        }
+
+        public FunctionObject(Function f)
+        {
+            fun = f;
+        }
+
+        private void PushArgsAsScope(Environment env, HeronObject[] args)
+        {
+            int n = fun.formals.Count;
+            Trace.Assert(n == args.Length);
+            for (int i = 0; i < n; ++i)
+                env.AddVar(fun.formals[i].name, args[i]);
+        }
+
+        public override HeronObject Call(Environment env, HeronObject[] args)
+        {
+            // Create a stack frame 
+            env.PushNewFrame(fun, self);
+
+            // Create a new scope containing the arguments 
+            PushArgsAsScope(env, args);
+
+            // Execute the function body
+            fun.body.Execute(env);
+
+            // Pop the arguments scope
+            env.PopScope();
+
+            // Pop the calling frame
+            env.PopFrame();
+
+            // Gets last result and resets it
+            return env.GetLastResult();
         }
     }
 }
+

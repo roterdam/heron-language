@@ -110,7 +110,8 @@ namespace HeronEngine
             return new DotNetObject(o);
         }
 
-        public override HeronObject Invoke(Environment env, string s, HeronObject self, HeronObject[] args)
+        /*
+        public override HeronObject Invoke(Environment env, string s, HeronObject[] args)
         {
             Object[] objs = HeronType.HeronObjectArrayToDotNetArray(args);
             Type[] types = HeronType.ObjectsToTypes(objs);
@@ -122,5 +123,6 @@ namespace HeronEngine
             Object r = mi.Invoke(null, objs);
             return new DotNetObject(r);
         }
+         */
     }
 }
