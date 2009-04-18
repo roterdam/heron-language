@@ -167,9 +167,14 @@ namespace HeronEngine
             return Store("bracketedexpr", Bracketed(Opt(Delay(Expr))));
         }
 
+        public static Rule NewExpr()
+        {
+            return Store("new", NoFailSeq(Token("new"), TypeExpr(), ParanthesizedExpr()));
+        }
+
         public static Rule SimpleExpr() 
         {
-            return Choice(Name(), Literal(), AnonFxn(), ParanthesizedExpr(), BracketedExpr());
+            return Choice(NewExpr(), Name(), Literal(), AnonFxn(), ParanthesizedExpr(), BracketedExpr());
 		}
 
         public static Rule Expr() 

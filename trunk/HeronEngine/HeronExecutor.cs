@@ -21,28 +21,6 @@ namespace HeronEngine
 
         public HeronExecutor()
         {
-            RegisterPrimitives();
-        }
-
-        void RegisterPrimitiveType(string name)
-        {
-            env.AddModuleVar(name, new HeronPrimitive(name));
-        }
-
-        void RegisterDotNetType(string name, Type t)
-        {
-            env.AddModuleVar(name, new DotNetType(name, t));
-        }
-
-        void RegisterPrimitives()
-        {
-            RegisterPrimitiveType("Int");
-            RegisterPrimitiveType("Float");
-            RegisterPrimitiveType("Char");
-            RegisterPrimitiveType("String");
-            RegisterPrimitiveType("List");
-            
-            RegisterDotNetType("Viewport", typeof(Viewport));
         }
 
         #region evaluation functions
@@ -61,6 +39,8 @@ namespace HeronEngine
 
         public void EvalModule(Module m)
         {
+            env.Clear();
+
             foreach (HeronClass c in m.classes)
                 env.AddModuleVar(c.name, c);
 

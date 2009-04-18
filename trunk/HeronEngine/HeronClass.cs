@@ -38,8 +38,8 @@ namespace HeronEngine
     public class HeronClass : HeronType
     {
         public string name;
-        public FunctionTable methods = new FunctionTable();
-        public List<Field> fields = new List<Field>();
+        FunctionTable methods = new FunctionTable();
+        List<Field> fields = new List<Field>();
 
         public HeronClass()
         {
@@ -55,34 +55,42 @@ namespace HeronEngine
             Instance r = new Instance(this);
             foreach (Field field in fields)
                 r.AddField(field.name, null);
-            Function ctor = FindMethod("Constructor", args);
-            if (ctor != null)
-                ctor.Call(env, args);
+            List<Function> ctorlist = GetMethods("Constructor");
+            if (ctorlist == null)
+                return r;
+            FunctionListObject ctors = new FunctionListObject(r, "Constructor", ctorlist);
+            FunctionObject o = ctors.Resolve(args);
+            if (o == null)
+                return r; // No matching constructor
+            o.Apply(env, args);                
             return r;
         }
 
-        public List<Function> FindMethodGroup(string name)
+        public FunctionListObject GetCtors()
         {
-            if (!methods.ContainsKey(name))
+            return new FunctionListObject(null, "Constructor", GetMethods("Constructor"));
+        }
+
+        public List<Function> GetMethods(string name)
+        {
+            if (!HasMethod(name))
                 return null;
             return methods[name];
         }
 
-        public Function FindMethod(string name, HeronObject[] args)
+        public bool HasMethod(string name)
         {
-            List<Function> methods = FindMethodGroup(name);
-            if (methods == null)
-                return null;
-            switch (methods.Count)
-            {
-                case 0:
-                    return null;
-                case 1:
-                    return methods[0];
-                default:
-                    // TODO: preform method resolution
-                    throw new Exception("Multiple methods found mathcing " + name);
-            }
+            return methods.ContainsKey(name);
+        }
+
+        public void AddMethod(Function x)
+        {
+            methods.Add(x);
+        }
+
+        public void AddField(Field x)
+        {
+            fields.Add(x);
         }
     }
 

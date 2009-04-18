@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Reflection;
 
 namespace HeronEngine
 {
@@ -22,6 +23,11 @@ namespace HeronEngine
         }
 
         public abstract HeronObject Eval(Environment env);
+
+        public void Trace()
+        {
+            HeronDebugger.TraceExpr(this);
+        }
     }
 
     /// <summary>
@@ -62,22 +68,40 @@ namespace HeronEngine
         }
 
         public override HeronObject Eval(Environment env)
-        {
-            HeronObject right = rvalue.Eval(env);
+        {            
+            Trace();
+            HeronObject val = rvalue.Eval(env);
 
             if (lvalue is Name)
             {
-                // TODO:
-                throw new Exception("Unimplemented");
+                string name = (lvalue as Name).name;
+                if (env.HasVar(name))
+                {
+                    env.SetVar(name, val);
+                    return HeronObject.Void;
+                }
+                else if (env.HasField(name))
+                {
+                    env.SetField(name, val);
+                    return HeronObject.Void;
+                }
+                else
+                {
+                    throw new Exception(name + " is not a member field or local variable");
+                }
             }
-            else if (lvalue is ReadField)
+            else if (lvalue is SelectField)
             {
-                // TODO:
-                throw new Exception("Unimplemented");
+                SelectField sf = lvalue as SelectField;
+                HeronObject self = sf.self.Eval(env);
+                string name = sf.name;
+                self.SetField(name, self);
+                return HeronObject.Void;
             }
             else if (lvalue is ReadAt)
             {
-                // TODO:
+                // TODO: 
+                // This is for "a[x] = y"
                 throw new Exception("Unimplemented");
             }
             else
@@ -92,12 +116,12 @@ namespace HeronEngine
         }
     }
 
-    public class ReadField : Expr
+    public class SelectField : Expr
     {
         public string name;
         public Expr self;
 
-        public ReadField(Expr self, string name)
+        public SelectField(Expr self, string name)
         {
             this.self = self;
             this.name = name;
@@ -106,42 +130,12 @@ namespace HeronEngine
         public override HeronObject Eval(Environment env)
         {
             HeronObject x = self.Eval(env);
-            Assure(x is Instance, "left-side of field selector is not an object");
-            Instance i = x as Instance;
-            return i.GetFieldValue(name);
+            return x.GetField(name);
         }
 
         public override string ToString()
         {
             return "(" + self.ToString() + "." + name + ")";
-        }
-    }
-
-    public class WriteAt : Expr
-    {
-        public Expr coll;
-        public Expr index;
-        public Expr rvalue;
-
-        public WriteAt(Expr coll, Expr index, Expr val)
-        {
-            this.coll = coll;
-            this.index = index;
-            this.rvalue = val;
-        }
-
-        public override HeronObject Eval(Environment env)
-        {
-            HeronObject o = coll.Eval(env);
-            HeronObject i = index.Eval(env);
-            HeronObject v = rvalue.Eval(env);
-            o.SetAt(i, v);
-            return HeronObject.Void;
-        }
-
-        public override string ToString()
-        {
-            return coll + "[" + index.ToString() + "] = " + rvalue.ToString();
         }
     }
 
@@ -166,6 +160,28 @@ namespace HeronEngine
         public override string ToString()
         {
             return coll + "[" + index.ToString() + "]";
+        }
+    }
+
+    public class New : Expr
+    {
+        string type;
+        ExprList args;
+
+        public New(string type, ExprList args)
+        {
+            this.type = type;
+            this.args = args;
+        }
+
+        public override HeronObject Eval(Environment env)
+        {
+            HeronObject o = env.LookupName(type);
+            if (!(o is HeronType))
+                throw new Exception("Cannot instantiate non-type " + type);
+            HeronType t = o as HeronType;
+            HeronObject[] argvals = args.Eval(env);
+            return t.Instantiate(env, argvals);
         }
     }
 
@@ -232,6 +248,7 @@ namespace HeronEngine
 
         public override HeronObject Eval(Environment env)
         {
+            string s = env.ToString();
             HeronObject r = env.LookupName(name);
             if (r == null)
                 throw new Exception("Could not find the name " + name + " in the environment");
@@ -257,10 +274,10 @@ namespace HeronEngine
         
         public override HeronObject Eval(Environment env)
         {
-            Console.WriteLine("Calling function " + funexpr.ToString());
+            Trace();
             HeronObject[] argvals = args.Eval(env);
             HeronObject f = funexpr.Eval(env);
-            return f.Call(env, argvals);
+            return f.Apply(env, argvals);
         }
 
         public override string ToString()

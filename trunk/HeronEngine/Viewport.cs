@@ -14,6 +14,12 @@ namespace ViewportLib
 {
     public delegate void ViewportCmd(ViewportForm vf);
 
+    /// <summary>
+    /// Wraps a form with a canvas, that is used for drawing.
+    /// What is special is that the form is on a separate thread, allowing drawing commands 
+    /// to be invoked asynchronously, but still allowing the programmers to interact with 
+    /// the user via other mechanisms (e.g. the command-line).
+    /// </summary>
     public class Viewport
     {
         private ViewportForm form = null;
