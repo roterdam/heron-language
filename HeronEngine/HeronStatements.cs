@@ -8,6 +8,11 @@ namespace HeronEngine
     public abstract class Statement 
     {
         public abstract void Execute(Environment env);
+
+        public void Trace()
+        {
+            HeronDebugger.TraceStatement(this);
+        }
     }
 
     public class VarDecl : Statement
@@ -18,7 +23,17 @@ namespace HeronEngine
 
         public override void Execute(Environment env)
         {
-            env.AddVar(name, null);
+            Trace();
+            HeronObject initVal = init.Eval(env);
+            env.AddVar(name, initVal);
+        }
+
+        public override string ToString()
+        {
+            string r = "var " + name + " : " + type;
+            if (init != null)
+                r += " = " + init.ToString();
+            return r;
         }
     }
 
@@ -30,6 +45,11 @@ namespace HeronEngine
         {
             throw new NotImplementedException();
         }
+
+        public override string ToString()
+        {
+            return "delete " + expr.ToString();
+        }
     }
 
     public class ExprStatement : Statement
@@ -38,7 +58,13 @@ namespace HeronEngine
 
         public override void Execute(Environment env)
         {
+            Trace();
             expr.Eval(env);
+        }
+
+        public override string ToString()
+        {
+            return expr.ToString();
         }
     }
 
@@ -50,7 +76,27 @@ namespace HeronEngine
 
         public override void Execute(Environment env)
         {
-            throw new NotImplementedException();
+            // TODO: make this exception safe. Have a "using" with a special scope 
+            // construction object.
+            env.PushScope();
+            env.AddVar(name, null);
+            HeronObject c = this.coll.Eval(env);
+            if (!(c is ListObject))
+                throw new Exception("Unable to iterate over " + coll.ToString() + " because it is not a list");
+
+            ListObject list = c as ListObject;
+            foreach (HeronObject o in list) {
+                env.SetVar(name, o);
+
+                body.Execute(env);
+            }
+            env.PopScope();
+        }
+
+        public override string ToString()
+        {
+            return "foreach (" + name + " in " + coll.ToString() + ")\n" 
+                + body.ToString();
         }
     }
 
@@ -64,7 +110,27 @@ namespace HeronEngine
 
         public override void Execute(Environment env)
         {
-            throw new NotImplementedException();
+            Trace();
+            HeronObject initVal = init.Eval(env);
+            env.AddVar(name, initVal);
+            while (true)
+            {
+                HeronObject condVal = cond.Eval(env);
+                bool b = condVal.ToBool();
+                if (!b)
+                    break;
+                body.Execute(env);
+                next.Eval(env);
+            }
+        }
+
+        public override string ToString()
+        {
+            return "for (" + name 
+                + " = " + init.ToString() 
+                + "; " + cond.ToString() 
+                + "; " + next.ToString() 
+                + ")\n" + body.ToString();
         }
     }
 
@@ -74,6 +140,7 @@ namespace HeronEngine
         
         public override void Execute(Environment env)
         {
+            Trace();
             env.PushScope();
             foreach (Statement s in statements)
             {
@@ -94,6 +161,7 @@ namespace HeronEngine
 
         public override void Execute(Environment env)
         {
+            Trace();
             bool b = cond.Eval(env).ToBool();
             if (b)
                 ontrue.Execute(env); else
@@ -108,8 +176,13 @@ namespace HeronEngine
 
         public override void Execute(Environment env)
         {
-            while (cond.Eval(env).ToBool())
+            Trace();
+            while (true)
             {
+                HeronObject o = cond.Eval(env);
+                bool b = o.ToBool();
+                if (!b)
+                    break;
                 body.Execute(env);
                 if (env.ShouldExitScope())
                     break;
@@ -123,6 +196,7 @@ namespace HeronEngine
 
         public override void Execute(Environment env)
         {
+            Trace();
             env.Return(expr.Eval(env));
         }
     }

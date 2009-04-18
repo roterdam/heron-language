@@ -1,0 +1,14 @@
+﻿module OutputTest
+{
+	class Main {
+		methods {
+			Constructor() {
+				Console.WriteLine(42);
+				Console.WriteLine("42");
+				Console.WriteLine(6 * 7);
+				Console.WriteLine(6 * 5 + 12);
+				Console.WriteLine(6 * (3 + 4));
+			}
+		}
+	}
+}

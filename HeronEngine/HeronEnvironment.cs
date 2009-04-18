@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using ViewportLib;
+
 namespace HeronEngine
 {
     /// <summary>
@@ -11,9 +13,20 @@ namespace HeronEngine
     /// </summary>
     public class ObjectTable : Dictionary<String, HeronObject>
     {
-        public void Add(VarObject o)
+        public override string ToString()
         {
-            Add(o.name, o);
+            StringBuilder sb = new StringBuilder();
+            foreach (string s in Keys)
+            {
+                sb.Append(s);
+                sb.Append(" = ");
+                HeronObject o = this[s];
+                if (o != null)
+                    sb.AppendLine(o.ToString());
+                else
+                    sb.AppendLine("null");
+            }
+            return sb.ToString();
         }
     }
 
@@ -37,13 +50,63 @@ namespace HeronEngine
                 if (tbl.ContainsKey(s))
                     return tbl[s];
 
+            if (self == null)
+                return null;
+
             if (self.HasField(s))
-                return self.GetFieldValue(s);
+                return self.GetField(s);
 
             if (self.HasMethod(s))
-                return self.GetMethod(s);
+                return self.GetMethods(s);
 
             return null;
+        }
+
+        public HeronObject LookupVar(string s)
+        {
+            foreach (ObjectTable tbl in this)
+                if (tbl.ContainsKey(s))
+                    return tbl[s];
+            return null;
+        }
+
+        public HeronObject LookupField(string s)
+        {
+            if (self == null)
+                return null;
+
+            if (self.HasField(s))
+                return self.GetField(s);
+
+            return null;
+        }
+
+        public bool HasVar(string s)
+        {
+            foreach (ObjectTable tbl in this)
+                if (tbl.ContainsKey(s))
+                    return true;
+            return false;
+        }
+
+        public bool SetVar(string s, HeronObject o)
+        {
+            foreach (ObjectTable tbl in this)
+            {
+                if (tbl.ContainsKey(s))
+                {
+                    tbl[s] = o;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool HasField(string s)
+        {
+            if (self == null)
+                return false;
+            return self.HasField(s);
         }
 
         /// <summary>
@@ -62,7 +125,7 @@ namespace HeronEngine
     /// It is organized as a stack of frames. It has a temporary "result" variable
     /// and a list of arguments.
     /// </summary>
-    public class Environment : HeronObject
+    public class Environment 
     {
         #region fields
         /// <summary>
@@ -90,9 +153,47 @@ namespace HeronEngine
 
         public Environment()
         {
+            Clear();
+        }
+
+        public void Clear()
+        {
+            frames.Clear();
+            result = null;
+            bReturning = false;
+            moduleScopes.Clear();
+            Initialize();
+        }
+
+        public void Initialize()
+        {
             PushNewFrame(null, null);
             PushScope();
             PushModuleScope();
+            RegisterPrimitives();
+        }
+
+        void RegisterPrimitiveType(string name)
+        {
+            AddModuleVar(name, new HeronPrimitive(name));
+        }
+
+        void RegisterDotNetType(string name, Type t)
+        {
+            AddModuleVar(name, new DotNetClass(name, t));
+        }
+
+        void RegisterPrimitives()
+        {
+            RegisterPrimitiveType("Int");
+            RegisterPrimitiveType("Float");
+            RegisterPrimitiveType("Char");
+            RegisterPrimitiveType("String");
+            RegisterPrimitiveType("List");
+            
+            RegisterDotNetType("Viewport", typeof(Viewport));
+            RegisterDotNetType("Console", typeof(Console));
+            RegisterDotNetType("Math", typeof(Math));
         }
 
         /// <summary>
@@ -130,7 +231,7 @@ namespace HeronEngine
         /// Creates a new module namespace. 
         /// </summary>
         public void PushModuleScope()
-        {
+        { 
             moduleScopes.Push(new ObjectTable());
         }
 
@@ -164,7 +265,20 @@ namespace HeronEngine
         /// <param name="o"></param>
         public void SetVar(string s, HeronObject o)
         {
-            frames.Peek().Peek()[s] = o;
+            foreach (Frame f in frames)
+                if (f.SetVar(s, o))
+                    return;
+            throw new Exception("Could not find variable " + s);
+        }
+
+        public void SetField(string s, HeronObject o)
+        {
+            if (frames.Count == 0)
+                throw new Exception("No stack frames");
+            Frame f = frames.Peek();
+            if (f.self == null)
+                throw new Exception("Not called from within a class");
+            f.self.SetField(s, o);
         }
 
         /// <summary>
@@ -212,6 +326,8 @@ namespace HeronEngine
         public void Return(HeronObject ret)
         {
             Assure(!bReturning, "internal error, returning flag was not reset");
+            bReturning = true;
+            result = ret;
         }
 
         /// <summary>
@@ -233,8 +349,56 @@ namespace HeronEngine
             {
                 if (scope.ContainsKey(s))
                     return scope[s];
-            }
+            }           
             return null;
+        }
+
+        /// <summary>
+        /// Looks up a name in the local variables in current scope only.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public HeronObject LookupVar(string name)
+        {
+            if (frames.Count == 0)
+                return null;
+            return frames.Peek().LookupVar(name);
+        }
+
+        /// <summary>
+        /// Returns true if the name is that of a variable in the local scope
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public bool HasVar(string name)
+        {
+            if (frames.Count == 0)
+                return false;
+            return frames.Peek().HasVar(name);
+        }
+
+        /// <summary>
+        /// Looks up a name as a field in the current object.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public HeronObject LookupField(string name)
+        {
+            if (frames.Count == 0)
+                return null;
+            return frames.Peek().LookupField(name);
+        }
+
+        /// <summary>
+        /// Returns true if the name is a field in the current object scope.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public bool HasField(string name)
+        {
+            if (frames.Count == 0)
+                return false;
+            return frames.Peek().HasField(name);
         }
 
         /// <summary>
@@ -247,7 +411,7 @@ namespace HeronEngine
         {
             HeronObject r = result;
             result = null;
-            return result;
+            return r;
         }
 
         /// <summary>
@@ -267,6 +431,42 @@ namespace HeronEngine
         public Frame GetCurrentFrame()
         {
             return frames.Peek();
+        }
+
+        /// <summary>
+        /// Returns a textual representation of the environment. 
+        /// Used primarily for debugging
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (Frame f in frames)
+            {
+                sb.Append("[frame, function = ");
+
+                if (f.function != null)
+                    sb.Append(f.function.name); 
+                else
+                    sb.Append("null");
+                sb.Append(", class = ");
+                if (f.self != null && f.self.hclass != null)
+                    sb.Append(f.self.hclass.name);
+                else
+                    sb.Append("null");
+                sb.AppendLine("]");
+
+                foreach (ObjectTable tab in f)
+                {
+                    sb.Append("[scope]");
+                    sb.Append(tab.ToString());
+                }
+            }
+            foreach (ObjectTable module in moduleScopes)
+            {
+                sb.Append("[module scope]");
+            }
+            return sb.ToString();
         }
     }
 }

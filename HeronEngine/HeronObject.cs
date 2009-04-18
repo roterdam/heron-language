@@ -28,7 +28,7 @@ namespace HeronEngine
             return type;
         }
 
-        public virtual Object ToDotNetObject()
+        public virtual Object ToSystemObject()
         {
             throw new Exception("Cannot convert " + type + " into System.Object");
         }
@@ -48,14 +48,19 @@ namespace HeronEngine
             throw new Exception("unimplemented");
         }
 
-        public virtual HeronObject Call(Environment env, HeronObject[] args)
+        public virtual HeronObject Apply(Environment env, HeronObject[] args)
         {
             throw new Exception(ToString() + " is not recognized a function object");
         }
 
-        public virtual void Assign(Environment env, HeronObject x)
-        {            
-            throw new Exception("Cannot assign to object " + ToString());
+        public virtual HeronObject GetField(string name)
+        {
+            throw new Exception(ToString() + " does not supported GetFields()");
+        }
+
+        public virtual void SetField(string name, HeronObject val)
+        {
+            throw new Exception(ToString() + " does not supported SetField()");
         }
 
         public virtual HeronObject InvokeUnaryOperator(string s)
@@ -67,23 +72,18 @@ namespace HeronEngine
         {
             throw new Exception("binary operator invocation not supported on " + ToString());
         }
-    }
-
-    public class DotNetClass : HeronObject
-    {
-        public override HeronObject Call(Environment env, HeronObject[] args)
+        
+        static public Object[] ObjectsToDotNetArray(HeronObject[] array)
         {
-            throw new Exception("unimplemented");
-            /*
-            Object[] objs = HeronType.HeronObjectArrayToDotNetArray(args);
-            Type[] types = HeronType.ObjectsToTypes(objs);
-            Type type = obj.GetType();
-            MethodInfo mi = type.GetMethod(s, types);
-            if (mi == null)
-                throw new Exception("unable to find  method " + s + " on the dot net object " + obj.ToString() + " with supplied argument types");
-            Object r = mi.Invoke(obj, objs);
-            return new DotNetObject(r);
-             */
+            Object[] r = new Object[array.Length];
+            for (int i = 0; i < array.Length; ++i)
+            {
+                if (array[i] == null)
+                    r[i] = null;
+                else
+                    r[i] = array[i].ToSystemObject();
+            }
+            return r;
         }
     }
 
@@ -98,9 +98,9 @@ namespace HeronEngine
             this.self = self;
         }
 
-        public override HeronObject Call(Environment env, HeronObject[] args)
+        public override HeronObject Apply(Environment env, HeronObject[] args)
         {
-            Object[] objs = HeronType.HeronObjectArrayToDotNetArray(args);
+            Object[] objs = HeronObject.ObjectsToDotNetArray(args);
             Object r = mi.Invoke(self, objs);
             return new DotNetObject(r);
         }
@@ -115,7 +115,7 @@ namespace HeronEngine
             this.obj = obj;
         }
 
-        public override Object ToDotNetObject()
+        public override Object ToSystemObject()
         {
             return obj;
         }
@@ -124,8 +124,36 @@ namespace HeronEngine
         {
             return obj.ToString();
         }
-    }
 
+        public Type GetSystemType()
+        {
+            return obj.GetType();
+        }
+
+        public override HeronObject GetField(string name)
+        {
+            Type t = GetSystemType();
+
+            if (t.GetMethod(name) != null)
+            {
+                return new DotNetMethodGroup(this, name);
+            }
+            else if (t.GetField(name) != null)
+            {
+                FieldInfo fi = t.GetField(name);
+                throw new Exception(".NET object fields not supported");
+            }
+            else if (t.GetProperty(name) != null)
+            {
+                PropertyInfo pi = t.GetProperty(name);
+                throw new Exception(".NET object properties not supported");
+            }
+            else
+            {
+                throw new Exception("No member field or method named " + name);
+            }
+        }            
+    }
 
     public class PrimitiveObject<T> : HeronObject 
     {
@@ -145,7 +173,7 @@ namespace HeronEngine
             return val.ToString();
         }
 
-        public override object ToDotNetObject()
+        public override object ToSystemObject()
         {
             return val;
         }
@@ -315,6 +343,11 @@ namespace HeronEngine
                     throw new Exception("Binary operation: '" + s + "' not supported by booleans");
             }
         }
+
+        public override bool ToBool()
+        {
+            return GetValue();
+        }
     }
 
     public class StringObject : PrimitiveObject<string>
@@ -351,9 +384,28 @@ namespace HeronEngine
         }
     }
 
-    public class ListObject : HeronObject
+    public class ListObject : HeronObject, IEnumerable<HeronObject>
     {
         List<HeronObject> list = new List<HeronObject>();
+
+
+        #region IEnumerable<HeronObject> Members
+
+        public IEnumerator<HeronObject> GetEnumerator()
+        {
+            return list.GetEnumerator();
+        }
+
+        #endregion
+
+        #region IEnumerable Members
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return list.GetEnumerator();
+        }
+
+        #endregion
     }
 
     /// <summary>
@@ -406,7 +458,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="name"></param>
         /// <param name="val"></param>
-        public void SetFieldValue(string name, HeronObject val)
+        public override void SetField(string name, HeronObject val)
         {
             AssureFieldExists(name);
             fields[name] = val;
@@ -421,18 +473,25 @@ namespace HeronEngine
         {
             return fields.ContainsKey(name);
         }
-
+       
+        /// <summary>
+        /// Returns true if any methods are available that have the given name.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public bool HasMethod(string name)
         {
-            return hclass.methods.ContainsKey(name);
+            return hclass.HasMethod(name);
         }
 
-        public FunctionObject GetMethod(string name)
+        /// <summary>
+        /// Returns all functions sharing the given name at once
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public FunctionListObject GetMethods(string name)
         {
-            // TODO: fix this, it is currently a hack.
-            // I need to figure out how to deal with fact that methods can be 
-            // overloaded.
-            return new FunctionObject(hclass.methods[name][0], this);
+            return new FunctionListObject(this, name, hclass.GetMethods(name));
         }
 
         /// <summary>
@@ -458,15 +517,13 @@ namespace HeronEngine
             fields.Add(name, val);
         }
 
-        /// <summary>
-        /// Returns a value for the named field. The field must exist.
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        public HeronObject GetFieldValue(string name)
+        public override HeronObject GetField(string name)
         {
-            AssureFieldExists(name);
-            return fields[name];
+            if (HasField(name))
+                return fields[name];
+            if (HasMethod(name))
+                return GetMethods(name);
+            throw new Exception("Could not find field or method " + name);
         }
 
         public override string ToString()
@@ -484,36 +541,39 @@ namespace HeronEngine
     }
     
     /// <summary>
-    /// Represents an object that can be "called", or invoked.
+    /// Represents an object that can be applied to arguments (i.e. called)
+    /// You can think of this as a member function bound to the this argument.
+    /// In C# this would be called a delegate.
     /// </summary>
     public class FunctionObject : HeronObject
     {
-        Instance self;
+        HeronObject self;
         Function fun;
 
-        public FunctionObject(Function f, Instance self)
+        public FunctionObject(HeronObject self, Function f)
         {
             this.self = self;
             fun = f;
         }
 
-        public FunctionObject(Function f)
-        {
-            fun = f;
-        }
-
         private void PushArgsAsScope(Environment env, HeronObject[] args)
         {
+            env.PushScope();
             int n = fun.formals.Count;
             Trace.Assert(n == args.Length);
             for (int i = 0; i < n; ++i)
                 env.AddVar(fun.formals[i].name, args[i]);
         }
 
-        public override HeronObject Call(Environment env, HeronObject[] args)
+        public Instance GetSelfAsInstance()
+        {
+            return self as Instance;
+        }
+
+        public override HeronObject Apply(Environment env, HeronObject[] args)
         {
             // Create a stack frame 
-            env.PushNewFrame(fun, self);
+            env.PushNewFrame(fun, GetSelfAsInstance());
 
             // Create a new scope containing the arguments 
             PushArgsAsScope(env, args);
@@ -529,6 +589,105 @@ namespace HeronEngine
 
             // Gets last result and resets it
             return env.GetLastResult();
+        }
+    }
+
+    /// <summary>
+    /// Represents a group of similiar functions. 
+    /// In most cases these would all have the same name. 
+    /// This is class is used for dynamic resolution of overloaded function
+    /// names.
+    /// </summary>
+    public class FunctionListObject : HeronObject
+    {
+        HeronObject self;
+        string name;
+        List<Function> functions = new List<Function>();
+
+        public FunctionListObject(HeronObject self, string name, IEnumerable<Function> args)
+        {
+            this.self = self;
+            foreach (Function f in args)
+                functions.Add(f);
+            this.name = name;
+            foreach (Function f in functions)
+                if (f.name != name)
+                    throw new Exception("All functions in function list object must share the same name");
+        }
+
+        /// <summary>
+        /// This is a very primitive resolution function that only looks at the number of arguments 
+        /// provided. A more sophisticated function would look at the types.
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public FunctionObject Resolve(HeronObject[] args)
+        {
+            FunctionObject r = null;
+            foreach (Function f in functions)
+            {
+                if (f.formals.Count == args.Length)
+                {
+                    if (r != null)
+                        throw new Exception("Ambiguous function resolution of " + name);
+                    r = new FunctionObject(self, f);
+                }
+            }
+            if (r == null)
+                throw new Exception("Unable to resolve function " + name);
+            return r;
+        }
+
+        public override HeronObject Apply(Environment env, HeronObject[] args)
+        {
+            Trace.Assert(functions.Count > 0);
+            return Resolve(args).Apply(env, args);
+        }
+    }
+
+    /// <summary>
+    /// In .NET methods are overloaded, so resolve a method name on a .NET object
+    /// yields a group of methods. This class stores the object and the method
+    /// name for invocation.
+    /// </summary>
+    public class DotNetMethodGroup : HeronObject
+    {
+        DotNetObject self;
+        string name;
+
+        public DotNetMethodGroup(DotNetObject self, string name)
+        { 
+            this.self = self;
+            this.name = name;
+        }
+
+        public override HeronObject Apply(Environment env, HeronObject[] args)
+        {
+            Object[] os = HeronObject.ObjectsToDotNetArray(args);
+            Object o = self.GetSystemType().InvokeMember(name, BindingFlags.Public | BindingFlags.InvokeMethod, null, self.ToSystemObject(), os);
+            return new DotNetObject(o);
+        }
+    }
+
+    /// <summary>
+    /// Very similar to DotNetMethodGroup, except only static functions are bound.
+    /// </summary>
+    public class DotNetStaticMethodGroup : HeronObject
+    {
+        DotNetClass self;
+        string name;
+
+        public DotNetStaticMethodGroup(DotNetClass self, string name)
+        {
+            this.self = self;
+            this.name = name;
+        }
+
+        public override HeronObject Apply(Environment env, HeronObject[] args)
+        {
+            Object[] os = HeronObject.ObjectsToDotNetArray(args);
+            Object o = self.GetSystemType().InvokeMember(name, BindingFlags.Public | BindingFlags.Static | BindingFlags.InvokeMethod, null, null, os);
+            return new DotNetObject(o);
         }
     }
 }

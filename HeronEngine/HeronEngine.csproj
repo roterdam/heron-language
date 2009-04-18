@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HeronDebugger.cs" />
     <Compile Include="HeronParser.cs" />
     <Compile Include="HeronExpression.cs" />
     <Compile Include="HeronClass.cs" />
@@ -87,6 +88,19 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="todo.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="tests\SeekingDemo.heron" />
+    <None Include="tests\test1.heron" />
+    <None Include="tests\test10.heron" />
+    <None Include="tests\test2.heron" />
+    <None Include="tests\test3.heron" />
+    <None Include="tests\test4.heron" />
+    <None Include="tests\test5.heron" />
+    <None Include="tests\test6.heron" />
+    <None Include="tests\test7.heron" />
+    <None Include="tests\test8.heron" />
+    <None Include="tests\test9.heron" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

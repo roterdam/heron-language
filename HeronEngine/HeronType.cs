@@ -32,26 +32,6 @@ namespace HeronEngine
                 return s;
             return s.Substring(0, n);
         }
-
-        static public Object[] HeronObjectArrayToDotNetArray(HeronObject[] array)
-        {
-            Object[] r = new Object[array.Length];
-            for (int i = 0; i < array.Length; ++i)
-            {
-                r[i] = array[i].ToDotNetObject();
-            }
-            return r;
-        }
-
-        static public Type[] ObjectsToTypes(Object[] array)
-        {
-            Type[] r = new Type[array.Length];
-            for (int i = 0; i < array.Length; ++i)
-            {
-                r[i] = array[i].GetType();
-            }
-            return r;
-        }
     }
 
     public class HeronPrimitive : HeronType
@@ -86,12 +66,12 @@ namespace HeronEngine
         }
     }
 
-    public class DotNetType : HeronType
+    public class DotNetClass : HeronType
     {
         string name;
         Type type;
 
-        public DotNetType(string name, Type type)
+        public DotNetClass(string name, Type type)
         {
             this.name = name;
             this.type = type;
@@ -99,30 +79,21 @@ namespace HeronEngine
 
         public override HeronObject Instantiate(Environment env, HeronObject[] args)
         {
-            Object[] objs = HeronType.HeronObjectArrayToDotNetArray(args);
-            Type[] types = HeronType.ObjectsToTypes(objs);
-            ConstructorInfo c = type.GetConstructor(types);
-            if (c == null)
-                throw new Exception("No constructor exists for " + name);
-            Object o = c.Invoke(objs);
+            Object[] objs = HeronObject.ObjectsToDotNetArray(args);
+            Object o = type.InvokeMember(null, BindingFlags.Public | BindingFlags.CreateInstance, null, null, objs);
             if (o == null)
                 throw new Exception("Unable to construct " + name);
             return new DotNetObject(o);
         }
 
-        /*
-        public override HeronObject Invoke(Environment env, string s, HeronObject[] args)
+        public Type GetSystemType()
         {
-            Object[] objs = HeronType.HeronObjectArrayToDotNetArray(args);
-            Type[] types = HeronType.ObjectsToTypes(objs);
-            MethodInfo mi = type.GetMethod(s, BindingFlags.Static, null, types, null);
-            if (mi == null)
-                throw new Exception("unable to find static method " + s + " on the dot net class " + type.Name + " with supplied argument types");
-            if (!mi.IsStatic)
-                throw new Exception("method " + s + " of the dot net class " + type.Name + " is not static");
-            Object r = mi.Invoke(null, objs);
-            return new DotNetObject(r);
+            return type;
         }
-         */
+
+        public override HeronObject GetField(string name)
+        {
+            return new DotNetStaticMethodGroup(this, name);
+        }
     }
 }

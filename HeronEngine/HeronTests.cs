@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 
 using HeronEngine;
 using Peg;
@@ -88,6 +89,7 @@ namespace HeronTests
 
         static public void RunFileTest(string file)
         {
+            Console.WriteLine("Loading and evaluating file " + file);
             string sModule = Util.Util.ReadFromFile(file);
             try
             {
@@ -109,12 +111,26 @@ namespace HeronTests
                
         }
 
+        static public void RunAllTestFiles()
+        {
+            int n = 1;
+            while (true)
+            {
+                string s = "test" + n.ToString() + ".heron";
+                if (!File.Exists(s))
+                    return;
+                RunFileTest(s);
+                n += 1;
+            }
+        }
+
         static public void MainTest()
         {
             SimplePegTests();
             SimpleExprTests();
             SimpleEvalExprTests();
-            RunFileTest("..\\..\\..\\Input\\SeekingDemoPackage.heron");
+            RunAllTestFiles();
+            //RunFileTest("SeekingDemo.heron");
             Console.WriteLine("\nPress any key to continue ...");
             Console.ReadKey();
         }

@@ -65,14 +65,14 @@ namespace HeronEngine
                 {
                     Function f = CreateFunction(node);
                     f.hclass = r;
-                    r.methods.Add(f);
+                    r.AddMethod(f);
                 }
             }
 
             AstNode fields = x.GetChild("fields");
             if (fields != null)
                 foreach (AstNode node in fields.GetChildren())
-                    r.fields.Add(CreateField(node));
+                    r.AddField(CreateField(node));
 
             return r;
         }
@@ -176,7 +176,7 @@ namespace HeronEngine
         static public If CreateIfStatement(AstNode x)
         {
             If r = new If();
-            r.cond = CreateExpr(x.GetChild(0));
+            r.cond = CreateExpr(x.GetChild(0).GetChild(0));
             r.ontrue = CreateStatement(x.GetChild(1));
             if (x.GetNumChildren() > 2)
                 r.onfalse = CreateStatement(x.GetChild(2));
@@ -303,19 +303,15 @@ namespace HeronEngine
             return false;
         }
 
-        /* TODO: delete
-        static New CreateNewExpr(AstNode x, ref int i)
+        static New CreateNewExpr(AstNode x)
         {
-            Assure(x, x.GetNumChildren() > i, "new operator must be followed by type");
-            AstNode type = x.GetChild(i);
-            Assure(x, type.GetLabel() == "type", "new operator must be followed by type");
-            i++;
-            Assure(x, x.GetNumChildren() > i, "new operator is missing argument list");
-            AstNode args = x.GetChild(i);
+            Assure(x, x.GetNumChildren() == 2, "new operator must be followed by type expression and arguments in paranthesis");
+            AstNode type = x.GetChild(0);
+            Assure(x, type.GetLabel() == "type", "new operator is missing type exprresion");
+            AstNode args = x.GetChild(1);
             Assure(args, args.GetLabel() == "paranexpr", "new operator is missing argument list");
             return new New(type.ToString(), CreateArgList(args));
         }
-         */
 
         static Expr CreatePrimaryExpr(AstNode x, ref int i)
         {
@@ -327,6 +323,9 @@ namespace HeronEngine
             Assure(x, sVal.Length > 0, "illegal zero-length child expression");
             switch (sLabel)
             {
+                case "new":
+                    i++;
+                    return CreateNewExpr(child);
                 case "name":
                     i++;
                     return new Name(child.ToString());
@@ -410,7 +409,7 @@ namespace HeronEngine
                     string sName = tmp.ToString();
                     Assure(x, sName.Length > 0, "Name expression must have non-zero length");
                     i++;
-                    r = new ReadField(r, sName);
+                    r = new SelectField(r, sName);
                 }
                 else if (tmp.ToString() == "++")
                 {                    
