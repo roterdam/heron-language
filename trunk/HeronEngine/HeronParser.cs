@@ -262,7 +262,7 @@ namespace HeronEngine
 
         static public string StringFromLiteral(string s)
         {
-            Assure(s.Length > 2, "invalid string");
+            Assure(s.Length >= 2, "invalid string");
             Assure(s[0] == '"', "Expected quotation marks around string");
             Assure(s[s.Length - 1] == '"', "Expected quotation marks around string");
             StringBuilder r = new StringBuilder();
@@ -433,6 +433,12 @@ namespace HeronEngine
             {
                 Expr tmp = CreatePostfixExpr(x, ref i);
                 Expr r = new UnaryOperator("-", tmp);
+                return r;
+            }
+            if (ChildNodeMatches(x, ref i, "!"))
+            {
+                Expr tmp = CreatePostfixExpr(x, ref i);
+                Expr r = new UnaryOperator("!", tmp);
                 return r;
             }
             else

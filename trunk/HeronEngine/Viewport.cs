@@ -101,7 +101,7 @@ namespace ViewportLib
             form.ClearCmds();
         }
 
-        public bool IsWindowOpen()
+        public bool IsOpen()
         {
             mMutex.WaitOne();
             bool r = form != null;

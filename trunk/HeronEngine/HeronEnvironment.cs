@@ -183,6 +183,12 @@ namespace HeronEngine
             AddModuleVar(name, new DotNetClass(name, t));
         }
 
+        /// <summary>
+        /// This exposes a set of globally recognized Heron and .NET 
+        /// types to the environment (essentially global variables).
+        /// A simple way to extend the scope of Heron is to introduce
+        /// new types in this function.
+        /// </summary>
         void RegisterPrimitives()
         {
             RegisterPrimitiveType("Int");
@@ -194,6 +200,7 @@ namespace HeronEngine
             RegisterDotNetType("Viewport", typeof(Viewport));
             RegisterDotNetType("Console", typeof(Console));
             RegisterDotNetType("Math", typeof(Math));
+            RegisterDotNetType("Random", typeof(Random));
         }
 
         /// <summary>

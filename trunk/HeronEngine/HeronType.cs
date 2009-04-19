@@ -80,10 +80,10 @@ namespace HeronEngine
         public override HeronObject Instantiate(Environment env, HeronObject[] args)
         {
             Object[] objs = HeronObject.ObjectsToDotNetArray(args);
-            Object o = type.InvokeMember(null, BindingFlags.Public | BindingFlags.CreateInstance, null, null, objs);
+            Object o = type.InvokeMember(null, BindingFlags.Instance | BindingFlags.Public | BindingFlags.Default | BindingFlags.CreateInstance, null, null, objs);
             if (o == null)
                 throw new Exception("Unable to construct " + name);
-            return new DotNetObject(o);
+            return DotNetObject.Marshal(o);
         }
 
         public Type GetSystemType()
@@ -91,9 +91,27 @@ namespace HeronEngine
             return type;
         }
 
+        /// <summary>
+        /// Returns the value of a static field, or a method group.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public override HeronObject GetField(string name)
         {
-            return new DotNetStaticMethodGroup(this, name);
+            // We have to first look to see if there are static fields
+            FieldInfo[] fis = type.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.GetField);          
+            foreach (FieldInfo fi in fis) 
+                if (fi.Name == name)
+                   return DotNetObject.Marshal(fi.GetValue(null));
+            
+            // Look for methods
+            MethodInfo[] mis = type.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.InvokeMethod);
+            if (mis.Length != 0)
+                return new DotNetStaticMethodGroup(this, name);
+
+            // No static field or method found.
+            // TODO: could eventually support property.
+            throw new Exception("Could not find static field, or static method " + name);
         }
     }
 }
