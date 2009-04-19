@@ -113,13 +113,23 @@ namespace HeronEngine
 
         public static Rule NameOrLiteral()
         {
-            // The order here is different, otherwise "-3" gets parsed a name and then a literal
+            // The order here is different, otherwise "-3" gets parsed as a name ('-')
+            // followed by a literal ('3')
             return Choice(Literal(), Name());
+        }
+
+        /// <summary>
+        /// A type name could be an ordinayr
+        /// </summary>
+        /// <returns></returns>
+        public static Rule TypeName()
+        {
+            return Store("name", Seq(Ident(), Star(Seq(Token("."), Ident()))));
         }
 
 	    public static Rule TypeExpr() 
         {
-            return Store("type", Seq(Name(), Opt(TypeArgs())));
+            return Store("type", Seq(TypeName(), Opt(TypeArgs())));
         }
 
 	    public static Rule TypeDecl()
@@ -237,7 +247,7 @@ namespace HeronEngine
         }
 	    public static Rule WhileStatement()
         {
-            return Store("while", NoFailSeq(Token("while"), ParanthesizedExpr(), CodeBlock()));
+            return Store("while", NoFailSeq(Token("while"), ParanthesizedExpr(), Delay(Statement)));
         }
 	    public static Rule EmptyStatement()
         {

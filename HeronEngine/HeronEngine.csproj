@@ -93,6 +93,8 @@
     <None Include="tests\SeekingDemo.heron" />
     <None Include="tests\test1.heron" />
     <None Include="tests\test10.heron" />
+    <None Include="tests\test11.heron" />
+    <None Include="tests\test12.heron" />
     <None Include="tests\test2.heron" />
     <None Include="tests\test3.heron" />
     <None Include="tests\test4.heron" />

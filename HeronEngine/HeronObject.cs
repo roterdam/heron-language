@@ -102,7 +102,7 @@ namespace HeronEngine
         {
             Object[] objs = HeronObject.ObjectsToDotNetArray(args);
             Object r = mi.Invoke(self, objs);
-            return new DotNetObject(r);
+            return DotNetObject.Marshal(r);
         }
     }
 
@@ -110,9 +110,47 @@ namespace HeronEngine
     {
         Object obj;
 
-        public DotNetObject(Object obj)
+        /// <summary>
+        /// This is private because you should used DotNetObject.Marshal instead
+        /// </summary>
+        /// <param name="obj"></param>
+        private DotNetObject(Object obj)
         {
             this.obj = obj;
+        }
+
+        /// <summary>
+        /// Creates a Heron object from a System (.NET) object
+        /// If it is a primitive, this will convert to the Heron primitives
+        /// </summary>
+        /// <param name="o"></param>
+        /// <returns></returns>
+        public static HeronObject Marshal(Object o)
+        {
+            if (o is Double)
+            {
+                return new FloatObject((double)o);
+            }
+            else if (o is Int32)
+            {
+                return new IntObject((int)o);
+            }
+            else if (o is Char)
+            {
+                return new CharObject((char)o);
+            }
+            else if (o is String)
+            {
+                return new StringObject((string)o);
+            }
+            else if (o is Boolean)
+            {
+                return new BoolObject((bool)o);
+            }
+            else 
+            {
+                return new DotNetObject(o);
+            }
         }
 
         public override Object ToSystemObject()
@@ -132,26 +170,22 @@ namespace HeronEngine
 
         public override HeronObject GetField(string name)
         {
-            Type t = GetSystemType();
+            Type type = GetSystemType();
 
-            if (t.GetMethod(name) != null)
-            {
+            // We have to first look to see if there are static fields
+            FieldInfo[] fis = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetField);
+            foreach (FieldInfo fi in fis)
+                if (fi.Name == name)
+                    return DotNetObject.Marshal(fi.GetValue(null));
+
+            // Look for methods
+            MethodInfo[] mis = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod);
+            if (mis.Length != 0)
                 return new DotNetMethodGroup(this, name);
-            }
-            else if (t.GetField(name) != null)
-            {
-                FieldInfo fi = t.GetField(name);
-                throw new Exception(".NET object fields not supported");
-            }
-            else if (t.GetProperty(name) != null)
-            {
-                PropertyInfo pi = t.GetProperty(name);
-                throw new Exception(".NET object properties not supported");
-            }
-            else
-            {
-                throw new Exception("No member field or method named " + name);
-            }
+
+            // No static field or method found.
+            // TODO: could eventually support property.
+            throw new Exception("Could not find field, or static method " + name);
         }            
     }
 
@@ -664,8 +698,8 @@ namespace HeronEngine
         public override HeronObject Apply(Environment env, HeronObject[] args)
         {
             Object[] os = HeronObject.ObjectsToDotNetArray(args);
-            Object o = self.GetSystemType().InvokeMember(name, BindingFlags.Public | BindingFlags.InvokeMethod, null, self.ToSystemObject(), os);
-            return new DotNetObject(o);
+            Object o = self.GetSystemType().InvokeMember(name, BindingFlags.InvokeMethod, null, self.ToSystemObject(), os);
+            return DotNetObject.Marshal(o);
         }
     }
 
@@ -680,14 +714,14 @@ namespace HeronEngine
         public DotNetStaticMethodGroup(DotNetClass self, string name)
         {
             this.self = self;
-            this.name = name;
+            this.name = name;            
         }
 
         public override HeronObject Apply(Environment env, HeronObject[] args)
         {
             Object[] os = HeronObject.ObjectsToDotNetArray(args);
             Object o = self.GetSystemType().InvokeMember(name, BindingFlags.Public | BindingFlags.Static | BindingFlags.InvokeMethod, null, null, os);
-            return new DotNetObject(o);
+            return DotNetObject.Marshal(o); 
         }
     }
 }

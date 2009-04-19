@@ -99,7 +99,8 @@ namespace HeronTests
             {
                 Console.WriteLine("Parsing exception occured in file " + file);
                 Console.WriteLine("at character " + e.col + " of line " + e.row);
-                Console.WriteLine("while parsing rule " + e.rule.ToString());
+                if (e.rule != null)
+                    Console.WriteLine("while parsing rule " + e.rule.ToString());
                 Console.WriteLine(e.line);
                 Console.WriteLine(e.ptr);
             }
@@ -122,17 +123,6 @@ namespace HeronTests
                 RunFileTest(s);
                 n += 1;
             }
-        }
-
-        static public void MainTest()
-        {
-            SimplePegTests();
-            SimpleExprTests();
-            SimpleEvalExprTests();
-            RunAllTestFiles();
-            //RunFileTest("SeekingDemo.heron");
-            Console.WriteLine("\nPress any key to continue ...");
-            Console.ReadKey();
         }
 
         static void SimpleEvalExprTests()
@@ -207,5 +197,16 @@ namespace HeronTests
             TestExpr("(4 + 12) * 3");
             TestExpr("a == 3 || b == 4");
         }
+
+        static public void MainTest()
+        {
+            SimplePegTests();
+            SimpleExprTests();
+            SimpleEvalExprTests();
+            RunAllTestFiles();
+            Console.WriteLine("\nPress any key to continue ...");
+            Console.ReadKey();
+        }
     }
 }
+
