@@ -36,8 +36,8 @@ namespace HeronEngine
             return Choice(CharSet(",."), Plus(CharSet("~`!@#$%^&*-+|:<>=?/")));
         }
         public static Rule Token(string s) 
-        { 
-            return Token(CharSeq(s)); 
+        {
+            return Token(CharSeq(s));
         }
         public static Rule Token(Rule r) 
         {
@@ -101,7 +101,7 @@ namespace HeronEngine
         }
         public static Rule CommaList(Rule r)
         {
-            return Opt(Seq(r, Star(Seq(Token(","), r))));
+            return Opt(Seq(r, Star(Seq(Token(","), NoFail(r)))));
         }
         #endregion
 
@@ -124,17 +124,17 @@ namespace HeronEngine
         /// <returns></returns>
         public static Rule TypeName()
         {
-            return Store("name", Seq(Ident(), Star(Seq(Token("."), Ident()))));
+            return Store("name", Seq(Ident(), Star(Seq(Token("."), NoFail(Ident(), "Expected identifier")))));
         }
 
 	    public static Rule TypeExpr() 
         {
-            return Store("type", Seq(TypeName(), Opt(TypeArgs())));
+            return Store("type", Seq(TypeName(), Opt(TypeArgs()), WS()));
         }
 
 	    public static Rule TypeDecl()
         {
-            return NoFailSeq(Token(":"), TypeExpr());
+            return Seq(Token(":"), NoFail(TypeExpr(), "expected type expression"));
         }
        
         public static Rule Arg() 
@@ -144,13 +144,14 @@ namespace HeronEngine
         
         public static Rule ArgList() 
         {
-		    return Store("arglist", Seq(Token("("), CommaList(Arg()), Token(")")));
+		    return Store("arglist", Seq(Token("("), CommaList(Arg()), NoFail(Token(")"), "expected closing paranthesis")));
         }
 
+        /* TEMP: removed because of problem with paring "arglist"
         public static Rule AnonFxn() 
         {
             return Store("anonfxn", Seq(ArgList(), Token("=>"), NoFail(CodeBlock())));
-        }
+        }*/
 
         public static Rule DeleteStatement()
         {
@@ -184,7 +185,9 @@ namespace HeronEngine
 
         public static Rule SimpleExpr() 
         {
-            return Choice(NewExpr(), Name(), Literal(), AnonFxn(), ParanthesizedExpr(), BracketedExpr());
+            return Choice(NewExpr(), Name(), Literal(), 
+                // AnonFxn(), TEMP: removed 
+                ParanthesizedExpr(), BracketedExpr());
 		}
 
         public static Rule Expr() 
@@ -261,7 +264,7 @@ Choice(WhileStatement(), ReturnStatement(), DeleteStatement(), ExprStatement(), 
         }
         public static Rule Braced(Rule r)
         {
-            return NoFailSeq(Token("{"), r, Token("}"));
+            return Seq(Token("{"), NoFail(r, "expected '}'"), NoFail(Token("}")));
         }
         public static Rule BracedGroup(Rule r)
         {
@@ -273,15 +276,15 @@ Choice(WhileStatement(), ReturnStatement(), DeleteStatement(), ExprStatement(), 
         }        
         public static Rule CodeBlock()
         {
-            return Store("codeblock", BracedGroup(Delay(Statement)));
+            return Store("codeblock", Seq(Token("{"), Star(Delay(Statement)), NoFail(Token("}"), "expected '}' or statement")));
         }
         public static Rule FunDecl()
         {
-            return Store("fundecl", NoFailSeq(Name(), ArgList(), Opt(TypeDecl())));
+            return Store("fundecl", Seq(Name(), NoFail(ArgList(), "expected argument list"), Opt(TypeDecl())));
         }
         public static Rule Method()
         {
-            return Store("method", Seq(FunDecl(), Choice(Eos(), CodeBlock())));
+            return Store("method", Seq(FunDecl(), NoFail(Choice(Eos(), CodeBlock()), "expected ';' or code block")));
         }
         public static Rule Entry()
         {

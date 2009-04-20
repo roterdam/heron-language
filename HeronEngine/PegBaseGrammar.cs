@@ -40,6 +40,8 @@ namespace Peg
         /// </summary>
         public abstract class Rule
         {
+            string name;
+
             /// <summary>
             /// Returns true if the rule matches the sub-string starting at the current location 
             /// in the parser object. 
@@ -47,6 +49,22 @@ namespace Peg
             /// <param name="p"></param>
             /// <returns></returns>
             public abstract bool Match(ParserState p);
+
+            public Rule SetName(string s)
+            {
+                name = s;
+                return this;
+            }
+
+            public string GetName()
+            {
+                return name;
+            }
+
+            public override string ToString()
+            {
+                return name;
+            }
         }
 
         /// <summary>
@@ -59,18 +77,17 @@ namespace Peg
         public class AstNodeRule : Rule 
         {
             Rule mRule;
-            string msLabel;
 
             public AstNodeRule(string sLabel, Rule r)
             {
                 Trace.Assert(r != null);
-                msLabel = sLabel;
+                SetName(sLabel);
                 mRule = r;
             }
 
             public override bool Match(ParserState p)
             {
-                p.CreateNode(msLabel);
+                p.CreateNode(GetName());
                 bool result = mRule.Match(p);
                 if (result)
                 {
@@ -81,11 +98,6 @@ namespace Peg
                     p.AbandonNode();
                 }
                 return result;
-            }
-
-            public override string ToString()
-            {
-                return msLabel;
             }
         }
 
@@ -107,15 +119,6 @@ namespace Peg
             public override bool Match(ParserState p)
             {
                 return mDeleg().Match(p);
-            }
-
-            public override string ToString()
-            {
-                // WARNING: this can generate an infinite loops if you have cyclical 
-                // rule references. To break any loops you must either return an empty 
-                // string or make sure that in the cyclical reference is a call to 
-                // AstNodeRule. AstNodeRule.ToString() returns a label.
-                return mDeleg().ToString();
             }
         }
 
@@ -141,19 +144,14 @@ namespace Peg
             {
                 Trace.Assert(r != null);
                 mRule = r;
+                msMsg = "Expected rule: " + r.ToString();
             }
 
             public override bool Match(ParserState p)
             {
+                int store = p.GetIndex();
                 if (!mRule.Match(p))
-                {
-                    string msg = "Parsing error in node '";
-                    msg += p.GetCurrentNode().GetLabel();
-                    msg += "' ";
-                    if (msMsg != null)
-                        msg += ": " + msMsg;
-                    p.ThrowError(msg, p.GetIndex());
-                }
+                    throw new ParsingException(p.GetInput(), store, p.GetIndex(), mRule, msMsg);
                 return true;
             }
         }
@@ -429,7 +427,7 @@ namespace Peg
 
             public override string ToString()
             {
-                return "[" + mData + "]";
+                return mData;
             }
 
             string mData;
@@ -567,7 +565,7 @@ namespace Peg
         public static Rule NotChar(char c) { return Seq(Not(SingleChar(c)), AnyChar()); }
         public static Rule CharSet(string s) { return new CharSetRule(s); }
         public static Rule CharRange(char first, char last) { return new CharRangeRule(first, last); }
-        public static Rule Store(string sLabel, Rule x) { return new AstNodeRule(sLabel, x); }
+        public static Rule Store(string name, Rule x) { return new AstNodeRule(name, x); }
         public static Rule NoFail(Rule r, string s) { return new NoFailRule(r, s); }
         public static Rule NoFail(Rule r) { return new NoFailRule(r); }
         public static Rule Seq(Rule x0, Rule x1) { return new SeqRule(new Rule[] { x0, x1 }); }
