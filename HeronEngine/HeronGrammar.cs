@@ -354,7 +354,11 @@ Choice(WhileStatement(), ReturnStatement(), DeleteStatement(), ExprStatement(), 
         }
         public static Rule Module()
         {
-            return Store("module", NoFailSeq(Token("module"), Name(), BracedGroup(TopLevel())));
+            return Store("module", 
+                Seq(WS(),
+                NoFail(Token("module"), "expected 'module' keyword"),
+                NoFail(Name(), "expected module name"),
+                NoFail(BracedGroup(TopLevel()), "expected classes and interfaces between '{' and '}'")));
         }
         #endregion
     }

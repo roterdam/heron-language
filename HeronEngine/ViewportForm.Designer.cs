@@ -1,4 +1,4 @@
-﻿namespace ViewportLib
+﻿namespace HeronStandardLibrary
 {
     partial class ViewportForm
     {

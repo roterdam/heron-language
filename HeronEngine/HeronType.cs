@@ -111,7 +111,9 @@ namespace HeronEngine
 
             // No static field or method found.
             // TODO: could eventually support property.
-            throw new Exception("Could not find static field, or static method " + name);
+            throw new Exception("Could not find static field, or static method " + name + " in object " + name);
         }
     }
 }
+
+

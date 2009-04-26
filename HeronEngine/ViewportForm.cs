@@ -10,7 +10,7 @@ using System.Threading;
 using System.Diagnostics;
 using System.Reflection;
 
-namespace ViewportLib
+namespace HeronStandardLibrary
 {
     public partial class ViewportForm : Form
     {

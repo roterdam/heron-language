@@ -15,9 +15,8 @@
 				Console.Write("Expect 4 : ");
 				Console.WriteLine(Math.Ceiling(Math.PI));
 				Console.Write("Expect five random numbers : ");
-				var r = new Random();
 				for (i = 0; i < 5; i++) {
-					Console.Write(r.NextDouble());
+					Console.Write(Util.Random(1.0));
 					Console.Write(" ");
 				}
 				Console.WriteLine("");
