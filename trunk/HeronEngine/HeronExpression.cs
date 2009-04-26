@@ -251,7 +251,7 @@ namespace HeronEngine
             string s = env.ToString();
             HeronObject r = env.LookupName(name);
             if (r == null)
-                throw new Exception("Could not find the name " + name + " in the environment");
+                throw new Exception("Could not find the name '" + name + "' in the environment");
             return r;
         }
 

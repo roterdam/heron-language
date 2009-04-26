@@ -200,10 +200,13 @@ namespace HeronTests
 
         static public void MainTest()
         {
+            /*
             SimplePegTests();
             SimpleExprTests();
             SimpleEvalExprTests();
             RunAllTestFiles();
+             */
+            RunFileTest(@"C:\Users\Chr15topher\AppData\Roaming\Heron\SeekingDemoPackage.heron");
             Console.WriteLine("\nPress any key to continue ...");
             Console.ReadKey();
         }

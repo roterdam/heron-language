@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using ViewportLib;
-
 namespace HeronEngine
 {
     /// <summary>
@@ -46,6 +44,11 @@ namespace HeronEngine
 
         public HeronObject LookupName(string s)
         {
+            // NOTE: it would be more efficient to make "this" 
+            // a special operator. 
+            if (s == "this")
+                return self;
+
             foreach (ObjectTable tbl in this)
                 if (tbl.ContainsKey(s))
                     return tbl[s];
@@ -64,6 +67,8 @@ namespace HeronEngine
 
         public HeronObject LookupVar(string s)
         {
+            if (s == "this")
+                return self;
             foreach (ObjectTable tbl in this)
                 if (tbl.ContainsKey(s))
                     return tbl[s];
@@ -83,6 +88,8 @@ namespace HeronEngine
 
         public bool HasVar(string s)
         {
+            if (s == "this")
+                return true;
             foreach (ObjectTable tbl in this)
                 if (tbl.ContainsKey(s))
                     return true;
@@ -197,10 +204,10 @@ namespace HeronEngine
             RegisterPrimitiveType("String");
             RegisterPrimitiveType("List");
             
-            RegisterDotNetType("Viewport", typeof(Viewport));
             RegisterDotNetType("Console", typeof(Console));
             RegisterDotNetType("Math", typeof(Math));
-            RegisterDotNetType("Random", typeof(Random));
+            RegisterDotNetType("Viewport", typeof(HeronStandardLibrary.Viewport));
+            RegisterDotNetType("Util", typeof(HeronStandardLibrary.Util));
         }
 
         /// <summary>
