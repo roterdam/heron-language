@@ -42,4 +42,83 @@ namespace Util
             }
         }
     }
+
+    public static class StringExtensions
+    {
+        public static void GetRowCol(this string self, int index, out int row, out int col)
+        {
+            row = 0;
+            int nLastRow = 0;
+            for (int i = 0; i < index; ++i)
+            {
+                if (self[i].Equals('\n'))
+                {
+                    row++;
+                    nLastRow = i;
+                }
+            }
+            col = index - nLastRow;
+        }
+
+        public static int IndexOfNthChar(this string s, char c, int n)
+        {
+            int cnt = 0;
+            for (int i=0; i < s.Length; ++i)
+                if (s[i] == c)
+                    if (++cnt == n)
+                        return i;
+            return -1;
+        }
+
+        public static int CountChar(this string s, char c)
+        {
+            int r = 0;
+            for (int i = 0; i < s.Length; ++i)
+                if (s[i] == c)
+                    ++r;
+            return r;
+        }
+
+        public static int LineOfIndex(this string s, int index)
+        {
+            return s.Substring(0, index).CountChar('\n');
+        }
+
+        public static int GetIndexOfCharBefore(this string s, char c, int n)
+        {
+            while (--n >= 0)
+            {
+                if (s[n] == c)
+                    return n;
+            }
+            return -1;
+        }
+
+        public static int GetIndexOfCharAfter(this string s, char c, int n)
+        {
+            int len = s.Length;
+            while (++n < len)
+            {
+                if (s[n] == c)
+                    return n;
+            }
+            return -1;
+        }
+
+        public static string GetLine(this string s, int nLine)
+        {
+            int a = 0;            
+            if (nLine > 0)
+                a = s.IndexOfNthChar('\n', nLine - 1);            
+            int b = s.IndexOfNthChar('\n', nLine);
+            if (b < a)
+                b = s.Length;
+            int len = b - a;
+            if (len < 0)
+                throw new Exception("Failed to get nth line");
+            if (len > 128)
+                len = 128;
+            return s.Substring(a, len);
+        }
+    }
 }
