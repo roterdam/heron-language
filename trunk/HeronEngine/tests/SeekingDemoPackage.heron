@@ -1,0 +1,269 @@
+module SeekingDemoPackage {
+  class Action {
+    methods {
+      Constructor(v : Vector) {
+        vector = v;
+      }
+    }
+    fields {
+      vector : Vector;
+    }
+  }
+  class Angle {
+    fields {
+      angle : Float;
+    }
+  }
+  class Character {
+    methods {
+      Update(a : Action)
+      {
+        state.position.x += a.vector.x;
+        state.position.y += a.vector.y;
+      }
+      Constructor(x : Behavior)
+      {
+        state = new PhysicalState();
+        behavior = x;
+      }
+    }
+    fields {
+      behavior : Behavior;
+      state : PhysicalState;
+    }
+  }
+  class DrawingSystem {
+    methods {
+	  Constructor(h : Int, w : Int) {
+	    view = new View(h, w);
+	  }
+      DrawCharacter(c : Character) {
+        view.DrawCircle(c.state.position.x, c.state.position.y, 5);
+      }
+      NewRandomPosition() : Position {
+        return new Position(Util.Random(view.width), Util.Random(view.height));
+      }
+      Clear() {
+        view.Clear();
+      }
+    }
+    fields {
+      view : View;
+    }
+  }
+  class Main {
+    methods {
+      InitializeCharacter(c : Character) {
+        c.state.position = drawer.NewRandomPosition();
+        c.state.orientation = Util.Random(2 * Math.PI);
+      }
+      Redraw() {
+        drawer.Clear();
+        foreach (c in characters)
+          drawer.DrawCharacter(c);
+      }
+      UpdateCharacters() {
+        foreach (c in characters) {
+          var a : Action = c.behavior.ProduceAction(c.state);
+          c.Update(a);
+        }
+        Redraw();
+      }
+      Constructor() {
+		characters = new Collection();
+		drawer = new DrawingSystem(400, 400);
+        var target = drawer.NewRandomPosition();
+        var sharedBehavior = new SeekingBehavior(target);
+        for (i=0; i < 20; i++) {
+          var c : Character = new Character(sharedBehavior);
+          InitializeCharacter(c);
+          characters.Add(c);
+        }
+        var timer = new TimeSystem(drawer.view, 50);
+        timer.main = this;
+        timer.StartTimerLoop();
+      }
+    }
+    fields {
+      characters : Collection<Character>;
+      drawer : DrawingSystem;
+    }
+  }
+  class PhysicalState {
+    methods {
+      Constructor()
+      {
+        position = new Position(0, 0);
+        momentum = new Vector(0, 0);
+        orientation = 0.0;
+      }
+    }
+    fields {
+      orientation : Float;
+      position : Position;
+      momentum : Vector;
+    }
+  }
+  class Position {
+    methods {
+      Offset(v : Vector) : Position
+      {
+        x += v.x;
+        y += v.y;
+      }
+      AsVector() : Vector {
+        return new Vector(x, y);
+      }
+      Origin() : Vector
+      {
+        return new Vector(0, 0);
+      }
+      Constructor(x : Float, y : Float)
+      {
+        this.x = x;
+        this.y = y;
+      }
+    }
+    fields {
+      x : Float;
+      y : Float;
+    }
+  }
+  class ReachTarget {
+    fields {
+      target : Position;
+    }
+  }
+  class SeekingBehavior {
+    implements {
+      Behavior;
+    }
+    methods {
+      ProduceAction(state : PhysicalState) {
+        var v = new Vector();
+        v.x = target.x - state.position.x;
+        v.y = target.y - state.position.y;
+        if (v.Length() > 4) {
+			v = v.Normalize();			
+			v = v.Scale(2);
+		}			
+        return new Action(v);
+      }
+      Constructor(t : Position)
+      {
+        target = t;
+      }
+    }
+    fields {
+      target : Position;
+    }
+  }
+  class TimeSystem {
+    methods {
+      Constructor(view : Viewport, delay : Int)
+      {
+        this.view = view;
+        this.delay = delay;
+      }
+      StartTimerLoop()
+      {
+        while (view.IsOpen()) {
+          Util.Sleep(delay);
+          main.UpdateCharacters();
+        }
+      }
+    }
+    fields {
+      delay : int;
+      main : Main;
+      view : Viewport;
+    }
+  }
+  class Vector {
+    methods {
+      Scale(a : Float) : Vector
+      {
+        return new Vector(x * a, y * a);
+      }
+      Add(v : Vector) : Vector
+      {
+        x += v.x;
+        y += v.y;
+      }
+      Normalize() : Vector
+      {
+        if (Length() == 0.0)
+          return this;
+        return new Vector(x / Length(), y / Length());
+      }
+      Length() : Float
+      {
+        returnMath.Sqrt(x * x + y * y);
+      }
+      Constructor()
+      {
+      }
+      Constructor(x : Float, y : Float)
+      {
+        this.x = x;
+        this.y = y;
+      }
+    }
+    fields {
+      x : Float;
+      y : Float;
+    }
+  }
+  class View {
+    methods {
+      DrawLine(x1 : Int, y1 : Int, x2 : Int, y2 : Int) : void
+      {
+        port.Line(x1, y1, x2, y2);
+      }
+      DrawRectangle(x : Int, y : Int, w : Int, h : Int) : void
+      {
+        DrawLine(x, y, x + w, y);
+        DrawLine(x + w, y, x + w, y + h);
+        DrawLine(x + w, y + h, x, y + h);
+        DrawLine(x, y + h, x, y);
+      }
+      DrawEllipse(x : Int, y : Int, w : Int, h : Int) : void
+      {
+        port.Ellipse(x, y, w, h);
+      }
+      Constructor(w : Int, h : Int) : void
+      {
+        height = h;
+        width = w;
+        port = new Viewport(w, h);
+      }
+      DrawCircle(x : Int, y : Int, r : Int) : void
+      {
+        DrawEllipse(x - r, y - r, r * 2, r * 2);
+      }
+      IsOpen() : bool
+      {
+		return port.IsOpen();
+      }
+      Clear() 
+      {
+        return port.Clear();
+      }
+    }
+    fields {
+      width : Int;
+      height : Int;
+      port : Viewport;
+    }
+  }
+  interface Behavior {
+    inherits {
+    }
+    methods {
+      ProduceAction(state : PhysicalState)
+      {
+        
+      }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+﻿module TestReturn
+{
+	class Main
+	{
+		methods
+		{	
+			Message() 
+			{
+				return "Hello World";
+			}
+			
+			Constructor()
+			{
+				Console.WriteLine(Message());
+			}
+		}
+	}
+}
+

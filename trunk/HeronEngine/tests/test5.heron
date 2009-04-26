@@ -1,0 +1,21 @@
+﻿module TestField
+{
+	class OtherClass {
+		methods {
+			Constructor() {
+				Console.WriteLine("Hello World");
+			}
+		}
+	}
+	
+	class Main {
+		methods {
+			Constructor() {
+				x = new OtherClass();
+			}
+		}
+		fields {
+			x : OtherClass;
+		}
+	}
+}
