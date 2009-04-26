@@ -1,0 +1,81 @@
+﻿April 14/09
+===========
+- Areas of Research
+	- VM	
+	- programming language design 
+		- Metaprogramming
+			- Aspect Oriented Programming 
+			- Design by Contract 
+			- Constraint validation 
+			- Metaprogramming in modern prefix languages as a separate stage 				
+	- UML for software construction 
+	- Validating models via model execution
+	- Executing models
+	- Language translation	
+	- Textual vs Visual representations of UML
+		- Comparitive Analsys  to Microsoft's OSLO
+	- Optimization 
+		- Purity analysis
+		- Optimizing lists and trees only. 
+		- How many stages is enpough. 
+
+Blogs:
+- CLI stuff
+- Cool video work 
+- UML for software engineering 
+- UML profiles (stereotypes) 
+
+		
+
+April 13/09
+===========
+	
+- Consider the line of code: 	
+	public FunctionListObject(IEnumerable<Function> args)
+- We want that to be as efficient, as using the concrete type.
+- A paper Efficient reflection. Reflection can occur only when specifically marked.
+	- This allows the compiler to work around stuff.
+- I need a debugger system.
+- I also need an error handling system.
+
+- It is going to be quite important that I can write an efficient virtual machine in the language.
+- I wonder how I am going to do that.
+- I want to write a book about this stuff.
+	- I think that writing a compiler can be a great way to understand C# really well.
+	
+
+April 06/09
+===========
+- 
+
+Stuff
+=====
+- I want to fix the lookup system
+
+//==
+
+- Textual : 
+- Three page paper /\ /\ /\ /\ /\ /\ 
+- Professional Developer Conference ...
+- Plug-ins |> 
+
+- Kevin | Scheme | 
+
+//==
+
+- The problem is 
+	- In assignment, the "left-side" is not really an expression.
+	- It is an l-value. It is a field or variable. So we can't just 
+		evaluate it. 
+	- We need to know whether it is a field or variable. Then
+		we have to update the object or scope. 
+	- Okay, here is a stupid idea:
+		- Every scope is an object. 
+		- Doesn't really solve the problem.
+		- Enter a new problem of the "this" being the scope, 
+			or the class.
+	- Can I have some kind of evaluate as lvalue, function? 
+	- Or perhaps I can have an assign function in the environment?
+	- That still doesn't solve the problem.
+	- Somewhere I am going to have some unpleasant work to do.
+

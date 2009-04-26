@@ -1,0 +1,5 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <StartWorkingDirectory>C:\Users\Chr15topher\Documents\Visual Studio 2008\Projects\heron-language\HeronEngine\tests</StartWorkingDirectory>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,27 @@
+﻿module TestReturn
+{
+	class Main
+	{
+		methods
+		{	
+			Constructor()
+			{
+				Console.Write("Expect 3.14 : ");
+				Console.WriteLine(Math.PI);				
+				Console.Write("Expect 3.14 : ");
+				Console.WriteLine(Math.Abs(-Math.PI));
+				Console.Write("Expect 3 : ");
+				Console.WriteLine(Math.Truncate(Math.PI));
+				Console.Write("Expect 4 : ");
+				Console.WriteLine(Math.Ceiling(Math.PI));
+				Console.Write("Expect five random numbers : ");
+				for (i = 0; i < 5; i++) {
+					Console.Write(Util.Random(1.0));
+					Console.Write(" ");
+				}
+				Console.WriteLine("");
+			}
+		}
+	}
+}
+
