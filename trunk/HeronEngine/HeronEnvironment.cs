@@ -3,134 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
+using System.Security.Policy;
 
 namespace HeronEngine
 {
-    /// <summary>
-    /// This is an association list of objects with names.
-    /// This is used as a mechanism for creating scoped names.
-    /// </summary>
-    public class ObjectTable : Dictionary<String, HeronObject>
-    {
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (string s in Keys)
-            {
-                sb.Append(s);
-                sb.Append(" = ");
-                HeronObject o = this[s];
-                if (o != null)
-                    sb.AppendLine(o.ToString());
-                else
-                    sb.AppendLine("null");
-            }
-            return sb.ToString();
-        }
-    }
-
-    /// <summary>
-    /// A stack frame, also called an activation record, contains information 
-    /// about the calling function. It also has a stack of object-name association lists
-    /// which correspond to scopes. A stack is used so that names declared in one scope override
-    /// any similiarly named variables in previous scopes.
-    /// </summary>
-    public class Frame : Stack<ObjectTable>
-    {
-        public Frame(Function f, Instance self)
-        {
-            this.function = f;
-            this.self = self;
-        }
-
-        public HeronObject LookupName(string s, out bool bFound)
-        {
-            bFound = true;
-
-            // NOTE: it would be more efficient to make "this" 
-            // a special operator. 
-            if (s == "this")
-                return self;
-
-            foreach (ObjectTable tbl in this)
-                if (tbl.ContainsKey(s))
-                    return tbl[s];
-
-            if (self != null)
-            {
-                if (self.HasField(s))
-                    return self.GetFieldOrMethod(s);
-
-                if (self.HasMethod(s))
-                    return self.GetMethods(s);
-            }
-
-            bFound = false;
-            return null;
-        }
-
-        public HeronObject LookupVar(string s)
-        {
-            if (s == "this")
-                return self;
-            foreach (ObjectTable tbl in this)
-                if (tbl.ContainsKey(s))
-                    return tbl[s];
-            return null;
-        }
-
-        public HeronObject LookupField(string s)
-        {
-            if (self == null)
-                return null;
-
-            if (self.HasField(s))
-                return self.GetFieldOrMethod(s);
-
-            return null;
-        }
-
-        public bool HasVar(string s)
-        {
-            if (s == "this")
-                return true;
-            foreach (ObjectTable tbl in this)
-                if (tbl.ContainsKey(s))
-                    return true;
-            return false;
-        }
-
-        public bool SetVar(string s, HeronObject o)
-        {
-            foreach (ObjectTable tbl in this)
-            {
-                if (tbl.ContainsKey(s))
-                {
-                    tbl[s] = o;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public bool HasField(string s)
-        {
-            if (self == null)
-                return false;
-            return self.HasField(s);
-        }
-
-        /// <summary>
-        /// Function associated with this activation record 
-        /// </summary>
-        public Function function;
-
-        /// <summary>
-        /// The 'this' pointer if applicable 
-        /// </summary>
-        public Instance self;       
-    }
-
     /// <summary>
     /// This is the lexical environment of a running program. 
     /// It is organized as a stack of frames. It has a temporary "result" variable
@@ -143,6 +19,11 @@ namespace HeronEngine
         /// The current result value
         /// </summary>
         private HeronObject result;
+
+        /// <summary>
+        /// Used for loading assemblies
+        /// </summary>
+        private AppDomain domain;
 
         /// <summary>
         /// A flag that is set to true when a return statement occurs. 
@@ -164,6 +45,14 @@ namespace HeronEngine
 
         public Environment()
         {
+            AppDomainSetup domaininfo = new AppDomainSetup();
+
+            //Create evidence for the new appdomain from evidence of the current application domain
+            Evidence evidence = AppDomain.CurrentDomain.Evidence;
+
+            // Create domain
+            domain = AppDomain.CreateDomain("MyDomain", evidence, domaininfo);
+            
             Clear();
         }
 
@@ -189,16 +78,19 @@ namespace HeronEngine
             AddModuleVar(name, new HeronPrimitive(name));
         }
 
-        void RegisterDotNetType(string name, Type t)
+        public void RegisterDotNetType(string name, Type t)
         {
+            // TODO: deal with generics, 
+            // TODO: deal with overloaded functions,
+            // ...
             AddModuleVar(name, new DotNetClass(name, t));
         }
 
-        void RegisterAssembly(string s)
+        public void LoadAssembly(string s)
         {
-            AssemblyName name = new AssemblyName();
-            name.Name = s;
-            Assembly a = Assembly.Load(name);
+            Assembly a = Assembly.LoadFrom(Config.libraryPath + "//" + s);
+            foreach (Type t in a.GetExportedTypes())
+                RegisterDotNetType(t.Name, t);
         }
 
         /// <summary>
@@ -212,13 +104,15 @@ namespace HeronEngine
             RegisterPrimitiveType("Int");
             RegisterPrimitiveType("Float");
             RegisterPrimitiveType("Char");
+            RegisterPrimitiveType("Bool");
             RegisterPrimitiveType("String");
             
             RegisterDotNetType("Console", typeof(Console));
             RegisterDotNetType("Math", typeof(Math));
             RegisterDotNetType("Collection", typeof(HeronCollection));
+            RegisterDotNetType("Reflector", typeof(HeronReflection));
 
-            RegisterAssembly("HeronStandardLibrary");
+            LoadAssembly("HeronStandardLibrary.dll");
         }
 
         /// <summary>

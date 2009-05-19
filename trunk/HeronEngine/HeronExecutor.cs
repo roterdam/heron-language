@@ -17,6 +17,7 @@ namespace HeronEngine
     public class HeronExecutor
     {
         Environment env = new Environment();
+        Module module; 
 
         public HeronExecutor()
         {
@@ -25,34 +26,50 @@ namespace HeronEngine
         #region evaluation functions
         public HeronObject EvalExpr(string s)
         {
-            Expr x = ParseExpr(s);
+            Expression x = ParseExpr(s);
             HeronObject o = x.Eval(env);
             return o;
         }
 
-        public void EvalModule(string s)
+        public void EvalModule(string sModule)
         {
-            Module m = ParseModule(s);
+            Module m = ParseModule(sModule);
             EvalModule(m);
+        }
+
+        public void InitializeEnvironment()
+        {
+            env.Clear();
+            foreach (HeronClass c in module.classes)
+                env.AddModuleVar(c.name, c);
         }
 
         public void EvalModule(Module m)
         {
-            env.Clear();
-
-            foreach (HeronClass c in m.classes)
-                env.AddModuleVar(c.name, c);
-
+            module = m;
+            InitializeEnvironment();
             HeronClass main = m.GetMainClass();
             if (main == null)
-                throw new Exception("Could not evaluate module " + m.name + " without a class named Main");
+                throw new Exception("Could not evaluate module " 
+                    + m.name + " without a class named Main");
 
             HeronObject inst = main.Instantiate(env, new HeronObject[] { });            
+        }
+
+        public void PrecompileModule(Module m)
+        {
+            module = m;
+            InitializeEnvironment();
+            HeronClass premain = m.GetPremainClass();
+            if (premain == null)
+                return;
+
+            HeronObject inst = premain.Instantiate(env, new HeronObject[] { });
         }
         #endregion
 
         #region static public functions
-        static public Expr ParseExpr(string s)
+        static public Expression ParseExpr(string s)
         {
             AstNode node = ParserState.Parse(HeronGrammar.Expr(), s);
             if (node.GetLabel() != "ast")
@@ -62,7 +79,7 @@ namespace HeronEngine
             node = node.GetChild(0);
             if (node == null)
                 return null;
-            Expr r = HeronParser.CreateExpr(node);
+            Expression r = HeronParser.CreateExpr(node);
             return r;
         }
 
@@ -93,15 +110,16 @@ namespace HeronEngine
             Module r = HeronParser.CreateModule(node);
             return r;
         }
-
-        /// <summary>
-        /// Entry point for the application. 
-        /// </summary>
-        /// <param name="args"></param>
-        static public void Main(string[] args)
-        {
-            HeronTests.HeronTests.MainTest();
-        }
         #endregion 
+
+        public Environment GetEnv()
+        {
+            return env;
+        }
+
+        public Module GetModule()
+        {
+            return module;
+        }
     }
 }

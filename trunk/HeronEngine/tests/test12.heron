@@ -10,7 +10,7 @@
 				DrawBox(100, 100, 100, 100);
 				
 				while (v.IsOpen()) 
-					v.Sleep(100);
+					Util.Sleep(100);
 			}
 						
 			DrawBox(x : Int, y : Int, w : Int, h : Int)

@@ -77,11 +77,32 @@ namespace HeronEngine
             return r;
         }
 
+        static public string TypeToTypeName(AstNode x)
+        {
+            string r = x.GetChild("name").ToString();
+            AstNode typeargs = x.GetChild("typeargs");
+            if (typeargs == null) return r;
+            r += "<";
+            foreach (AstNode y in typeargs.GetChildren())
+                r += TypeToTypeName(y) + ";";
+            return r + ">";
+        }
+
+
+        static public string GetTypeName(AstNode x, string def)
+        {
+            AstNode type = x.GetChild("type");
+            if (type == null)
+                return def;
+            else
+                return TypeToTypeName(type);
+        }
+
         static public Field CreateField(AstNode x)
         {
             Field r = new Field();
             r.name = x.GetChild("name").ToString();
-            r.type = x.GetChild("type").ToString();
+            r.type = GetTypeName(x, "Object");
             return r;
         }
 
@@ -89,9 +110,7 @@ namespace HeronEngine
         {
             FormalArg r = new FormalArg();
             r.name = x.GetChild("name").ToString();
-            AstNode type = x.GetChild("type");
-            if (type != null)
-                r.type = "void";
+            r.type = GetTypeName(x, "Object");
             return r;            
         }
 
@@ -109,12 +128,7 @@ namespace HeronEngine
             AstNode fundecl = x.GetChild("fundecl");            
             r.name = fundecl.GetChild("name").ToString();
             r.formals = CreateFormalArgs(fundecl.GetChild("arglist"));
-
-            AstNode rettype = fundecl.GetChild("type");
-            if (rettype != null)
-                r.rettype = rettype.ToString(); else
-                r.rettype = "void";
-
+            r.rettype = GetTypeName(x, "void");
             r.body = CreateCodeBlock(x.GetChild("codeblock"));
             return r;
         }
@@ -152,21 +166,17 @@ namespace HeronEngine
 
         static public CodeBlock CreateCodeBlock(AstNode x)
         {
-            CodeBlock r = new CodeBlock();
+            CodeBlock r = new CodeBlock(x);
             foreach (AstNode node in x.GetChildren())
                 r.statements.Add(CreateStatement(node));
             return r;
         }
 
-        static public VarDecl CreateVarDecl(AstNode x)
+        static public VariableDeclaration CreateVarDecl(AstNode x)
         {
-            VarDecl r = new VarDecl();
+            VariableDeclaration r = new VariableDeclaration(x);
             r.name = x.GetChild("name").ToString();
-            AstNode type = x.GetChild("type");
-            if (type != null)
-                r.type = type.ToString();
-            else
-                r.type = "Object";
+            r.type = GetTypeName(x, "Object");
             AstNode tmp = x.GetChild("expr");
             if (tmp != null)
                 r.init = CreateExpr(tmp);
@@ -175,8 +185,8 @@ namespace HeronEngine
 
         static public If CreateIfStatement(AstNode x)
         {
-            If r = new If();
-            r.cond = CreateExpr(x.GetChild(0).GetChild(0));
+            If r = new If(x);
+            r.condition = CreateExpr(x.GetChild(0).GetChild(0));
             r.ontrue = CreateStatement(x.GetChild(1));
             if (x.GetNumChildren() > 2)
                 r.onfalse = CreateStatement(x.GetChild(2));
@@ -185,41 +195,41 @@ namespace HeronEngine
 
         static public Return CreateReturnStatement(AstNode x)
         {
-            Return r = new Return();
-            r.expr = CreateExpr(x.GetChild(0));
+            Return r = new Return(x);
+            r.expression = CreateExpr(x.GetChild(0));
             return r;
         }
 
         static public While CreateWhileStatement(AstNode x)
         {
-            While r = new While();
+            While r = new While(x);
             r.cond = CreateExpr(x.GetChild(0).GetChild(0));
             r.body = CreateStatement(x.GetChild(1));
             return r;
         }
 
-        static public ExprStatement CreateExprStatement(AstNode x)
+        static public ExpressionStatement CreateExprStatement(AstNode x)
         {
-            ExprStatement r = new ExprStatement();
-            r.expr = CreateExpr(x.GetChild(0));
+            ExpressionStatement r = new ExpressionStatement(x);
+            r.expression = CreateExpr(x.GetChild(0));
             return r;
         }
 
         static public ForEach CreateForEachStatement(AstNode x)
         {
-            ForEach r = new ForEach();
+            ForEach r = new ForEach(x);
             r.name = x.GetChild(0).ToString();
-            r.coll = CreateExpr(x.GetChild(1));
+            r.collection = CreateExpr(x.GetChild(1));
             r.body = CreateStatement(x.GetChild(2));
             return r;
         }
 
         static public For CreateForStatement(AstNode x)
         {
-            For r = new For();
+            For r = new For(x);
             r.name = x.GetChild(0).ToString();
-            r.init = CreateExpr(x.GetChild(1));
-            r.cond = CreateExpr(x.GetChild(2));
+            r.initial = CreateExpr(x.GetChild(1));
+            r.condition = CreateExpr(x.GetChild(2));
             r.next = CreateExpr(x.GetChild(3));
             r.body = CreateStatement(x.GetChild(4));
             return r;
@@ -313,7 +323,7 @@ namespace HeronEngine
             return new New(type.ToString(), CreateArgList(args));
         }
 
-        static Expr CreatePrimaryExpr(AstNode x, ref int i)
+        static Expression CreatePrimaryExpr(AstNode x, ref int i)
         {
             Assure(i < x.GetNumChildren(), "sub-expression index went out of bounds");
             AstNode child = x.GetChild(i);
@@ -358,11 +368,11 @@ namespace HeronEngine
             }
         }
 
-        static ExprList CreateArgList(AstNode x)
+        static ExpressionList CreateArgList(AstNode x)
         {
             Assure(x, x.GetLabel() == "paranexpr", "Can only create argument lists from paranthesized expression");
             Assure(x, x.GetNumChildren() <= 1, "Paranthesized expression must contain at most one compound expression");
-            ExprList r = new ExprList();
+            ExpressionList r = new ExpressionList();
 
             // If there are no arguments, return an empty expression list
             if (x.GetNumChildren() == 0)
@@ -372,16 +382,16 @@ namespace HeronEngine
             int i = 0;
             while (i < child.GetNumChildren())
             {
-                Expr tmp = CreateExpr(child, ref i);
+                Expression tmp = CreateExpr(child, ref i);
                 r.Add(tmp);
             }
             return r;
         }
 
-        static Expr CreatePostfixExpr(AstNode x, ref int i)
+        static Expression CreatePostfixExpr(AstNode x, ref int i)
         {
             int old = i;
-            Expr r = CreatePrimaryExpr(x, ref i);
+            Expression r = CreatePrimaryExpr(x, ref i);
             Assure(x, r != null, "unable to create primary expression");
 
             while (i < x.GetNumChildren())
@@ -427,30 +437,30 @@ namespace HeronEngine
             return r;
         }
 
-        static Expr CreateUnaryExpr(AstNode x, ref int i)
+        static Expression CreateUnaryExpr(AstNode x, ref int i)
         {
             if (ChildNodeMatches(x, ref i, "-"))
             {
-                Expr tmp = CreatePostfixExpr(x, ref i);
-                Expr r = new UnaryOperator("-", tmp);
+                Expression tmp = CreatePostfixExpr(x, ref i);
+                Expression r = new UnaryOperator("-", tmp);
                 return r;
             }
             if (ChildNodeMatches(x, ref i, "!"))
             {
-                Expr tmp = CreatePostfixExpr(x, ref i);
-                Expr r = new UnaryOperator("!", tmp);
+                Expression tmp = CreatePostfixExpr(x, ref i);
+                Expression r = new UnaryOperator("!", tmp);
                 return r;
             }
             else
             {
-                Expr r = CreatePostfixExpr(x, ref i);
+                Expression r = CreatePostfixExpr(x, ref i);
                 return r;
             }
         }
 
-        static Expr CreateMultExpr(AstNode x, ref int i)
+        static Expression CreateMultExpr(AstNode x, ref int i)
         {
-            Expr r = CreateUnaryExpr(x, ref i);
+            Expression r = CreateUnaryExpr(x, ref i);
 
             if (ChildNodeMatches(x, ref i, "*"))
             {
@@ -467,9 +477,9 @@ namespace HeronEngine
             return r;
         }
 
-        static Expr CreateAddExpr(AstNode x, ref int i)
+        static Expression CreateAddExpr(AstNode x, ref int i)
         {
-            Expr r = CreateMultExpr(x, ref i);
+            Expression r = CreateMultExpr(x, ref i);
 
             if (ChildNodeMatches(x, ref i, "+"))
             {
@@ -482,9 +492,9 @@ namespace HeronEngine
             return r;
         }
 
-        static Expr CreateRelExpr(AstNode x, ref int i)
+        static Expression CreateRelExpr(AstNode x, ref int i)
         {
-            Expr r = CreateAddExpr(x, ref i);
+            Expression r = CreateAddExpr(x, ref i);
 
             if (ChildNodeMatches(x, ref i, ">"))
             {
@@ -505,9 +515,9 @@ namespace HeronEngine
             return r;
         }
 
-        static Expr CreateEqExpr(AstNode x, ref int i)
+        static Expression CreateEqExpr(AstNode x, ref int i)
         {
-            Expr r = CreateRelExpr(x, ref i);
+            Expression r = CreateRelExpr(x, ref i);
 
             if (ChildNodeMatches(x, ref i, "=="))
             {
@@ -520,42 +530,42 @@ namespace HeronEngine
             return r;
         }
 
-        static Expr CreateXOrExpr(AstNode x, ref int i)
+        static Expression CreateXOrExpr(AstNode x, ref int i)
         {
-            Expr r = CreateEqExpr(x, ref i);
+            Expression r = CreateEqExpr(x, ref i);
             if (ChildNodeMatches(x, ref i, "^^")) 
                 r = new BinaryOperator("^^", r, CreateEqExpr(x, ref i));
             return r;
         }
 
-        static Expr CreateAndExpr(AstNode x, ref int i)
+        static Expression CreateAndExpr(AstNode x, ref int i)
         {
-            Expr r = CreateXOrExpr(x, ref i);
+            Expression r = CreateXOrExpr(x, ref i);
             if (ChildNodeMatches(x, ref i, "&&"))
                 r = new BinaryOperator("&&", r, CreateXOrExpr(x, ref i));
             return r;
         }
 
-        static Expr CreateOrExpr(AstNode x, ref int i)
+        static Expression CreateOrExpr(AstNode x, ref int i)
         {
-            Expr r = CreateAndExpr(x, ref i);
+            Expression r = CreateAndExpr(x, ref i);
             if (ChildNodeMatches(x, ref i, "||"))
                 r = new BinaryOperator("||", r, CreateAndExpr(x, ref i));
             return r;
         }
 
-        static Expr CreateCondExpr(AstNode x, ref int i)
+        static Expression CreateCondExpr(AstNode x, ref int i)
         {
-            Expr r = CreateOrExpr(x, ref i);
+            Expression r = CreateOrExpr(x, ref i);
             // TODO: support the "a ? b : c" operator
             return r;
         }
 
 
-        static Expr CreateAssignmentExpr(AstNode x, ref int i)
+        static Expression CreateAssignmentExpr(AstNode x, ref int i)
         {
             int old = i;
-            Expr r = CreateCondExpr(x, ref i);
+            Expression r = CreateCondExpr(x, ref i);
             Assure(x, r != null, "failed to create expression");
             Assure(x, i > old, "internal error, expression index not updated");
             if (i >= x.GetNumChildren())
@@ -600,13 +610,13 @@ namespace HeronEngine
         /// <param name="x"></param>
         /// <param name="i"></param>
         /// <returns></returns>
-        static Expr CreateExpr(AstNode x, ref int i)
+        static Expression CreateExpr(AstNode x, ref int i)
         {
             Assure(x, x.GetLabel() == "expr", "Expected 'expr' node not '" + x.GetLabel() + "'");
             Assure(x.GetNumChildren() > 0, "Cannot create an expression from a node with no children");
 
             int old = i;
-            Expr r = CreateAssignmentExpr(x, ref i);
+            Expression r = CreateAssignmentExpr(x, ref i);
             Assure(x, r != null, "is not a valid expression");
             Assure(x, i > old, "internal error, current expression index was not updated");
 
@@ -628,10 +638,10 @@ namespace HeronEngine
         /// </summary>
         /// <param name="x"></param>
         /// <returns></returns>
-        static public Expr CreateExpr(AstNode x)
+        static public Expression CreateExpr(AstNode x)
         {
             int i = 0;
-            Expr r = CreateExpr(x, ref i);
+            Expression r = CreateExpr(x, ref i);
             Assure(i == x.GetNumChildren(), "Could not parse entire expression");
             return r;
         }

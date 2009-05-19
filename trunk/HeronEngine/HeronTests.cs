@@ -39,7 +39,7 @@ namespace HeronTests
             Console.WriteLine("testing expression: " + s);
             try
             {
-                Expr x = HeronExecutor.ParseExpr(s);
+                Expression x = HeronExecutor.ParseExpr(s);
                 if (x != null)
                 {
                     Console.WriteLine("test passed");
@@ -200,14 +200,13 @@ namespace HeronTests
 
         static public void MainTest()
         {
-            /*
             SimplePegTests();
             SimpleExprTests();
             SimpleEvalExprTests();
             RunAllTestFiles();
-            RunFileTest(@"C:\Users\Chr15topher\Documents\Visual Studio 2008\Projects\heron-language\HeronEngine2\tests\SeekingDemoPackage.heron");
-             */
+             /*
             RunFileTest(@"C:\Users\Chr15topher\AppData\Roaming\Heron\SeekingDemoPackage.heron");
+             */
             Console.WriteLine("\nPress any key to continue ...");
             Console.ReadKey();
         }
