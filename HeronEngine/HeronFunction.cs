@@ -46,5 +46,12 @@ namespace HeronEngine
                 Add(s, new List<Function>());
             this[s].Add(f);
         }
+
+        public IEnumerable<Function> GetAllFunctions()
+        {
+            foreach (List<Function> list in Values)
+                foreach (Function f in list)
+                    yield return f;
+        }
     }
 }

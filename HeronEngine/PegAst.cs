@@ -29,7 +29,7 @@ namespace Peg
             mpParent = p;
         }
 
-        public int GetBeginIndex()
+        public int GetIndex()
         {
             return mnBegin;
         }
@@ -120,6 +120,11 @@ namespace Peg
                 if (node.GetLabel().Equals(s))
                     return node;
             return null;
+        }
+
+        public int GetLength()
+        {
+            return mnCount;
         }
     }
 }

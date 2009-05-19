@@ -7,19 +7,33 @@ namespace HeronEngine
 {
     public abstract class Statement 
     {
+        public Peg.AstNode node;
+
         public abstract void Execute(Environment env);
 
-        public void Trace()
+        internal Statement(Peg.AstNode node)
+        {
+            this.node = node;
+        }
+
+        protected void Trace()
         {
             HeronDebugger.TraceStatement(this);
         }
+
+        public abstract string StatementType();
     }
 
-    public class VarDecl : Statement
+    public class VariableDeclaration : Statement
     {
         public string name;
         public string type;
-        public Expr init;
+        public Expression init;
+
+        public VariableDeclaration(Peg.AstNode node)
+            : base(node)
+        {
+        }
 
         public override void Execute(Environment env)
         {
@@ -35,11 +49,21 @@ namespace HeronEngine
                 r += " = " + init.ToString();
             return r;
         }
+
+        public override string StatementType()
+        {
+            return "variable_declaration";
+        }
     }
 
     public class DeleteStatement : Statement
     {
-        public Expr expr;
+        public Expression expression;
+
+        internal DeleteStatement(Peg.AstNode node)
+            : base(node)
+        {
+        }
 
         public override void Execute(Environment env)
         {
@@ -48,31 +72,51 @@ namespace HeronEngine
 
         public override string ToString()
         {
-            return "delete " + expr.ToString();
+            return "delete " + expression.ToString();
+        }
+
+        public override string StatementType()
+        {
+            return "delete_statement";
         }
     }
 
-    public class ExprStatement : Statement
+    public class ExpressionStatement : Statement
     {
-        public Expr expr;
+        public Expression expression;
+
+        internal ExpressionStatement(Peg.AstNode node)
+            : base(node)
+        {
+        }
 
         public override void Execute(Environment env)
         {
             Trace();
-            expr.Eval(env);
+            expression.Eval(env);
         }
 
         public override string ToString()
         {
-            return expr.ToString();
+            return expression.ToString();
+        }
+
+        public override string StatementType()
+        {
+            return "expression_statement";
         }
     }
 
     public class ForEach : Statement
     {
         public string name;
-        public Expr coll;
+        public Expression collection;
         public Statement body;
+
+        internal ForEach(Peg.AstNode node)
+            : base(node)
+        {
+        }
 
         public override void Execute(Environment env)
         {
@@ -80,14 +124,14 @@ namespace HeronEngine
             // construction object.
             env.PushScope();
             env.AddVar(name, null);
-            HeronObject c = this.coll.Eval(env);
+            HeronObject c = this.collection.Eval(env);
             if (!(c is DotNetObject))
-                throw new Exception("Unable to iterate over " + coll.ToString() + " because it is not a collection");
+                throw new Exception("Unable to iterate over " + collection.ToString() + " because it is not a collection");
 
             DotNetObject tmp = c as DotNetObject;
             Object o = tmp.ToSystemObject();
             if (!(o is HeronCollection))
-                throw new Exception("Unable to iterate over " + coll.ToString() + " because it is not a collection");
+                throw new Exception("Unable to iterate over " + collection.ToString() + " because it is not a collection");
             IEnumerable<Object> list = (o as HeronCollection).InternalGetList(); 
 
             foreach (HeronObject ho in list) {
@@ -99,27 +143,37 @@ namespace HeronEngine
 
         public override string ToString()
         {
-            return "foreach (" + name + " in " + coll.ToString() + ")\n" 
+            return "foreach (" + name + " in " + collection.ToString() + ")\n" 
                 + body.ToString();
+        }
+
+        public override string StatementType()
+        {
+            return "foreach_statement";
         }
     }
 
     public class For : Statement
     {
         public string name;
-        public Expr init;
-        public Expr cond;
-        public Expr next;
+        public Expression initial;
+        public Expression condition;
+        public Expression next;
         public Statement body;
+
+        internal For(Peg.AstNode node)
+            : base(node)
+        {
+        }
 
         public override void Execute(Environment env)
         {
             Trace();
-            HeronObject initVal = init.Eval(env);
+            HeronObject initVal = initial.Eval(env);
             env.AddVar(name, initVal);
             while (true)
             {
-                HeronObject condVal = cond.Eval(env);
+                HeronObject condVal = condition.Eval(env);
                 bool b = condVal.ToBool();
                 if (!b)
                     break;
@@ -131,10 +185,15 @@ namespace HeronEngine
         public override string ToString()
         {
             return "for (" + name 
-                + " = " + init.ToString() 
-                + "; " + cond.ToString() 
+                + " = " + initial.ToString() 
+                + "; " + condition.ToString() 
                 + "; " + next.ToString() 
                 + ")\n" + body.ToString();
+        }
+
+        public override string StatementType()
+        {
+            return "for_statement";
         }
     }
 
@@ -142,6 +201,11 @@ namespace HeronEngine
     {
         public List<Statement> statements = new List<Statement>();
         
+        internal CodeBlock(Peg.AstNode node)
+            : base(node)
+        {
+        }
+
         public override void Execute(Environment env)
         {
             Trace();
@@ -154,31 +218,62 @@ namespace HeronEngine
             }
             env.PopScope();
         }
+
+        public override string StatementType()
+        {
+            return "code_block";
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("{\n");
+            foreach (Statement s in statements) {
+                sb.Append(s);
+                sb.Append("\n");
+            }
+            sb.Append("}\n");
+            return sb.ToString();
+        }
     }
 
     public class If : Statement
     {
-        public Expr cond;
+        public Expression condition;
         public Statement ontrue;
         public Statement onfalse;
 
+        internal If(Peg.AstNode node)
+            : base(node)
+        {
+        }
 
         public override void Execute(Environment env)
         {
             Trace();
-            bool b = cond.Eval(env).ToBool();
+            bool b = condition.Eval(env).ToBool();
             if (b)
                 ontrue.Execute(env); 
             else
                 if (onfalse != null)
                     onfalse.Execute(env);
         }
+
+        public override string StatementType()
+        {
+            return "if_statement";
+        }
     }
 
     public class While : Statement
     {
-        public Expr cond;
+        public Expression cond;
         public Statement body;
+
+        internal While(Peg.AstNode node)
+            : base(node)
+        {
+        }
 
         public override void Execute(Environment env)
         {
@@ -194,16 +289,31 @@ namespace HeronEngine
                     break;
             }
         }
+
+        public override string StatementType()
+        {
+            return "while_statement";
+        }
     }
 
     public class Return : Statement
     {
-        public Expr expr;
+        public Expression expression;
+
+        internal Return(Peg.AstNode node)
+            : base(node)
+        {
+        }
 
         public override void Execute(Environment env)
         {
             Trace();
-            env.Return(expr.Eval(env));
+            env.Return(expression.Eval(env));
+        }
+
+        public override string StatementType()
+        {
+            return "return_statement";
         }
     }
 }

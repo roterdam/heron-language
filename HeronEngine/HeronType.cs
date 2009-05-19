@@ -79,7 +79,7 @@ namespace HeronEngine
 
         public override HeronObject Instantiate(Environment env, HeronObject[] args)
         {
-            Object[] objs = HeronObject.ObjectsToDotNetArray(args);
+            Object[] objs = HeronDotNet.ObjectsToDotNetArray(args);
             Object o = type.InvokeMember(null, BindingFlags.Instance | BindingFlags.Public | BindingFlags.Default | BindingFlags.CreateInstance, null, null, objs);
             if (o == null)
                 throw new Exception("Unable to construct " + name);

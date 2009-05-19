@@ -9,7 +9,7 @@ namespace HeronEngine
     {
         class DebugData
         {
-            Expr GetExpr()
+            Expression GetExpr()
             {
                 if (this is DebugExpr)
                     return (this as DebugExpr).expr;
@@ -26,8 +26,8 @@ namespace HeronEngine
 
         class DebugExpr : DebugData
         {
-            public Expr expr;
-            public DebugExpr(Expr x)
+            public Expression expr;
+            public DebugExpr(Expression x)
             {
                 expr = x;
             }
@@ -44,7 +44,7 @@ namespace HeronEngine
 
         static Stack<DebugData> objects = new Stack<DebugData>();
 
-        public static void TraceExpr(Expr x)
+        public static void TraceExpr(Expression x)
         {
             //objects.Push(new DebugExpr(x));
         }

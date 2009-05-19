@@ -86,18 +86,6 @@ namespace HeronEngine
             throw new Exception("binary operator invocation not supported on " + ToString());
         }
         
-        static public Object[] ObjectsToDotNetArray(HeronObject[] array)
-        {
-            Object[] r = new Object[array.Length];
-            for (int i = 0; i < array.Length; ++i)
-            {
-                if (array[i] == null)
-                    r[i] = null;
-                else
-                    r[i] = array[i].ToSystemObject();
-            }
-            return r;
-        }
     }
 
     public class DotNetMethod : HeronObject
@@ -113,7 +101,7 @@ namespace HeronEngine
 
         public override HeronObject Apply(Environment env, HeronObject[] args)
         {
-            Object[] objs = HeronObject.ObjectsToDotNetArray(args);
+            Object[] objs = HeronDotNet.ObjectsToDotNetArray(args);
             Object r = mi.Invoke(self, objs);
             return DotNetObject.Marshal(r);
         }
@@ -140,30 +128,12 @@ namespace HeronEngine
         /// <returns></returns>
         public static HeronObject Marshal(Object o)
         {
-            if (o is Double)
-            {
-                return new FloatObject((double)o);
-            }
-            else if (o is Int32)
-            {
-                return new IntObject((int)o);
-            }
-            else if (o is Char)
-            {
-                return new CharObject((char)o);
-            }
-            else if (o is String)
-            {
-                return new StringObject((string)o);
-            }
-            else if (o is Boolean)
-            {
-                return new BoolObject((bool)o);
-            }
-            else 
-            {
-                return new DotNetObject(o);
-            }
+            return HeronDotNet.DotNetToHeronObject(o);
+        }
+
+        internal static HeronObject CreateDotNetObjectNoMarshal(Object o)
+        {
+            return new DotNetObject(o);
         }
 
         public override Object ToSystemObject()
@@ -308,9 +278,9 @@ namespace HeronEngine
         }
     }
 
-    public class FloatObject : PrimitiveObject<double>
+    public class FloatObject : PrimitiveObject<float>
     {
-        public FloatObject(double x)
+        public FloatObject(float x)
             : base(x)
         {
         }
@@ -333,7 +303,7 @@ namespace HeronEngine
         {
             if (!(x is FloatObject))
                 throw new Exception("binary operation not supported on differently typed objects");
-            double arg = (x as FloatObject).GetValue();
+            float arg = (x as FloatObject).GetValue();
             switch (s)
             {
                 case "+": return new FloatObject(GetValue() + arg);
@@ -700,7 +670,7 @@ namespace HeronEngine
 
         public override HeronObject Apply(Environment env, HeronObject[] args)
         {
-            Object[] os = HeronObject.ObjectsToDotNetArray(args);
+            Object[] os = HeronDotNet.ObjectsToDotNetArray(args);
             Object o = self.GetSystemType().InvokeMember(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod, null, self.ToSystemObject(), os);
             return DotNetObject.Marshal(o);
         }
@@ -722,7 +692,7 @@ namespace HeronEngine
 
         public override HeronObject Apply(Environment env, HeronObject[] args)
         {
-            Object[] os = HeronObject.ObjectsToDotNetArray(args);
+            Object[] os = HeronDotNet.ObjectsToDotNetArray(args);
             Object o = self.GetSystemType().InvokeMember(name, BindingFlags.Public | BindingFlags.Static | BindingFlags.InvokeMethod, null, null, os);
             return DotNetObject.Marshal(o); 
         }

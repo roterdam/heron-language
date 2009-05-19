@@ -14,6 +14,9 @@
     <FileAlignment>512</FileAlignment>
     <StartupObject>
     </StartupObject>
+    <SignAssembly>false</SignAssembly>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -44,12 +47,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HeronCollection.cs" />
+    <Compile Include="HeronConfig.cs" />
     <Compile Include="HeronDebugger.cs" />
+    <Compile Include="HeronDotNet.cs" />
+    <Compile Include="HeronFrame.cs" />
+    <Compile Include="HeronObjectTable.cs" />
     <Compile Include="HeronParser.cs" />
     <Compile Include="HeronExpression.cs" />
     <Compile Include="HeronClass.cs" />
     <Compile Include="HeronFunction.cs" />
     <Compile Include="HeronGrammar.cs" />
+    <Compile Include="HeronReflection.cs" />
     <Compile Include="HeronStatements.cs" />
     <Compile Include="HeronExecutor.cs" />
     <Compile Include="HeronObject.cs" />
@@ -58,14 +66,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="HeronType.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="PegAst.cs" />
     <Compile Include="PegBaseGrammar.cs" />
     <Compile Include="PegParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="todo.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="tests\test1.heron" />

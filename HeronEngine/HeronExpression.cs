@@ -9,7 +9,7 @@ namespace HeronEngine
     /// <summary>
     /// An expression in its represtantation as part of the abstract syntax tree.     
     /// </summary>
-    public abstract class Expr
+    public abstract class Expression 
     {
         protected void Error(string s)
         {
@@ -24,7 +24,7 @@ namespace HeronEngine
 
         public abstract HeronObject Eval(Environment env);
 
-        public void Trace()
+        protected void Trace()
         {
             HeronDebugger.TraceExpr(this);
         }
@@ -33,7 +33,7 @@ namespace HeronEngine
     /// <summary>
     /// A list of expressions, used primarily for passing arguments to functions
     /// </summary>
-    public class ExprList : List<Expr>
+    public class ExpressionList : List<Expression>
     {
         public override string ToString()
         {
@@ -50,18 +50,18 @@ namespace HeronEngine
         public HeronObject[] Eval(Environment env)
         {
             List<HeronObject> list = new List<HeronObject>();
-            foreach (Expr x in this)
+            foreach (Expression x in this)
                 list.Add(x.Eval(env));
             return list.ToArray();
         }
     }
 
-    public class Assignment : Expr
+    public class Assignment : Expression
     {
-        public Expr lvalue;
-        public Expr rvalue;
+        public Expression lvalue;
+        public Expression rvalue;
 
-        public Assignment(Expr lvalue, Expr rvalue)
+        public Assignment(Expression lvalue, Expression rvalue)
         {
             this.lvalue = lvalue;
             this.rvalue = rvalue;
@@ -116,12 +116,12 @@ namespace HeronEngine
         }
     }
 
-    public class SelectField : Expr
+    public class SelectField : Expression
     {
         public string name;
-        public Expr self;
+        public Expression self;
 
-        public SelectField(Expr self, string name)
+        public SelectField(Expression self, string name)
         {
             this.self = self;
             this.name = name;
@@ -141,12 +141,12 @@ namespace HeronEngine
         }
     }
 
-    public class ReadAt : Expr
+    public class ReadAt : Expression
     {
-        public Expr coll;
-        public Expr index;
+        public Expression coll;
+        public Expression index;
 
-        public ReadAt(Expr coll, Expr index)
+        public ReadAt(Expression coll, Expression index)
         {
             this.coll = coll;
             this.index = index;
@@ -165,12 +165,12 @@ namespace HeronEngine
         }
     }
 
-    public class New : Expr
+    public class New : Expression
     {
         string type;
-        ExprList args;
+        ExpressionList args;
 
-        public New(string type, ExprList args)
+        public New(string type, ExpressionList args)
         {
             this.type = type;
             this.args = args;
@@ -187,7 +187,7 @@ namespace HeronEngine
         }
     }
 
-    public class Literal<T> : Expr where T : HeronObject
+    public abstract class Literal<T> : Expression where T : HeronObject
     {
         T val;
 
@@ -217,7 +217,7 @@ namespace HeronEngine
 
     public class FloatLiteral : Literal<FloatObject>
     {
-        public FloatLiteral(double x)
+        public FloatLiteral(float x)
             : base(new FloatObject(x))
         {
         }
@@ -239,7 +239,7 @@ namespace HeronEngine
         }
     }
 
-    public class Name : Expr
+    public class Name : Expression
     {
         public string name;
 
@@ -261,12 +261,12 @@ namespace HeronEngine
         }
     }
 
-    public class FunCall : Expr
+    public class FunCall : Expression
     {
-        public Expr funexpr;
-        public ExprList args;
+        public Expression funexpr;
+        public ExpressionList args;
 
-        public FunCall(Expr f, ExprList args)
+        public FunCall(Expression f, ExpressionList args)
         {
             funexpr = f;
             this.args = args;
@@ -287,12 +287,12 @@ namespace HeronEngine
     }
 
 
-    public class UnaryOperator : Expr
+    public class UnaryOperator : Expression
     {
-        public Expr operand;
+        public Expression operand;
         public string op;
 
-        public UnaryOperator(string sOp, Expr x)
+        public UnaryOperator(string sOp, Expression x)
         {
             op = sOp;
             operand = x;
@@ -310,13 +310,13 @@ namespace HeronEngine
         }
     }
 
-    public class BinaryOperator : Expr
+    public class BinaryOperator : Expression
     {
-        public Expr operand1;
-        public Expr operand2;
+        public Expression operand1;
+        public Expression operand2;
         public string op;
 
-        public BinaryOperator(string sOp, Expr x, Expr y)
+        public BinaryOperator(string sOp, Expression x, Expression y)
         {
             op = sOp;
             operand1 = x;
@@ -386,6 +386,5 @@ namespace HeronEngine
         {
             return "(" + operand1.ToString() + " " + op + " " + operand2.ToString() + ")";
         }
-            
     }
 }
