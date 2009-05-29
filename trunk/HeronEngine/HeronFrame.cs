@@ -13,7 +13,7 @@ namespace HeronEngine
     /// </summary>
     public class Frame : Stack<ObjectTable>
     {
-        public Frame(Function f, Instance self)
+        public Frame(HeronFunction f, Instance self)
         {
             this.function = f;
             this.self = self;
@@ -99,7 +99,7 @@ namespace HeronEngine
         /// <summary>
         /// Function associated with this activation record 
         /// </summary>
-        public Function function;
+        public HeronFunction function;
 
         /// <summary>
         /// The 'this' pointer if applicable 

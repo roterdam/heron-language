@@ -11,6 +11,12 @@ namespace HeronEngine
     /// </summary>
     public abstract class HeronType : HeronObject 
     {
+        public string name = "anonymous_type";
+
+        public HeronType()
+        {
+        }
+
         /// <summary>
         /// Creates an instance of the type.
         /// </summary>
@@ -68,7 +74,6 @@ namespace HeronEngine
 
     public class DotNetClass : HeronType
     {
-        string name;
         Type type;
 
         public DotNetClass(string name, Type type)

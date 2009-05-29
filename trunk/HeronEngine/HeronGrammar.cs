@@ -215,8 +215,8 @@ namespace HeronEngine
         }
 	    public static Rule ForEachStatement()
         {
-		    return Store("foreach", NoFailSeq(Token("foreach"), Paranthesized(Seq(Name(),
-                Token("in"), Expr())), Delay(Statement)));
+		    return Store("foreach", NoFailSeq(Token("foreach"), 
+                Paranthesized(Seq(Name(), Token("in"), Expr())), Delay(Statement)));
         }
         public static Rule ForStatement()
         {
@@ -243,10 +243,14 @@ namespace HeronEngine
         {
             return Store("default", NoFailSeq(Token("default"), CodeBlock()));
         }
+        public static Rule CaseGroup()
+        {
+            return Store("casegroup", Star(CaseStatement()));
+        }
         public static Rule SwitchStatement()
         {
             return Store("switch", NoFailSeq(Token("switch"), ParanthesizedExpr(), Token("{"),
-                Star(CaseStatement()), Opt(DefaultStatement()), Token("}")));
+                CaseGroup(), Opt(DefaultStatement()), Token("}")));
         }
 	    public static Rule WhileStatement()
         {

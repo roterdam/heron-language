@@ -86,6 +86,11 @@ namespace HeronEngine
             AddModuleVar(name, new DotNetClass(name, t));
         }
 
+        public void RegisterDotNetType(Type t)
+        {
+            AddModuleVar(t.Name, new DotNetClass(t.Name, t));
+        }
+
         public void LoadAssembly(string s)
         {
             Assembly a = Assembly.LoadFrom(Config.libraryPath + "//" + s);
@@ -112,6 +117,16 @@ namespace HeronEngine
             RegisterDotNetType("Collection", typeof(HeronCollection));
             RegisterDotNetType("Reflector", typeof(HeronReflection));
 
+            RegisterDotNetType(typeof(VariableDeclaration));
+            RegisterDotNetType(typeof(DeleteStatement));
+            RegisterDotNetType(typeof(ExpressionStatement));
+            RegisterDotNetType(typeof(ForEachStatement));
+            RegisterDotNetType(typeof(ForStatement));
+            RegisterDotNetType(typeof(CodeBlock));
+            RegisterDotNetType(typeof(IfStatement));
+            RegisterDotNetType(typeof(WhileStatement));
+            RegisterDotNetType(typeof(ReturnStatement));
+
             LoadAssembly("HeronStandardLibrary.dll");
         }
 
@@ -132,7 +147,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="f"></param>
         /// <param name="self"></param>
-        public void PushNewFrame(Function f, Instance self)
+        public void PushNewFrame(HeronFunction f, Instance self)
         {
             Assure(!bReturning, "cannot push a new frame while returning from another");
             frames.Push(new Frame(f, self));

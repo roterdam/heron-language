@@ -20,9 +20,6 @@ namespace HeronTests
             {
                 Console.WriteLine("Trying to parse input " + s);
                 AstNode node = ParserState.Parse(r, s);
-                if (node.GetNumChildren() != 1)
-                    throw new Exception("Test failed, more than one child node parsed");
-                node = node.GetChild(0);
                 if (node == null)
                     Console.WriteLine("Test failed");
                 else
@@ -39,7 +36,7 @@ namespace HeronTests
             Console.WriteLine("testing expression: " + s);
             try
             {
-                Expression x = HeronExecutor.ParseExpr(s);
+                Expression x = HeronParser.ParseExpr(s);
                 if (x != null)
                 {
                     Console.WriteLine("test passed");
@@ -59,7 +56,7 @@ namespace HeronTests
             Console.WriteLine("testing statement: " + s);
             try
             {
-                Statement x = HeronExecutor.ParseStatement(s);
+                Statement x = HeronParser.ParseStatement(s);
                 if (x != null)
                     Console.WriteLine("test passed");
                 else

@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace HeronStandardLibrary
 {
@@ -30,6 +31,12 @@ namespace HeronStandardLibrary
         {
             Thread.Sleep(msec);
         }
+
+        [DllImport("kernel32.dll")]
+        public static extern Boolean AllocConsole();
+
+        [DllImport("kernel32.dll")]
+        public static extern Boolean FreeConsole();
     }
     public class Viewport
     {
@@ -50,23 +57,30 @@ namespace HeronStandardLibrary
 
         #region public methods
 
+        public void Apply(ViewportCmd cmd)
+        {
+            if (IsOpen())
+                form.ApplyToBitmap(cmd);
+        }
+
         public void Clear()
         {
-            form.ApplyToBitmap((Graphics g) => {
+            Apply((Graphics g) => {
                 g.Clear(Color.White);
             });
         }
 
         public void Line(float x1, float y1, float x2, float y2)
         {
-            form.ApplyToBitmap((Graphics g) => {
+            Apply((Graphics g) =>
+            {
                 g.DrawLine(pen, x1, y1, x2, y2);
             });
         }
 
         public void Ellipse(float x, float y, float w, float h)
         {
-            form.ApplyToBitmap((Graphics g) => {
+            Apply((Graphics g) => {
                 g.DrawEllipse(pen, x, y, w, h);
             });
         }
@@ -93,6 +107,11 @@ namespace HeronStandardLibrary
         #endregion
 
         #region window functions
+        internal void ReleaseForm()
+        {
+            form = null;
+        }
+
         public void CloseWindow()
         {
             form.Close();
@@ -100,7 +119,8 @@ namespace HeronStandardLibrary
 
         public bool IsOpen()
         {
-            return form.Visible;
+            return form != null
+                && form.Visible;
         }
         #endregion
 
@@ -108,14 +128,13 @@ namespace HeronStandardLibrary
         private static void LaunchWindow(Object o)
         {
             Viewport vp = o as Viewport;
-            vp.form = new ViewportForm(vp.width, vp.height);
+            vp.form = new ViewportForm(vp.width, vp.height, vp);
             vp.form.Width = vp.width;
             vp.form.Height = vp.height;
-            vp.form.Show();
             mWait.Set();
 
             // Start GUI event loop
-            Application.Run(vp.form);
+            vp.form.ShowDialog();
         }
         #endregion
     }

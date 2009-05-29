@@ -170,7 +170,12 @@ namespace Peg
         public static AstNode Parse(Peg.Grammar.Rule g, string s)
         {
             ParserState p = new ParserState(s);
-            return p.Parse(g);
+            AstNode node = p.Parse(g);
+            if (node.GetLabel() != "ast")
+                throw new Exception("no root AST node");
+            if (node.GetNumChildren() != 1)
+                throw new Exception("more than one child node parsed");
+            return node.GetChild(0);
         }
     }
 }

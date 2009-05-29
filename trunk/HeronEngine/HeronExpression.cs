@@ -290,23 +290,23 @@ namespace HeronEngine
     public class UnaryOperator : Expression
     {
         public Expression operand;
-        public string op;
+        public string operation;
 
         public UnaryOperator(string sOp, Expression x)
         {
-            op = sOp;
+            operation = sOp;
             operand = x;
         }
 
         public override HeronObject Eval(Environment env)
         {
             HeronObject o = operand.Eval(env);
-            return o.InvokeUnaryOperator(op);
+            return o.InvokeUnaryOperator(operation);
         }
 
         public override string ToString()
         {
-            return "(" + op + "  " + operand.ToString() + ")";
+            return "(" + operation + "  " + operand.ToString() + ")";
         }
     }
 
@@ -314,11 +314,11 @@ namespace HeronEngine
     {
         public Expression operand1;
         public Expression operand2;
-        public string op;
+        public string operation;
 
         public BinaryOperator(string sOp, Expression x, Expression y)
         {
-            op = sOp;
+            operation = sOp;
             operand1 = x;
             operand2 = y;
         }
@@ -332,11 +332,11 @@ namespace HeronEngine
             {
                 if (b is IntObject)
                 {
-                    return (a as IntObject).InvokeBinaryOperator(op, b as IntObject);
+                    return (a as IntObject).InvokeBinaryOperator(operation, b as IntObject);
                 }
                 else if (b is FloatObject)
                 {
-                    return (new FloatObject((a as IntObject).GetValue())).InvokeBinaryOperator(op, b as FloatObject);
+                    return (new FloatObject((a as IntObject).GetValue())).InvokeBinaryOperator(operation, b as FloatObject);
                 }
                 else
                 {
@@ -347,34 +347,34 @@ namespace HeronEngine
             {
                 if (b is IntObject)
                 {
-                    return (a as FloatObject).InvokeBinaryOperator(op, new FloatObject((b as IntObject).GetValue()));
+                    return (a as FloatObject).InvokeBinaryOperator(operation, new FloatObject((b as IntObject).GetValue()));
                 }
                 else if (b is FloatObject)
                 {
-                    return (a as FloatObject).InvokeBinaryOperator(op, b as FloatObject);
+                    return (a as FloatObject).InvokeBinaryOperator(operation, b as FloatObject);
                 }
                 else
                 {
-                    throw new Exception("Incompatible types for binary operator " + op + " : " + a.GetType() + " and " + b.GetType());
+                    throw new Exception("Incompatible types for binary operator " + operation + " : " + a.GetType() + " and " + b.GetType());
                 }
             }
             else if (a is CharObject)
             {
                 if (!(b is CharObject))
-                    throw new Exception("Incompatible types for binary operator " + op + " : " + a.GetType() + " and " + b.GetType());
-                return (a as CharObject).InvokeBinaryOperator(op, b as CharObject);
+                    throw new Exception("Incompatible types for binary operator " + operation + " : " + a.GetType() + " and " + b.GetType());
+                return (a as CharObject).InvokeBinaryOperator(operation, b as CharObject);
             }
             else if (a is StringObject)
             {
                 if (!(b is StringObject))
-                    throw new Exception("Incompatible types for binary operator " + op + " : " + a.GetType() + " and " + b.GetType());
-                return (a as StringObject).InvokeBinaryOperator(op, b as StringObject);
+                    throw new Exception("Incompatible types for binary operator " + operation + " : " + a.GetType() + " and " + b.GetType());
+                return (a as StringObject).InvokeBinaryOperator(operation, b as StringObject);
             }
             else if (a is BoolObject)
             {
                 if (!(b is BoolObject))
-                    throw new Exception("Incompatible types for binary operator " + op + " : " + a.GetType() + " and " + b.GetType());
-                return (a as BoolObject).InvokeBinaryOperator(op, b as BoolObject);
+                    throw new Exception("Incompatible types for binary operator " + operation + " : " + a.GetType() + " and " + b.GetType());
+                return (a as BoolObject).InvokeBinaryOperator(operation, b as BoolObject);
             }
             else
             {
@@ -384,7 +384,7 @@ namespace HeronEngine
 
         public override string ToString()
         {
-            return "(" + operand1.ToString() + " " + op + " " + operand2.ToString() + ")";
+            return "(" + operand1.ToString() + " " + operation + " " + operand2.ToString() + ")";
         }
     }
 }

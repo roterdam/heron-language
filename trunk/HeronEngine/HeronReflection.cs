@@ -53,7 +53,7 @@ namespace HeronEngine
             return vm.GetEnv();
         }
 
-        public static Module GetModule()
+        public static HeronModule GetModule()
         {
             return vm.GetModule();
         }
