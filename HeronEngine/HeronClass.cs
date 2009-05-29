@@ -9,7 +9,7 @@ namespace HeronEngine
     /// <summary>
     /// Represents a member field of a class. 
     /// </summary>
-    public class Field
+    public class HeronField
     {
         public string name;
         public string type = "Object";
@@ -18,7 +18,7 @@ namespace HeronEngine
     /// <summary>
     /// Represents the formal argument to a function
     /// </summary>
-    public class FormalArg
+    public class HeronFormalArg
     {
         public string name;
         public string type = "Object";
@@ -27,15 +27,48 @@ namespace HeronEngine
     /// <summary>
     /// Represents all of the formals arguments to a function.
     /// </summary>
-    public class FormalArgs : List<FormalArg>
+    public class HeronFormalArgs : List<HeronFormalArg>
     {
+    }
+
+    public class HeronInterface : HeronType
+    {
+        FunctionTable methods = new FunctionTable();
+
+        public HeronInterface()
+        {            
+        }
+
+        public override HeronObject Instantiate(Environment env, HeronObject[] args)
+        {
+            throw new Exception("Cannot instantiate an interface");
+        }
+        public IEnumerable<HeronFunction> GetMethods()
+        {
+            return methods.GetAllFunctions();
+        }
+
+        public FunctionTable GetMethodTable()
+        {
+            return methods;
+        }
+
+        public bool HasMethod(string name)
+        {
+            return methods.ContainsKey(name);
+        }
+
+        public void AddMethod(HeronFunction x)
+        {
+            methods.Add(x);
+        }
+
     }
 
     public class HeronClass : HeronType
     {
-        public string name;
         FunctionTable methods = new FunctionTable();
-        List<Field> fields = new List<Field>();
+        List<HeronField> fields = new List<HeronField>();
         FunctionListObject ctors;
 
         public HeronClass()
@@ -50,9 +83,9 @@ namespace HeronEngine
         public override HeronObject Instantiate(Environment env, HeronObject[] args)
         {
             Instance r = new Instance(this);
-            foreach (Field field in fields)
+            foreach (HeronField field in fields)
                 r.AddField(field.name, null);
-            List<Function> ctorlist = new List<Function>(GetMethods("Constructor"));
+            List<HeronFunction> ctorlist = new List<HeronFunction>(GetMethods("Constructor"));
             if (ctorlist == null)
                 return r;
             ctors = new FunctionListObject(r, "Constructor", ctorlist);
@@ -70,19 +103,19 @@ namespace HeronEngine
             return ctors;
         }
 
-        public IEnumerable<Function> GetMethods(string name)
+        public IEnumerable<HeronFunction> GetMethods(string name)
         {
             if (!HasMethod(name))
-                return new List<Function>();
+                return new List<HeronFunction>();
             return methods[name];
         }
 
-        public IEnumerable<Function> GetMethods()
+        public IEnumerable<HeronFunction> GetMethods()
         {
             return methods.GetAllFunctions();
         }
 
-        public IEnumerable<Field> GetFields()
+        public IEnumerable<HeronField> GetFields()
         {
             return fields;
         }
@@ -92,19 +125,19 @@ namespace HeronEngine
             return methods.ContainsKey(name);
         }
 
-        public void AddMethod(Function x)
+        public void AddMethod(HeronFunction x)
         {
             methods.Add(x);
         }
 
-        public void AddField(Field x)
+        public void AddField(HeronField x)
         {
             fields.Add(x);
         }
 
-        public Field GetField(string s)
+        public HeronField GetField(string s)
         {
-            foreach (Field f in fields)
+            foreach (HeronField f in fields)
                 if (f.name == s)
                     return f;
             return null;
@@ -117,50 +150,9 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// An interface is essentially a class without attributes or constructors.
-    /// </summary>
-    public class HeronInterface : HeronType
-    {
-        public string name;
-        FunctionTable methods = new FunctionTable();
-
-        public override HeronObject Instantiate(Environment env, HeronObject[] args)
-        {
-            throw new Exception("Cannot instantiate an interface");
-        }
-
-        public IEnumerable<Function> GetMethods(string name)
-        {
-            if (!HasMethod(name))
-                return new List<Function>();
-            return methods[name];
-        }
-
-        public IEnumerable<Function> GetMethods()
-        {
-            return methods.GetAllFunctions();
-        }
-
-        public bool HasMethod(string name)
-        {
-            return methods.ContainsKey(name);
-        }
-
-        public void AddMethod(Function x)
-        {
-            methods.Add(x);
-        }
-
-        public FunctionTable GetMethodTable()
-        {
-            return methods;
-        }
-    }
-
-    /// <summary>
     /// Represents a list of classes.
     /// </summary>
-    public class Module
+    public class HeronModule
     {
         public string name;
         public List<HeronClass> classes = new List<HeronClass>();
@@ -184,17 +176,17 @@ namespace HeronEngine
             return null;
         }
 
+        public bool ContainsClass(string s)
+        {
+            return FindClass(s) != null;
+        }
+
         HeronInterface FindInterface(string s)
         {
             foreach (HeronInterface i in interfaces)
                 if (i.name == s)
                     return i;
             return null;
-        }
-
-        public bool ContainsClass(string s)
-        {
-            return FindClass(s) != null;
         }
 
         public bool ContainsInterface(string s)
@@ -208,7 +200,7 @@ namespace HeronEngine
     /// </summary>
     public class HeronProgram
     {
-        public List<Module> modules = new List<Module>();
+        public List<HeronModule> modules = new List<HeronModule>();
     }
 }
     

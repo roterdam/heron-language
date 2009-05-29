@@ -10,12 +10,11 @@ namespace HeronEngine
     /// Represents the definition of a Heron function or member function in the source code.
     /// Not to be confused with a FunctionObject which represents a value of function type.
     /// </summary>
-    public class Function : HeronObject
+    public class HeronFunction : HeronObject
     {
         public string name;
-        public HeronClass hclass;
         public Statement body;
-        public FormalArgs formals;
+        public HeronFormalArgs formals;
         public string rettype;
 
         /// <summary>
@@ -37,20 +36,20 @@ namespace HeronEngine
     /// Function names can be overloaded, so when looking up a function by name,
     /// a set of functions is returned.
     /// </summary>
-    public class FunctionTable : Dictionary<string, List<Function>>
+    public class FunctionTable : Dictionary<string, List<HeronFunction>>
     {
-        public void Add(Function f)
+        public void Add(HeronFunction f)
         {
             string s = f.name;
             if (!ContainsKey(s))
-                Add(s, new List<Function>());
+                Add(s, new List<HeronFunction>());
             this[s].Add(f);
         }
 
-        public IEnumerable<Function> GetAllFunctions()
+        public IEnumerable<HeronFunction> GetAllFunctions()
         {
-            foreach (List<Function> list in Values)
-                foreach (Function f in list)
+            foreach (List<HeronFunction> list in Values)
+                foreach (HeronFunction f in list)
                     yield return f;
         }
     }

@@ -41,6 +41,7 @@
             this.pictureBox1.Size = new System.Drawing.Size(292, 273);
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
+            this.pictureBox1.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint_1);
             // 
             // ViewportForm
             // 
@@ -50,7 +51,7 @@
             this.Controls.Add(this.pictureBox1);
             this.Name = "ViewportForm";
             this.Text = "ViewportForm";
-            this.Paint += new System.Windows.Forms.PaintEventHandler(this.ViewportForm_Paint);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ViewportForm_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
 

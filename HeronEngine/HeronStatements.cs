@@ -28,9 +28,9 @@ namespace HeronEngine
     {
         public string name;
         public string type;
-        public Expression init;
+        public Expression value;
 
-        public VariableDeclaration(Peg.AstNode node)
+        internal VariableDeclaration(Peg.AstNode node)
             : base(node)
         {
         }
@@ -38,15 +38,15 @@ namespace HeronEngine
         public override void Execute(Environment env)
         {
             Trace();
-            HeronObject initVal = init.Eval(env);
+            HeronObject initVal = value.Eval(env);
             env.AddVar(name, initVal);
         }
 
         public override string ToString()
         {
             string r = "var " + name + " : " + type;
-            if (init != null)
-                r += " = " + init.ToString();
+            if (value != null)
+                r += " = " + value.ToString();
             return r;
         }
 
@@ -107,13 +107,13 @@ namespace HeronEngine
         }
     }
 
-    public class ForEach : Statement
+    public class ForEachStatement : Statement
     {
         public string name;
         public Expression collection;
         public Statement body;
 
-        internal ForEach(Peg.AstNode node)
+        internal ForEachStatement(Peg.AstNode node)
             : base(node)
         {
         }
@@ -153,7 +153,7 @@ namespace HeronEngine
         }
     }
 
-    public class For : Statement
+    public class ForStatement : Statement
     {
         public string name;
         public Expression initial;
@@ -161,7 +161,7 @@ namespace HeronEngine
         public Expression next;
         public Statement body;
 
-        internal For(Peg.AstNode node)
+        internal ForStatement(Peg.AstNode node)
             : base(node)
         {
         }
@@ -237,13 +237,13 @@ namespace HeronEngine
         }
     }
 
-    public class If : Statement
+    public class IfStatement : Statement
     {
         public Expression condition;
         public Statement ontrue;
         public Statement onfalse;
 
-        internal If(Peg.AstNode node)
+        internal IfStatement(Peg.AstNode node)
             : base(node)
         {
         }
@@ -265,12 +265,12 @@ namespace HeronEngine
         }
     }
 
-    public class While : Statement
+    public class WhileStatement : Statement
     {
         public Expression cond;
         public Statement body;
 
-        internal While(Peg.AstNode node)
+        internal WhileStatement(Peg.AstNode node)
             : base(node)
         {
         }
@@ -296,11 +296,11 @@ namespace HeronEngine
         }
     }
 
-    public class Return : Statement
+    public class ReturnStatement : Statement
     {
         public Expression expression;
 
-        internal Return(Peg.AstNode node)
+        internal ReturnStatement(Peg.AstNode node)
             : base(node)
         {
         }
@@ -314,6 +314,63 @@ namespace HeronEngine
         public override string StatementType()
         {
             return "return_statement";
+        }
+    }
+
+    public class SwitchStatement : Statement
+    {
+        public Expression condition;
+        public List<CaseStatement> cases;
+        public CodeBlock ondefault;
+        
+        internal SwitchStatement(Peg.AstNode node)
+            : base(node)
+        {
+        }
+
+        public override void Execute(Environment env)
+        {
+            Trace();
+            HeronObject o = condition.Eval(env);
+            foreach (CaseStatement c in cases)
+            {
+                if (c.condition.Equals(o))
+                {
+                    c.Execute(env);
+                    return;
+                }
+            }
+            if (ondefault != null)
+            {
+                ondefault.Execute(env);
+            }
+        }
+
+        public override string StatementType()
+        {
+            return "switch_statement";
+        }
+    }
+
+    public class CaseStatement : Statement
+    {
+        public Expression condition;
+        public CodeBlock statement;
+
+        internal CaseStatement(Peg.AstNode node)
+            : base(node)
+        {
+        }
+
+        public override void Execute(Environment env)
+        {
+            Trace();
+            statement.Execute(env);
+        }
+
+        public override string StatementType()
+        {
+            return "switch_statement";
         }
     }
 }

@@ -40,9 +40,9 @@ namespace HeronEngine
         }
 
         #region construct parsing functions
-        static public Module CreateModule(AstNode x)
+        static public HeronModule CreateModule(AstNode x)
         {
-            Module r = new Module();
+            HeronModule r = new HeronModule();
             Trace.Assert(x.GetNumChildren() > 1);
             Trace.Assert(x.GetChild(0).GetLabel() == "name");
             r.name = x.GetChild(0).ToString();
@@ -55,6 +55,8 @@ namespace HeronEngine
 
         static public HeronClass CreateClass(AstNode x)
         {
+            // TODO: handle inheritances
+
             HeronClass r = new HeronClass();
             r.name = x.GetChild("name").ToString();
 
@@ -63,8 +65,7 @@ namespace HeronEngine
             {
                 foreach (AstNode node in methods.GetChildren())
                 {
-                    Function f = CreateFunction(node);
-                    f.hclass = r;
+                    HeronFunction f = CreateFunction(node);
                     r.AddMethod(f);
                 }
             }
@@ -73,6 +74,24 @@ namespace HeronEngine
             if (fields != null)
                 foreach (AstNode node in fields.GetChildren())
                     r.AddField(CreateField(node));
+
+            return r;
+        }
+
+        static public HeronInterface CreateInterface(AstNode x)
+        {
+            HeronInterface r = new HeronInterface();
+            r.name = x.GetChild("name").ToString();
+
+            AstNode methods = x.GetChild("methods");
+            if (methods != null)
+            {
+                foreach (AstNode node in methods.GetChildren())
+                {
+                    HeronFunction f = CreateFunction(node);
+                    r.AddMethod(f);
+                }
+            }
 
             return r;
         }
@@ -98,33 +117,33 @@ namespace HeronEngine
                 return TypeToTypeName(type);
         }
 
-        static public Field CreateField(AstNode x)
+        static public HeronField CreateField(AstNode x)
         {
-            Field r = new Field();
+            HeronField r = new HeronField();
             r.name = x.GetChild("name").ToString();
             r.type = GetTypeName(x, "Object");
             return r;
         }
 
-        static public FormalArg CreateFormalArg(AstNode x)
+        static public HeronFormalArg CreateFormalArg(AstNode x)
         {
-            FormalArg r = new FormalArg();
+            HeronFormalArg r = new HeronFormalArg();
             r.name = x.GetChild("name").ToString();
             r.type = GetTypeName(x, "Object");
             return r;            
         }
 
-        static public FormalArgs CreateFormalArgs(AstNode x)
+        static public HeronFormalArgs CreateFormalArgs(AstNode x)
         {
-            FormalArgs r = new FormalArgs();
+            HeronFormalArgs r = new HeronFormalArgs();
             foreach (AstNode node in x.GetChildren())
                 r.Add(CreateFormalArg(node));
             return r;
         }
 
-        static public Function CreateFunction(AstNode x)
+        static public HeronFunction CreateFunction(AstNode x)
         {
-            Function r = new Function();
+            HeronFunction r = new HeronFunction();
             AstNode fundecl = x.GetChild("fundecl");            
             r.name = fundecl.GetChild("name").ToString();
             r.formals = CreateFormalArgs(fundecl.GetChild("arglist"));
@@ -146,7 +165,7 @@ namespace HeronEngine
                 case "if":
                     return CreateIfStatement(x);
                 case "switch":
-                    throw new Exception("unimplemented");
+                    return CreateSwitchStatement(x);
                 case "foreach":
                     return CreateForEachStatement(x);
                 case "for":
@@ -179,13 +198,13 @@ namespace HeronEngine
             r.type = GetTypeName(x, "Object");
             AstNode tmp = x.GetChild("expr");
             if (tmp != null)
-                r.init = CreateExpr(tmp);
+                r.value = CreateExpr(tmp);
             return r;
         }
 
-        static public If CreateIfStatement(AstNode x)
+        static public IfStatement CreateIfStatement(AstNode x)
         {
-            If r = new If(x);
+            IfStatement r = new IfStatement(x);
             r.condition = CreateExpr(x.GetChild(0).GetChild(0));
             r.ontrue = CreateStatement(x.GetChild(1));
             if (x.GetNumChildren() > 2)
@@ -193,16 +212,46 @@ namespace HeronEngine
             return r;
         }
 
-        static public Return CreateReturnStatement(AstNode x)
+        static public CaseStatement CreateCaseStatement(AstNode x)
         {
-            Return r = new Return(x);
+            CaseStatement r = new CaseStatement(x);
+            r.condition = CreateExpr(x.GetChild(0).GetChild(0));
+            r.statement = CreateCodeBlock(x.GetChild(1));
+            return r;
+        }
+
+        static public CodeBlock CreateDefaultStatement(AstNode x)
+        {
+            return CreateCodeBlock(x.GetChild(0));
+        }
+
+        static public SwitchStatement CreateSwitchStatement(AstNode x)
+        {
+            SwitchStatement r = new SwitchStatement(x);
+            r.condition = CreateExpr(x.GetChild(0).GetChild(0));
+            AstNode cases = x.GetChild(1);
+            foreach (AstNode y in cases.GetChildren())
+            {
+                CaseStatement cs = CreateCaseStatement(y);
+                r.cases.Add(cs);
+            }
+            if (x.GetNumChildren() > 2)
+            {
+                r.ondefault = CreateDefaultStatement(x.GetChild(2));
+            }
+            return r;
+        }
+
+        static public ReturnStatement CreateReturnStatement(AstNode x)
+        {
+            ReturnStatement r = new ReturnStatement(x);
             r.expression = CreateExpr(x.GetChild(0));
             return r;
         }
 
-        static public While CreateWhileStatement(AstNode x)
+        static public WhileStatement CreateWhileStatement(AstNode x)
         {
-            While r = new While(x);
+            WhileStatement r = new WhileStatement(x);
             r.cond = CreateExpr(x.GetChild(0).GetChild(0));
             r.body = CreateStatement(x.GetChild(1));
             return r;
@@ -215,18 +264,18 @@ namespace HeronEngine
             return r;
         }
 
-        static public ForEach CreateForEachStatement(AstNode x)
+        static public ForEachStatement CreateForEachStatement(AstNode x)
         {
-            ForEach r = new ForEach(x);
+            ForEachStatement r = new ForEachStatement(x);
             r.name = x.GetChild(0).ToString();
             r.collection = CreateExpr(x.GetChild(1));
             r.body = CreateStatement(x.GetChild(2));
             return r;
         }
 
-        static public For CreateForStatement(AstNode x)
+        static public ForStatement CreateForStatement(AstNode x)
         {
-            For r = new For(x);
+            ForStatement r = new ForStatement(x);
             r.name = x.GetChild(0).ToString();
             r.initial = CreateExpr(x.GetChild(1));
             r.condition = CreateExpr(x.GetChild(2));
@@ -643,6 +692,53 @@ namespace HeronEngine
             int i = 0;
             Expression r = CreateExpr(x, ref i);
             Assure(i == x.GetNumChildren(), "Could not parse entire expression");
+            return r;
+        }
+        #endregion
+
+        #region static public functions`    
+        static public Expression ParseExpr(string s)
+        {
+            AstNode node = ParserState.Parse(HeronGrammar.Expr(), s);
+            if (node == null)
+                return null;
+            Expression r = HeronParser.CreateExpr(node);
+            return r;
+        }
+
+        static public Statement ParseStatement(string s)
+        {
+            AstNode node = ParserState.Parse(HeronGrammar.Statement(), s);
+            if (node == null)
+                return null;
+            Statement r = HeronParser.CreateStatement(node);
+            return r;
+        }
+
+        static public HeronModule ParseModule(string s)
+        {
+            AstNode node = ParserState.Parse(HeronGrammar.Module(), s);
+            if (node == null)
+                return null;
+            HeronModule r = HeronParser.CreateModule(node);
+            return r;
+        }
+
+        static public HeronClass ParseClass(string s)
+        {
+            AstNode node = ParserState.Parse(HeronGrammar.Class(), s);
+            if (node == null)
+                return null;
+            HeronClass r = HeronParser.CreateClass(node);
+            return r;
+        }
+
+        static public HeronInterface ParseInterface(string s)
+        {
+            AstNode node = ParserState.Parse(HeronGrammar.Interface(), s);
+            if (node == null)
+                return null;
+            HeronInterface r = HeronParser.CreateInterface(node);
             return r;
         }
         #endregion

@@ -13,17 +13,20 @@ using System.Reflection;
 namespace HeronStandardLibrary
 {
     public delegate void ViewportCmd(Graphics g);
+    public delegate void Procedure();
 
     public partial class ViewportForm : Form
     {
         public Bitmap bmp;
         public Graphics g;
+        private Viewport vp;
 
-        public ViewportForm(int w, int h)
+        public ViewportForm(int w, int h, Viewport vp)
         {
             InitializeComponent();
             bmp = new Bitmap(w, h);
             g = Graphics.FromImage(bmp);
+            this.vp = vp;
             Width = w;
             Height = h;
         }
@@ -32,23 +35,37 @@ namespace HeronStandardLibrary
         {
             if (InvokeRequired)
             {
-                Delegate d = Delegate.CreateDelegate(GetType(), cmd, GetType().GetMethod("ApplyToBitmap"));
-                Invoke(cmd);
+                Invoke(cmd, g);
             }
             else
             {
                 cmd(g);
             }
+            SafeInvalidate();
         }
 
-        private void pictureBox1_Paint(object sender, PaintEventArgs e)
+        public void SafeInvalidate()
+        {
+            if (InvokeRequired)
+            {
+                Procedure p = SafeInvalidate;
+                Invoke(p);
+            }
+            else
+            {
+                pictureBox1.Invalidate();
+            }
+        }
+
+
+        private void pictureBox1_Paint_1(object sender, PaintEventArgs e)
         {
             e.Graphics.DrawImageUnscaled(bmp, 0, 0);
         }
 
-        private void ViewportForm_Paint(object sender, PaintEventArgs e)
+        private void ViewportForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            // ??
+            vp.ReleaseForm();
         }
     }
 }

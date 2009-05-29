@@ -534,9 +534,9 @@ namespace HeronEngine
     public class FunctionObject : HeronObject
     {
         HeronObject self;
-        Function fun;
+        HeronFunction fun;
 
-        public FunctionObject(HeronObject self, Function f)
+        public FunctionObject(HeronObject self, HeronFunction f)
         {
             this.self = self;
             fun = f;
@@ -588,7 +588,7 @@ namespace HeronEngine
     {
         HeronObject self;
         string name;
-        List<Function> functions = new List<Function>();
+        List<HeronFunction> functions = new List<HeronFunction>();
 
         public int Count
         {
@@ -598,13 +598,13 @@ namespace HeronEngine
             }
         }
 
-        public FunctionListObject(HeronObject self, string name, IEnumerable<Function> args)
+        public FunctionListObject(HeronObject self, string name, IEnumerable<HeronFunction> args)
         {
             this.self = self;
-            foreach (Function f in args)
+            foreach (HeronFunction f in args)
                 functions.Add(f);
             this.name = name;
-            foreach (Function f in functions)
+            foreach (HeronFunction f in functions)
                 if (f.name != name)
                     throw new Exception("All functions in function list object must share the same name");
         }
@@ -618,7 +618,7 @@ namespace HeronEngine
         public FunctionObject Resolve(HeronObject[] args)
         {
             FunctionObject r = null;
-            foreach (Function f in functions)
+            foreach (HeronFunction f in functions)
             {
                 if (f.formals.Count == args.Length)
                 {
