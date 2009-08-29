@@ -7,32 +7,42 @@ namespace HeronEngine
 {
     public class HeronDotNet
     {
-        public static string DotNetToHeronTypeString(Type t)
+        public static string RenameType(string s)
         {
-            switch (t.Name)
+            switch (s)
             {
                 case "int": return "Int";
-                case "Int32": return "Int";
                 case "char": return "Char";
-                case "Char": return "Char";
                 case "float": return "Float";
-                case "Single": return "Float";
                 case "bool": return "Bool";
-                case "Boolean": return "Bool";
                 case "string": return "String";
-                case "String": return "String";
-                case "Console": return "Console";
-                case "Math": return "Math";
-                case "Collection": return "Collection";
-                case "Reflector": return "Reflector";
+                case "Object": return "Any";
+                default: return s;                    
             }
+        }
+
+        public static string DotNetToHeronTypeString(Type t)
+        {
+            string s = RenameType(t.Name);
 
             if (t.IsArray)
+                return "Array<" + s + ">";
+
+            if (t.IsGenericType)
             {
-                return "Collection";
+                Type[] ts = t.GetGenericArguments();
+                if (ts.Length == 0)
+                    return s;
+                s += "<";
+                for (int i = 0; i < ts.Length; ++i)
+                {
+                    if (i > 0) s += ", ";
+                    s += DotNetToHeronTypeString(ts[i]);
+                }
+                s += ">";
             }
 
-            return "Object";
+            return s;
         }
 
         public static HeronObject DotNetToHeronObject(Object o)

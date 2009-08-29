@@ -19,11 +19,13 @@ namespace HeronEngine
     /// </summary>
     static public class HeronParser
     {
+        static HeronModule m;
+
         static public HeronProgram CreateProgram(AstNode x)
         {
             HeronProgram p = new HeronProgram();
             foreach (AstNode node in x.GetChildren())
-                p.modules.Add(CreateModule(node));
+                p.AddModule(CreateModule(p, node));
             return p;
         }
 
@@ -40,32 +42,91 @@ namespace HeronEngine
         }
 
         #region construct parsing functions
-        static public HeronModule CreateModule(AstNode x)
+        static public HeronModule CreateModule(HeronProgram p, AstNode x)
         {
-            HeronModule r = new HeronModule();
-            Trace.Assert(x.GetNumChildren() > 1);
-            Trace.Assert(x.GetChild(0).GetLabel() == "name");
-            r.name = x.GetChild(0).ToString();
+            HeronModule r = new HeronModule(p);
+            m = r; // Sets the current modul
+            r.name = GetNameNode(x);
             for (int i=1; i < x.GetNumChildren(); ++i) {
-                // Note : an interface is treated as a kind of class.
-                r.classes.Add(CreateClass(x.GetChild(i)));
+                AstNode child = x.GetChild(i);
+                switch (child.GetLabel())
+                {
+                    case "class":
+                        CreateClass(r, child);
+                        break;
+                    case "interface":
+                        CreateInterface(r, child);
+                        break;
+                    case "enum":
+                        CreateEnum(r, child);
+                        break;
+                    default:
+                        throw new Exception("Unrecognize module sub-element " + child.GetLabel());
+                }
             }
+
+            FinishModule(r, x);
             return r;
         }
 
-        static public HeronClass CreateClass(AstNode x)
+        static public string GetNameNode(AstNode x)
         {
-            // TODO: handle inheritances
+            AstNode name = x.GetChild("name");
+            if (name == null)
+                throw new Exception("Could not find name node");
+            return name.ToString();
+        }
 
-            HeronClass r = new HeronClass();
-            r.name = x.GetChild("name").ToString();
+        static public void FinishModule(HeronModule m, AstNode x)
+        {
+            Trace.Assert(m.name == GetNameNode(x), "The Module and AstNode are not the same");
+            foreach (HeronInterface i in m.GetInterfaces())
+                i.ResolveTypes();
+            foreach (HeronClass c in m.GetClasses())
+                c.ResolveTypes();
+            foreach (HeronClass c in m.GetClasses())
+                c.VerifyInterfaces();
+        }
+
+        static public HeronClass CreateClass(HeronModule m, AstNode x)
+        {
+            string name = x.GetChild("name").ToString();
+            HeronClass r = new HeronClass(m, name);
+
+            AstNode inherits = x.GetChild("inherits");
+            if (inherits != null)
+            {
+                if (inherits.GetNumChildren() != 1)
+                    throw new Exception("A class can only inherit from exactly one other class");
+                AstNode type = inherits.GetChild(0);
+                if (type.GetLabel() != "type")
+                    throw new Exception("Can only inherit type expressions");
+                string s = GetTypeName(type, null);
+                if (s == null)
+                    throw new Exception("Could not get the inherited type name");
+                r.SetBaseClass(new UnresolvedType(s, m));
+            }
+
+            AstNode implements = x.GetChild("implements");
+            if (implements != null)
+            {
+                foreach (AstNode node in implements.GetChildren())
+                {
+                    if (node.GetLabel() != "type")
+                        throw new Exception("Can only implement type expression");
+                    string s = GetTypeName(node, null);
+                    if (s == null)
+                        throw new Exception("Could not get the inherited type name");
+                    r.AddInterface(new UnresolvedType(s, m));
+                }
+            }
 
             AstNode methods = x.GetChild("methods");
             if (methods != null)
             {
                 foreach (AstNode node in methods.GetChildren())
                 {
-                    HeronFunction f = CreateFunction(node);
+                    HeronFunction f = CreateFunction(node, r);
                     r.AddMethod(f);
                 }
             }
@@ -75,24 +136,56 @@ namespace HeronEngine
                 foreach (AstNode node in fields.GetChildren())
                     r.AddField(CreateField(node));
 
+            m.AddClass(r);
             return r;
         }
 
-        static public HeronInterface CreateInterface(AstNode x)
+        static public HeronInterface CreateInterface(HeronModule m, AstNode x)
         {
-            HeronInterface r = new HeronInterface();
-            r.name = x.GetChild("name").ToString();
+            string name = x.GetChild("name").ToString();
+            HeronInterface r = new HeronInterface(m, name);
+
+            AstNode inherits = x.GetChild("inherits");
+            if (inherits != null)
+            {
+                foreach (AstNode node in inherits.GetChildren())
+                {
+                    string s = GetTypeName(node, null);
+                    if (s == null)
+                        throw new Exception("Could not get the type name");
+                    r.AddBaseInterface(new UnresolvedType(s, m));
+                }                    
+            }
 
             AstNode methods = x.GetChild("methods");
             if (methods != null)
             {
                 foreach (AstNode node in methods.GetChildren())
                 {
-                    HeronFunction f = CreateFunction(node);
+                    HeronFunction f = CreateFunction(node, r);
                     r.AddMethod(f);
                 }
             }
 
+            m.AddInterface(r);
+            return r;
+        }
+
+        static public HeronEnum CreateEnum(HeronModule m, AstNode x)
+        {
+            string name = x.GetChild("name").ToString();
+            HeronEnum r = new HeronEnum(m, name);
+
+            AstNode values = x.GetChild("values");
+            if (values != null)
+            {
+                foreach (AstNode node in values.GetChildren())
+                {
+                    r.AddValue(node.ToString());
+                }
+            }
+
+            m.AddEnum(r);
             return r;
         }
 
@@ -110,18 +203,21 @@ namespace HeronEngine
 
         static public string GetTypeName(AstNode x, string def)
         {
+            if (x.GetLabel() == "type")
+                return TypeToTypeName(x);
+
             AstNode type = x.GetChild("type");
-            if (type == null)
-                return def;
-            else
+            if (type != null)
                 return TypeToTypeName(type);
+
+            return def;
         }
 
         static public HeronField CreateField(AstNode x)
         {
             HeronField r = new HeronField();
             r.name = x.GetChild("name").ToString();
-            r.type = GetTypeName(x, "Object");
+            r.type = new UnresolvedType(GetTypeName(x, "Any"), m);
             return r;
         }
 
@@ -129,7 +225,7 @@ namespace HeronEngine
         {
             HeronFormalArg r = new HeronFormalArg();
             r.name = x.GetChild("name").ToString();
-            r.type = GetTypeName(x, "Object");
+            r.type = new UnresolvedType(GetTypeName(x, "Any"), m);
             return r;            
         }
 
@@ -141,14 +237,16 @@ namespace HeronEngine
             return r;
         }
 
-        static public HeronFunction CreateFunction(AstNode x)
+        static public HeronFunction CreateFunction(AstNode x, HeronType parent)
         {
-            HeronFunction r = new HeronFunction();
+            HeronModule module = parent.GetModule();
+            HeronFunction r = new HeronFunction(parent);
             AstNode fundecl = x.GetChild("fundecl");            
             r.name = fundecl.GetChild("name").ToString();
             r.formals = CreateFormalArgs(fundecl.GetChild("arglist"));
-            r.rettype = GetTypeName(x, "void");
-            r.body = CreateCodeBlock(x.GetChild("codeblock"));
+            r.rettype = new UnresolvedType(GetTypeName(x, "Void"), m);
+            AstNode codeblock = x.GetChild("codeblock");
+            r.body = CreateCodeBlock(codeblock);
             return r;
         }
         #endregion 
@@ -185,6 +283,8 @@ namespace HeronEngine
 
         static public CodeBlock CreateCodeBlock(AstNode x)
         {
+            if (x == null)
+                return new CodeBlock(null);
             CodeBlock r = new CodeBlock(x);
             foreach (AstNode node in x.GetChildren())
                 r.statements.Add(CreateStatement(node));
@@ -267,9 +367,23 @@ namespace HeronEngine
         static public ForEachStatement CreateForEachStatement(AstNode x)
         {
             ForEachStatement r = new ForEachStatement(x);
-            r.name = x.GetChild(0).ToString();
-            r.collection = CreateExpr(x.GetChild(1));
-            r.body = CreateStatement(x.GetChild(2));
+            if (x.GetNumChildren() == 3)
+            {
+                r.name = x.GetChild(0).ToString();
+                r.collection = CreateExpr(x.GetChild(1));
+                r.body = CreateStatement(x.GetChild(2));
+            }
+            else if (x.GetNumChildren() == 4)
+            {
+                r.name = x.GetChild(0).ToString();
+                r.type = x.GetChild(1).ToString();
+                r.collection = CreateExpr(x.GetChild(2));
+                r.body = CreateStatement(x.GetChild(3));
+            }
+            else
+            {
+                throw new Exception("Foreach statements should only have three or four nodes");
+            }
             return r;
         }
 
@@ -564,17 +678,33 @@ namespace HeronEngine
             return r;
         }
 
-        static Expression CreateEqExpr(AstNode x, ref int i)
+        static Expression CreateTypeOpExpr(AstNode x, ref int i)
         {
             Expression r = CreateRelExpr(x, ref i);
 
+            if (ChildNodeMatches(x, ref i, "is"))
+            {
+                r = new BinaryOperator("is", r, CreateRelExpr(x, ref i));
+            }
+            else if (ChildNodeMatches(x, ref i, "as"))
+            {
+                r = new BinaryOperator("as", r, CreateRelExpr(x, ref i));
+            }
+            return r;
+
+        }
+
+        static Expression CreateEqExpr(AstNode x, ref int i)
+        {
+            Expression r = CreateTypeOpExpr(x, ref i);
+
             if (ChildNodeMatches(x, ref i, "=="))
             {
-                r = new BinaryOperator("==", r, CreateRelExpr(x, ref i));
+                r = new BinaryOperator("==", r, CreateTypeOpExpr(x, ref i));
             }
             else if (ChildNodeMatches(x, ref i, "!="))
             {
-                r = new BinaryOperator("!=", r, CreateRelExpr(x, ref i));
+                r = new BinaryOperator("!=", r, CreateTypeOpExpr(x, ref i));
             }
             return r;
         }
@@ -606,15 +736,35 @@ namespace HeronEngine
         static Expression CreateCondExpr(AstNode x, ref int i)
         {
             Expression r = CreateOrExpr(x, ref i);
-            // TODO: support the "a ? b : c" operator
+            // TODO: support the ternary "a ? b : c" operator
             return r;
         }
 
+        static Expression CreateAnonFunExpr(AstNode x, ref int i
+            )
+        {
+            if (i >= x.GetNumChildren())
+                throw new Exception("Internal parse error");
+            AstNode child = x.GetChild(i);
+            
+            if (child.GetLabel() == "anonexpr")
+            {
+                AnonFunExpr r = new AnonFunExpr();
+                r.formals = CreateFormalArgs(child.GetChild("arglist"));
+                r.rettype = new UnresolvedType(GetTypeName(child, "Void"), m);
+                r.body = CreateCodeBlock(child.GetChild("codeblock"));
+                return r;
+            }
+            else
+            {
+                return CreateCondExpr(x, ref i);
+            }
+        }
 
         static Expression CreateAssignmentExpr(AstNode x, ref int i)
         {
             int old = i;
-            Expression r = CreateCondExpr(x, ref i);
+            Expression r = CreateAnonFunExpr(x, ref i);
             Assure(x, r != null, "failed to create expression");
             Assure(x, i > old, "internal error, expression index not updated");
             if (i >= x.GetNumChildren())
@@ -696,7 +846,7 @@ namespace HeronEngine
         }
         #endregion
 
-        #region static public functions`    
+        #region static public functions    
         static public Expression ParseExpr(string s)
         {
             AstNode node = ParserState.Parse(HeronGrammar.Expr(), s);
@@ -715,30 +865,30 @@ namespace HeronEngine
             return r;
         }
 
-        static public HeronModule ParseModule(string s)
+        static public HeronModule ParseModule(HeronProgram p, string s)
         {
             AstNode node = ParserState.Parse(HeronGrammar.Module(), s);
             if (node == null)
                 return null;
-            HeronModule r = HeronParser.CreateModule(node);
+            HeronModule r = HeronParser.CreateModule(p, node);
             return r;
         }
 
-        static public HeronClass ParseClass(string s)
+        static public HeronClass ParseClass(HeronModule m, string s)
         {
             AstNode node = ParserState.Parse(HeronGrammar.Class(), s);
             if (node == null)
                 return null;
-            HeronClass r = HeronParser.CreateClass(node);
+            HeronClass r = HeronParser.CreateClass(m, node);
             return r;
         }
 
-        static public HeronInterface ParseInterface(string s)
+        static public HeronInterface ParseInterface(HeronModule m, string s)
         {
             AstNode node = ParserState.Parse(HeronGrammar.Interface(), s);
             if (node == null)
                 return null;
-            HeronInterface r = HeronParser.CreateInterface(node);
+            HeronInterface r = HeronParser.CreateInterface(m, node);
             return r;
         }
         #endregion

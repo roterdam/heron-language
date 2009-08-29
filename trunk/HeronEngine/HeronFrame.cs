@@ -11,12 +11,28 @@ namespace HeronEngine
     /// which correspond to scopes. A stack is used so that names declared in one scope override
     /// any similiarly named variables in previous scopes.
     /// </summary>
-    public class Frame : Stack<ObjectTable>
+    public class Frame 
     {
-        public Frame(HeronFunction f, Instance self)
+        Stack<ObjectTable> scopes = new Stack<ObjectTable>();
+
+        public Frame(HeronFunction f, ClassInstance self)
         {
             this.function = f;
             this.self = self;
+            if (function != null)
+                type = function.GetParentType();
+            if (type != null)
+                module = type.GetModule();
+        }
+
+        public void AddScope(ObjectTable scope)
+        {
+            scopes.Push(scope);
+        }
+
+        public void PopScope()
+        {
+            scopes.Pop();
         }
 
         public HeronObject LookupName(string s, out bool bFound)
@@ -28,7 +44,7 @@ namespace HeronEngine
             if (s == "this")
                 return self;
 
-            foreach (ObjectTable tbl in this)
+            foreach (ObjectTable tbl in scopes)
                 if (tbl.ContainsKey(s))
                     return tbl[s];
 
@@ -41,6 +57,16 @@ namespace HeronEngine
                     return self.GetMethods(s);
             }
 
+            if (module != null)
+            {
+                HeronType t = module.FindType(s);
+                if (t != null)
+                    return t;
+                t = module.GetGlobal().FindType(s);
+                if (t != null)
+                    return t;
+            }
+
             bFound = false;
             return null;
         }
@@ -49,7 +75,7 @@ namespace HeronEngine
         {
             if (s == "this")
                 return self;
-            foreach (ObjectTable tbl in this)
+            foreach (ObjectTable tbl in scopes)
                 if (tbl.ContainsKey(s))
                     return tbl[s];
             return null;
@@ -70,7 +96,7 @@ namespace HeronEngine
         {
             if (s == "this")
                 return true;
-            foreach (ObjectTable tbl in this)
+            foreach (ObjectTable tbl in scopes)
                 if (tbl.ContainsKey(s))
                     return true;
             return false;
@@ -78,7 +104,7 @@ namespace HeronEngine
 
         public bool SetVar(string s, HeronObject o)
         {
-            foreach (ObjectTable tbl in this)
+            foreach (ObjectTable tbl in scopes)
             {
                 if (tbl.ContainsKey(s))
                 {
@@ -89,6 +115,11 @@ namespace HeronEngine
             return false;
         }
 
+        public void AddVar(string s, HeronObject o)
+        {
+            scopes.Peek().Add(s, o);
+        }
+
         public bool HasField(string s)
         {
             if (self == null)
@@ -96,14 +127,48 @@ namespace HeronEngine
             return self.HasField(s);
         }
 
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("[frame, function = ");
+
+            if (function != null)
+                sb.Append(function.name); 
+            else
+                sb.Append("null");
+            sb.Append(", class = ");
+            if (self != null && self.hclass != null)
+                sb.Append(self.hclass.name);
+            else
+                sb.Append("null");
+            sb.AppendLine("]");
+
+            foreach (ObjectTable tab in scopes)
+            {
+                sb.Append("[scope]");
+                sb.Append(tab.ToString());
+            }
+            return sb.ToString();
+        }
+
         /// <summary>
         /// Function associated with this activation record 
         /// </summary>
-        public HeronFunction function;
+        public HeronFunction function = null;
 
         /// <summary>
         /// The 'this' pointer if applicable 
         /// </summary>
-        public Instance self;
+        public ClassInstance self = null;
+
+        /// <summary>
+        /// The type which contains the function
+        /// </summary>
+        public HeronType type = null;
+
+        /// <summary>
+        /// The module containing the type
+        /// </summary>
+        public HeronModule module = null;
     }
 }

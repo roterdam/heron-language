@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,11 +15,6 @@ namespace HeronEngine
         internal Statement(Peg.AstNode node)
         {
             this.node = node;
-        }
-
-        protected void Trace()
-        {
-            HeronDebugger.TraceStatement(this);
         }
 
         public abstract string StatementType();
@@ -37,7 +33,6 @@ namespace HeronEngine
 
         public override void Execute(Environment env)
         {
-            Trace();
             HeronObject initVal = value.Eval(env);
             env.AddVar(name, initVal);
         }
@@ -92,7 +87,6 @@ namespace HeronEngine
 
         public override void Execute(Environment env)
         {
-            Trace();
             expression.Eval(env);
         }
 
@@ -113,6 +107,9 @@ namespace HeronEngine
         public Expression collection;
         public Statement body;
 
+        // TODO: make this a real Heron type
+        public string type;
+
         internal ForEachStatement(Peg.AstNode node)
             : base(node)
         {
@@ -130,11 +127,19 @@ namespace HeronEngine
 
             DotNetObject tmp = c as DotNetObject;
             Object o = tmp.ToSystemObject();
-            if (!(o is HeronCollection))
-                throw new Exception("Unable to iterate over " + collection.ToString() + " because it is not a collection");
-            IEnumerable<Object> list = (o as HeronCollection).InternalGetList(); 
+            IEnumerable list = o as IEnumerable;
+            if (list == null)
+            {
+                HeronCollection hc = o as HeronCollection;
+                if (hc == null)
+                    throw new Exception("Unable to iterate over " + collection.ToString() + " because it is not a collection");
+                list = hc.InternalGetList();
+                if (list == null)
+                    throw new Exception("Unable to iterate over " + collection.ToString() + " because the internal collection was not set");
+            }
 
-            foreach (HeronObject ho in list) {
+            foreach (Object e in list) {
+                HeronObject ho = DotNetObject.Marshal(e);
                 env.SetVar(name, ho);
                 body.Execute(env);
             }
@@ -168,7 +173,6 @@ namespace HeronEngine
 
         public override void Execute(Environment env)
         {
-            Trace();
             HeronObject initVal = initial.Eval(env);
             env.AddVar(name, initVal);
             while (true)
@@ -208,7 +212,6 @@ namespace HeronEngine
 
         public override void Execute(Environment env)
         {
-            Trace();
             env.PushScope();
             foreach (Statement s in statements)
             {
@@ -250,7 +253,6 @@ namespace HeronEngine
 
         public override void Execute(Environment env)
         {
-            Trace();
             bool b = condition.Eval(env).ToBool();
             if (b)
                 ontrue.Execute(env); 
@@ -277,7 +279,6 @@ namespace HeronEngine
 
         public override void Execute(Environment env)
         {
-            Trace();
             while (true)
             {
                 HeronObject o = cond.Eval(env);
@@ -307,7 +308,6 @@ namespace HeronEngine
 
         public override void Execute(Environment env)
         {
-            Trace();
             env.Return(expression.Eval(env));
         }
 
@@ -330,7 +330,6 @@ namespace HeronEngine
 
         public override void Execute(Environment env)
         {
-            Trace();
             HeronObject o = condition.Eval(env);
             foreach (CaseStatement c in cases)
             {
@@ -364,7 +363,6 @@ namespace HeronEngine
 
         public override void Execute(Environment env)
         {
-            Trace();
             statement.Execute(env);
         }
 

@@ -46,17 +46,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HeronAny.cs" />
     <Compile Include="HeronCollection.cs" />
     <Compile Include="HeronConfig.cs" />
-    <Compile Include="HeronDebugger.cs" />
     <Compile Include="HeronDotNet.cs" />
     <Compile Include="HeronFrame.cs" />
+    <Compile Include="HeronModule.cs" />
     <Compile Include="HeronObjectTable.cs" />
     <Compile Include="HeronParser.cs" />
     <Compile Include="HeronExpression.cs" />
     <Compile Include="HeronClass.cs" />
     <Compile Include="HeronFunction.cs" />
     <Compile Include="HeronGrammar.cs" />
+    <Compile Include="HeronPrimitiveTypes.cs" />
+    <Compile Include="HeronProgram.cs" />
     <Compile Include="HeronReflection.cs" />
     <Compile Include="HeronStatements.cs" />
     <Compile Include="HeronExecutor.cs" />
@@ -78,7 +81,9 @@
     <None Include="tests\test10.heron" />
     <None Include="tests\test11.heron" />
     <None Include="tests\test12.heron" />
-    <None Include="tests\unfinished-test13.heron" />
+    <None Include="tests\test13.heron" />
+    <None Include="tests\test14.heron" />
+    <None Include="tests\unfinished-test.heron" />
     <None Include="tests\test2.heron" />
     <None Include="tests\test3.heron" />
     <None Include="tests\test4.heron" />
@@ -87,6 +92,16 @@
     <None Include="tests\test7.heron" />
     <None Include="tests\test8.heron" />
     <None Include="tests\test9.heron" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="AboutHeron.txt" />
+    <Content Include="Config.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\HeronStandardLibrary\HeronStandardLibrary.csproj">
+      <Project>{6CF170D8-5E9C-4C83-A5B7-F1D16F3C65F9}</Project>
+      <Name>HeronStandardLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -11,11 +11,15 @@ namespace HeronEngine
         {
             Console.WriteLine("HeronEngine.exe");
             Console.WriteLine("    by Christopher Diggins");
+            Console.WriteLine("    version 0.5");
+            Console.WriteLine("    August 11, 2009");
             Console.WriteLine("");
-            Console.WriteLine("Tests the HeronEngine class library");
+            Console.WriteLine("An execution engine for the Heron language.");
+            Console.WriteLine("This program tests the Heron language, but is");
+            Console.WriteLine("intended to be used as a class library.");
             Console.WriteLine("");
             Console.WriteLine("Usage: ");
-            Console.WriteLine("  HeronEngine <librarypath>");
+            Console.WriteLine("  HeronEngine <configfile.xml>");
             Console.WriteLine("");
         }
 
@@ -30,7 +34,16 @@ namespace HeronEngine
                 Console.ReadKey();
                 return;
             }
-            Config.libraryPath = args[0];
+            try
+            {
+                Config.LoadFromFile(args[0]);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error occured: " + e.Message);
+                Console.WriteLine();
+                Usage();
+            }
             HeronTests.HeronTests.MainTest();
         }
     }

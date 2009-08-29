@@ -13,26 +13,59 @@ namespace Peg
     /// Used to identify where an error occured in an input string. 
     /// Such as the line number and character number.
     /// </summary>
-    public class ParsingException : Exception
+    public class ParseLocation
     {
-        public int index;
+        public ParseLocation(string input, int begin, int end)
+        {
+            this.input = input;
+            this.begin = begin;
+            this.end = end;
+        }
+
+        public string input;
+        public int begin;
+        public int end;
+    }
+
+    public class ParseExceptionContext
+    {
+        public ParseLocation location;
+        public string msg;
         public int row;
         public int col;
-        public int length;
         public string line;
         public string ptr;
         public Grammar.Rule rule;
 
-        public ParsingException(string s, int begin, int cur, Grammar.Rule r, string msg)
-            : base(msg)
-        {          
-            index = cur;
-            length = cur - begin;
-            if (length <= 0)
-                length = 1;
-            s.GetRowCol(index, out row, out col);
+        public ParseExceptionContext(string s, int begin, int end, Grammar.Rule r, string msg)
+        {
+            location = new ParseLocation(s, begin, end);
+            this.msg = msg;
+            s.GetRowCol(begin, out row, out col);
             line = s.GetLine(row);
-            this.ptr = new String(' ', col) + "^";
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < line.Length - 1; ++i)
+                if (line[i] == '\t')
+                    sb.Append('\t');
+                else
+                    sb.Append(' ');
+            sb.Append('^');
+            this.ptr = sb.ToString();
+        }
+    }
+    
+    public class ParsingException : Exception
+    {
+        public ParseExceptionContext context;
+
+        public ParsingException(string s, int begin, int end, Grammar.Rule r, string msg)
+        {          
+            AddContext(s, begin, end, r, msg);
+        }
+
+        public void AddContext(string s, int begin, int end, Grammar.Rule r, string msg)
+        {
+            context = new ParseExceptionContext(s, begin, end, r, msg);
         }
     }
     
