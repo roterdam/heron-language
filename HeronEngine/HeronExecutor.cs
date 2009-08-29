@@ -8,19 +8,18 @@ using HeronTests;
 namespace HeronEngine
 {
     /// <summary>
-    /// Encapsulates the following components:
-    /// - concrete syntax tree parser (Parser)
-    /// - abstract syntax tree parser (HeronParser)
-    /// - lexical environment (Environment)
-    /// - evaluator (Expression and Statement)
+    /// BUG: this is possibly not reentrant. 
     /// </summary>
     public class HeronExecutor
     {
-        Environment env = new Environment();
-        HeronModule module; 
+        Environment env;
+        HeronModule module;
+        HeronProgram program;
 
         public HeronExecutor()
         {
+            program = new HeronProgram();
+            env = new Environment(program);
         }
 
         #region evaluation functions
@@ -33,38 +32,29 @@ namespace HeronEngine
 
         public void EvalModule(string sModule)
         {
-            HeronModule m = HeronParser.ParseModule(sModule);
+            HeronModule m = HeronParser.ParseModule(program, sModule);
             EvalModule(m);
         }
 
         public void InitializeEnvironment()
         {
             env.Clear();
-            foreach (HeronClass c in module.classes)
-                env.AddModuleVar(c.name, c);
         }
 
         public void EvalModule(HeronModule m)
         {
             module = m;
             InitializeEnvironment();
-            HeronClass main = m.GetMainClass();
-            if (main == null)
-                throw new Exception("Could not evaluate module " 
-                    + m.name + " without a class named Main");
-
-            HeronObject inst = main.Instantiate(env, new HeronObject[] { });            
-        }
-
-        public void PrecompileModule(HeronModule m)
-        {
-            module = m;
-            InitializeEnvironment();
             HeronClass premain = m.GetPremainClass();
-            if (premain == null)
-                return;
+            if (premain != null)
+            {
+                HeronObject o = DotNetObject.Marshal(module.GetProgram());
+                premain.Instantiate(env, new HeronObject[] { o });
+            }
 
-            HeronObject inst = premain.Instantiate(env, new HeronObject[] { });
+            HeronClass main = m.GetMainClass();
+            if (main != null)
+                main.Instantiate(env);            
         }
         #endregion
 

@@ -94,30 +94,38 @@ namespace HeronTests
             }
             catch (ParsingException e)
             {
-                Console.WriteLine("Parsing exception occured in file " + file);
-                Console.WriteLine("at character " + e.col + " of line " + e.row);
-                if (e.rule != null)
-                    Console.WriteLine("while parsing rule " + e.rule.ToString());
-                Console.WriteLine(e.line);
-                Console.WriteLine(e.ptr);
+                Console.WriteLine("Parsing exception occured in file " + file);                
+                Console.WriteLine("at character " + e.context.col + " of line " + e.context.row);
+                //if (e.rule != null)
+                //Console.WriteLine("while parsing rule " + e.rule.ToString());
+                Console.WriteLine(e.context.msg);
+                Console.WriteLine(e.context.line);
+                Console.WriteLine(e.context.ptr);
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error occured when parsing file " + file);
+                Console.WriteLine("Error occured when executing file " + file);
                 Console.WriteLine(e.Message);
-            }
-               
+            }               
         }
 
+        /// <summary>
+        /// Iterates over the files in the test directory named: 
+        /// test1.heron, test2.heron, etc. until it fails to find 
+        /// a consecutively named file.
+        /// </summary>
         static public void RunAllTestFiles()
         {
             int n = 1;
             while (true)
             {
-                string s = "test" + n.ToString() + ".heron";
+                string s = Config.testPath + "\\test" + n.ToString() + ".heron";
                 if (!File.Exists(s))
                     return;
-                RunFileTest(s);
+                
+                // TEMP:
+                if (n == 14)
+                    RunFileTest(s);
                 n += 1;
             }
         }
@@ -197,10 +205,18 @@ namespace HeronTests
 
         static public void MainTest()
         {
-            SimplePegTests();
-            SimpleExprTests();
-            SimpleEvalExprTests();
-            RunAllTestFiles();
+            if (Config.runUnitTests)
+            {
+                SimplePegTests();
+                SimpleExprTests();
+                SimpleEvalExprTests();
+            }
+
+            if (Config.runTestFiles)
+            {
+                RunAllTestFiles();
+            }
+
              /*
             RunFileTest(@"C:\Users\Chr15topher\AppData\Roaming\Heron\SeekingDemoPackage.heron");
              */

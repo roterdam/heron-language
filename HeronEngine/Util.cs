@@ -107,9 +107,9 @@ namespace Util
 
         public static string GetLine(this string s, int nLine)
         {
-            int a = 0;            
+            int a = 0;
             if (nLine > 0)
-                a = s.IndexOfNthChar('\n', nLine - 1);            
+                a = s.IndexOfNthChar('\n', nLine - 1) + 1;
             int b = s.IndexOfNthChar('\n', nLine);
             if (b < a)
                 b = s.Length;

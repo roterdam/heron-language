@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace HeronEngine
 {
@@ -13,8 +14,12 @@ namespace HeronEngine
     {
         public string name = "anonymous_type";
 
-        public HeronType()
+        HeronModule module;
+
+        public HeronType(HeronModule m, string name)
         {
+            module = m;
+            this.name = name;
         }
 
         /// <summary>
@@ -23,6 +28,11 @@ namespace HeronEngine
         /// <param name="env"></param>
         /// <returns></returns>
         public abstract HeronObject Instantiate(Environment env, HeronObject[] args);
+
+        public HeronObject Instantiate(Environment env)
+        {
+            return Instantiate(env, new HeronObject[] { });
+        }
 
         /// <summary>
         /// A utility function for converting type names with template arguments into their base names
@@ -38,37 +48,73 @@ namespace HeronEngine
                 return s;
             return s.Substring(0, n);
         }
+
+        public virtual IEnumerable<HeronFunction> GetMethods()
+        {
+            return new List<HeronFunction>();
+        }
+        
+        public IEnumerable<HeronFunction> GetMethods(string name)
+        {
+            foreach (HeronFunction f in GetMethods())
+                if (f.name == name)
+                    yield return f;
+        }
+
+        public HeronModule GetModule()
+        {
+            return module;
+        }
+
+        public void SetModule(HeronModule m)
+        {
+            module = m;
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return HeronPrimitiveTypes.TypeType;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is HeronType))
+                return false;
+            return name == (obj as HeronType).name;
+        }
+
+        public override int GetHashCode()
+        {
+            return name.GetHashCode();
+        }
     }
 
-    public class HeronPrimitive : HeronType
+    /// <summary>
+    /// A place-holder for types during parsing. 
+    /// Should be replaced with an actual type during run-time
+    /// </summary>
+    public class UnresolvedType : HeronType
     {
-        string type;
-
-        public HeronPrimitive(string type)
+        public UnresolvedType(string name, HeronModule m)
+            : base(m, name)
         {
-            this.type = type;
         }
 
         public override HeronObject Instantiate(Environment env, HeronObject[] args)
         {
-            if (args.Length != 0)
-                throw new Exception("arguments not supported when instantiating primitives");
+            throw new Exception("Type '" + name + "' was not resolved.");
+        }
 
-            switch (type)
-            {
-                case "Int":
-                    return new IntObject();
-                case "Float":
-                    return new FloatObject();
-                case "Char":
-                    return new CharObject();
-                case "String":
-                    return new StringObject();
-                case "Collection":
-                    return DotNetObject.Marshal(new HeronCollection());
-                default:
-                    throw new Exception("Unhandled primitive type " + type);
-            }
+        public HeronType Resolve()
+        {
+            HeronType r = GetModule().FindType(name);
+            if (r == null)
+                r = GetModule().GetGlobal().FindType(name);
+            if (r == null)
+                throw new Exception("Could not resolve type " + name);
+            if (r.name != name)
+                throw new Exception("Internal error during type resolution of " + name);
+            return r;
         }
     }
 
@@ -76,9 +122,15 @@ namespace HeronEngine
     {
         Type type;
 
-        public DotNetClass(string name, Type type)
+        public DotNetClass(HeronModule m, string name, Type type)
+            : base(m, name)
         {
-            this.name = name;
+            this.type = type;
+        }
+
+        public DotNetClass(HeronModule m, Type type)
+            : base(m, type.Name)
+        {
             this.type = type;
         }
 
@@ -117,6 +169,18 @@ namespace HeronEngine
             // No static field or method found.
             // TODO: could eventually support property.
             throw new Exception("Could not find static field, or static method " + name + " in object " + this.name);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is DotNetClass))
+                return false;
+            return (obj as DotNetClass).type.Equals(type);
+        }
+
+        public override int GetHashCode()
+        {
+            return type.GetHashCode();
         }
     }
 }

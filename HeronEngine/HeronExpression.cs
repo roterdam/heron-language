@@ -23,11 +23,6 @@ namespace HeronEngine
         }
 
         public abstract HeronObject Eval(Environment env);
-
-        protected void Trace()
-        {
-            HeronDebugger.TraceExpr(this);
-        }
     }
 
     /// <summary>
@@ -69,7 +64,6 @@ namespace HeronEngine
 
         public override HeronObject Eval(Environment env)
         {            
-            Trace();
             HeronObject val = rvalue.Eval(env);
 
             if (lvalue is Name)
@@ -274,7 +268,6 @@ namespace HeronEngine
         
         public override HeronObject Eval(Environment env)
         {
-            Trace();
             HeronObject[] argvals = args.Eval(env);
             HeronObject f = funexpr.Eval(env);
             return f.Apply(env, argvals);
@@ -285,7 +278,6 @@ namespace HeronEngine
             return funexpr.ToString() + args.ToString();
         }
     }
-
 
     public class UnaryOperator : Expression
     {
@@ -328,11 +320,42 @@ namespace HeronEngine
             HeronObject a = operand1.Eval(env);
             HeronObject b = operand2.Eval(env);
 
-            if (a is IntObject)
+            if (a == null)
+                throw new Exception("Left hand operand '" + operand1.ToString() + "' could not be evaluated");
+            if (b == null)
+                throw new Exception("Right hand operand '" + operand2.ToString() + "' could not be evaluated");
+
+            if (operation == "is")
+            {
+                if (!(b is HeronType))
+                    throw new Exception("The 'is' operator expects a type as a right hand argument");
+
+                Any any;
+                if (a is Any)
+                    any = a as Any; 
+                else
+                    any = new Any(a);
+
+                return new BoolObject(any.Is(b as HeronType));                    
+            }
+            else if (operation == "as")
+            {
+                if (!(b is HeronType))
+                    throw new Exception("The 'as' operator expects a type as a right hand argument");
+
+                Any any;
+                if (a is Any)
+                    any = a as Any;
+                else
+                    any = new Any(a);
+
+                return any.As(b as HeronType);
+            }
+            else if (a is IntObject)
             {
                 if (b is IntObject)
                 {
-                    return (a as IntObject).InvokeBinaryOperator(operation, b as IntObject);
+                    return a.InvokeBinaryOperator(operation, b as IntObject);
                 }
                 else if (b is FloatObject)
                 {
@@ -347,11 +370,11 @@ namespace HeronEngine
             {
                 if (b is IntObject)
                 {
-                    return (a as FloatObject).InvokeBinaryOperator(operation, new FloatObject((b as IntObject).GetValue()));
+                    return a.InvokeBinaryOperator(operation, new FloatObject((b as IntObject).GetValue()));
                 }
                 else if (b is FloatObject)
                 {
-                    return (a as FloatObject).InvokeBinaryOperator(operation, b as FloatObject);
+                    return a.InvokeBinaryOperator(operation, b as FloatObject);
                 }
                 else
                 {
@@ -362,19 +385,77 @@ namespace HeronEngine
             {
                 if (!(b is CharObject))
                     throw new Exception("Incompatible types for binary operator " + operation + " : " + a.GetType() + " and " + b.GetType());
-                return (a as CharObject).InvokeBinaryOperator(operation, b as CharObject);
+                return a.InvokeBinaryOperator(operation, b as CharObject);
             }
             else if (a is StringObject)
             {
                 if (!(b is StringObject))
                     throw new Exception("Incompatible types for binary operator " + operation + " : " + a.GetType() + " and " + b.GetType());
-                return (a as StringObject).InvokeBinaryOperator(operation, b as StringObject);
+                return a.InvokeBinaryOperator(operation, b as StringObject);
             }
             else if (a is BoolObject)
             {
                 if (!(b is BoolObject))
                     throw new Exception("Incompatible types for binary operator " + operation + " : " + a.GetType() + " and " + b.GetType());
-                return (a as BoolObject).InvokeBinaryOperator(operation, b as BoolObject);
+                return a.InvokeBinaryOperator(operation, b as BoolObject);
+            }
+            else if (a is EnumInstance)
+            {
+                if (operation == "==" || operation == "!=")
+                {
+                    if (!(b is EnumInstance))
+                        throw new Exception("Only an enumeration instance can be compared against an enumeration instance");
+                    EnumInstance ea = a as EnumInstance;
+                    EnumInstance eb = b as EnumInstance;
+                
+                    if (operation == "==")
+                        return new BoolObject(ea.Equals(eb));
+                    else
+                        return new BoolObject(!ea.Equals(eb));
+                }
+                else
+                {
+                    throw new Exception("Operation '" + operation + "' is not supported on enumerations");
+                }
+            }
+            else if (a is ClassInstance)
+            {
+                if (operation == "==" || operation == "!=")
+                {
+                    if (!(b is ClassInstance))
+                        throw new Exception("Only a class instance can be compared against a class instance");
+                    ClassInstance ca = a as ClassInstance;
+                    ClassInstance cb = b as ClassInstance;
+
+                    if (operation == "==")
+                        return new BoolObject(ca.Equals(cb));
+                    else
+                        return new BoolObject(!ca.Equals(cb));
+                }
+                else
+                {
+                    throw new Exception("Operation '" + operation + "' is not supported on class instances");
+                }
+            }
+            else if (a is InterfaceInstance)
+            {
+                if (operation == "==" || operation == "!=")
+                {
+                    if (!(b is InterfaceInstance))
+                        throw new Exception("Only a class instance can be compared against an interface instance");
+                    InterfaceInstance ia = a as InterfaceInstance;
+                    InterfaceInstance ib = b as InterfaceInstance;
+
+                    if (operation == "==")
+                        return new BoolObject(ia.Equals(ib));
+                    else
+                        return new BoolObject(!ia.Equals(ib));
+                }
+                else
+                {
+                    throw new Exception("Operation '" + operation + "' is not supported on interface instances");
+
+                }
             }
             else
             {
@@ -387,4 +468,38 @@ namespace HeronEngine
             return "(" + operand1.ToString() + " " + operation + " " + operand2.ToString() + ")";
         }
     }
+
+    public class AnonFunExpr : Expression
+    {
+        public HeronFormalArgs formals;
+        public CodeBlock body;
+        public HeronType rettype;
+
+        private HeronFunction function;
+
+        public override HeronObject Eval(Environment env)
+        {
+            FunctionObject fo = new FunctionObject(null, GetFunction());
+            return fo;
+        }
+
+        public override string ToString()
+        {
+            return "function" + formals.ToString() + body.ToString();
+        }
+
+        private HeronFunction GetFunction()
+        {
+            if (function == null)
+            {
+                function = new HeronFunction(null);
+                function.formals = formals;
+                function.body = body;
+                function.rettype = rettype;
+            }
+            return function;
+            
+        }
+    }
 }
+

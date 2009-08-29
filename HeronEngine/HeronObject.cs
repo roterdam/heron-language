@@ -7,13 +7,18 @@ using System.Diagnostics;
 
 namespace HeronEngine
 {
-    public class HeronObject
+    public abstract class HeronObject
     {
         public class VoidObject : HeronObject
         {
-            public override string  ToString()
+            public override string ToString()
             {
-                return "void";
+                return "Void";
+            }
+
+            public override HeronType GetHeronType()
+            {
+                return HeronPrimitiveTypes.VoidType;
             }
         }
 
@@ -23,6 +28,11 @@ namespace HeronEngine
             {
                 return "null";
             }
+
+            public override HeronType GetHeronType()
+            {
+                return HeronPrimitiveTypes.NullType;
+            }
         }
 
         public class UndefinedObject : HeronObject
@@ -30,6 +40,12 @@ namespace HeronEngine
             public override string ToString()
             {
                 return "undefined";
+            }
+
+
+            public override HeronType GetHeronType()
+            {
+                return HeronPrimitiveTypes.UndefinedType;
             }
         }
 
@@ -84,8 +100,10 @@ namespace HeronEngine
         public virtual HeronObject InvokeBinaryOperator(string s, HeronObject x)
         {
             throw new Exception("binary operator invocation not supported on " + ToString());
+                
         }
-        
+
+        public abstract HeronType GetHeronType();
     }
 
     public class DotNetMethod : HeronObject
@@ -105,11 +123,17 @@ namespace HeronEngine
             Object r = mi.Invoke(self, objs);
             return DotNetObject.Marshal(r);
         }
+
+        public override HeronType GetHeronType()
+        {
+            return HeronPrimitiveTypes.ExternalMethodType;
+        }
     }
 
     public class DotNetObject : HeronObject
     {
         Object obj;
+        HeronType type;
 
         /// <summary>
         /// This is private because you should used DotNetObject.Marshal instead
@@ -118,6 +142,7 @@ namespace HeronEngine
         private DotNetObject(Object obj)
         {
             this.obj = obj;
+            type = new DotNetClass(null, this.obj.GetType().Name, this.obj.GetType());
         }
 
         /// <summary>
@@ -159,7 +184,7 @@ namespace HeronEngine
             FieldInfo[] fis = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetField);
             foreach (FieldInfo fi in fis)
                 if (fi.Name == name)
-                    return DotNetObject.Marshal(fi.GetValue(null));
+                    return DotNetObject.Marshal(fi.GetValue(obj));
 
             // Look for methods
             MethodInfo[] mis = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod);
@@ -169,10 +194,16 @@ namespace HeronEngine
             // No static field or method found.
             // TODO: could eventually support property.
             throw new Exception("Could not find field, or static method " + name);
-        }            
+        }
+
+
+        public override HeronType GetHeronType()
+        {
+            return type;
+        }
     }
 
-    public class PrimitiveObject<T> : HeronObject 
+    public abstract class PrimitiveObject<T> : HeronObject 
     {
         T val;
 
@@ -246,6 +277,11 @@ namespace HeronEngine
                     throw new Exception("Binary operation: '" + s + "' not supported by integers");
             }
         }
+
+        public override HeronType GetHeronType()
+        {
+            return HeronPrimitiveTypes.IntType;
+        }
     }
 
     public class CharObject : PrimitiveObject<char>
@@ -275,6 +311,11 @@ namespace HeronEngine
                 default:
                     throw new Exception("Binary operation: '" + s + "' not supported by chars");
             }
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return HeronPrimitiveTypes.CharType;
         }
     }
 
@@ -321,6 +362,11 @@ namespace HeronEngine
                     throw new Exception("Binary operation: '" + s + "' not supported by floats");
             }
         }
+
+        public override HeronType GetHeronType()
+        {
+            return HeronPrimitiveTypes.FloatType;
+        }
     }
 
     public class BoolObject : PrimitiveObject<bool>
@@ -365,6 +411,11 @@ namespace HeronEngine
         {
             return GetValue();
         }
+
+        public override HeronType GetHeronType()
+        {
+            return HeronPrimitiveTypes.BoolType;
+        }
     }
 
     public class StringObject : PrimitiveObject<string>
@@ -399,6 +450,11 @@ namespace HeronEngine
                     throw new Exception("Binary operation: '" + s + "' not supported by strings");
             }
         }
+
+        public override HeronType GetHeronType()
+        {
+            return HeronPrimitiveTypes.StringType;
+        }
     }
 
     /// <summary>
@@ -406,14 +462,24 @@ namespace HeronEngine
     /// primitive objects and .NET objects which are not part of the HeronClass 
     /// hierarchy.
     /// </summary>
-    public class Instance : HeronObject
+    public class ClassInstance : HeronObject
     {
         public HeronClass hclass;
         public ObjectTable fields = new ObjectTable();
-
-        public Instance(HeronClass c)
+        
+        public ClassInstance(HeronClass c)
         {
             hclass = c;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj == this;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
 
         /// <summary>
@@ -453,8 +519,12 @@ namespace HeronEngine
         /// <param name="val"></param>
         public override void SetField(string name, HeronObject val)
         {
-            AssureFieldExists(name);
-            fields[name] = val;
+            if (fields.ContainsKey(name))
+                fields[name] = val;
+            else if (GetBase() != null)
+                GetBase().SetField(name, val);
+            else
+                throw new Exception("Field '" + name + "' does not exist");
         }
 
         /// <summary>
@@ -464,9 +534,23 @@ namespace HeronEngine
         /// <returns></returns>
         public bool HasField(string name)
         {
-            return fields.ContainsKey(name);
+            if (fields.ContainsKey(name))
+                return true;
+            if (GetBase() != null)
+                return GetBase().HasField(name);
+            return false;
         }
-       
+
+        public HeronObject GetField(string name)
+        {
+            if (fields.ContainsKey(name))
+                return fields[name];
+            else if (GetBase() != null)
+                return GetBase().GetField(name);
+            else
+                throw new Exception("Field '" + name + "' does not exist");
+        }
+
         /// <summary>
         /// Returns true if any methods are available that have the given name.
         /// </summary>
@@ -498,31 +582,162 @@ namespace HeronEngine
             fields.Add(name, val);
         }
 
-        /// <summary>
-        /// Adds a field if it does not exist, otherwise simple sets the value. 
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="val"></param>
-        public void AddOrSetFieldValue(string name, HeronObject val)
-        {
-            if (HasField(name))
-                fields[name] = val;
-            else 
-                fields.Add(name, val);
-        }
-
         public override HeronObject GetFieldOrMethod(string name)
         {
-            if (HasField(name))
+            if (fields.ContainsKey(name))
                 return fields[name];
             if (HasMethod(name))
                 return GetMethods(name);
-            throw new Exception("Could not find field or method '" + name + "' in '" + ToString() + "'");
+            if (GetBase() != null)
+                return GetBase().GetFieldOrMethod(name);
+            return null;
         }
 
         public override string ToString()
         {
             return "{" + hclass.name + "}";
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return hclass;
+        }
+
+        public ClassInstance GetBase()
+        {
+            if (!fields.ContainsKey("base"))
+                return null;
+            HeronObject r = fields["base"];
+            if (!(r is ClassInstance))
+                throw new Exception("The 'base' field should always be an instance of a class");
+            return r as ClassInstance;
+        }
+
+        public HeronObject As(HeronType t)
+        {
+            if (t is HeronClass)
+            {
+                HeronClass c1 = hclass;
+                HeronClass c2 = t as HeronClass;
+
+                if (c2.name == c1.name)
+                    return this;
+
+                if (GetBase() == null)
+                    throw new Exception("Could not cast from '" + hclass.name + "' to '" + t.name + "'");
+
+                return GetBase().As(t);
+            }
+            else if (t is HeronInterface)
+            {
+                if (hclass.Implements(t as HeronInterface))
+                    return new InterfaceInstance(this, t as HeronInterface);
+
+                if (GetBase() == null)
+                    throw new Exception("Could not cast from '" + hclass.name + "' to '" + t.name + "'");
+
+                return GetBase().As(t);
+            }
+            throw new Exception("Could not cast from '" + hclass.name + "' to '" + t.name + "'");
+        }
+    }
+
+    /// <summary>
+    /// An instance of a Heron class. A HeronObject is more general in that it includes 
+    /// primitive objects and .NET objects which are not part of the HeronClass 
+    /// hierarchy.
+    /// </summary>
+    public class InterfaceInstance : HeronObject
+    {
+        //  TODO: should this be an object or an instance? 
+        public HeronObject obj;
+        public HeronInterface hinterface;
+
+        public InterfaceInstance(HeronObject obj, HeronInterface i)
+        {
+            this.obj = obj;
+            hinterface = i;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj == this;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        /// <summary>
+        /// Returns true if any methods are available that have the given name.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public bool HasMethod(string name)
+        {
+            return hinterface.HasMethod(name);
+        }
+
+        /// <summary>
+        /// Returns all functions sharing the given name at once
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public FunctionListObject GetMethods(string name)
+        {
+            return new FunctionListObject(obj, name, hinterface.GetMethods(name));
+        }
+        public override HeronObject GetFieldOrMethod(string name)
+        {
+            if (!HasMethod(name))
+                throw new Exception("Could not find field or method '" + name + "' in '" + ToString() + "'");
+            return obj.GetFieldOrMethod(name);
+        }
+
+        public override string ToString()
+        {
+            return "{" + hinterface.name + "}";
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return hinterface;
+        }
+
+        public HeronObject GetObject()
+        {
+            return obj;
+        }
+   }
+
+    public class EnumInstance : HeronObject
+    {
+        HeronEnum henum;
+        string name;
+
+        public EnumInstance(HeronEnum e, string s)
+        {
+            henum = e;
+            name = s;
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return henum;
+        }
+
+        public override bool Equals(object obj)
+        {
+            EnumInstance that = obj as EnumInstance;
+            if (that == null)
+                return false;
+            return that.henum.Equals(henum) && that.name == name;
+        }
+
+        public override int GetHashCode()
+        {
+            return name.GetHashCode() + henum.GetHashCode();
         }
     }
     
@@ -551,15 +766,33 @@ namespace HeronEngine
                 env.AddVar(fun.formals[i].name, args[i]);
         }
 
-        public Instance GetSelfAsInstance()
+        public ClassInstance GetSelfAsInstance()
         {
-            return self as Instance;
+            return self as ClassInstance;
+        }
+
+        public void PerformConversions(HeronObject[] xs)
+        {
+            for (int i = 0; i < xs.Length; ++i)
+            {
+                Any a = new Any(xs[i]);
+                xs[i] = a.As(GetFormalType(i));
+            }
+        }
+
+        public HeronType GetFormalType(int n)
+        {
+            return fun.formals[n].type;
         }
 
         public override HeronObject Apply(Environment env, HeronObject[] args)
         {
             // Create a stack frame 
             env.PushNewFrame(fun, GetSelfAsInstance());
+
+            // Convert the arguments into appropriate types
+            // TODO: optimize
+            PerformConversions(args);
 
             // Create a new scope containing the arguments 
             PushArgsAsScope(env, args);
@@ -575,6 +808,11 @@ namespace HeronEngine
 
             // Gets last result and resets it
             return env.GetLastResult();
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return HeronPrimitiveTypes.FunctionType;
         }
     }
 
@@ -617,17 +855,49 @@ namespace HeronEngine
         /// <returns></returns>
         public FunctionObject Resolve(HeronObject[] args)
         {
-            FunctionObject r = null;
+            List<FunctionObject> r = new List<FunctionObject>();
             foreach (HeronFunction f in functions)
             {
                 if (f.formals.Count == args.Length)
                 {
-                    if (r != null)
-                        throw new Exception("Ambiguous function resolution of " + name);
-                    r = new FunctionObject(self, f);
+                    r.Add(new FunctionObject(self, f));
                 }
             }
-            return r;
+            if (r.Count == 0)
+                return null;
+            else if (r.Count == 1)
+                return r[0];
+            else
+                return FindBestMatch(r, args);
+        }
+
+        public FunctionObject FindBestMatch(List<FunctionObject> list, HeronObject[] args)
+        {
+            // Each iteration removes candidates. This list holds all of the matches
+            // Necessary, because removing items from a list while we iterate it is hard.
+            List<FunctionObject> tmp = new List<FunctionObject>(list);
+            for (int pos=0; pos < args.Length; ++pos)
+            {
+                // On each iteration, update the main list, to only contain the remaining items
+                list = new List<FunctionObject>(tmp);
+                HeronType argType = args[pos].GetHeronType();
+                for (int i=0; i < list.Count; ++i)
+                {
+                    FunctionObject fo = list[i];
+                    HeronType formalType = fo.GetFormalType(pos);
+                    if (!formalType.Equals(argType))
+                        tmp.Remove(fo);                        
+                }
+                if (tmp.Count == 0)
+                    throw new Exception("Could not resolve function, no function matches perfectly");
+                
+                // We found a single best match
+                if (tmp.Count == 1)
+                    return tmp[0];
+            }
+
+            Trace.Assert(tmp.Count > 1);
+            throw new Exception("Could not resolve function, several matched perfectly");
         }
 
         public override HeronObject Apply(Environment env, HeronObject[] args)
@@ -649,6 +919,11 @@ namespace HeronEngine
             }
             r += ")";
             return r;
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return HeronPrimitiveTypes.FunctionListType;
         }
     }
 
@@ -674,6 +949,11 @@ namespace HeronEngine
             Object o = self.GetSystemType().InvokeMember(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod, null, self.ToSystemObject(), os);
             return DotNetObject.Marshal(o);
         }
+
+        public override HeronType GetHeronType()
+        {
+            return HeronPrimitiveTypes.ExternalMethodListType;
+        }
     }
 
     /// <summary>
@@ -695,6 +975,11 @@ namespace HeronEngine
             Object[] os = HeronDotNet.ObjectsToDotNetArray(args);
             Object o = self.GetSystemType().InvokeMember(name, BindingFlags.Public | BindingFlags.Static | BindingFlags.InvokeMethod, null, null, os);
             return DotNetObject.Marshal(o); 
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return HeronPrimitiveTypes.ExternalStaticMethodListType;
         }
     }
 }

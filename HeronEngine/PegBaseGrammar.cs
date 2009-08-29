@@ -41,6 +41,8 @@ namespace Peg
         public abstract class Rule
         {
             string name;
+            Rule parent;
+            List<Rule> children = new List<Rule>();
 
             /// <summary>
             /// Returns true if the rule matches the sub-string starting at the current location 
@@ -61,9 +63,49 @@ namespace Peg
                 return name;
             }
 
+            public string GetParentName()
+            {
+                if (parent == null)
+                    return null;
+                else
+                {
+                    string r = parent.GetName();
+
+                    // If our parent does not have a name
+                    // We go to its parent, and so on.
+                    if (r == null)
+                        r = parent.GetParentName();
+
+                    return r;
+                }
+            }
+
             public override string ToString()
             {
                 return name;
+            }
+
+            public Rule Add(Rule r)
+            {
+                children.Add(r);
+                r.parent = this;
+                return r;
+            }
+
+            public void AddRange(IEnumerable<Rule> x)
+            {
+                foreach (Rule r in x)
+                    Add(r);
+            }
+
+            public Rule GetFirstChild()
+            {
+                return children[0];
+            }
+
+            public IEnumerable<Rule> GetChildren()
+            {
+                return children;
             }
         }
 
@@ -76,19 +118,19 @@ namespace Peg
         /// </summary>
         public class AstNodeRule : Rule 
         {
-            Rule mRule;
+            string sLabel;
 
             public AstNodeRule(string sLabel, Rule r)
             {
                 Trace.Assert(r != null);
-                SetName(sLabel);
-                mRule = r;
+                this.sLabel = sLabel;
+                Add(r);
             }
 
             public override bool Match(ParserState p)
             {
-                p.CreateNode(GetName());
-                bool result = mRule.Match(p);
+                p.CreateNode(sLabel);
+                bool result = GetFirstChild().Match(p);
                 if (result)
                 {
                     p.CompleteNode();
@@ -130,29 +172,34 @@ namespace Peg
         /// </summary>
         public class NoFailRule : Rule
         {
-            Rule mRule;
-            string msMsg; 
-
-            public NoFailRule(Rule r, string s)
-            {
-                Trace.Assert(r != null);
-                mRule = r;
-                msMsg = s;
-            }
-
             public NoFailRule(Rule r)
             {
                 Trace.Assert(r != null);
-                mRule = r;
-                msMsg = "Expected rule: " + r.ToString();
+                Add(r);
             }
 
             public override bool Match(ParserState p)
             {
                 int store = p.GetIndex();
-                if (!mRule.Match(p))
-                    throw new ParsingException(p.GetInput(), store, p.GetIndex(), mRule, msMsg);
+
+                if (!GetFirstChild().Match(p))
+                    throw new ParsingException(p.GetInput(), store, p.GetIndex(), GetFirstChild(), GetMsg());
+                
                 return true;
+            }
+
+            public String GetMsg()
+            {
+                string r;
+                string name = GetFirstChild().GetName();
+                if (name != null)
+                    r = "expected " + name;
+                else
+                    r = "parsing rule failed";
+                string parentName = GetParentName();
+                if (parentName != null)
+                    r += " while parsing " + parentName;
+                return r;
             }
         }
 
@@ -165,15 +212,13 @@ namespace Peg
         {
             public SeqRule(Rule[] xs)
             {
-                foreach (Rule r in xs)
-                    Trace.Assert(r != null);
-                mRules = xs;
+                AddRange(xs);
             }
 
             public override bool Match(ParserState p)
             {
                 int iter = p.GetIndex();
-                foreach (Rule r in mRules)
+                foreach (Rule r in GetChildren())
                 {
                     if (!r.Match(p))
                     {
@@ -186,17 +231,15 @@ namespace Peg
 
             public override string ToString()
             {
+                int n = 0;
                 string result = "(";
-                if (mRules.Length > 0)
+                foreach (Rule r in GetChildren())
                 {
-                    result += mRules[0].ToString();
-                    for (int i=1; i < mRules.Length; ++i)
-                        result += " " + mRules[i].ToString();
+                    if (n++ != 0) result += " ";
+                    result += r.ToString();
                 }
                 return result + ")";
             }
-
-            Rule[] mRules;
         }
 
         /// <summary>
@@ -209,14 +252,12 @@ namespace Peg
         {
             public ChoiceRule(Rule[] xs)
             {
-                foreach (Rule r in xs)
-                    Trace.Assert(r != null);
-                mRules = xs;
+                AddRange(xs);
             }
 
             public override bool Match(ParserState p)
             {
-                foreach (Rule r in mRules)
+                foreach (Rule r in GetChildren())
                 {
                     if (r.Match(p))
                         return true;
@@ -227,16 +268,14 @@ namespace Peg
             public override string ToString()
             {
                 string result = "(";
-                if (mRules.Length > 0)
+                int n = 0;
+                foreach (Rule r in GetChildren()) 
                 {
-                    result += mRules[0].ToString();
-                    for (int i = 1; i < mRules.Length; ++i)
-                        result += " , " + mRules[i].ToString();
+                    if (n++ > 0) result += " ";
+                    result += r.ToString();
                 }
                 return result + ")";
             }
-
-            Rule[] mRules;
         }
 
         /// <summary>
@@ -247,22 +286,19 @@ namespace Peg
         {
             public OptRule(Rule r)
             {
-                Trace.Assert(r != null);
-                mRule = r;
+                Add(r);
             }
 
             public override bool Match(ParserState p)
             {
-                mRule.Match(p);
+                GetFirstChild().Match(p);
                 return true;
             }
 
             public override string ToString()
             {
-                return mRule.ToString() + "?";
+                return GetFirstChild().ToString() + "?";
             }
-
-            Rule mRule;
         }
 
         /// <summary>
@@ -274,23 +310,20 @@ namespace Peg
         {
             public StarRule(Rule r)
             {
-                Trace.Assert(r != null);
-                mRule = r;
+                Add(r);
             }
 
             public override bool Match(ParserState p)
             {
-                while (mRule.Match(p))
+                while (GetFirstChild().Match(p))
                 { }
                 return true;
             }
 
             public override string ToString()
             {
-                return mRule.ToString() + "*";
+                return GetFirstChild().ToString() + "*";
             }
-
-            Rule mRule;
         }
 
         /// <summary>
@@ -300,25 +333,22 @@ namespace Peg
         {
             public PlusRule(Rule r)
             {
-                Trace.Assert(r != null);
-                mRule = r;
+                Add(r);
             }
 
             public override bool Match(ParserState p)
             {
-                if (!mRule.Match(p))
+                if (!GetFirstChild().Match(p))
                     return false;
-                while (mRule.Match(p))
+                while (GetFirstChild().Match(p))
                 { }
                 return true;
             }
 
             public override string ToString()
             {
-                return mRule.ToString() + "+";
+                return GetFirstChild().ToString() + "+";
             }
-
-            Rule mRule;
         }
 
         /// <summary>
@@ -345,14 +375,13 @@ namespace Peg
         {
             public NotRule(Rule r)
             {
-                Trace.Assert(r != null);
-                mRule = r;
+                Add(r);
             }
 
             public override bool Match(ParserState p)
             {
                 int pos = p.GetIndex();
-                if (mRule.Match(p))
+                if (GetFirstChild().Match(p))
                 {
                     p.SetPos(pos);
                     return false;
@@ -363,10 +392,40 @@ namespace Peg
 
             public override string ToString()
             {
-                return "!" + mRule.ToString();
+                return "!" + GetFirstChild().ToString();
+            }
+        }
+
+        /// <summary>
+        /// This returns true if a rule can not be matched.
+        /// It never advances the parser.
+        /// </summary>
+        public class AtRule : Rule
+        {
+            public AtRule(Rule r)
+            {
+                Add(r);
             }
 
-            Rule mRule;
+            public override bool Match(ParserState p)
+            {
+                int pos = p.GetIndex();
+                if (GetFirstChild().Match(p))
+                {
+                    p.SetPos(pos);
+                    return true;
+                }
+                else
+                {
+                    p.SetPos(pos);
+                    return false;
+                }
+            }
+
+            public override string ToString()
+            {
+                return "=" + GetFirstChild().ToString();
+            }
         }
 
         /// <summary>
@@ -381,7 +440,8 @@ namespace Peg
 
             public override bool Match(ParserState p)
             {
-                if (p.AtEnd()) return false;
+                if (p.AtEnd()) 
+                    return false;
                 if (p.GetChar() == mData)
                 {
                     p.GotoNext();
@@ -392,8 +452,7 @@ namespace Peg
 
             public override string ToString()
             {
-                return "";
-                //return mData.ToString();
+                return mData.ToString();
             }
 
             char mData;
@@ -550,7 +609,7 @@ namespace Peg
 
             public override string ToString()
             {
-                return "(" + mElem.ToString() + "* !" + mTerm.ToString() + ")";
+                return "((" + mElem.ToString() + " !" + mTerm.ToString() + ")* " + mTerm.ToString() + ")";
             }
 
             Rule mElem;
@@ -566,22 +625,35 @@ namespace Peg
         public static Rule CharSet(string s) { return new CharSetRule(s); }
         public static Rule CharRange(char first, char last) { return new CharRangeRule(first, last); }
         public static Rule Store(string name, Rule x) { return new AstNodeRule(name, x); }
-        public static Rule NoFail(Rule r, string s) { return new NoFailRule(r, s); }
         public static Rule NoFail(Rule r) { return new NoFailRule(r); }
-        public static Rule Seq(Rule x0, Rule x1) { return new SeqRule(new Rule[] { x0, x1 }); }
-        public static Rule Seq(Rule x0, Rule x1, Rule x2) { return new SeqRule(new Rule[] { x0, x1, x2 }); }
-        public static Rule Seq(Rule x0, Rule x1, Rule x2, Rule x3) { return new SeqRule(new Rule[] { x0, x1, x2, x3 }); }
-        public static Rule Seq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4) { return new SeqRule(new Rule[] { x0, x1, x2, x3, x4 }); }
-        public static Rule Seq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4, Rule x5) { return new SeqRule(new Rule[] { x0, x1, x2, x3, x4, x5 }); }
-        public static Rule Seq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4, Rule x5, Rule x6) { return new SeqRule(new Rule[] { x0, x1, x2, x3, x4, x5, x6 }); }
-        public static Rule Seq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4, Rule x5, Rule x6, Rule x7) { return new SeqRule(new Rule[] { x0, x1, x2, x3, x4, x5, x6, x7 }); }
-        public static Rule NoFailSeq(Rule x0, Rule x1) { return Seq(x0, NoFail(x1)); }
-        public static Rule NoFailSeq(Rule x0, Rule x1, Rule x2) { return Seq(x0, NoFail(x1), NoFail(x2)); }
-        public static Rule NoFailSeq(Rule x0, Rule x1, Rule x2, Rule x3) { return Seq(x0, NoFail(x1), NoFail(x2), NoFail(x3)); }
-        public static Rule NoFailSeq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4) { return Seq(x0, NoFail(x1), NoFail(x2), NoFail(x3), NoFail(x4)); }
-        public static Rule NoFailSeq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4, Rule x5) { return Seq(x0, NoFail(x1), NoFail(x2), NoFail(x3), NoFail(x4), NoFail(x5)); }
-        public static Rule NoFailSeq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4, Rule x5, Rule x6) { return Seq(x0, NoFail(x1), NoFail(x2), NoFail(x3), NoFail(x4), NoFail(x5), NoFail(x6)); }
-        public static Rule NoFailSeq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4, Rule x5, Rule x6, Rule x7) { return Seq(x0, NoFail(x1), NoFail(x2), NoFail(x3), NoFail(x4), NoFail(x5), NoFail(x6), NoFail(x7)); }
+        public static Rule Seq(Rule[] x) { return new SeqRule(x); }
+        public static Rule Seq(Rule x0, Rule x1) { return Seq(new Rule[] { x0, x1 }); }
+        public static Rule Seq(Rule x0, Rule x1, Rule x2) { return Seq(new Rule[] { x0, x1, x2 }); }
+        public static Rule Seq(Rule x0, Rule x1, Rule x2, Rule x3) { return Seq(new Rule[] { x0, x1, x2, x3 }); }
+        public static Rule Seq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4) { return Seq(new Rule[] { x0, x1, x2, x3, x4 }); }
+        public static Rule Seq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4, Rule x5) { return Seq(new Rule[] { x0, x1, x2, x3, x4, x5 }); }
+        public static Rule Seq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4, Rule x5, Rule x6) { return Seq(new Rule[] { x0, x1, x2, x3, x4, x5, x6 }); }
+        public static Rule Seq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4, Rule x5, Rule x6, Rule x7) { return Seq(new Rule[] { x0, x1, x2, x3, x4, x5, x6, x7 }); }
+        
+        public static Rule NoFailSeq(Rule[] x) 
+        { 
+            Trace.Assert(x.Length >= 2);
+            Rule[] ts = new Rule[x.Length];
+            ts[0] = x[0];
+            for (int i = 1; i < x.Length; ++i)
+                ts[i] = NoFail(x[i]);
+            return Seq(ts);
+        }
+
+        public static Rule NoFailSeq(Rule x0, Rule x1) { return NoFailSeq(new Rule[] { x0, x1 }); }
+        public static Rule NoFailSeq(Rule x0, Rule x1, Rule x2) { return NoFailSeq(new Rule[] { x0, x1, x2 }); }
+        public static Rule NoFailSeq(Rule x0, Rule x1, Rule x2, Rule x3) { return NoFailSeq(new Rule[] { x0, x1, x2, x3 }); }
+        public static Rule NoFailSeq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4) { return NoFailSeq(new Rule[] { x0, x1, x2, x3, x4 }); }
+        public static Rule NoFailSeq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4, Rule x5) { return NoFailSeq(new Rule[] { x0, x1, x2, x3, x4, x5 }); }
+        public static Rule NoFailSeq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4, Rule x5, Rule x6) { return NoFailSeq(new Rule[] { x0, x1, x2, x3, x4, x5, x6 }); }
+        public static Rule NoFailSeq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4, Rule x5, Rule x6, Rule x7) { return NoFailSeq(new Rule[] { x0, x1, x2, x3, x4, x5, x6, x7 }); }
+
+        public static Rule Choice(Rule[] xs) { return new ChoiceRule(xs); }
         public static Rule Choice(Rule x0, Rule x1) { return new ChoiceRule(new Rule[] { x0, x1 }); }
         public static Rule Choice(Rule x0, Rule x1, Rule x2) { return new ChoiceRule(new Rule[] { x0, x1, x2 }); }
         public static Rule Choice(Rule x0, Rule x1, Rule x2, Rule x3) { return new ChoiceRule(new Rule[] { x0, x1, x2, x3 }); }
@@ -602,8 +674,7 @@ namespace Peg
         public static Rule BinaryDigit() { return CharSet("01"); }
         public static Rule IdentFirstChar() { return Choice(SingleChar('_'), Letter()); }
         public static Rule IdentNextChar() { return Choice(IdentFirstChar(), Digit()); }
-        public static Rule Ident() { return Seq(IdentFirstChar(), Star(IdentNextChar())); }
-        public static Rule EOW() { return Not(IdentNextChar()); }
-        public static Rule DelimitedGroup(String x, Rule r, String y) { return Seq(CharSeq(x), Star(r), NoFail(CharSeq(y), "expected " + y)); }        
+        public static Rule Ident() { return Seq(IdentFirstChar(), Star(IdentNextChar())).SetName("identifier"); }
+        public static Rule EOW() { return Not(IdentNextChar()).SetName("end of word"); }
     }
 }

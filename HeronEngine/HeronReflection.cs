@@ -26,16 +26,6 @@ namespace HeronEngine
             return vm.GetEnv().GetCurrentFrame().function.name;
         }
 
-        public static void LoadAssembly(string s)
-        {
-            vm.GetEnv().LoadAssembly(s);
-        }
-
-        public static void RegisterDotNetType(Type t)
-        {
-            vm.GetEnv().RegisterDotNetType(t.Name, t);
-        }
-
         public static void ToArray(HeronObject o, string s)
         {
             Assembly a = Assembly.GetExecutingAssembly();
