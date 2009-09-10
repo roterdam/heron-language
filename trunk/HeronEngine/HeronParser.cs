@@ -24,7 +24,7 @@ namespace HeronEngine
         static public HeronProgram CreateProgram(AstNode x)
         {
             HeronProgram p = new HeronProgram();
-            foreach (AstNode node in x.GetChildren())
+            foreach (AstNode node in x.Children)
                 p.AddModule(CreateModule(p, node));
             return p;
         }
@@ -49,7 +49,7 @@ namespace HeronEngine
             r.name = GetNameNode(x);
             for (int i=1; i < x.GetNumChildren(); ++i) {
                 AstNode child = x.GetChild(i);
-                switch (child.GetLabel())
+                switch (child.Label)
                 {
                     case "class":
                         CreateClass(r, child);
@@ -61,7 +61,7 @@ namespace HeronEngine
                         CreateEnum(r, child);
                         break;
                     default:
-                        throw new Exception("Unrecognize module sub-element " + child.GetLabel());
+                        throw new Exception("Unrecognize module sub-element " + child.Label);
                 }
             }
 
@@ -99,7 +99,7 @@ namespace HeronEngine
                 if (inherits.GetNumChildren() != 1)
                     throw new Exception("A class can only inherit from exactly one other class");
                 AstNode type = inherits.GetChild(0);
-                if (type.GetLabel() != "type")
+                if (type.Label != "type")
                     throw new Exception("Can only inherit type expressions");
                 string s = GetTypeName(type, null);
                 if (s == null)
@@ -110,9 +110,9 @@ namespace HeronEngine
             AstNode implements = x.GetChild("implements");
             if (implements != null)
             {
-                foreach (AstNode node in implements.GetChildren())
+                foreach (AstNode node in implements.Children)
                 {
-                    if (node.GetLabel() != "type")
+                    if (node.Label != "type")
                         throw new Exception("Can only implement type expression");
                     string s = GetTypeName(node, null);
                     if (s == null)
@@ -124,7 +124,7 @@ namespace HeronEngine
             AstNode methods = x.GetChild("methods");
             if (methods != null)
             {
-                foreach (AstNode node in methods.GetChildren())
+                foreach (AstNode node in methods.Children)
                 {
                     HeronFunction f = CreateFunction(node, r);
                     r.AddMethod(f);
@@ -133,7 +133,7 @@ namespace HeronEngine
 
             AstNode fields = x.GetChild("fields");
             if (fields != null)
-                foreach (AstNode node in fields.GetChildren())
+                foreach (AstNode node in fields.Children)
                     r.AddField(CreateField(node));
 
             m.AddClass(r);
@@ -148,7 +148,7 @@ namespace HeronEngine
             AstNode inherits = x.GetChild("inherits");
             if (inherits != null)
             {
-                foreach (AstNode node in inherits.GetChildren())
+                foreach (AstNode node in inherits.Children)
                 {
                     string s = GetTypeName(node, null);
                     if (s == null)
@@ -160,7 +160,7 @@ namespace HeronEngine
             AstNode methods = x.GetChild("methods");
             if (methods != null)
             {
-                foreach (AstNode node in methods.GetChildren())
+                foreach (AstNode node in methods.Children)
                 {
                     HeronFunction f = CreateFunction(node, r);
                     r.AddMethod(f);
@@ -179,7 +179,7 @@ namespace HeronEngine
             AstNode values = x.GetChild("values");
             if (values != null)
             {
-                foreach (AstNode node in values.GetChildren())
+                foreach (AstNode node in values.Children)
                 {
                     r.AddValue(node.ToString());
                 }
@@ -195,7 +195,7 @@ namespace HeronEngine
             AstNode typeargs = x.GetChild("typeargs");
             if (typeargs == null) return r;
             r += "<";
-            foreach (AstNode y in typeargs.GetChildren())
+            foreach (AstNode y in typeargs.Children)
                 r += TypeToTypeName(y) + ";";
             return r + ">";
         }
@@ -203,7 +203,7 @@ namespace HeronEngine
 
         static public string GetTypeName(AstNode x, string def)
         {
-            if (x.GetLabel() == "type")
+            if (x.Label == "type")
                 return TypeToTypeName(x);
 
             AstNode type = x.GetChild("type");
@@ -232,7 +232,7 @@ namespace HeronEngine
         static public HeronFormalArgs CreateFormalArgs(AstNode x)
         {
             HeronFormalArgs r = new HeronFormalArgs();
-            foreach (AstNode node in x.GetChildren())
+            foreach (AstNode node in x.Children)
                 r.Add(CreateFormalArg(node));
             return r;
         }
@@ -254,7 +254,7 @@ namespace HeronEngine
         #region statement parsing functions.
         static public Statement CreateStatement(AstNode x)
         {
-            switch (x.GetLabel())
+            switch (x.Label)
             {
                 case "codeblock":
                     return CreateCodeBlock(x);
@@ -277,7 +277,7 @@ namespace HeronEngine
                 case "delete":
                     throw new Exception("unimplemented");
                 default:
-                    throw new Exception("Unrecognized statement node " + x.GetLabel());
+                    throw new Exception("Unrecognized statement node " + x.Label);
             }
         }
 
@@ -286,7 +286,7 @@ namespace HeronEngine
             if (x == null)
                 return new CodeBlock(null);
             CodeBlock r = new CodeBlock(x);
-            foreach (AstNode node in x.GetChildren())
+            foreach (AstNode node in x.Children)
                 r.statements.Add(CreateStatement(node));
             return r;
         }
@@ -330,7 +330,7 @@ namespace HeronEngine
             SwitchStatement r = new SwitchStatement(x);
             r.condition = CreateExpr(x.GetChild(0).GetChild(0));
             AstNode cases = x.GetChild(1);
-            foreach (AstNode y in cases.GetChildren())
+            foreach (AstNode y in cases.Children)
             {
                 CaseStatement cs = CreateCaseStatement(y);
                 r.cases.Add(cs);
@@ -480,9 +480,9 @@ namespace HeronEngine
         {
             Assure(x, x.GetNumChildren() == 2, "new operator must be followed by type expression and arguments in paranthesis");
             AstNode type = x.GetChild(0);
-            Assure(x, type.GetLabel() == "type", "new operator is missing type exprresion");
+            Assure(x, type.Label == "type", "new operator is missing type exprresion");
             AstNode args = x.GetChild(1);
-            Assure(args, args.GetLabel() == "paranexpr", "new operator is missing argument list");
+            Assure(args, args.Label == "paranexpr", "new operator is missing argument list");
             return new New(type.ToString(), CreateArgList(args));
         }
 
@@ -491,7 +491,7 @@ namespace HeronEngine
             Assure(i < x.GetNumChildren(), "sub-expression index went out of bounds");
             AstNode child = x.GetChild(i);
 
-            string sLabel = child.GetLabel();
+            string sLabel = child.Label;
             string sVal = child.ToString();
             Assure(x, sVal.Length > 0, "illegal zero-length child expression");
             switch (sLabel)
@@ -533,7 +533,7 @@ namespace HeronEngine
 
         static ExpressionList CreateArgList(AstNode x)
         {
-            Assure(x, x.GetLabel() == "paranexpr", "Can only create argument lists from paranthesized expression");
+            Assure(x, x.Label == "paranexpr", "Can only create argument lists from paranthesized expression");
             Assure(x, x.GetNumChildren() <= 1, "Paranthesized expression must contain at most one compound expression");
             ExpressionList r = new ExpressionList();
 
@@ -562,13 +562,13 @@ namespace HeronEngine
                 old = i;
                 AstNode tmp = x.GetChild(i);
                 
-                if (tmp.GetLabel() == "bracketedexpr")
+                if (tmp.Label == "bracketedexpr")
                 {
                     i++;
                     Assure(x, tmp.GetNumChildren() == 1, "brackets must contain only a single sub-expression");
                     r = new ReadAt(r, CreateExpr(tmp.GetChild(0)));
                 }
-                else if (tmp.GetLabel() == "paranexpr")
+                else if (tmp.Label == "paranexpr")
                 {
                     i++;
                     r = new FunCall(r, CreateArgList(tmp));
@@ -578,7 +578,7 @@ namespace HeronEngine
                     i++;
                     Assure(x, x.GetNumChildren() > i, "a '.' operator must be followed by a valid name expression");
                     tmp = x.GetChild(i);
-                    Assure(x, tmp.GetLabel() == "name", "a '.' operator must be followed by a valid name expression");
+                    Assure(x, tmp.Label == "name", "a '.' operator must be followed by a valid name expression");
                     string sName = tmp.ToString();
                     Assure(x, sName.Length > 0, "Name expression must have non-zero length");
                     i++;
@@ -747,7 +747,7 @@ namespace HeronEngine
                 throw new Exception("Internal parse error");
             AstNode child = x.GetChild(i);
             
-            if (child.GetLabel() == "anonexpr")
+            if (child.Label == "anonexpr")
             {
                 AnonFunExpr r = new AnonFunExpr();
                 r.formals = CreateFormalArgs(child.GetChild("arglist"));
@@ -811,7 +811,7 @@ namespace HeronEngine
         /// <returns></returns>
         static Expression CreateExpr(AstNode x, ref int i)
         {
-            Assure(x, x.GetLabel() == "expr", "Expected 'expr' node not '" + x.GetLabel() + "'");
+            Assure(x, x.Label == "expr", "Expected 'expr' node not '" + x.Label + "'");
             Assure(x.GetNumChildren() > 0, "Cannot create an expression from a node with no children");
 
             int old = i;

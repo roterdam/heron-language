@@ -98,14 +98,49 @@ namespace Peg
                     Add(r);
             }
 
-            public Rule GetFirstChild()
+            public Rule FirstChild
             {
-                return children[0];
+                get
+                {
+                    if (children.Count > 0)
+                        return children[0];
+                    else
+                        return null;
+                }
             }
 
-            public IEnumerable<Rule> GetChildren()
+            public List<Rule> Children
             {
-                return children;
+                get
+                {
+                    return children;
+                }
+            }
+
+            public static Rule operator +(Rule x, Rule y)
+            {
+                if (x is SeqRule)
+                {
+                    x.Add(y);
+                    return x;
+                }
+                else
+                {
+                    return new SeqRule(new Rule[] { x, y });
+                }
+            }
+
+            public static Rule operator |(Rule x, Rule y)
+            {
+                if (x is ChoiceRule)
+                {
+                    x.Add(y);
+                    return x;
+                }
+                else
+                {
+                    return new ChoiceRule(new Rule[] { x, y });
+                }
             }
         }
 
@@ -130,7 +165,7 @@ namespace Peg
             public override bool Match(ParserState p)
             {
                 p.CreateNode(sLabel);
-                bool result = GetFirstChild().Match(p);
+                bool result = FirstChild.Match(p);
                 if (result)
                 {
                     p.CompleteNode();
@@ -182,8 +217,8 @@ namespace Peg
             {
                 int store = p.GetIndex();
 
-                if (!GetFirstChild().Match(p))
-                    throw new ParsingException(p.GetInput(), store, p.GetIndex(), GetFirstChild(), GetMsg());
+                if (!FirstChild.Match(p))
+                    throw new ParsingException(p.GetInput(), store, p.GetIndex(), FirstChild, GetMsg());
                 
                 return true;
             }
@@ -191,7 +226,7 @@ namespace Peg
             public String GetMsg()
             {
                 string r;
-                string name = GetFirstChild().GetName();
+                string name = FirstChild.GetName();
                 if (name != null)
                     r = "expected " + name;
                 else
@@ -210,6 +245,11 @@ namespace Peg
         /// </summary>
         public class SeqRule : Rule
         {
+            public SeqRule()
+            {
+            
+            }
+
             public SeqRule(Rule[] xs)
             {
                 AddRange(xs);
@@ -218,7 +258,7 @@ namespace Peg
             public override bool Match(ParserState p)
             {
                 int iter = p.GetIndex();
-                foreach (Rule r in GetChildren())
+                foreach (Rule r in Children)
                 {
                     if (!r.Match(p))
                     {
@@ -233,7 +273,7 @@ namespace Peg
             {
                 int n = 0;
                 string result = "(";
-                foreach (Rule r in GetChildren())
+                foreach (Rule r in Children)
                 {
                     if (n++ != 0) result += " ";
                     result += r.ToString();
@@ -257,7 +297,7 @@ namespace Peg
 
             public override bool Match(ParserState p)
             {
-                foreach (Rule r in GetChildren())
+                foreach (Rule r in Children)
                 {
                     if (r.Match(p))
                         return true;
@@ -269,7 +309,7 @@ namespace Peg
             {
                 string result = "(";
                 int n = 0;
-                foreach (Rule r in GetChildren()) 
+                foreach (Rule r in Children) 
                 {
                     if (n++ > 0) result += " ";
                     result += r.ToString();
@@ -291,13 +331,13 @@ namespace Peg
 
             public override bool Match(ParserState p)
             {
-                GetFirstChild().Match(p);
+                FirstChild.Match(p);
                 return true;
             }
 
             public override string ToString()
             {
-                return GetFirstChild().ToString() + "?";
+                return FirstChild.ToString() + "?";
             }
         }
 
@@ -315,14 +355,14 @@ namespace Peg
 
             public override bool Match(ParserState p)
             {
-                while (GetFirstChild().Match(p))
+                while (FirstChild.Match(p))
                 { }
                 return true;
             }
 
             public override string ToString()
             {
-                return GetFirstChild().ToString() + "*";
+                return FirstChild.ToString() + "*";
             }
         }
 
@@ -338,16 +378,16 @@ namespace Peg
 
             public override bool Match(ParserState p)
             {
-                if (!GetFirstChild().Match(p))
+                if (!FirstChild.Match(p))
                     return false;
-                while (GetFirstChild().Match(p))
+                while (FirstChild.Match(p))
                 { }
                 return true;
             }
 
             public override string ToString()
             {
-                return GetFirstChild().ToString() + "+";
+                return FirstChild.ToString() + "+";
             }
         }
 
@@ -381,7 +421,7 @@ namespace Peg
             public override bool Match(ParserState p)
             {
                 int pos = p.GetIndex();
-                if (GetFirstChild().Match(p))
+                if (FirstChild.Match(p))
                 {
                     p.SetPos(pos);
                     return false;
@@ -392,7 +432,7 @@ namespace Peg
 
             public override string ToString()
             {
-                return "!" + GetFirstChild().ToString();
+                return "!" + FirstChild.ToString();
             }
         }
 
@@ -410,7 +450,7 @@ namespace Peg
             public override bool Match(ParserState p)
             {
                 int pos = p.GetIndex();
-                if (GetFirstChild().Match(p))
+                if (FirstChild.Match(p))
                 {
                     p.SetPos(pos);
                     return true;
@@ -424,7 +464,7 @@ namespace Peg
 
             public override string ToString()
             {
-                return "=" + GetFirstChild().ToString();
+                return "=" + FirstChild.ToString();
             }
         }
 
@@ -621,20 +661,27 @@ namespace Peg
         public static Rule SingleChar(char c) { return new SingleCharRule(c); }
         public static Rule CharSeq(string s) { return new CharSeqRule(s); }
         public static Rule AnyChar() { return new AnyCharRule(); }
-        public static Rule NotChar(char c) { return Seq(Not(SingleChar(c)), AnyChar()); }
+        public static Rule NotChar(char c) { return Not(SingleChar(c)) + AnyChar(); }
         public static Rule CharSet(string s) { return new CharSetRule(s); }
         public static Rule CharRange(char first, char last) { return new CharRangeRule(first, last); }
         public static Rule Store(string name, Rule x) { return new AstNodeRule(name, x); }
-        public static Rule NoFail(Rule r) { return new NoFailRule(r); }
-        public static Rule Seq(Rule[] x) { return new SeqRule(x); }
-        public static Rule Seq(Rule x0, Rule x1) { return Seq(new Rule[] { x0, x1 }); }
-        public static Rule Seq(Rule x0, Rule x1, Rule x2) { return Seq(new Rule[] { x0, x1, x2 }); }
-        public static Rule Seq(Rule x0, Rule x1, Rule x2, Rule x3) { return Seq(new Rule[] { x0, x1, x2, x3 }); }
-        public static Rule Seq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4) { return Seq(new Rule[] { x0, x1, x2, x3, x4 }); }
-        public static Rule Seq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4, Rule x5) { return Seq(new Rule[] { x0, x1, x2, x3, x4, x5 }); }
-        public static Rule Seq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4, Rule x5, Rule x6) { return Seq(new Rule[] { x0, x1, x2, x3, x4, x5, x6 }); }
-        public static Rule Seq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4, Rule x5, Rule x6, Rule x7) { return Seq(new Rule[] { x0, x1, x2, x3, x4, x5, x6, x7 }); }
         
+        public static Rule NoFail(Rule x) 
+        {
+            if (x is SeqRule)
+            {
+                SeqRule r = new SeqRule();
+                foreach (Rule child in x.Children)
+                    r.Add(NoFail(child));
+                return r;
+            }
+            else
+            {
+                return new NoFailRule(x);
+            }
+        }
+        
+        /*
         public static Rule NoFailSeq(Rule[] x) 
         { 
             Trace.Assert(x.Length >= 2);
@@ -642,7 +689,7 @@ namespace Peg
             ts[0] = x[0];
             for (int i = 1; i < x.Length; ++i)
                 ts[i] = NoFail(x[i]);
-            return Seq(ts);
+            return new SeqRule(ts);
         }
 
         public static Rule NoFailSeq(Rule x0, Rule x1) { return NoFailSeq(new Rule[] { x0, x1 }); }
@@ -652,29 +699,24 @@ namespace Peg
         public static Rule NoFailSeq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4, Rule x5) { return NoFailSeq(new Rule[] { x0, x1, x2, x3, x4, x5 }); }
         public static Rule NoFailSeq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4, Rule x5, Rule x6) { return NoFailSeq(new Rule[] { x0, x1, x2, x3, x4, x5, x6 }); }
         public static Rule NoFailSeq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4, Rule x5, Rule x6, Rule x7) { return NoFailSeq(new Rule[] { x0, x1, x2, x3, x4, x5, x6, x7 }); }
+         */
 
-        public static Rule Choice(Rule[] xs) { return new ChoiceRule(xs); }
-        public static Rule Choice(Rule x0, Rule x1) { return new ChoiceRule(new Rule[] { x0, x1 }); }
-        public static Rule Choice(Rule x0, Rule x1, Rule x2) { return new ChoiceRule(new Rule[] { x0, x1, x2 }); }
-        public static Rule Choice(Rule x0, Rule x1, Rule x2, Rule x3) { return new ChoiceRule(new Rule[] { x0, x1, x2, x3 }); }
-        public static Rule Choice(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4) { return new ChoiceRule(new Rule[] { x0, x1, x2, x3, x4 }); }
-        public static Rule Choice(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4, Rule x5) { return new ChoiceRule(new Rule[] { x0, x1, x2, x3, x4, x5 }); }
-        public static Rule Choice(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4, Rule x5, Rule x6) { return new ChoiceRule(new Rule[] { x0, x1, x2, x3, x4, x5, x6 }); }
         public static Rule Opt(Rule x) { return new OptRule(x); }
         public static Rule Star(Rule x) { return new StarRule(x); }
         public static Rule Plus(Rule x) { return new PlusRule(x); }
         public static Rule Not(Rule x) { return new NotRule(x); }
         public static Rule WhileNot(Rule elem, Rule term) { return new WhileNotRule(elem, term); }
-        public static Rule NL() { return CharSet("\n"); }
-        public static Rule LowerCaseLetter() { return CharRange('a', 'z'); }
-        public static Rule UpperCaseLetter() { return CharRange('A', 'Z'); }
-        public static Rule Letter() { return Choice(LowerCaseLetter(), UpperCaseLetter()); }
-        public static Rule Digit() { return CharRange('0', '9'); }
-        public static Rule HexDigit() { return Choice(Digit(), Choice(CharRange('a', 'f'), CharRange('A', 'F'))); }
-        public static Rule BinaryDigit() { return CharSet("01"); }
-        public static Rule IdentFirstChar() { return Choice(SingleChar('_'), Letter()); }
-        public static Rule IdentNextChar() { return Choice(IdentFirstChar(), Digit()); }
-        public static Rule Ident() { return Seq(IdentFirstChar(), Star(IdentNextChar())).SetName("identifier"); }
+
+        public static Rule NL() { return CharSet("\n").SetName("new line"); }
+        public static Rule LowerCaseLetter() { return CharRange('a', 'z').SetName("lower case letter"); }
+        public static Rule UpperCaseLetter() { return CharRange('A', 'Z').SetName("upper case letter"); }
+        public static Rule Letter() { return (LowerCaseLetter() | UpperCaseLetter()).SetName("letter"); }
+        public static Rule Digit() { return CharRange('0', '9').SetName("digit"); }
+        public static Rule HexDigit() { return (Digit() | CharRange('a', 'f') | CharRange('A', 'F')).SetName("hexadecimal digit"); }
+        public static Rule BinaryDigit() { return CharSet("01").SetName("binary digit"); }
+        public static Rule IdentFirstChar() { return (SingleChar('_') | Letter()).SetName("identifier first character"); }
+        public static Rule IdentNextChar() { return (IdentFirstChar() | Digit()).SetName("identifier next character"); }
+        public static Rule Ident() { return (IdentFirstChar() + Star(IdentNextChar())).SetName("identifier"); }
         public static Rule EOW() { return Not(IdentNextChar()).SetName("end of word"); }
     }
 }
