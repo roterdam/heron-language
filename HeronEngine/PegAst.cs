@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
+using Util;
 
 namespace Peg
 {
@@ -65,15 +66,8 @@ namespace Peg
 
         public override string ToString()
         {
-            return msText.Substring(mnBegin, mnCount);
-        }
-
-        public string DebugString {
-            get
-            {
-                return ToString();
-            }
-        }
+            return msText.ValidSubstring(mnBegin, mnCount);
+        }       
 
         public string GetXmlText()
         {
@@ -94,14 +88,20 @@ namespace Peg
             return s;
         }
 
-        public string GetLabel()
+        public string Label
         {
-            return msLabel;
+            get
+            {
+                return msLabel;
+            }
         }
 
-        public List<AstNode> GetChildren()
+        public List<AstNode> Children
         {
-            return mChildren;
+            get
+            {
+                return mChildren;
+            }
         }
 
         public int GetNumChildren()
@@ -116,15 +116,10 @@ namespace Peg
 
         public AstNode GetChild(string s)
         {
-            foreach (AstNode node in GetChildren())
-                if (node.GetLabel().Equals(s))
+            foreach (AstNode node in Children)
+                if (node.Label.Equals(s))
                     return node;
             return null;
-        }
-
-        public int GetLength()
-        {
-            return mnCount;
         }
     }
 }

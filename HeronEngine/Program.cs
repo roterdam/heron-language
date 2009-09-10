@@ -11,8 +11,8 @@ namespace HeronEngine
         {
             Console.WriteLine("HeronEngine.exe");
             Console.WriteLine("    by Christopher Diggins");
-            Console.WriteLine("    version 0.5");
-            Console.WriteLine("    August 11, 2009");
+            Console.WriteLine("    version 0.6");
+            Console.WriteLine("    September 10, 2009");
             Console.WriteLine("");
             Console.WriteLine("An execution engine for the Heron language.");
             Console.WriteLine("This program tests the Heron language, but is");
@@ -29,7 +29,8 @@ namespace HeronEngine
         /// <param name="args"></param>
         static public void Main(string[] args)
         {
-            if (args.Length != 1) {
+            if (args.Length != 1) 
+            {
                 Usage();
                 Console.ReadKey();
                 return;

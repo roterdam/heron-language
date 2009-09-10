@@ -9,6 +9,29 @@ namespace Util
 {
     public static class Util
     {
+        public static string ValidSubstring(this string s, int begin, int count)
+        {
+            if (begin < 0)
+            {
+                count += begin;
+                begin = 0;
+            }
+            if (begin > s.Length)
+            {
+                begin = s.Length - 1;
+                count = 0;
+            }
+            if (begin + count > s.Length)
+            {
+                count = s.Length - begin;
+            }
+            if (count < 0)
+            {
+                count = 0;
+            }
+            return s.Substring(begin, count);
+        }
+
         public static string IndentLines(string s, string indent)
         {
             return s.Replace("\n", "\n" + indent);

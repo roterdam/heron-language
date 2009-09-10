@@ -126,6 +126,7 @@ namespace HeronTests
                 // TEMP:
                 if (n == 14)
                     RunFileTest(s);
+
                 n += 1;
             }
         }
@@ -172,6 +173,28 @@ namespace HeronTests
             TestPeg(HeronGrammar.Expr(), "a + b");
         }
 
+        static void SimplePegStatementTests()
+        {
+            TestPeg(HeronGrammar.ExprStatement(), "1;");
+            TestPeg(HeronGrammar.ExprStatement(), "f();");
+            TestPeg(HeronGrammar.ExprStatement(), "a.b;");
+            TestPeg(HeronGrammar.ExprStatement(), "a.b();");
+            TestPeg(HeronGrammar.CodeBlock(), "{}");
+            TestPeg(HeronGrammar.CodeBlock(), "{ a(); }");
+            TestPeg(HeronGrammar.VarDecl(), "var a;");
+            TestPeg(HeronGrammar.VarDecl(), "var a : Int;");
+            TestPeg(HeronGrammar.IfStatement(), "if (a) { }");
+            TestPeg(HeronGrammar.IfStatement(), "if (a) { } else { }");
+            TestPeg(HeronGrammar.ForEachStatement(), "foreach (a in b) { }");
+            TestPeg(HeronGrammar.ForEachStatement(), "foreach (a : A in b) { }");
+            TestPeg(HeronGrammar.ForStatement(), "for (a = 0; a != b; a + 1) { }");
+            TestPeg(HeronGrammar.WhileStatement(), "foreach (a in b) { }");
+            TestPeg(HeronGrammar.EmptyStatement(), "while (a) { }");
+            TestPeg(HeronGrammar.ReturnStatement(), "return a;");
+            TestPeg(HeronGrammar.DeleteStatement(), "delete a;");
+            TestPeg(HeronGrammar.SwitchStatement(), "switch (a) { case (b) { } default { } }");
+        }
+
         static void SimpleExprTests()
         {
             TestExpr("1");
@@ -208,6 +231,7 @@ namespace HeronTests
             if (Config.runUnitTests)
             {
                 SimplePegTests();
+                SimplePegStatementTests();
                 SimpleExprTests();
                 SimpleEvalExprTests();
             }

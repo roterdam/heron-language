@@ -119,7 +119,23 @@ namespace Peg
         {
             get
             {
-                return mInput.Substring(mIndex, 20);
+                return mInput.ValidSubstring(mIndex, 20);
+            }
+        }
+
+        public string PrefixContext
+        {
+            get
+            {
+                return mInput.ValidSubstring(mIndex - 20, 20);
+            }
+        }
+
+        public string SuffixContext
+        {
+            get
+            {
+                return mInput.ValidSubstring(mIndex, 20);
             }
         }
 
@@ -204,7 +220,9 @@ namespace Peg
         {
             ParserState p = new ParserState(s);
             AstNode node = p.Parse(g);
-            if (node.GetLabel() != "ast")
+            if (node == null)
+                return null;
+            if (node.Label != "ast")
                 throw new Exception("no root AST node");
             if (node.GetNumChildren() != 1)
                 throw new Exception("more than one child node parsed");
