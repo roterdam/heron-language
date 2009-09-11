@@ -94,7 +94,6 @@
     <None Include="tests\test9.heron" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="AboutHeron.txt" />
     <Content Include="Config.xml" />
   </ItemGroup>
   <ItemGroup>

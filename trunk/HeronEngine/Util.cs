@@ -9,29 +9,6 @@ namespace Util
 {
     public static class Util
     {
-        public static string ValidSubstring(this string s, int begin, int count)
-        {
-            if (begin < 0)
-            {
-                count += begin;
-                begin = 0;
-            }
-            if (begin > s.Length)
-            {
-                begin = s.Length - 1;
-                count = 0;
-            }
-            if (begin + count > s.Length)
-            {
-                count = s.Length - begin;
-            }
-            if (count < 0)
-            {
-                count = 0;
-            }
-            return s.Substring(begin, count);
-        }
-
         public static string IndentLines(string s, string indent)
         {
             return s.Replace("\n", "\n" + indent);
@@ -68,6 +45,29 @@ namespace Util
 
     public static class StringExtensions
     {
+        public static string ValidSubstring(this string self, int begin, int count)
+        {
+            if (begin < 0)
+            {
+                count += begin;
+                begin = 0;
+            }
+            if (begin > self.Length)
+            {
+                begin = self.Length - 1;
+                count = 0;
+            }
+            if (begin + count > self.Length)
+            {
+                count = self.Length - begin;
+            }
+            if (count < 0)
+            {
+                count = 0;
+            }
+            return self.Substring(begin, count);
+        }
+
         public static void GetRowCol(this string self, int index, out int row, out int col)
         {
             row = 0;
