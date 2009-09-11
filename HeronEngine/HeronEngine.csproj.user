@@ -2,6 +2,6 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <StartWorkingDirectory>
     </StartWorkingDirectory>
-    <StartArguments>"C:\Users\Chr15topher\Documents\Visual Studio 2008\Projects\heron-language\HeronEngine\Config.xml"</StartArguments>
+    <StartArguments>..\..\Config.xml</StartArguments>
   </PropertyGroup>
 </Project>
