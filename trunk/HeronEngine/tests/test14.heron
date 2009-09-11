@@ -1,0 +1,120 @@
+﻿module HeronToActionScript
+{
+	class PrettyPrinter 
+	{
+		methods
+		{
+			Write(s : String)
+			{
+				Console.Write(s);
+			}			
+			WriteLine(s : String)
+			{
+				Console.WriteLine(s);
+				Console.Write(indent);
+			}
+			BracesAround(f : Function)
+			{
+				WriteLine("{");
+				old_indent = indent;
+				indent = indent + "  ";
+				f();
+				indent = old_indent;				
+				WriteLine("}");
+			}			
+		}			
+	}
+	
+	class Premain 
+	{
+		inherits 
+		{
+			PrettyPrinter;
+		}
+		fields
+		{
+			indent : String;
+		}
+		methods
+		{					
+			Constructor(program : ProgramNode)
+			{
+				foreach (m : ModuleNode in program.GetModules())
+					Output(m);
+			}
+						
+			Output(m : ModuleNode)
+			{
+				Write("module ");
+				WriteLine(m.name);
+				BracesAround(
+					function() 
+					{
+						foreach (c : ClassNode in m.GetClasses())
+							Output(c);
+						foreach (i : InterfaceNode in m.GetClasses())
+							Output(i);					
+						foreach (e : EnumNode in m.GetClasses())
+							Output(e);	
+					})		
+				);	
+				
+				Console.ReadKey();
+			}
+			
+			Output(c : ClassNode, string indent)
+			{
+				Write("class ");				
+				WriteLine(c.name);
+				WriteLine("{ }");
+			}
+
+			Output(i : InterfaceNode, string indent)
+			{
+				Write("interface ");
+				WriteLine(i.name);
+				WriteLine("{ }");												
+			}
+
+			Output(e : EnumNode)
+			{
+				Write("enum ");
+				WriteLine(e.name);
+				WriteLine("{ }");
+			}
+		}
+	}
+	
+	enum TestEnum
+	{
+		EnumValue1;
+		EnumValue2;
+	}
+	
+	interface TestInterface
+	{
+		methods 
+		{
+			F();
+			G(int x, int y) : int;
+		}
+	}
+	
+	class TestClass
+	{
+		fields
+		{
+			x : Int;
+			y : Int;
+		}
+		methods
+		{
+			F(a : Int) : Int
+			{
+				x = a;
+				return y;
+			}
+		}
+	}		
+}
+
