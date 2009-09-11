@@ -1,0 +1,295 @@
+﻿module TestInterfacesAndInheritance
+{
+	interface IPoint {
+		methods {
+			get_X() : Int;
+			get_Y() : Int;
+			set_X(v : Int);
+			set_Y(v : Int);
+		}
+	}
+	
+	interface IGetX {
+		methods {
+			get_X() : Int;
+		}
+	}
+	
+	interface IColoredPoint {
+		inherits {
+			IPoint;
+		}
+		methods {
+			get_Color() : Color;
+			set_Color(x : Color);
+		}
+	}	
+	
+	enum Color {
+		Red;
+		Blue;
+		Green;
+	}
+	
+	class Point {
+		implements {
+			IPoint;
+			IGetX;
+		}
+		methods {
+			get_X() : Int {
+				return x;
+			}
+			get_Y() : Int  {
+				return y;
+			}
+			set_X(v : Int) {
+				x = v;				
+			}
+			set_Y(v : Int) {
+				y = v;
+			}
+		}
+		fields {
+			x : Int;
+			y : Int;
+		}
+	}
+	
+	class ColoredPoint {
+		inherits {
+			Point;
+		}
+		implements {
+			// Notice: does not explicitly implement IGetX, 
+			// but inherits Point which implements IGetX
+			IColoredPoint;
+		}
+		methods {
+			Constructor(x : Int, y : Int, c : Color) {
+				this.x = x;
+				this.y = y;
+				this.c = c;
+			}
+			get_Color() : Color {
+				return c;
+			}
+			set_Color(v : Color) {
+				c = v;
+			}
+		}		
+		fields {
+			c : Color;
+		}
+	}	
+	
+	class Main {
+		methods {
+			Constructor()
+			{
+				var a = new ColoredPoint(10, 10, Color.Red);
+				TestColoredPoint(a);
+				TestPoint(a);
+				TestIColoredPoint(a);
+				TestIPoint(a);
+				TestIGetX(a);
+			}
+	
+			TestColoredPoint(a : ColoredPoint) 
+			{		
+				Console.WriteLine("Testing the ColoredPoint");
+				
+				if (a.x == 10)
+					Console.WriteLine("SUCCESS"); else 
+					Console.WriteLine("FAILURE");
+							
+				if (a.c == Color.Red)
+					Console.WriteLine("SUCCESS"); else
+					Console.WriteLine("FAILURE");
+					
+				a.x = 9;
+				a.y = 9;
+				a.c = Color.Green;
+							
+				Console.WriteLine("Testing conversions");
+
+				if (a is ColoredPoint) 
+					Console.WriteLine("SUCCESS"); else 
+					Console.WriteLine("FAILURE");
+
+				if (a is Point) 
+					Console.WriteLine("SUCCESS"); else 
+					Console.WriteLine("FAILURE");
+
+				if (a is IPoint) 
+					Console.WriteLine("SUCCESS"); else 
+					Console.WriteLine("FAILURE");		
+				
+				if (a is IColoredPoint) 
+					Console.WriteLine("SUCCESS"); else 
+					Console.WriteLine("FAILURE");		
+				
+				if (a is IColoredPoint) 
+					Console.WriteLine("SUCCESS"); else 
+					Console.WriteLine("FAILURE");						
+
+				if (a is IGetX) 
+					Console.WriteLine("SUCCESS"); else 
+					Console.WriteLine("FAILURE");						
+			}
+			
+			TestPoint(a : Point) 
+			{
+				Console.WriteLine("Testing the Point");
+						
+				if (a.x == 9)
+					Console.WriteLine("SUCCESS"); else
+					Console.WriteLine("FAILURE");
+												
+				a.x = 8;
+				a.y = 8;
+				
+				Console.WriteLine("Testing conversions");
+
+				if (a is ColoredPoint) 
+					Console.WriteLine("FAILURE"); else 
+					Console.WriteLine("SUCCESS");
+
+				if (a is Point) 
+					Console.WriteLine("SUCCESS"); else 
+					Console.WriteLine("FAILURE");
+
+				if (a is IPoint) 
+					Console.WriteLine("SUCCESS"); else 
+					Console.WriteLine("FAILURE");		
+				
+				if (a is IColoredPoint) 
+					Console.WriteLine("FAILURE"); else 
+					Console.WriteLine("SUCCESS");		
+				
+				if (a is IColoredPoint) 
+					Console.WriteLine("FAILURE"); else 
+					Console.WriteLine("SUCCESS");						
+
+				if (a is IGetX) 
+					Console.WriteLine("SUCCESS"); else 
+					Console.WriteLine("FAILURE");						
+			}
+			
+			TestIColoredPoint(a : IColoredPoint) 
+			{
+				Console.WriteLine("Testing the IColoredPoint");
+						
+				if (a.get_X() == 8)
+					Console.WriteLine("SUCCESS"); else
+					Console.WriteLine("FAILURE");
+							
+				if (a.get_Color() == Color.Green)
+					Console.WriteLine("SUCCESS"); else
+					Console.WriteLine("FAILURE");
+					
+				a.set_X(7);
+				a.set_Y(7);
+				a.set_Color(Color.Blue);
+
+				Console.WriteLine("Testing conversions");
+
+				if (a is ColoredPoint) 
+					Console.WriteLine("FAILURE"); else 
+					Console.WriteLine("SUCCESS");
+
+				if (a is Point) 
+					Console.WriteLine("FAILURE"); else 
+					Console.WriteLine("SUCCESS");
+
+				if (a is IPoint) 
+					Console.WriteLine("SUCCESS"); else 
+					Console.WriteLine("FAILURE");		
+				
+				if (a is IColoredPoint) 
+					Console.WriteLine("SUCCESS"); else 
+					Console.WriteLine("FAILURE");		
+				
+				if (a is IColoredPoint) 
+					Console.WriteLine("SUCCESS"); else 
+					Console.WriteLine("FAILURE");						
+
+				if (a is IGetX) 
+					Console.WriteLine("SUCCESS"); else 
+					Console.WriteLine("FAILURE");						
+			} 
+						
+			TestIPoint(a : IPoint) 
+			{
+				Console.WriteLine("Testing the IPoint");
+						
+				if (a.get_X() == 7)
+					Console.WriteLine("SUCCESS"); else
+					Console.WriteLine("FAILURE");
+							
+				a.set_X(6);
+				
+				Console.WriteLine("Testing conversions");
+
+				if (a is ColoredPoint) 
+					Console.WriteLine("FAILURE"); else 
+					Console.WriteLine("SUCCESS");
+
+				if (a is Point) 
+					Console.WriteLine("FAILURE"); else 
+					Console.WriteLine("SUCCESS");
+
+				if (a is IPoint) 
+					Console.WriteLine("SUCCESS"); else 
+					Console.WriteLine("FAILURE");		
+				
+				if (a is IColoredPoint) 
+					Console.WriteLine("FAILURE"); else 
+					Console.WriteLine("SUCCESS");		
+				
+				if (a is IColoredPoint) 
+					Console.WriteLine("FAILURE"); else 
+					Console.WriteLine("SUCCESS");						
+
+				if (a is IGetX) 
+					Console.WriteLine("FAILURE"); else 
+					Console.WriteLine("SUCCESS");						
+			}			
+						
+			TestIGetX(a : IGetX) 
+			{
+				Console.WriteLine("Testing the IGetX");
+						
+				if (a.get_X() == 6)
+					Console.WriteLine("SUCCESS"); else
+					Console.WriteLine("FAILURE");
+							
+				Console.WriteLine("Testing conversions");
+				
+				if (a is ColoredPoint) 
+					Console.WriteLine("FAILURE"); else 
+					Console.WriteLine("SUCCESS");
+
+				if (a is Point) 
+					Console.WriteLine("FAILURE"); else 
+					Console.WriteLine("SUCCESS");
+
+				if (a is IPoint) 
+					Console.WriteLine("FAILURE"); else 
+					Console.WriteLine("SUCCESS");		
+				
+				if (a is IColoredPoint) 
+					Console.WriteLine("FAILURE"); else 
+					Console.WriteLine("SUCCESS");		
+				
+				if (a is IColoredPoint) 
+					Console.WriteLine("FAILURE"); else 
+					Console.WriteLine("SUCCESS");						
+
+				if (a is IGetX) 
+					Console.WriteLine("SUCCESS"); else 
+					Console.WriteLine("FAILURE");						
+			}			
+		}
+	}
+}
