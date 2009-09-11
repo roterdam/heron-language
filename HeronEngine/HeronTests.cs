@@ -171,6 +171,7 @@ namespace HeronTests
             TestPeg(HeronGrammar.Expr(), "1.0");
             TestPeg(HeronGrammar.Expr(), "abc");
             TestPeg(HeronGrammar.Expr(), "a + b");
+            TestPeg(HeronGrammar.Expr(), "(1 + 2) * (3 + 4)");
         }
 
         static void SimplePegStatementTests()
@@ -180,6 +181,7 @@ namespace HeronTests
             TestPeg(HeronGrammar.ExprStatement(), "a.b;");
             TestPeg(HeronGrammar.ExprStatement(), "a.b();");
             TestPeg(HeronGrammar.CodeBlock(), "{}");
+            TestPeg(HeronGrammar.CodeBlock(), "{ }");
             TestPeg(HeronGrammar.CodeBlock(), "{ a(); }");
             TestPeg(HeronGrammar.VarDecl(), "var a;");
             TestPeg(HeronGrammar.VarDecl(), "var a : Int;");

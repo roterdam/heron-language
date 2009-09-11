@@ -82,8 +82,13 @@ namespace Peg
 
             public override string ToString()
             {
-                return name;
+                if (name == null)
+                    return GetDefn();
+                else
+                    return name;
             }
+
+            public abstract string GetDefn();
 
             public Rule Add(Rule r)
             {
@@ -176,6 +181,11 @@ namespace Peg
                 }
                 return result;
             }
+
+            public override string GetDefn()
+            {
+                return FirstChild.ToString();
+            }
         }
 
         /// <summary>
@@ -196,6 +206,11 @@ namespace Peg
             public override bool Match(ParserState p)
             {
                 return mDeleg().Match(p);
+            }
+
+            public override string GetDefn()
+            {
+                return "_recursive_";
             }
         }
 
@@ -236,6 +251,11 @@ namespace Peg
                     r += " while parsing " + parentName;
                 return r;
             }
+
+            public override string GetDefn()
+            {
+                return FirstChild.ToString() + "!";
+            }
         }
 
         /// <summary>
@@ -269,13 +289,13 @@ namespace Peg
                 return true;
             }
 
-            public override string ToString()
+            public override string GetDefn()
             {
                 int n = 0;
                 string result = "(";
                 foreach (Rule r in Children)
                 {
-                    if (n++ != 0) result += " ";
+                    if (n++ != 0) result += " + ";
                     result += r.ToString();
                 }
                 return result + ")";
@@ -305,13 +325,13 @@ namespace Peg
                 return false;
             }
 
-            public override string ToString()
+            public override string GetDefn()
             {
                 string result = "(";
                 int n = 0;
                 foreach (Rule r in Children) 
                 {
-                    if (n++ > 0) result += " ";
+                    if (n++ > 0) result += " | ";
                     result += r.ToString();
                 }
                 return result + ")";
@@ -335,7 +355,7 @@ namespace Peg
                 return true;
             }
 
-            public override string ToString()
+            public override string GetDefn()
             {
                 return FirstChild.ToString() + "?";
             }
@@ -360,7 +380,7 @@ namespace Peg
                 return true;
             }
 
-            public override string ToString()
+            public override string GetDefn()
             {
                 return FirstChild.ToString() + "*";
             }
@@ -385,7 +405,7 @@ namespace Peg
                 return true;
             }
 
-            public override string ToString()
+            public override string GetDefn()
             {
                 return FirstChild.ToString() + "+";
             }
@@ -401,7 +421,7 @@ namespace Peg
                 return p.AtEnd();
             }
 
-            public override string ToString()
+            public override string GetDefn()
             {
                 return "_eof_";
             }
@@ -430,9 +450,9 @@ namespace Peg
                 return true;
             }
 
-            public override string ToString()
+            public override string GetDefn()
             {
-                return "!" + FirstChild.ToString();
+                return FirstChild.ToString() + "^";
             }
         }
 
@@ -462,7 +482,7 @@ namespace Peg
                 }
             }
 
-            public override string ToString()
+            public override string GetDefn()
             {
                 return "=" + FirstChild.ToString();
             }
@@ -490,9 +510,9 @@ namespace Peg
                 return false;
             }
 
-            public override string ToString()
+            public override string GetDefn()
             {
-                return mData.ToString();
+                return "[" + mData.ToString() + "]";
             }
 
             char mData;
@@ -510,10 +530,12 @@ namespace Peg
 
             public override bool Match(ParserState p)
             {
-                if (p.AtEnd()) return false;
                 int pos = p.GetIndex();
                 foreach (char c in mData)
                 {
+                    if (p.AtEnd())
+                        return false;
+
                     if (p.GetChar() != c)
                     {
                         p.SetPos(pos);
@@ -524,9 +546,9 @@ namespace Peg
                 return true;
             }
 
-            public override string ToString()
+            public override string GetDefn()
             {
-                return mData;
+                return "<<" + mData + ">>";
             }
 
             string mData;
@@ -548,7 +570,7 @@ namespace Peg
                 return false;
             }
 
-            public override string ToString()
+            public override string GetDefn()
             {
                 return ".";
             }
@@ -580,7 +602,7 @@ namespace Peg
                 return false;
             }
 
-            public override string ToString()
+            public override string GetDefn()
             {
                 return "[" + mData + "]";
             }
@@ -612,7 +634,7 @@ namespace Peg
                 return false;
             }
 
-            public override string ToString()
+            public override string GetDefn()
             {
                 return "[" + mFirst.ToString() + ".." + mLast.ToString() + "]";
             }
@@ -647,7 +669,7 @@ namespace Peg
                 return true;
             }
 
-            public override string ToString()
+            public override string GetDefn()
             {
                 return "((" + mElem.ToString() + " !" + mTerm.ToString() + ")* " + mTerm.ToString() + ")";
             }
@@ -681,26 +703,6 @@ namespace Peg
             }
         }
         
-        /*
-        public static Rule NoFailSeq(Rule[] x) 
-        { 
-            Trace.Assert(x.Length >= 2);
-            Rule[] ts = new Rule[x.Length];
-            ts[0] = x[0];
-            for (int i = 1; i < x.Length; ++i)
-                ts[i] = NoFail(x[i]);
-            return new SeqRule(ts);
-        }
-
-        public static Rule NoFailSeq(Rule x0, Rule x1) { return NoFailSeq(new Rule[] { x0, x1 }); }
-        public static Rule NoFailSeq(Rule x0, Rule x1, Rule x2) { return NoFailSeq(new Rule[] { x0, x1, x2 }); }
-        public static Rule NoFailSeq(Rule x0, Rule x1, Rule x2, Rule x3) { return NoFailSeq(new Rule[] { x0, x1, x2, x3 }); }
-        public static Rule NoFailSeq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4) { return NoFailSeq(new Rule[] { x0, x1, x2, x3, x4 }); }
-        public static Rule NoFailSeq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4, Rule x5) { return NoFailSeq(new Rule[] { x0, x1, x2, x3, x4, x5 }); }
-        public static Rule NoFailSeq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4, Rule x5, Rule x6) { return NoFailSeq(new Rule[] { x0, x1, x2, x3, x4, x5, x6 }); }
-        public static Rule NoFailSeq(Rule x0, Rule x1, Rule x2, Rule x3, Rule x4, Rule x5, Rule x6, Rule x7) { return NoFailSeq(new Rule[] { x0, x1, x2, x3, x4, x5, x6, x7 }); }
-         */
-
         public static Rule Opt(Rule x) { return new OptRule(x); }
         public static Rule Star(Rule x) { return new StarRule(x); }
         public static Rule Plus(Rule x) { return new PlusRule(x); }

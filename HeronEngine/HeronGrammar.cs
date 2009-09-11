@@ -165,7 +165,7 @@ namespace HeronEngine
         public static Rule DeleteStatement()
         {
             return Store("delete", Token("delete") + NoFail(Expr() + Eos())).SetName("delete statement");
-     }
+        }
 
         public static Rule Paranthesized(Rule r)
         {
@@ -212,188 +212,233 @@ namespace HeronEngine
         {
             return Store("vardecl", Token("var") + NoFail(Name() + Opt(TypeDecl()) + Opt(Initializer()) + Eos())).SetName("variable declaration");
         }
+
         public static Rule DelayedStatement()
         {
             return Delay(Statement).SetName("statement");
         }
+
 	    public static Rule ElseStatement()
         {
             return (Token("else") + NoFail(DelayedStatement())).SetName("else statement");
         }
+
         public static Rule IfStatement()
         {
             return Store("if", Token("if") + NoFail(ParanthesizedExpr() + DelayedStatement() + Opt(ElseStatement()))).SetName("if statement");
         }
+
         public static Rule ForEachParms()
         {
-            return NoFail(Token("(") + Name() + Opt(TypeDecl()) + Token("in") + Expr() + CharSeq(")")).SetName("foreach statement parameters");
+            return NoFail(Token("(") + Name() + Opt(TypeDecl()) + Token("in") + Expr() + Token(")")).SetName("foreach statement parameters");
         }
+
 	    public static Rule ForEachStatement()
         {
-            return Token("foreach") + NoFail(ForEachParms() + DelayedStatement()).SetName("foreach statement");
+            return Store("foreach", Token("foreach") + NoFail(ForEachParms() + DelayedStatement())).SetName("foreach statement");
         }
+
         public static Rule ForParams()
         {
             return NoFail(Token("(") + Name() + Initializer() + Eos() + Expr() + Eos() + Expr() + Token(")")).SetName("for statement parameters");
         }
+
         public static Rule ForStatement()
         {
-            return (Token("for") + NoFail(ForParams() + DelayedStatement())).SetName("for statement");
+            return Store("for", Token("for") + NoFail(ForParams() + DelayedStatement())).SetName("for statement");
         }
+
         public static Rule Eos()
         {
             return Token(";").SetName("end of statement");
         }
+
 	    public static Rule ExprStatement()
         {
             return Store("exprstatement", Expr() + Eos()).SetName("expression statement");
         }
+
         public static Rule ReturnStatement()
         {
-            return (Token("return") + NoFail(Expr() + Eos())).SetName("return statement");
+            return Store("return", Token("return") + NoFail(Expr() + Eos())).SetName("return statement");
         }
+
 	    public static Rule CaseStatement()
         {
-            return (Token("case") + NoFail(ParanthesizedExpr() + CodeBlock())).SetName("case statement");
+            return Store("case", Token("case") + NoFail(ParanthesizedExpr() + CodeBlock())).SetName("case statement");
         }
+
 	    public static Rule DefaultStatement()
         {
             return Store("default", (Token("default") + NoFail(CodeBlock()))).SetName("default statement");
         }
+
         public static Rule CaseGroup()
         {
             return Store("casegroup", Star(CaseStatement())).SetName("case group");
         }
+
         public static Rule SwitchStatement()
         {
             return Store("switch", Token("switch") + NoFail(ParanthesizedExpr() + Token("{") +
                 CaseGroup() + Opt(DefaultStatement()) + Token("}"))).SetName("switch statement");
         }
+
 	    public static Rule WhileStatement()
         {
             return Store("while", Token("while") + NoFail(ParanthesizedExpr() + DelayedStatement())).SetName("while statement");
         }
+
 	    public static Rule EmptyStatement()
         {
             return Eos().SetName("empty statement");
         }
+
 	    public static Rule Statement()
         {
             return (CodeBlock() | VarDecl() | IfStatement() | SwitchStatement() | ForEachStatement() | ForStatement()
                 | WhileStatement() | ReturnStatement() | DeleteStatement() | ExprStatement() | EmptyStatement()).SetName("statement");
         }
+
         public static Rule BracedGroup(Rule r)
         {
-            return Token("{") + Star(Token("}") | NoFail(r));
+            return (Token("{") + Star(r) + NoFail(Token("}"))).SetName("braced group");
         }
+
         public static Rule Field()
         {
             return Store("attribute", (Name() + NoFail(Opt(TypeDecl()) + Eos()))).SetName("field");
         }
+
         public static Rule CodeBlock()
         {
             return Store("codeblock", BracedGroup(DelayedStatement())).SetName("code block");
         }
+
         public static Rule FunDecl()
         {
             return Store("fundecl", Name() + ArgList() + Opt(TypeDecl())).SetName("function declaration");
         }
+
         public static Rule EOSOrCodeBlock()
         {
             return (Eos() | CodeBlock()).SetName("';' or code block");
         }
+
         public static Rule Method()
         {
             return Store("method", FunDecl() + NoFail(EOSOrCodeBlock())).SetName("method");
         }
+
         public static Rule Entry()
         {
             return Store("entry", (Token("entry") + CodeBlock())).SetName("entry");
         }
+
         public static Rule Transition()
         {
             return Store("transition", TypeExpr() + NoFail(Token("->") + Name() + Eos())).SetName("transition");
         }
+
         public static Rule Transitions()
         {
             return Store("transitions", Token("transitions") + NoFail(BracedGroup(Transition()))).SetName("transitions");
         }
+
         public static Rule State()
         {
             return Store("state", Name() + NoFail(ArgList() + Token("{") + Opt(Entry()) + Opt(Transitions()) + Token("}"))).SetName("state");
         }
+
         public static Rule States()
         {
             return Store("states", Token("states") + NoFail(BracedGroup(State()))).SetName("states");
         }
+
         public static Rule Annotation()
         {
             return Store("annotation", Ident() + Opt(Initializer())).SetName("annotation");
         }
+
         public static Rule Annotations()
         {
             return Store("annotations", Token("[") + NoFail(CommaList(Annotation()) + Token("]"))).SetName("annotations");
         }
+
         public static Rule TypeExprList()
         {
             return (Token("{") + Star(TypeExpr() + NoFail(Eos()) + NoFail(Token("}")))).SetName("type expression list");
         }
+
         public static Rule Implements()
         {
             return Store("implements", Token("implements") + NoFail(TypeExprList())).SetName("implements");
         }
+
         public static Rule Inherits()
         {
             return Store("inherits", Token("inherits") + NoFail(BracedGroup(TypeExpr() + NoFail(Eos())))).SetName("inherits");
         }
+
         public static Rule ClassBody()
         {
             return NoFail(Token("{") + Opt(Inherits()) + Opt(Implements()) + Opt(Methods()) + Opt(Fields()) + Opt(States())).SetName("class definition");
         }
+
         public static Rule Class()
         {
             return Store("class", Opt(Annotations()) + Token("class") + NoFail(Name()) + ClassBody()).SetName("class");
         }
+
         public static Rule Interface()
         {
             return Store("interface", Opt(Annotations()) + Token("interface")
                 + NoFail(Name() + Token("{") + Opt(Inherits()) + Opt(Methods()) + Token("}"))).SetName("interface");
         }
+
         public static Rule EnumValue()
         {
             return (Name() + Eos()).SetName("enumerated value");
         }
+
         public static Rule EnumValues()
         {
             return Store("values", BracedGroup(EnumValue())).SetName("enumerated value group");
         }
+
         public static Rule Enum()
         {
             return Store("enum", Opt(Annotations()) + Token("enum") + NoFail(Name() + EnumValues())).SetName("enumeration");
         }
+
         public static Rule ModuleElement()
         {
             return (Class() | Interface() | Enum()).SetName("module element");
         }
+
         public static Rule Fields()
         {
             return Store("fields", Token("fields") + NoFail(BracedGroup(Field()))).SetName("fields");
         }
+
         public static Rule Methods()
         {
             return Store("methods", Token("methods") + NoFail(BracedGroup(Method()))).SetName("methods");
         }
-       public static Rule Import()
+
+        public static Rule Import()
         {
             return Store("import", Name() + NoFail(Eos())).SetName("import");
         }
+
         public static Rule Imports()
         {
-            return (Store("imports", Token("imports") + NoFail(BracedGroup(Import())))).SetName("imports");
+            return Store("imports", Token("imports") + NoFail(BracedGroup(Import()))).SetName("imports");
         }
+
         public static Rule Module()
         {
-            return (Token("module") + NoFail(Name() + BracedGroup(ModuleElement()))).SetName("module");
+            return Store("module", Token("module") + NoFail(Name() + BracedGroup(ModuleElement()))).SetName("module");
         }
         #endregion
     }

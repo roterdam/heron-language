@@ -59,6 +59,7 @@ namespace Peg
         public ParseExceptionContext context;
 
         public ParsingException(string s, int begin, int end, Grammar.Rule r, string msg)
+            : base(msg)
         {          
             AddContext(s, begin, end, r, msg);
         }
