@@ -462,7 +462,7 @@ namespace HeronEngine
         /// Most of these functions will return an Expr object. They also take a single AstNode 
         /// representing the list of parsed expression nodes, and a current index into the list called 
         /// "i". 
-        #region Expression creation functions
+        #region Expression creatifunctions
         
         static private bool ChildNodeMatches(AstNode x, ref int i, string s)
         {
@@ -740,15 +740,15 @@ namespace HeronEngine
             return r;
         }
 
-        static Expression CreateAnonFunExpr(AstNode x, ref int i
-            )
+        static Expression CreateAnonFunExpr(AstNode x, ref int i)
         {
             if (i >= x.GetNumChildren())
                 throw new Exception("Internal parse error");
             AstNode child = x.GetChild(i);
             
-            if (child.Label == "anonexpr")
+            if (child.Label == "anonfxn")
             {
+                ++i;
                 AnonFunExpr r = new AnonFunExpr();
                 r.formals = CreateFormalArgs(child.GetChild("arglist"));
                 r.rettype = new UnresolvedType(GetTypeName(child, "Void"), m);

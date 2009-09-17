@@ -194,8 +194,8 @@ namespace HeronEngine
 
         public static Rule SimpleExpr() 
         {
-            return (NewExpr() | Name() | Literal() |
-                AnonFxn() | ParanthesizedExpr() | BracketedExpr()).SetName("simple expression");
+            return (NewExpr() | AnonFxn() | Name() | Literal() |
+                ParanthesizedExpr() | BracketedExpr()).SetName("simple expression");
 		}
 
         public static Rule Expr() 
@@ -291,7 +291,7 @@ namespace HeronEngine
 
 	    public static Rule EmptyStatement()
         {
-            return Eos().SetName("empty statement");
+            return Store("empty", Eos()).SetName("empty statement");
         }
 
 	    public static Rule Statement()
@@ -382,7 +382,7 @@ namespace HeronEngine
 
         public static Rule ClassBody()
         {
-            return NoFail(Token("{") + Opt(Inherits()) + Opt(Implements()) + Opt(Methods()) + Opt(Fields()) + Opt(States())).SetName("class definition");
+            return NoFail(Token("{") + Opt(Inherits()) + Opt(Implements()) + Opt(Fields()) + Opt(Methods()) + Opt(States()) + Token("}")).SetName("class definition");
         }
 
         public static Rule Class()

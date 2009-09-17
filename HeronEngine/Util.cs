@@ -45,7 +45,7 @@ namespace Util
 
     public static class StringExtensions
     {
-        public static string ValidSubstring(this string self, int begin, int count)
+        public static string SafeSubstring(this string self, int begin, int count)
         {
             if (begin < 0)
             {
@@ -128,20 +128,24 @@ namespace Util
             return -1;
         }
 
-        public static string GetLine(this string s, int nLine)
+        public static string GetLine(this string s, int index)
         {
-            int a = 0;
-            if (nLine > 0)
-                a = s.IndexOfNthChar('\n', nLine - 1) + 1;
-            int b = s.IndexOfNthChar('\n', nLine);
-            if (b < a)
-                b = s.Length;
-            int len = b - a;
-            if (len < 0)
-                throw new Exception("Failed to get nth line");
-            if (len > 128)
-                len = 128;
-            return s.Substring(a, len);
+            int begin = index - 1;
+            while (begin >= 0)
+            {
+                if (begin == 0 || s[begin - 1] == '\n')
+                    break;
+                --begin;
+            }
+            int end = index;
+            while (end < s.Length)
+            {
+                if (s[end] == '\n')
+                    break;
+                ++end;
+            }
+            int cnt = end - begin;
+            return s.SafeSubstring(begin, cnt);
         }
     }
 }

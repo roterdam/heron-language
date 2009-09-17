@@ -315,6 +315,7 @@ namespace HeronEngine
             operand2 = y;
         }
 
+        // TODO: improve efficiency. This is a pretty terrible operation
         public override HeronObject Eval(Environment env)
         {
             HeronObject a = operand1.Eval(env);
@@ -350,6 +351,14 @@ namespace HeronEngine
                     any = new Any(a);
 
                 return any.As(b as HeronType);
+            }
+            else if (a is NullObject)
+            {
+                return a.InvokeBinaryOperator(operation, b);
+            }
+            else if (b is NullObject)
+            {
+                return b.InvokeBinaryOperator(operation, b);
             }
             else if (a is IntObject)
             {
@@ -407,7 +416,7 @@ namespace HeronEngine
                         throw new Exception("Only an enumeration instance can be compared against an enumeration instance");
                     EnumInstance ea = a as EnumInstance;
                     EnumInstance eb = b as EnumInstance;
-                
+
                     if (operation == "==")
                         return new BoolObject(ea.Equals(eb));
                     else

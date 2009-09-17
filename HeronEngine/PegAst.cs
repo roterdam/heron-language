@@ -66,7 +66,7 @@ namespace Peg
 
         public override string ToString()
         {
-            return msText.ValidSubstring(mnBegin, mnCount);
+            return msText.SafeSubstring(mnBegin, mnCount);
         }       
 
         public string GetXmlText()
