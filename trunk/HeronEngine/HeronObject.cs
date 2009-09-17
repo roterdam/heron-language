@@ -9,46 +9,6 @@ namespace HeronEngine
 {
     public abstract class HeronObject
     {
-        public class VoidObject : HeronObject
-        {
-            public override string ToString()
-            {
-                return "Void";
-            }
-
-            public override HeronType GetHeronType()
-            {
-                return HeronPrimitiveTypes.VoidType;
-            }
-        }
-
-        public class NullObject : HeronObject
-        {
-            public override string ToString()
-            {
-                return "null";
-            }
-
-            public override HeronType GetHeronType()
-            {
-                return HeronPrimitiveTypes.NullType;
-            }
-        }
-
-        public class UndefinedObject : HeronObject
-        {
-            public override string ToString()
-            {
-                return "undefined";
-            }
-
-
-            public override HeronType GetHeronType()
-            {
-                return HeronPrimitiveTypes.UndefinedType;
-            }
-        }
-
         public static VoidObject Void = new VoidObject();
         public static NullObject Null = new NullObject();
         public static UndefinedObject Undefined = new UndefinedObject();
@@ -104,6 +64,58 @@ namespace HeronEngine
         }
 
         public abstract HeronType GetHeronType();
+    }
+
+    public class VoidObject : HeronObject
+    {
+        public override string ToString()
+        {
+            return "Void";
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return HeronPrimitiveTypes.VoidType;
+        }
+    }
+
+    public class NullObject : HeronObject
+    {
+        public override string ToString()
+        {
+            return "null";
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return HeronPrimitiveTypes.NullType;
+        }
+
+        public override HeronObject InvokeBinaryOperator(string s, HeronObject x)
+        {
+            switch (s)
+            {
+                case "==": return new BoolObject(x is NullObject);
+                case "!=": return new BoolObject(!(x is NullObject));
+                default:
+                    throw new Exception("Binary operation: '" + s + "' not supported by strings");
+            }
+        }
+
+    }
+
+    public class UndefinedObject : HeronObject
+    {
+        public override string ToString()
+        {
+            return "undefined";
+        }
+
+
+        public override HeronType GetHeronType()
+        {
+            return HeronPrimitiveTypes.UndefinedType;
+        }
     }
 
     public class DotNetMethod : HeronObject
@@ -442,10 +454,13 @@ namespace HeronEngine
         {
             if (!(x is StringObject))
                 throw new Exception("binary operation not supported on differently typed objects");
+            StringObject so = x as StringObject;
             string arg = (x as StringObject).GetValue();
             switch (s)
             {
                 case "+": return new StringObject(GetValue() + arg);
+                case "==": return new BoolObject(GetValue() == so.GetValue());
+                case "!=": return new BoolObject(GetValue() != so.GetValue());
                 default:
                     throw new Exception("Binary operation: '" + s + "' not supported by strings");
             }
@@ -973,7 +988,7 @@ namespace HeronEngine
         public override HeronObject Apply(Environment env, HeronObject[] args)
         {
             Object[] os = HeronDotNet.ObjectsToDotNetArray(args);
-            Object o = self.GetSystemType().InvokeMember(name, BindingFlags.Public | BindingFlags.Static | BindingFlags.InvokeMethod, null, null, os);
+             Object o = self.GetSystemType().InvokeMember(name, BindingFlags.Public | BindingFlags.Static | BindingFlags.InvokeMethod, null, null, os);
             return DotNetObject.Marshal(o); 
         }
 

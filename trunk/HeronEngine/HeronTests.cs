@@ -31,7 +31,7 @@ namespace HeronTests
             }
         }
 
-        static public void TestExpr(string s)
+        static public void TestExprParse(string s)
         {
             Console.WriteLine("testing expression: " + s);
             try
@@ -68,14 +68,16 @@ namespace HeronTests
             }
         }
 
-        static public void TestEvalExpr(string sExpr, string sOuput)
+        static public void TestEvalExpr(string sExpr, string sOutput)
         {
             Console.WriteLine("testing evaluation of " + sExpr);
-            Console.WriteLine("expecting result of " + sOuput);
+            Console.WriteLine("expecting result of " + sOutput);
             try
             {
                 HeronObject o = vm.EvalExpr(sExpr);
                 Console.WriteLine("test result was " + o.ToString());
+                if (o.ToString() != sOutput)
+                    throw new Exception("Result " + o.ToString() + " is different from expected " + sOutput);
 
             }
             catch (Exception e)
@@ -158,6 +160,8 @@ namespace HeronTests
             TestEvalExpr("1.123 == 0.2", "False");
             TestEvalExpr("1 != 2", "True");
             TestEvalExpr("1.0 + 2.5", "3.5");
+            TestEvalExpr("(function() { return 1; })()", "1");
+            TestEvalExpr("(function(x : Int) { return x + 1; })(12)", "13");
         }
 
         static void SimplePegTests()
@@ -172,6 +176,14 @@ namespace HeronTests
             TestPeg(HeronGrammar.Expr(), "abc");
             TestPeg(HeronGrammar.Expr(), "a + b");
             TestPeg(HeronGrammar.Expr(), "(1 + 2) * (3 + 4)");
+            TestPeg(HeronGrammar.Expr(), "ab()");
+            TestPeg(HeronGrammar.Expr(), "ab(a)");
+            TestPeg(HeronGrammar.Expr(), "a.x");
+            TestPeg(HeronGrammar.Expr(), "a.x()");
+            TestPeg(HeronGrammar.Expr(), "ab(a.x() + 24)");
+            TestPeg(HeronGrammar.Expr(), "function() { }");
+            TestPeg(HeronGrammar.Expr(), "function(a : Int) { return a + 1; }");
+            TestPeg(HeronGrammar.Expr(), "f(function(a : Int) { return a + 1; })");
         }
 
         static void SimplePegStatementTests()
@@ -190,42 +202,44 @@ namespace HeronTests
             TestPeg(HeronGrammar.ForEachStatement(), "foreach (a in b) { }");
             TestPeg(HeronGrammar.ForEachStatement(), "foreach (a : A in b) { }");
             TestPeg(HeronGrammar.ForStatement(), "for (a = 0; a != b; a + 1) { }");
-            TestPeg(HeronGrammar.WhileStatement(), "foreach (a in b) { }");
-            TestPeg(HeronGrammar.EmptyStatement(), "while (a) { }");
+            TestPeg(HeronGrammar.WhileStatement(), "while (a) { }");
+            TestPeg(HeronGrammar.EmptyStatement(), ";");
             TestPeg(HeronGrammar.ReturnStatement(), "return a;");
             TestPeg(HeronGrammar.DeleteStatement(), "delete a;");
             TestPeg(HeronGrammar.SwitchStatement(), "switch (a) { case (b) { } default { } }");
+            TestPeg(HeronGrammar.Statement(), "f(function() { return a + 1; });");
+            TestPeg(HeronGrammar.Statement(), "f(function(a : Int) { a += 1; return a * 2; });");
         }
 
         static void SimpleExprTests()
         {
-            TestExpr("1");
-            TestExpr("123");
-            TestExpr("1.0");
-            TestExpr("abc");
-            TestExpr("a");
-            TestExpr("(1)");
-            TestExpr("1 + 2");
-            TestExpr("(1 + 2)");
-            TestExpr("-35");
-            TestExpr("a.f");
-            TestExpr("a = 5");
-            TestExpr("a.f = 5");
-            TestExpr("a[1]");
-            TestExpr("f()");
-            TestExpr("f(1)");
-            TestExpr("f(1,2)");
-            TestExpr("f ( 1 , 2 )");
-            TestExpr("f ( 1 , 2 )");
-            TestExpr("f() + 5");
-            TestExpr("1 + (2 * 3)");
-            TestExpr("a == 12");
-            TestExpr("a != 12");
-            TestExpr("a < 12");
-            TestExpr("a > 12");
-            TestExpr("4 + 12 * 3");
-            TestExpr("(4 + 12) * 3");
-            TestExpr("a == 3 || b == 4");
+            TestExprParse("1");
+            TestExprParse("123");
+            TestExprParse("1.0");
+            TestExprParse("abc");
+            TestExprParse("a");
+            TestExprParse("(1)");
+            TestExprParse("1 + 2");
+            TestExprParse("(1 + 2)");
+            TestExprParse("-35");
+            TestExprParse("a.f");
+            TestExprParse("a = 5");
+            TestExprParse("a.f = 5");
+            TestExprParse("a[1]");
+            TestExprParse("f()");
+            TestExprParse("f(1)");
+            TestExprParse("f(1,2)");
+            TestExprParse("f ( 1 , 2 )");
+            TestExprParse("f ( 1 , 2 )");
+            TestExprParse("f() + 5");
+            TestExprParse("1 + (2 * 3)");
+            TestExprParse("a == 12");
+            TestExprParse("a != 12");
+            TestExprParse("a < 12");
+            TestExprParse("a > 12");
+            TestExprParse("4 + 12 * 3");
+            TestExprParse("(4 + 12) * 3");
+            TestExprParse("a == 3 || b == 4");
         }
 
         static public void MainTest()

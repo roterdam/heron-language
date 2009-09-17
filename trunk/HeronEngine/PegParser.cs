@@ -42,15 +42,21 @@ namespace Peg
             location = new ParseLocation(s, begin, end);
             this.msg = msg;
             s.GetRowCol(begin, out row, out col);
-            line = s.GetLine(row);
+            line = s.GetLine(begin);
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < line.Length - 1; ++i)
-                if (line[i] == '\t')
-                    sb.Append('\t');
+            int i = begin - 1;
+            ptr = "^";
+            while (i >= 0)
+            {
+                if (s[i] == '\n')
+                    break;
+                if (s[i] == '\t')
+                    ptr = "\t" + ptr;
                 else
-                    sb.Append(' ');
+                    ptr = " " + ptr;
+                --i;
+            }
             sb.Append('^');
-            this.ptr = sb.ToString();
         }
     }
     
@@ -120,7 +126,7 @@ namespace Peg
         {
             get
             {
-                return mInput.ValidSubstring(mIndex, 20);
+                return mInput.SafeSubstring(mIndex, 20);
             }
         }
 
@@ -128,7 +134,7 @@ namespace Peg
         {
             get
             {
-                return mInput.ValidSubstring(mIndex - 20, 20);
+                return mInput.SafeSubstring(mIndex - 20, 20);
             }
         }
 
@@ -136,7 +142,7 @@ namespace Peg
         {
             get
             {
-                return mInput.ValidSubstring(mIndex, 20);
+                return mInput.SafeSubstring(mIndex, 20);
             }
         }
 

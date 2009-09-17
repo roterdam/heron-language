@@ -39,10 +39,15 @@ namespace HeronEngine
         {
             bFound = true;
 
-            // NOTE: it would be more efficient to make "this" 
-            // a special operator. 
+            // TODO: it would be more efficient to make "this" 
+            // parsed as a special expression. 
             if (s == "this")
                 return self;
+
+            // TODO: it would be more efficient to make "null" 
+            // parsed as a special expression. 
+            if (s == "null")
+                return HeronObject.Null;
 
             foreach (ObjectTable tbl in scopes)
                 if (tbl.ContainsKey(s))

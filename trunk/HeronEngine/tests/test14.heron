@@ -2,15 +2,29 @@
 {
 	class PrettyPrinter 
 	{
-		methods
+		fields
 		{
+			indent : String;
+		}
+		methods
+		{		
+			Constructor()
+			{
+				indent = new String();
+			}
 			Write(s : String)
 			{
-				Console.Write(s);
+				if (s == null)
+					Console.Write("null");
+				else
+					Console.Write(s);
 			}			
 			WriteLine(s : String)
 			{
-				Console.WriteLine(s);
+				if (s == null)
+					Console.WriteLine("");
+				else
+					Console.WriteLine(s);
 				Console.Write(indent);
 			}
 			BracesAround(f : Function)
@@ -30,10 +44,6 @@
 		inherits 
 		{
 			PrettyPrinter;
-		}
-		fields
-		{
-			indent : String;
 		}
 		methods
 		{					
@@ -56,20 +66,20 @@
 							Output(i);					
 						foreach (e : EnumNode in m.GetClasses())
 							Output(e);	
-					})		
+					}
 				);	
 				
 				Console.ReadKey();
 			}
-			
-			Output(c : ClassNode, string indent)
+				
+			Output(c : ClassNode, indent : String)
 			{
 				Write("class ");				
 				WriteLine(c.name);
 				WriteLine("{ }");
 			}
 
-			Output(i : InterfaceNode, string indent)
+			Output(i : InterfaceNode, indent : String)
 			{
 				Write("interface ");
 				WriteLine(i.name);
@@ -96,7 +106,7 @@
 		methods 
 		{
 			F();
-			G(int x, int y) : int;
+			G(x : Int, y : Int) : Int;
 		}
 	}
 	
