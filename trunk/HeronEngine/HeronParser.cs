@@ -126,7 +126,7 @@ namespace HeronEngine
             {
                 foreach (AstNode node in methods.Children)
                 {
-                    HeronFunction f = CreateFunction(node, r);
+                    FunctionDefinition f = CreateFunction(node, r);
                     r.AddMethod(f);
                 }
             }
@@ -162,7 +162,7 @@ namespace HeronEngine
             {
                 foreach (AstNode node in methods.Children)
                 {
-                    HeronFunction f = CreateFunction(node, r);
+                    FunctionDefinition f = CreateFunction(node, r);
                     r.AddMethod(f);
                 }
             }
@@ -221,9 +221,9 @@ namespace HeronEngine
             return r;
         }
 
-        static public HeronFormalArg CreateFormalArg(AstNode x)
+        static public FormalArg CreateFormalArg(AstNode x)
         {
-            HeronFormalArg r = new HeronFormalArg();
+            FormalArg r = new FormalArg();
             r.name = x.GetChild("name").ToString();
             r.type = new UnresolvedType(GetTypeName(x, "Any"), m);
             return r;            
@@ -237,10 +237,10 @@ namespace HeronEngine
             return r;
         }
 
-        static public HeronFunction CreateFunction(AstNode x, HeronType parent)
+        static public FunctionDefinition CreateFunction(AstNode x, HeronType parent)
         {
             HeronModule module = parent.GetModule();
-            HeronFunction r = new HeronFunction(parent);
+            FunctionDefinition r = new FunctionDefinition(parent);
             AstNode fundecl = x.GetChild("fundecl");            
             r.name = fundecl.GetChild("name").ToString();
             r.formals = CreateFormalArgs(fundecl.GetChild("arglist"));
@@ -352,7 +352,7 @@ namespace HeronEngine
         static public WhileStatement CreateWhileStatement(AstNode x)
         {
             WhileStatement r = new WhileStatement(x);
-            r.cond = CreateExpr(x.GetChild(0).GetChild(0));
+            r.condition = CreateExpr(x.GetChild(0).GetChild(0));
             r.body = CreateStatement(x.GetChild(1));
             return r;
         }

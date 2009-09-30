@@ -9,7 +9,7 @@ namespace HeronEngine
     /// This is an association list of objects with names.
     /// This is used as a mechanism for creating scoped names.
     /// </summary>
-    public class ObjectTable : Dictionary<String, HeronObject>
+    public class NameValueTable : Dictionary<String, HeronValue>
     {
         public override string ToString()
         {
@@ -18,7 +18,7 @@ namespace HeronEngine
             {
                 sb.Append(s);
                 sb.Append(" = ");
-                HeronObject o = this[s];
+                HeronValue o = this[s];
                 if (o != null)
                     sb.AppendLine(o.ToString());
                 else

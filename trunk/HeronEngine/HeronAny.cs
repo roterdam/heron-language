@@ -5,18 +5,18 @@ using System.Text;
 
 namespace HeronEngine
 {
-    public class Any : HeronObject
+    public class Any : HeronValue
     {
-        public HeronObject obj;
+        public HeronValue obj;
         public HeronType type;
 
-        public Any(HeronObject obj)
+        public Any(HeronValue obj)
         {
             this.obj = obj;
             this.type = obj.GetHeronType();
         }
 
-        public Any(HeronObject obj, HeronType type)
+        public Any(HeronValue obj, HeronType type)
         {
             this.obj = obj;
             this.type = type;
@@ -51,7 +51,7 @@ namespace HeronEngine
             return false;
         }
 
-        public HeronObject As(HeronType t)
+        public HeronValue As(HeronType t)
         {
             if (type.name == t.name)
                 return obj;

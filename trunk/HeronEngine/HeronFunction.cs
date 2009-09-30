@@ -9,7 +9,7 @@ namespace HeronEngine
     /// <summary>
     /// Represents the formal argument to a function
     /// </summary>
-    public class HeronFormalArg
+    public class FormalArg
     {
         public string name;
         public HeronType type = HeronPrimitiveTypes.AnyType;
@@ -18,7 +18,7 @@ namespace HeronEngine
     /// <summary>
     /// Represents all of the formals arguments to a function.
     /// </summary>
-    public class HeronFormalArgs : List<HeronFormalArg>
+    public class HeronFormalArgs : List<FormalArg>
     {
     }
 
@@ -26,7 +26,7 @@ namespace HeronEngine
     /// Represents the definition of a Heron function or member function in the source code.
     /// Not to be confused with a FunctionObject which represents a value of function type.
     /// </summary>
-    public class HeronFunction : HeronObject
+    public class FunctionDefinition : HeronValue
     {
         public string name;
         public Statement body;
@@ -34,7 +34,7 @@ namespace HeronEngine
         public HeronType parent;
         public HeronType rettype;
 
-        public HeronFunction(HeronType parent)
+        public FunctionDefinition(HeronType parent)
         {
             this.parent = parent;
         }
@@ -47,13 +47,13 @@ namespace HeronEngine
         /// <param name="env"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public HeronObject Invoke(HeronObject self, Environment env, HeronObject[] args)
+        public HeronValue Invoke(HeronValue self, HeronExecutor vm, HeronValue[] args)
         {
-            FunctionObject fo = new FunctionObject(self, this);
-            return fo.Apply(env, args);
+            FunctionValue fo = new FunctionValue(self, this);
+            return fo.Apply(vm, args);
         }
 
-        public bool Matches(HeronFunction f)
+        public bool Matches(FunctionDefinition f)
         {
             if (f.name != name)
                 return false;
@@ -62,8 +62,8 @@ namespace HeronEngine
                 return false;
             for (int i = 0; i < n; ++i)
             {
-                HeronFormalArg arg1 = formals[i];
-                HeronFormalArg arg2 = f.formals[i];
+                FormalArg arg1 = formals[i];
+                FormalArg arg2 = f.formals[i];
                 if (arg1.type != arg2.type)
                     return false;
             }
@@ -87,7 +87,7 @@ namespace HeronEngine
                 rettype = (rettype as UnresolvedType).Resolve();
 
             // Resolve the argument types
-            foreach (HeronFormalArg arg in formals)
+            foreach (FormalArg arg in formals)
                 if (arg.type is UnresolvedType)
                     arg.type = (arg.type as UnresolvedType).Resolve();
         }
@@ -101,7 +101,7 @@ namespace HeronEngine
             {
                 if (i > 0)
                     sb.Append(", ");
-                HeronFormalArg arg = formals[i];
+                FormalArg arg = formals[i];
                 sb.Append(arg.name).Append(" : ").Append(arg.type.ToString());
             }
             sb.Append(")");
@@ -110,11 +110,28 @@ namespace HeronEngine
 
             return sb.ToString();
         }
+
+        public IEnumerable<Statement> GetStatements()
+        {
+            foreach (Statement st in body.GetSubStatements())
+                yield return st;
+        }
+
+        public IEnumerable<string> GetUndefinedNames()
+        {
+            var locals = new Stack<string>();
+            locals.Push(name);
+            var result = new List<string>();
+            foreach (FormalArg arg in formals)
+                locals.Push(arg.name);
+            body.GetUndefinedNames(locals, result);
+            return result;
+        }
     }
 
     /// <summary>
     /// </summary>
-    public class FunctionTable : List<HeronFunction>
+    public class FunctionTable : List<FunctionDefinition>
     {
     }
 }

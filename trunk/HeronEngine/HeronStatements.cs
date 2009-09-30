@@ -8,9 +8,13 @@ namespace HeronEngine
 {
     public abstract class Statement 
     {
+        static List<Statement> noStatements = new List<Statement>();
+        static List<Expression> noExpressions = new List<Expression>();
+        static List<string> noStrings = new List<string>();
+
         public Peg.AstNode node;
 
-        public abstract void Execute(Environment env);
+        public abstract void Eval(HeronExecutor vm);
 
         internal Statement(Peg.AstNode node)
         {
@@ -18,6 +22,57 @@ namespace HeronEngine
         }
 
         public abstract string StatementType();
+        
+        public virtual IEnumerable<Statement> GetSubStatements()
+        {
+            return noStatements;
+        }
+
+        public virtual IEnumerable<Expression> GetSubExpressions()
+        {
+            return noExpressions;
+        }
+
+        public virtual IEnumerable<string> GetDefinedNames()
+        {
+            return noStrings;
+        }
+
+        public virtual IEnumerable<Statement> GetStatementTree()
+        {
+            yield return this;
+            foreach (Statement x in GetSubStatements())
+                foreach (Statement y in GetStatementTree())
+                    yield return y;
+        }
+
+        public IEnumerable<Expression> GetExpressionTree()
+        {
+            foreach (Expression x in GetSubExpressions())
+                foreach (Expression y in x.GetExpressionTree())
+                    yield return y;
+        }
+
+        public IEnumerable<string> GetUsedNames()
+        {
+            foreach (Expression x in GetExpressionTree())
+                if (x is Name)
+                    yield return (x as Name).name;
+        }
+
+        public void GetUndefinedNames(Stack<string> names, List<string> result)
+        {
+            var newNames = new List<string>(GetDefinedNames());
+            foreach (string name in newNames)
+                names.Push(name);
+            foreach (string name in GetUsedNames())
+                if (!names.Contains(name) && !result.Contains(name))
+                    result.Add(name);
+            foreach (Statement st in GetSubStatements())
+                st.GetUndefinedNames(names, result);
+            for (int i=0; i < newNames.Count; ++i)
+                names.Pop();
+        }
     }
 
     public class VariableDeclaration : Statement
@@ -31,10 +86,10 @@ namespace HeronEngine
         {
         }
 
-        public override void Execute(Environment env)
+        public override void Eval(HeronExecutor vm)
         {
-            HeronObject initVal = value.Eval(env);
-            env.AddVar(name, initVal);
+            HeronValue initVal = vm.Eval(value);
+            vm.AddVar(name, initVal);
         }
 
         public override string ToString()
@@ -49,6 +104,17 @@ namespace HeronEngine
         {
             return "variable_declaration";
         }
+
+        public override IEnumerable<Expression> GetSubExpressions()
+        {
+            if (value != null)
+                yield return value;
+        }
+
+        public override IEnumerable<string> GetDefinedNames()
+        {
+            yield return name;
+        }
     }
 
     public class DeleteStatement : Statement
@@ -60,8 +126,11 @@ namespace HeronEngine
         {
         }
 
-        public override void Execute(Environment env)
+        public override void Eval(HeronExecutor vm)
         {
+            // TODO: check if the expression is a name.
+            // if so, then set it to NULL. 
+            // then dispose of it, etc. 
             throw new NotImplementedException();
         }
 
@@ -74,6 +143,11 @@ namespace HeronEngine
         {
             return "delete_statement";
         }
+
+        public override IEnumerable<Expression> GetSubExpressions()
+        {            
+            yield return expression;
+        }
     }
 
     public class ExpressionStatement : Statement
@@ -85,9 +159,9 @@ namespace HeronEngine
         {
         }
 
-        public override void Execute(Environment env)
+        public override void Eval(HeronExecutor vm)
         {
-            expression.Eval(env);
+            vm.Eval(expression);
         }
 
         public override string ToString()
@@ -98,6 +172,11 @@ namespace HeronEngine
         public override string StatementType()
         {
             return "expression_statement";
+        }
+
+        public override IEnumerable<Expression> GetSubExpressions()
+        {
+            yield return expression;
         }
     }
 
@@ -115,13 +194,13 @@ namespace HeronEngine
         {
         }
 
-        public override void Execute(Environment env)
+        public override void Eval(HeronExecutor vm)
         {
             // TODO: make this exception safe. Have a "using" with a special scope 
             // construction object.
-            env.PushScope();
-            env.AddVar(name, null);
-            HeronObject c = this.collection.Eval(env);
+            vm.PushScope();
+            vm.AddVar(name, HeronValue.Null);
+            HeronValue c = vm.Eval(this.collection);
             if (!(c is DotNetObject))
                 throw new Exception("Unable to iterate over " + collection.ToString() + " because it is not a collection");
 
@@ -139,11 +218,13 @@ namespace HeronEngine
             }
 
             foreach (Object e in list) {
-                HeronObject ho = DotNetObject.Marshal(e);
-                env.SetVar(name, ho);
-                body.Execute(env);
+                HeronValue ho = DotNetObject.Marshal(e);
+                vm.SetVar(name, ho);
+                vm.Eval(body);
+                if (vm.ShouldExitScope())
+                    break;
             }
-            env.PopScope();
+            vm.PopScope();
         }
 
         public override string ToString()
@@ -155,6 +236,21 @@ namespace HeronEngine
         public override string StatementType()
         {
             return "foreach_statement";
+        }
+
+        public override IEnumerable<Statement> GetSubStatements()
+        {
+            yield return body;
+        }
+
+        public override IEnumerable<Expression> GetSubExpressions()
+        {
+            yield return collection;
+        }
+
+        public override IEnumerable<string> GetDefinedNames()
+        {
+            yield return name;
         }
     }
 
@@ -171,18 +267,20 @@ namespace HeronEngine
         {
         }
 
-        public override void Execute(Environment env)
+        public override void Eval(HeronExecutor vm)
         {
-            HeronObject initVal = initial.Eval(env);
-            env.AddVar(name, initVal);
+            HeronValue initVal = initial.Eval(vm);
+            vm.AddVar(name, initVal);
             while (true)
             {
-                HeronObject condVal = condition.Eval(env);
+                HeronValue condVal = vm.Eval(condition);
                 bool b = condVal.ToBool();
                 if (!b)
                     break;
-                body.Execute(env);
-                next.Eval(env);
+                vm.Eval(body);
+                if (vm.ShouldExitScope())
+                    break;
+                vm.Eval(next);
             }
         }
 
@@ -199,6 +297,23 @@ namespace HeronEngine
         {
             return "for_statement";
         }
+
+        public override IEnumerable<Statement> GetSubStatements()
+        {
+            yield return body;
+        }
+
+        public override IEnumerable<Expression> GetSubExpressions()
+        {
+            yield return initial;
+            yield return condition;
+            yield return next;
+        }
+
+        public override IEnumerable<string> GetDefinedNames()
+        {
+            yield return name;
+        }
     }
 
     public class CodeBlock : Statement
@@ -210,16 +325,16 @@ namespace HeronEngine
         {
         }
 
-        public override void Execute(Environment env)
+        public override void Eval(HeronExecutor vm)
         {
-            env.PushScope();
+            vm.PushScope();
             foreach (Statement s in statements)
             {
-                s.Execute(env);
-                if (env.ShouldExitScope())
+                vm.Eval(s);
+                if (vm.ShouldExitScope())
                     break;
             }
-            env.PopScope();
+            vm.PopScope();
         }
 
         public override string StatementType()
@@ -238,6 +353,11 @@ namespace HeronEngine
             sb.Append("}\n");
             return sb.ToString();
         }
+
+        public override IEnumerable<Statement> GetSubStatements()
+        {
+            return statements;
+        }
     }
 
     public class IfStatement : Statement
@@ -251,25 +371,37 @@ namespace HeronEngine
         {
         }
 
-        public override void Execute(Environment env)
+        public override void Eval(HeronExecutor vm)
         {
-            bool b = condition.Eval(env).ToBool();
+            bool b = condition.Eval(vm).ToBool();
             if (b)
-                ontrue.Execute(env); 
+                vm.Eval(ontrue); 
             else
                 if (onfalse != null)
-                    onfalse.Execute(env);
+                    vm.Eval(onfalse);
         }
 
         public override string StatementType()
         {
             return "if_statement";
         }
+
+        public override IEnumerable<Statement> GetSubStatements()
+        {
+            yield return ontrue;
+            if (onfalse != null)
+                yield return onfalse;
+        }
+
+        public override IEnumerable<Expression> GetSubExpressions()
+        {
+            yield return condition;
+        }
     }
 
     public class WhileStatement : Statement
     {
-        public Expression cond;
+        public Expression condition;
         public Statement body;
 
         internal WhileStatement(Peg.AstNode node)
@@ -277,16 +409,16 @@ namespace HeronEngine
         {
         }
 
-        public override void Execute(Environment env)
+        public override void Eval(HeronExecutor vm)
         {
             while (true)
             {
-                HeronObject o = cond.Eval(env);
+                HeronValue o = condition.Eval(vm);
                 bool b = o.ToBool();
                 if (!b)
                     break;
-                body.Execute(env);
-                if (env.ShouldExitScope())
+                vm.Eval(body);
+                if (vm.ShouldExitScope())
                     break;
             }
         }
@@ -294,6 +426,16 @@ namespace HeronEngine
         public override string StatementType()
         {
             return "while_statement";
+        }
+
+        public override IEnumerable<Statement> GetSubStatements()
+        {
+            yield return body;
+        }
+
+        public override IEnumerable<Expression> GetSubExpressions()
+        {
+            yield return condition;
         }
     }
 
@@ -306,14 +448,20 @@ namespace HeronEngine
         {
         }
 
-        public override void Execute(Environment env)
+        public override void Eval(HeronExecutor vm)
         {
-            env.Return(expression.Eval(env));
+            HeronValue result = vm.Eval(expression);
+            vm.Return(result);
         }
 
         public override string StatementType()
         {
             return "return_statement";
+        }
+
+        public override IEnumerable<Expression> GetSubExpressions()
+        {
+            yield return expression;
         }
     }
 
@@ -328,26 +476,41 @@ namespace HeronEngine
         {
         }
 
-        public override void Execute(Environment env)
+        public override void Eval(HeronExecutor vm)
         {
-            HeronObject o = condition.Eval(env);
+            HeronValue o = condition.Eval(vm);
             foreach (CaseStatement c in cases)
             {
-                if (c.condition.Equals(o))
+                HeronValue cond = vm.Eval(c.condition);
+                if (o.EqualsValue(cond))
                 {
-                    c.Execute(env);
+                    vm.Eval(c.statement);
                     return;
                 }
             }
             if (ondefault != null)
             {
-                ondefault.Execute(env);
+                vm.Eval(ondefault);
             }
         }
 
         public override string StatementType()
         {
             return "switch_statement";
+        }
+
+        public override IEnumerable<Statement> GetSubStatements()
+        {
+            yield return this;
+            foreach (Statement st in cases)
+                yield return st;
+            if (ondefault != null)
+                yield return ondefault;
+        }
+
+        public override IEnumerable<Expression> GetSubExpressions()
+        {
+            yield return condition;
         }
     }
 
@@ -361,14 +524,19 @@ namespace HeronEngine
         {
         }
 
-        public override void Execute(Environment env)
+        public override void Eval(HeronExecutor vm)
         {
-            statement.Execute(env);
+            vm.Eval(statement);
         }
 
         public override string StatementType()
         {
             return "switch_statement";
+        }
+
+        public override IEnumerable<Expression> GetSubExpressions()
+        {
+            yield return condition;
         }
     }
 }

@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeronEngine", "HeronEngine.csproj", "{E3C7F929-5004-4403-8C10-0B20645D2D27}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeronStandardLibrary", "..\HeronStandardLibrary\HeronStandardLibrary.csproj", "{6CF170D8-5E9C-4C83-A5B7-F1D16F3C65F9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E3C7F929-5004-4403-8C10-0B20645D2D27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3C7F929-5004-4403-8C10-0B20645D2D27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3C7F929-5004-4403-8C10-0B20645D2D27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3C7F929-5004-4403-8C10-0B20645D2D27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CF170D8-5E9C-4C83-A5B7-F1D16F3C65F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CF170D8-5E9C-4C83-A5B7-F1D16F3C65F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CF170D8-5E9C-4C83-A5B7-F1D16F3C65F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CF170D8-5E9C-4C83-A5B7-F1D16F3C65F9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

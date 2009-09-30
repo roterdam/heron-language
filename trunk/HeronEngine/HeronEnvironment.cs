@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 using System.Security.Policy;
+using System.Diagnostics;
 
 namespace HeronEngine
 {
@@ -18,17 +19,12 @@ namespace HeronEngine
         /// <summary>
         /// The current result value
         /// </summary>
-        private HeronObject result;
+        private HeronValue result;
 
         /// <summary>
         /// Used for loading assemblies
         /// </summary>
         private AppDomain domain;
-
-        /// <summary>
-        /// A flag that is set to true when a return statement occurs. 
-        /// </summary>
-        bool bReturning = false;
 
         /// <summary>
         /// A list of call stack frames 
@@ -61,7 +57,6 @@ namespace HeronEngine
         {
             frames.Clear();
             result = null;
-            bReturning = false;
             Initialize();
         }
 
@@ -89,9 +84,8 @@ namespace HeronEngine
         /// </summary>
         /// <param name="f"></param>
         /// <param name="self"></param>
-        public void PushNewFrame(HeronFunction f, ClassInstance self)
+        public void PushNewFrame(FunctionDefinition f, ClassInstance self)
         {
-            Assure(!bReturning, "cannot push a new frame while returning from another");
             frames.Push(new Frame(f, self));
         }
 
@@ -100,7 +94,7 @@ namespace HeronEngine
         /// </summary>
         public void PushScope()
         {
-            PushScope(new ObjectTable());
+            PushScope(new NameValueTable());
         }
 
         /// <summary>
@@ -108,7 +102,7 @@ namespace HeronEngine
         /// or class fields.
         /// </summary>
         /// <param name="scope"></param>
-        public void PushScope(ObjectTable scope)
+        public void PushScope(NameValueTable scope)
         {
             frames.Peek().AddScope(scope);
         }
@@ -118,8 +112,9 @@ namespace HeronEngine
         /// </summary>
         /// <param name="s"></param>
         /// <param name="o"></param>
-        public void AddVar(string s, HeronObject o)
+        public void AddVar(string s, HeronValue o)
         {
+            Trace.Assert(o != null);
             if (frames.Peek().HasVar(s))
                 throw new Exception(s + " is already declared in the scope");
             frames.Peek().AddVar(s, o);
@@ -131,16 +126,18 @@ namespace HeronEngine
         /// </summary>
         /// <param name="s"></param>
         /// <param name="o"></param>
-        public void SetVar(string s, HeronObject o)
+        public void SetVar(string s, HeronValue o)
         {
+            Trace.Assert(o != null);
             foreach (Frame f in frames)
                 if (f.SetVar(s, o))
                     return;
             throw new Exception("Could not find variable " + s);
         }
 
-        public void SetField(string s, HeronObject o)
+        public void SetField(string s, HeronValue o)
         {
+            Trace.Assert(o != null);
             if (frames.Count == 0)
                 throw new Exception("No stack frames");
             Frame f = frames.Peek();
@@ -155,7 +152,6 @@ namespace HeronEngine
         public void PopFrame()
         {
             // Reset the returning flag, to indicate that the returning operation is completed. 
-            bReturning = false;
             frames.Pop();
         }
 
@@ -166,38 +162,6 @@ namespace HeronEngine
         {
             frames.Peek().PopScope();
         }
-
-        /// <summary>
-        /// Returns true if a return statement was executed and we are leaving the current scope.
-        /// </summary>
-        /// <returns></returns>
-        public bool IsReturning()
-        {
-            return bReturning;
-        }
-
-        /// <summary>
-        /// This is used by loops over statements to check whether a return statement, a break 
-        /// statement, or a throw statement was called. Currently only return statements are supported.
-        /// </summary>
-        /// <returns></returns>
-        public bool ShouldExitScope()
-        {
-            return IsReturning();
-        }
-
-        /// <summary>
-        /// Called by a return statement. Sets the function result, and sets a flag to indicate 
-        /// to executing statement groups that execution should terminate.
-        /// </summary>
-        /// <param name="ret"></param>
-        public void Return(HeronObject ret)
-        {
-            Assure(!bReturning, "internal error, returning flag was not reset");
-            bReturning = true;
-            result = ret;
-        }
-
         /// <summary>
         /// Looks up the value or type associated with the name.
         /// Looks in each scope in the currenst stack frame until a match is found.
@@ -205,12 +169,12 @@ namespace HeronEngine
         /// </summary>
         /// <param name="s"></param>
         /// <returns></returns>
-        public HeronObject LookupName(string s)
+        public HeronValue LookupName(string s)
         {
             if (frames.Count != 0)
             {
                 bool bFound = false;
-                HeronObject r = frames.Peek().LookupName(s, out bFound);
+                HeronValue r = frames.Peek().LookupName(s, out bFound);
                 if (bFound)
                     return r;
             }
@@ -222,7 +186,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public HeronObject LookupVar(string name)
+        public HeronValue LookupVar(string name)
         {
             if (frames.Count == 0)
                 return null;
@@ -246,7 +210,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public HeronObject LookupField(string name)
+        public HeronValue LookupField(string name)
         {
             if (frames.Count == 0)
                 return null;
@@ -271,9 +235,9 @@ namespace HeronEngine
         /// return null, until return is called on it.
         /// </summary>
         /// <returns></returns>
-        public HeronObject GetLastResult()
+        public HeronValue GetLastResult()
         {
-            HeronObject r = result;
+            HeronValue r = result;
             result = null;
             return r;
         }
@@ -298,6 +262,15 @@ namespace HeronEngine
             foreach (Frame f in frames)
                 sb.Append(f.ToString());
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Set the most recent result 
+        /// </summary>
+        /// <param name="ret"></param>
+        public void SetResult(HeronValue ret)
+        {
+            result = ret;
         }
     }
 }

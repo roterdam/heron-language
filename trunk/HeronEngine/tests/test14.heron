@@ -25,12 +25,12 @@
 					Console.WriteLine("");
 				else
 					Console.WriteLine(s);
-				Console.Write(indent);
+				Write(indent);
 			}
 			BracesAround(f : Function)
 			{
 				WriteLine("{");
-				old_indent = indent;
+				var old_indent = indent;
 				indent = indent + "  ";
 				f();
 				indent = old_indent;				
@@ -49,6 +49,7 @@
 		{					
 			Constructor(program : ProgramNode)
 			{
+				base.Constructor();
 				foreach (m : ModuleNode in program.GetModules())
 					Output(m);
 			}
