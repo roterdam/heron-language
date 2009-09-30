@@ -45,10 +45,10 @@ namespace HeronEngine
             return s;
         }
 
-        public static HeronObject DotNetToHeronObject(Object o)
+        public static HeronValue DotNetToHeronObject(Object o)
         {
             if (o == null)
-                return HeronObject.Null;
+                return HeronValue.Null;
 
             Type t = o.GetType();
             
@@ -65,26 +65,26 @@ namespace HeronEngine
                 switch (o.GetType().Name)
                 {
                     case "Single":
-                        return new FloatObject((float)o);
+                        return new FloatValue((float)o);
                     case "Double":
                         double d = (double)o;
                         // TEMP: Downcasts doubles to floats for now.
-                        return new FloatObject((float)d);
+                        return new FloatValue((float)d);
                     case "Int32":
-                        return new IntObject((int)o);
+                        return new IntValue((int)o);
                     case "Char":
-                        return new CharObject((char)o);
+                        return new CharValue((char)o);
                     case "String":
-                        return new StringObject((string)o);
+                        return new StringValue((string)o);
                     case "Boolean":
-                        return new BoolObject((bool)o);
+                        return new BoolValue((bool)o);
                     default:
                         return DotNetObject.CreateDotNetObjectNoMarshal(o);
                 }
             }
         }
 
-        static public Object[] ObjectsToDotNetArray(HeronObject[] array)
+        static public Object[] ObjectsToDotNetArray(HeronValue[] array)
         {
             Object[] r = new Object[array.Length];
             for (int i = 0; i < array.Length; ++i)

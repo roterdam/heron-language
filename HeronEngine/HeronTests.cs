@@ -74,7 +74,7 @@ namespace HeronTests
             Console.WriteLine("expecting result of " + sOutput);
             try
             {
-                HeronObject o = vm.EvalExpr(sExpr);
+                HeronValue o = vm.EvalString(sExpr);
                 Console.WriteLine("test result was " + o.ToString());
                 if (o.ToString() != sOutput)
                     throw new Exception("Result " + o.ToString() + " is different from expected " + sOutput);

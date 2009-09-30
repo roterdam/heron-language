@@ -13,9 +13,9 @@ namespace HeronEngine
     /// </summary>
     public class Frame 
     {
-        Stack<ObjectTable> scopes = new Stack<ObjectTable>();
+        Stack<NameValueTable> scopes = new Stack<NameValueTable>();
 
-        public Frame(HeronFunction f, ClassInstance self)
+        public Frame(FunctionDefinition f, ClassInstance self)
         {
             this.function = f;
             this.self = self;
@@ -25,7 +25,7 @@ namespace HeronEngine
                 module = type.GetModule();
         }
 
-        public void AddScope(ObjectTable scope)
+        public void AddScope(NameValueTable scope)
         {
             scopes.Push(scope);
         }
@@ -35,7 +35,7 @@ namespace HeronEngine
             scopes.Pop();
         }
 
-        public HeronObject LookupName(string s, out bool bFound)
+        public HeronValue LookupName(string s, out bool bFound)
         {
             bFound = true;
 
@@ -47,9 +47,9 @@ namespace HeronEngine
             // TODO: it would be more efficient to make "null" 
             // parsed as a special expression. 
             if (s == "null")
-                return HeronObject.Null;
+                return HeronValue.Null;
 
-            foreach (ObjectTable tbl in scopes)
+            foreach (NameValueTable tbl in scopes)
                 if (tbl.ContainsKey(s))
                     return tbl[s];
 
@@ -76,17 +76,17 @@ namespace HeronEngine
             return null;
         }
 
-        public HeronObject LookupVar(string s)
+        public HeronValue LookupVar(string s)
         {
             if (s == "this")
                 return self;
-            foreach (ObjectTable tbl in scopes)
+            foreach (NameValueTable tbl in scopes)
                 if (tbl.ContainsKey(s))
                     return tbl[s];
             return null;
         }
 
-        public HeronObject LookupField(string s)
+        public HeronValue LookupField(string s)
         {
             if (self == null)
                 return null;
@@ -101,15 +101,15 @@ namespace HeronEngine
         {
             if (s == "this")
                 return true;
-            foreach (ObjectTable tbl in scopes)
+            foreach (NameValueTable tbl in scopes)
                 if (tbl.ContainsKey(s))
                     return true;
             return false;
         }
 
-        public bool SetVar(string s, HeronObject o)
+        public bool SetVar(string s, HeronValue o)
         {
-            foreach (ObjectTable tbl in scopes)
+            foreach (NameValueTable tbl in scopes)
             {
                 if (tbl.ContainsKey(s))
                 {
@@ -120,7 +120,7 @@ namespace HeronEngine
             return false;
         }
 
-        public void AddVar(string s, HeronObject o)
+        public void AddVar(string s, HeronValue o)
         {
             scopes.Peek().Add(s, o);
         }
@@ -148,7 +148,7 @@ namespace HeronEngine
                 sb.Append("null");
             sb.AppendLine("]");
 
-            foreach (ObjectTable tab in scopes)
+            foreach (NameValueTable tab in scopes)
             {
                 sb.Append("[scope]");
                 sb.Append(tab.ToString());
@@ -159,7 +159,7 @@ namespace HeronEngine
         /// <summary>
         /// Function associated with this activation record 
         /// </summary>
-        public HeronFunction function = null;
+        public FunctionDefinition function = null;
 
         /// <summary>
         /// The 'this' pointer if applicable 

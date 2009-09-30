@@ -26,7 +26,7 @@ namespace HeronEngine
             return vm.GetEnv().GetCurrentFrame().function.name;
         }
 
-        public static void ToArray(HeronObject o, string s)
+        public static void ToArray(HeronValue o, string s)
         {
             Assembly a = Assembly.GetExecutingAssembly();
             Type t = a.GetType(s);

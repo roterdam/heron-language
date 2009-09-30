@@ -10,7 +10,7 @@ namespace HeronEngine
     /// <summary>
     /// See also: HeronClass
     /// </summary>
-    public abstract class HeronType : HeronObject 
+    public abstract class HeronType : HeronValue 
     {
         public string name = "anonymous_type";
 
@@ -27,11 +27,11 @@ namespace HeronEngine
         /// </summary>
         /// <param name="env"></param>
         /// <returns></returns>
-        public abstract HeronObject Instantiate(Environment env, HeronObject[] args);
+        public abstract HeronValue Instantiate(HeronExecutor vm, HeronValue[] args);
 
-        public HeronObject Instantiate(Environment env)
+        public HeronValue Instantiate(HeronExecutor vm)
         {
-            return Instantiate(env, new HeronObject[] { });
+            return Instantiate(vm, new HeronValue[] { });
         }
 
         /// <summary>
@@ -49,14 +49,14 @@ namespace HeronEngine
             return s.Substring(0, n);
         }
 
-        public virtual IEnumerable<HeronFunction> GetMethods()
+        public virtual IEnumerable<FunctionDefinition> GetMethods()
         {
-            return new List<HeronFunction>();
+            return new List<FunctionDefinition>();
         }
         
-        public IEnumerable<HeronFunction> GetMethods(string name)
+        public IEnumerable<FunctionDefinition> GetMethods(string name)
         {
-            foreach (HeronFunction f in GetMethods())
+            foreach (FunctionDefinition f in GetMethods())
                 if (f.name == name)
                     yield return f;
         }
@@ -100,7 +100,7 @@ namespace HeronEngine
         {
         }
 
-        public override HeronObject Instantiate(Environment env, HeronObject[] args)
+        public override HeronValue Instantiate(HeronExecutor vm, HeronValue[] args)
         {
             throw new Exception("Type '" + name + "' was not resolved.");
         }
@@ -134,7 +134,7 @@ namespace HeronEngine
             this.type = type;
         }
 
-        public override HeronObject Instantiate(Environment env, HeronObject[] args)
+        public override HeronValue Instantiate(HeronExecutor vm, HeronValue[] args)
         {
             Object[] objs = HeronDotNet.ObjectsToDotNetArray(args);
             Object o = type.InvokeMember(null, BindingFlags.Instance | BindingFlags.Public | BindingFlags.Default | BindingFlags.CreateInstance, null, null, objs);
@@ -153,7 +153,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public override HeronObject GetFieldOrMethod(string name)
+        public override HeronValue GetFieldOrMethod(string name)
         {
             // We have to first look to see if there are static fields
             FieldInfo[] fis = type.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.GetField);          

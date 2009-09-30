@@ -92,7 +92,7 @@ namespace HeronEngine
             RegisterDotNetType(typeof(HeronInterface), "InterfaceNode");
             RegisterDotNetType(typeof(HeronEnum), "EnumNode");
             RegisterDotNetType(typeof(HeronField), "FieldNode");
-            RegisterDotNetType(typeof(HeronFunction), "FunctionNode");
+            RegisterDotNetType(typeof(FunctionDefinition), "FunctionNode");
 
             RegisterDotNetType(typeof(VariableDeclaration));
             RegisterDotNetType(typeof(DeleteStatement));

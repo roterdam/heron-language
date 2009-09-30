@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{E3C7F929-5004-4403-8C10-0B20645D2D27}</ProjectGuid>
     <OutputType>Exe</OutputType>
@@ -52,7 +52,7 @@
     <Compile Include="HeronDotNet.cs" />
     <Compile Include="HeronFrame.cs" />
     <Compile Include="HeronModule.cs" />
-    <Compile Include="HeronObjectTable.cs" />
+    <Compile Include="HeronNameValueTable.cs" />
     <Compile Include="HeronParser.cs" />
     <Compile Include="HeronExpression.cs" />
     <Compile Include="HeronClass.cs" />
@@ -63,7 +63,7 @@
     <Compile Include="HeronReflection.cs" />
     <Compile Include="HeronStatements.cs" />
     <Compile Include="HeronExecutor.cs" />
-    <Compile Include="HeronObject.cs" />
+    <Compile Include="HeronValue.cs" />
     <Compile Include="HeronEnvironment.cs" />
     <Compile Include="HeronTests.cs">
       <SubType>Code</SubType>
@@ -95,7 +95,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Config.xml" />
-    <Content Include="todo.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HeronStandardLibrary\HeronStandardLibrary.csproj">

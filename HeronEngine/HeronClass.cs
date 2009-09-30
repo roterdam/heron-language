@@ -39,33 +39,33 @@ namespace HeronEngine
                     basetypes[i] = (t as UnresolvedType).Resolve();
             }
 
-            foreach (HeronFunction f in GetMethods())
+            foreach (FunctionDefinition f in GetMethods())
                 f.ResolveTypes();
         }
         public void AddBaseInterface(HeronType t)
         {
             basetypes.Add(t);
         }
-        public override HeronObject Instantiate(Environment env, HeronObject[] args)
+        public override HeronValue Instantiate(HeronExecutor vm, HeronValue[] args)
         {
             throw new Exception("Cannot instantiate an interface");
         }
-        public override IEnumerable<HeronFunction> GetMethods()
+        public override IEnumerable<FunctionDefinition> GetMethods()
         {
-            foreach (HeronFunction f in methods)
+            foreach (FunctionDefinition f in methods)
                 yield return f;
             foreach (HeronInterface i in basetypes)
-                foreach (HeronFunction f in i.GetMethods())
+                foreach (FunctionDefinition f in i.GetMethods())
                     yield return f;
         }
         // TODO: see if I can remove all "HasMethod" calls.
         public bool HasMethod(string name)
         {
-            foreach (HeronFunction f in GetMethods(name))
+            foreach (FunctionDefinition f in GetMethods(name))
                 return true;
             return false;
         }
-        public void AddMethod(HeronFunction x)
+        public void AddMethod(FunctionDefinition x)
         {
             methods.Add(x);
         }
@@ -91,7 +91,7 @@ namespace HeronEngine
         {
         }
 
-        public override HeronObject Instantiate(Environment env, HeronObject[] args)
+        public override HeronValue Instantiate(HeronExecutor vm, HeronValue[] args)
         {
             throw new Exception("Cannot instantiate an enumeration");
         }
@@ -121,7 +121,7 @@ namespace HeronEngine
             return values;
         }
 
-        public override HeronObject GetFieldOrMethod(string name)
+        public override HeronValue GetFieldOrMethod(string name)
         {
             if (!HasValue(name))
                 throw new Exception(name + " is not a member of " + this.name);
@@ -149,7 +149,7 @@ namespace HeronEngine
         List<HeronField> fields = new List<HeronField>();
         HeronType baseclass = null;
         List<HeronType> interfaces = new List<HeronType>();
-        FunctionListObject ctors;
+        FunctionListValue ctors;
         #endregion 
 
         #region internal function
@@ -172,13 +172,13 @@ namespace HeronEngine
             }
             foreach (HeronField f in GetFields())
                 f.ResolveTypes();
-            foreach (HeronFunction f in GetMethods())
+            foreach (FunctionDefinition f in GetMethods())
                 f.ResolveTypes();
         }
 
         internal bool VerifyImplements(HeronInterface i)
         {
-            foreach (HeronFunction f in i.GetMethods())
+            foreach (FunctionDefinition f in i.GetMethods())
                 if (!HasFunction(f))
                     return false;
             return true;
@@ -191,9 +191,9 @@ namespace HeronEngine
                     throw new Exception("Class '" + name + "' does not implement the interface '" + i.name + "'");
         }
 
-        internal bool HasFunction(HeronFunction f)
+        internal bool HasFunction(FunctionDefinition f)
         {
-            foreach (HeronFunction g in GetMethods(f.name))
+            foreach (FunctionDefinition g in GetMethods(f.name))
                 if (g.Matches(f))
                     return true;
             return false;
@@ -229,7 +229,7 @@ namespace HeronEngine
 
         internal bool HasMethod(string name)
         {
-            foreach (HeronFunction f in GetMethods(name))
+            foreach (FunctionDefinition f in GetMethods(name))
                 return true;
             return false;
         }
@@ -264,23 +264,23 @@ namespace HeronEngine
         /// </summary>
         /// <param name="env"></param>
         /// <returns></returns>
-        public override HeronObject Instantiate(Environment env, HeronObject[] args)
+        public override HeronValue Instantiate(HeronExecutor vm, HeronValue[] args)
         {
             // TODO: this needs to be optimized
             ClassInstance r = new ClassInstance(this);
             AddFields(r);
             // This is a last minute computation of the constructor list
-            List<HeronFunction> ctorlist = new List<HeronFunction>(GetMethods("Constructor"));
+            List<FunctionDefinition> ctorlist = new List<FunctionDefinition>(GetMethods("Constructor"));
             if (ctorlist == null)
                 return r;
-            ctors = new FunctionListObject(r, "Constructor", ctorlist);
+            ctors = new FunctionListValue(r, "Constructor", ctorlist);
             if (ctors.Count == 0)
                 return r;
 
-            FunctionObject o = ctors.Resolve(args);
+            FunctionValue o = ctors.Resolve(args);
             if (o == null)
                 return r; // No matching constructor
-            o.Apply(env, args);
+            o.Apply(vm, args);
             return r;
         }
         
@@ -289,7 +289,7 @@ namespace HeronEngine
             return fields;
         }
 
-        public void AddMethod(HeronFunction x)
+        public void AddMethod(FunctionDefinition x)
         {
             methods.Add(x);
         }
@@ -307,17 +307,17 @@ namespace HeronEngine
             return null;
         }
 
-        public FunctionListObject GetCtors()
+        public FunctionListValue GetCtors()
         {
             return ctors;
         }
 
-        public override IEnumerable<HeronFunction> GetMethods()
+        public override IEnumerable<FunctionDefinition> GetMethods()
         {
-            foreach (HeronFunction f in methods)
+            foreach (FunctionDefinition f in methods)
                 yield return f;
             if (baseclass != null)
-                foreach (HeronFunction f in baseclass.GetMethods())
+                foreach (FunctionDefinition f in baseclass.GetMethods())
                     yield return f;
         }
 

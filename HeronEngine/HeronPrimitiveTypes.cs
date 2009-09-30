@@ -12,7 +12,7 @@ namespace HeronEngine
         {
         }
 
-        public override HeronObject Instantiate(Environment env, HeronObject[] args)
+        public override HeronValue Instantiate(HeronExecutor vm, HeronValue[] args)
         {
             if (args.Length != 0)
                 throw new Exception("arguments not supported when instantiating primitives");
@@ -20,13 +20,13 @@ namespace HeronEngine
             switch (name)
             {
                 case "Int":
-                    return new IntObject();
+                    return new IntValue();
                 case "Float":
-                    return new FloatObject();
+                    return new FloatValue();
                 case "Char":
-                    return new CharObject();
+                    return new CharValue();
                 case "String":
-                    return new StringObject();
+                    return new StringValue();
                 case "Collection":
                     return DotNetObject.Marshal(new HeronCollection());
                 default:

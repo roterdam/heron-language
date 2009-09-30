@@ -7,13 +7,13 @@ using System.Diagnostics;
 
 namespace HeronEngine
 {
-    public abstract class HeronObject
+    public abstract class HeronValue
     {
-        public static VoidObject Void = new VoidObject();
-        public static NullObject Null = new NullObject();
-        public static UndefinedObject Undefined = new UndefinedObject();
+        public static VoidValue Void = new VoidValue();
+        public static NullValue Null = new NullValue();
+        public static UndefinedValue Undefined = new UndefinedValue();
 
-        public HeronObject()
+        public HeronValue()
         {            
         }
 
@@ -27,46 +27,51 @@ namespace HeronEngine
             throw new Exception("Cannot convert '" + ToString() + "' into System.Boolean");
         }
 
-        public virtual HeronObject GetAt(HeronObject index)
+        public virtual HeronValue GetAt(HeronValue index)
         {
             throw new Exception("unimplemented");
         }
 
-        public virtual void SetAt(HeronObject index, HeronObject val)
+        public virtual void SetAt(HeronValue index, HeronValue val)
         {
             throw new Exception("unimplemented");
         }
 
-        public virtual HeronObject Apply(Environment env, HeronObject[] args)
+        public virtual HeronValue Apply(HeronExecutor vm, HeronValue[] args)
         {
             throw new Exception(ToString() + " is not recognized a function object");
         }
 
-        public virtual HeronObject GetFieldOrMethod(string name)
+        public virtual HeronValue GetFieldOrMethod(string name)
         {
             throw new Exception(ToString() + " does not supported GetFields()");
         }
 
-        public virtual void SetField(string name, HeronObject val)
+        public virtual void SetField(string name, HeronValue val)
         {
             throw new Exception(ToString() + " does not supported SetField()");
         }
 
-        public virtual HeronObject InvokeUnaryOperator(string s)
+        public virtual HeronValue InvokeUnaryOperator(string s)
         {
             throw new Exception("unary operator invocation not supported on " + ToString());
         }
 
-        public virtual HeronObject InvokeBinaryOperator(string s, HeronObject x)
+        public virtual HeronValue InvokeBinaryOperator(string s, HeronValue x)
         {
             throw new Exception("binary operator invocation not supported on " + ToString());
                 
         }
 
         public abstract HeronType GetHeronType();
+
+        public bool EqualsValue(HeronValue x)
+        {
+            return InvokeBinaryOperator("==", x).ToBool();
+        }
     }
 
-    public class VoidObject : HeronObject
+    public class VoidValue : HeronValue
     {
         public override string ToString()
         {
@@ -79,7 +84,7 @@ namespace HeronEngine
         }
     }
 
-    public class NullObject : HeronObject
+    public class NullValue : HeronValue
     {
         public override string ToString()
         {
@@ -91,12 +96,12 @@ namespace HeronEngine
             return HeronPrimitiveTypes.NullType;
         }
 
-        public override HeronObject InvokeBinaryOperator(string s, HeronObject x)
+        public override HeronValue InvokeBinaryOperator(string s, HeronValue x)
         {
             switch (s)
             {
-                case "==": return new BoolObject(x is NullObject);
-                case "!=": return new BoolObject(!(x is NullObject));
+                case "==": return new BoolValue(x is NullValue);
+                case "!=": return new BoolValue(!(x is NullValue));
                 default:
                     throw new Exception("Binary operation: '" + s + "' not supported by strings");
             }
@@ -104,7 +109,7 @@ namespace HeronEngine
 
     }
 
-    public class UndefinedObject : HeronObject
+    public class UndefinedValue : HeronValue
     {
         public override string ToString()
         {
@@ -118,18 +123,18 @@ namespace HeronEngine
         }
     }
 
-    public class DotNetMethod : HeronObject
+    public class DotNetMethod : HeronValue
     {
         MethodInfo mi;
-        HeronObject self;
+        HeronValue self;
 
-        public DotNetMethod(MethodInfo mi, HeronObject self)
+        public DotNetMethod(MethodInfo mi, HeronValue self)
         {
             this.mi = mi;
             this.self = self;
         }
 
-        public override HeronObject Apply(Environment env, HeronObject[] args)
+        public override HeronValue Apply(HeronExecutor vm, HeronValue[] args)
         {
             Object[] objs = HeronDotNet.ObjectsToDotNetArray(args);
             Object r = mi.Invoke(self, objs);
@@ -142,7 +147,7 @@ namespace HeronEngine
         }
     }
 
-    public class DotNetObject : HeronObject
+    public class DotNetObject : HeronValue
     {
         Object obj;
         HeronType type;
@@ -163,12 +168,12 @@ namespace HeronEngine
         /// </summary>
         /// <param name="o"></param>
         /// <returns></returns>
-        public static HeronObject Marshal(Object o)
+        public static HeronValue Marshal(Object o)
         {
             return HeronDotNet.DotNetToHeronObject(o);
         }
 
-        internal static HeronObject CreateDotNetObjectNoMarshal(Object o)
+        internal static HeronValue CreateDotNetObjectNoMarshal(Object o)
         {
             return new DotNetObject(o);
         }
@@ -188,7 +193,7 @@ namespace HeronEngine
             return obj.GetType();
         }
 
-        public override HeronObject GetFieldOrMethod(string name)
+        public override HeronValue GetFieldOrMethod(string name)
         {
             Type type = GetSystemType();
 
@@ -215,16 +220,16 @@ namespace HeronEngine
         }
     }
 
-    public abstract class PrimitiveObject<T> : HeronObject 
+    public abstract class PrimitiveValue<T> : HeronValue 
     {
         T val;
 
-        public PrimitiveObject(T x)
+        public PrimitiveValue(T x)
         {
             val = x;
         }
 
-        public PrimitiveObject()
+        public PrimitiveValue()
         {
         }
 
@@ -244,47 +249,47 @@ namespace HeronEngine
         }
     }
 
-    public class IntObject : PrimitiveObject<int>
+    public class IntValue : PrimitiveValue<int>
     {
-        public IntObject(int x)
+        public IntValue(int x)
             : base(x)
         {
         }
 
-        public IntObject()
+        public IntValue()
         {
         }
 
-        public override HeronObject InvokeUnaryOperator(string s)
+        public override HeronValue InvokeUnaryOperator(string s)
         {
             switch (s)
             {
-                case "-": return new IntObject(-GetValue());
-                case "~": return new IntObject(~GetValue());
+                case "-": return new IntValue(-GetValue());
+                case "~": return new IntValue(~GetValue());
                 default:
                     throw new Exception("Unary operation: '" + s + "' not supported by integers");
             }
         }
 
-        public override HeronObject InvokeBinaryOperator(string s, HeronObject x)
+        public override HeronValue InvokeBinaryOperator(string s, HeronValue x)
         {
-            if (!(x is IntObject))
+            if (!(x is IntValue))
                 throw new Exception("binary operation not supported on differently typed objects");
 
-            int arg = (x as IntObject).GetValue();
+            int arg = (x as IntValue).GetValue();
             switch (s)
             {
-                case "+": return new IntObject(GetValue() + arg);
-                case "-": return new IntObject(GetValue() - arg);
-                case "*": return new IntObject(GetValue() * arg);
-                case "/": return new IntObject(GetValue() / arg);
-                case "%": return new IntObject(GetValue() % arg);
-                case "==": return new BoolObject(GetValue() == arg);
-                case "!=": return new BoolObject(GetValue() != arg);
-                case "<": return new BoolObject(GetValue() < arg);
-                case ">": return new BoolObject(GetValue() > arg);
-                case "<=": return new BoolObject(GetValue() <= arg);
-                case ">=": return new BoolObject(GetValue() >= arg);
+                case "+": return new IntValue(GetValue() + arg);
+                case "-": return new IntValue(GetValue() - arg);
+                case "*": return new IntValue(GetValue() * arg);
+                case "/": return new IntValue(GetValue() / arg);
+                case "%": return new IntValue(GetValue() % arg);
+                case "==": return new BoolValue(GetValue() == arg);
+                case "!=": return new BoolValue(GetValue() != arg);
+                case "<": return new BoolValue(GetValue() < arg);
+                case ">": return new BoolValue(GetValue() > arg);
+                case "<=": return new BoolValue(GetValue() <= arg);
+                case ">=": return new BoolValue(GetValue() >= arg);
                 default:
                     throw new Exception("Binary operation: '" + s + "' not supported by integers");
             }
@@ -296,18 +301,18 @@ namespace HeronEngine
         }
     }
 
-    public class CharObject : PrimitiveObject<char>
+    public class CharValue : PrimitiveValue<char>
     {
-        public CharObject(char x)
+        public CharValue(char x)
             : base(x)
         {
         }
 
-        public CharObject()
+        public CharValue()
         {
         }
 
-        public override HeronObject InvokeUnaryOperator(string s)
+        public override HeronValue InvokeUnaryOperator(string s)
         {
             switch (s)
             {
@@ -316,7 +321,7 @@ namespace HeronEngine
             }
         }
 
-        public override HeronObject InvokeBinaryOperator(string s, HeronObject x)
+        public override HeronValue InvokeBinaryOperator(string s, HeronValue x)
         {
             switch (s)
             {
@@ -331,45 +336,45 @@ namespace HeronEngine
         }
     }
 
-    public class FloatObject : PrimitiveObject<float>
+    public class FloatValue : PrimitiveValue<float>
     {
-        public FloatObject(float x)
+        public FloatValue(float x)
             : base(x)
         {
         }
 
-        public FloatObject()
+        public FloatValue()
         {
         }
 
-        public override HeronObject InvokeUnaryOperator(string s)
+        public override HeronValue InvokeUnaryOperator(string s)
         {
             switch (s)
             {
-                case "-": return new FloatObject(-GetValue());
+                case "-": return new FloatValue(-GetValue());
                 default:
                     throw new Exception("Unary operation: '" + s + "' not supported by integers");
             }
         }
 
-        public override HeronObject InvokeBinaryOperator(string s, HeronObject x) 
+        public override HeronValue InvokeBinaryOperator(string s, HeronValue x) 
         {
-            if (!(x is FloatObject))
+            if (!(x is FloatValue))
                 throw new Exception("binary operation not supported on differently typed objects");
-            float arg = (x as FloatObject).GetValue();
+            float arg = (x as FloatValue).GetValue();
             switch (s)
             {
-                case "+": return new FloatObject(GetValue() + arg);
-                case "-": return new FloatObject(GetValue() - arg);
-                case "*": return new FloatObject(GetValue() * arg);
-                case "/": return new FloatObject(GetValue() / arg);
-                case "%": return new FloatObject(GetValue() % arg);
-                case "==": return new BoolObject(GetValue() == arg);
-                case "!=": return new BoolObject(GetValue() != arg);
-                case "<": return new BoolObject(GetValue() < arg);
-                case ">": return new BoolObject(GetValue() > arg);
-                case "<=": return new BoolObject(GetValue() <= arg);
-                case ">=": return new BoolObject(GetValue() >= arg);
+                case "+": return new FloatValue(GetValue() + arg);
+                case "-": return new FloatValue(GetValue() - arg);
+                case "*": return new FloatValue(GetValue() * arg);
+                case "/": return new FloatValue(GetValue() / arg);
+                case "%": return new FloatValue(GetValue() % arg);
+                case "==": return new BoolValue(GetValue() == arg);
+                case "!=": return new BoolValue(GetValue() != arg);
+                case "<": return new BoolValue(GetValue() < arg);
+                case ">": return new BoolValue(GetValue() > arg);
+                case "<=": return new BoolValue(GetValue() <= arg);
+                case ">=": return new BoolValue(GetValue() >= arg);
                 default:
                     throw new Exception("Binary operation: '" + s + "' not supported by floats");
             }
@@ -381,39 +386,39 @@ namespace HeronEngine
         }
     }
 
-    public class BoolObject : PrimitiveObject<bool>
+    public class BoolValue : PrimitiveValue<bool>
     {
-        public BoolObject(bool x)
+        public BoolValue(bool x)
             : base(x)
         {
         }
 
-        public BoolObject()
+        public BoolValue()
         {
         }
 
-        public override HeronObject InvokeUnaryOperator(string s)
+        public override HeronValue InvokeUnaryOperator(string s)
         {
             switch (s)
             {
-                case "!": return new BoolObject(!GetValue());
+                case "!": return new BoolValue(!GetValue());
                 default:
                     throw new Exception("Unary operation: '" + s + "' not supported by booleans");
             }
         }
 
-        public override HeronObject InvokeBinaryOperator(string s, HeronObject x)
+        public override HeronValue InvokeBinaryOperator(string s, HeronValue x)
         {
-            if (!(x is BoolObject))
+            if (!(x is BoolValue))
                 throw new Exception("binary operation not supported on differently typed objects");
-            bool arg = (x as BoolObject).GetValue();
+            bool arg = (x as BoolValue).GetValue();
             switch (s)
             {
-                case "==": return new BoolObject(GetValue() == arg);
-                case "!=": return new BoolObject(GetValue() != arg);
-                case "&&": return new BoolObject(GetValue() && arg);
-                case "||": return new BoolObject(GetValue() || arg);
-                case "^^": return new BoolObject(GetValue() ^ arg);
+                case "==": return new BoolValue(GetValue() == arg);
+                case "!=": return new BoolValue(GetValue() != arg);
+                case "&&": return new BoolValue(GetValue() && arg);
+                case "||": return new BoolValue(GetValue() || arg);
+                case "^^": return new BoolValue(GetValue() ^ arg);
                 default:
                     throw new Exception("Binary operation: '" + s + "' not supported by booleans");
             }
@@ -430,18 +435,19 @@ namespace HeronEngine
         }
     }
 
-    public class StringObject : PrimitiveObject<string>
+    public class StringValue : PrimitiveValue<string>
     {
-        public StringObject(string x)
+        public StringValue(string x)
             : base(x)
         {
         }
 
-        public StringObject()
+        public StringValue()
+            : base("")
         {
         }
 
-        public override HeronObject InvokeUnaryOperator(string s)
+        public override HeronValue InvokeUnaryOperator(string s)
         {
             switch (s)
             {
@@ -450,17 +456,17 @@ namespace HeronEngine
             }
         }
 
-        public override HeronObject InvokeBinaryOperator(string s, HeronObject x)
+        public override HeronValue InvokeBinaryOperator(string s, HeronValue x)
         {
-            if (!(x is StringObject))
+            if (!(x is StringValue))
                 throw new Exception("binary operation not supported on differently typed objects");
-            StringObject so = x as StringObject;
-            string arg = (x as StringObject).GetValue();
+            StringValue so = x as StringValue;
+            string arg = (x as StringValue).GetValue();
             switch (s)
             {
-                case "+": return new StringObject(GetValue() + arg);
-                case "==": return new BoolObject(GetValue() == so.GetValue());
-                case "!=": return new BoolObject(GetValue() != so.GetValue());
+                case "+": return new StringValue(GetValue() + arg);
+                case "==": return new BoolValue(GetValue() == so.GetValue());
+                case "!=": return new BoolValue(GetValue() != so.GetValue());
                 default:
                     throw new Exception("Binary operation: '" + s + "' not supported by strings");
             }
@@ -477,10 +483,10 @@ namespace HeronEngine
     /// primitive objects and .NET objects which are not part of the HeronClass 
     /// hierarchy.
     /// </summary>
-    public class ClassInstance : HeronObject
+    public class ClassInstance : HeronValue
     {
         public HeronClass hclass;
-        public ObjectTable fields = new ObjectTable();
+        public NameValueTable fields = new NameValueTable();
         
         public ClassInstance(HeronClass c)
         {
@@ -532,7 +538,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="name"></param>
         /// <param name="val"></param>
-        public override void SetField(string name, HeronObject val)
+        public override void SetField(string name, HeronValue val)
         {
             if (fields.ContainsKey(name))
                 fields[name] = val;
@@ -556,7 +562,7 @@ namespace HeronEngine
             return false;
         }
 
-        public HeronObject GetField(string name)
+        public HeronValue GetField(string name)
         {
             if (fields.ContainsKey(name))
                 return fields[name];
@@ -581,9 +587,9 @@ namespace HeronEngine
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public FunctionListObject GetMethods(string name)
+        public FunctionListValue GetMethods(string name)
         {
-            return new FunctionListObject(this, name, hclass.GetMethods(name));
+            return new FunctionListValue(this, name, hclass.GetMethods(name));
         }
 
         /// <summary>
@@ -591,13 +597,13 @@ namespace HeronEngine
         /// </summary>
         /// <param name="name"></param>
         /// <param name="val"></param>
-        public void AddField(string name, HeronObject val)
+        public void AddField(string name, HeronValue val)
         {
             AssureFieldDoesntExist(name);
             fields.Add(name, val);
         }
 
-        public override HeronObject GetFieldOrMethod(string name)
+        public override HeronValue GetFieldOrMethod(string name)
         {
             if (fields.ContainsKey(name))
                 return fields[name];
@@ -622,13 +628,13 @@ namespace HeronEngine
         {
             if (!fields.ContainsKey("base"))
                 return null;
-            HeronObject r = fields["base"];
+            HeronValue r = fields["base"];
             if (!(r is ClassInstance))
                 throw new Exception("The 'base' field should always be an instance of a class");
             return r as ClassInstance;
         }
 
-        public HeronObject As(HeronType t)
+        public HeronValue As(HeronType t)
         {
             if (t is HeronClass)
             {
@@ -662,13 +668,13 @@ namespace HeronEngine
     /// primitive objects and .NET objects which are not part of the HeronClass 
     /// hierarchy.
     /// </summary>
-    public class InterfaceInstance : HeronObject
-    {
+    public class InterfaceInstance : HeronValue
+    {   
         //  TODO: should this be an object or an instance? 
-        public HeronObject obj;
+        public HeronValue obj;
         public HeronInterface hinterface;
 
-        public InterfaceInstance(HeronObject obj, HeronInterface i)
+        public InterfaceInstance(HeronValue obj, HeronInterface i)
         {
             this.obj = obj;
             hinterface = i;
@@ -699,11 +705,11 @@ namespace HeronEngine
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public FunctionListObject GetMethods(string name)
+        public FunctionListValue GetMethods(string name)
         {
-            return new FunctionListObject(obj, name, hinterface.GetMethods(name));
+            return new FunctionListValue(obj, name, hinterface.GetMethods(name));
         }
-        public override HeronObject GetFieldOrMethod(string name)
+        public override HeronValue GetFieldOrMethod(string name)
         {
             if (!HasMethod(name))
                 throw new Exception("Could not find field or method '" + name + "' in '" + ToString() + "'");
@@ -720,13 +726,13 @@ namespace HeronEngine
             return hinterface;
         }
 
-        public HeronObject GetObject()
+        public HeronValue GetObject()
         {
             return obj;
         }
    }
 
-    public class EnumInstance : HeronObject
+    public class EnumInstance : HeronValue
     {
         HeronEnum henum;
         string name;
@@ -761,24 +767,28 @@ namespace HeronEngine
     /// You can think of this as a member function bound to the this argument.
     /// In C# this would be called a delegate.
     /// </summary>
-    public class FunctionObject : HeronObject
+    public class FunctionValue : HeronValue
     {
-        HeronObject self;
-        HeronFunction fun;
+        HeronValue self;
+        NameValueTable boundArgs = new NameValueTable();
+        FunctionDefinition fun;
 
-        public FunctionObject(HeronObject self, HeronFunction f)
+        public FunctionValue(HeronValue self, FunctionDefinition f)
         {
             this.self = self;
             fun = f;
+
+            // TODO: eventually figure out the list at compile time.
+            throw new NotImplementedException("I have to accumulate the unbound arguments");
         }
 
-        private void PushArgsAsScope(Environment env, HeronObject[] args)
+        private void PushArgsAsScope(HeronExecutor vm, HeronValue[] args)
         {
-            env.PushScope();
+            vm.PushScope();
             int n = fun.formals.Count;
             Trace.Assert(n == args.Length);
             for (int i = 0; i < n; ++i)
-                env.AddVar(fun.formals[i].name, args[i]);
+                vm.AddVar(fun.formals[i].name, args[i]);
         }
 
         public ClassInstance GetSelfAsInstance()
@@ -786,7 +796,7 @@ namespace HeronEngine
             return self as ClassInstance;
         }
 
-        public void PerformConversions(HeronObject[] xs)
+        public void PerformConversions(HeronValue[] xs)
         {
             for (int i = 0; i < xs.Length; ++i)
             {
@@ -800,29 +810,29 @@ namespace HeronEngine
             return fun.formals[n].type;
         }
 
-        public override HeronObject Apply(Environment env, HeronObject[] args)
+        public override HeronValue Apply(HeronExecutor vm, HeronValue[] args)
         {
             // Create a stack frame 
-            env.PushNewFrame(fun, GetSelfAsInstance());
+            vm.PushNewFrame(fun, GetSelfAsInstance());
 
             // Convert the arguments into appropriate types
             // TODO: optimize
             PerformConversions(args);
 
             // Create a new scope containing the arguments 
-            PushArgsAsScope(env, args);
+            PushArgsAsScope(vm, args);
 
-            // Execute the function body
-            fun.body.Execute(env);
+            // Eval the function body
+            vm.Eval(fun.body);
 
             // Pop the arguments scope
-            env.PopScope();
+            vm.PopScope();
 
             // Pop the calling frame
-            env.PopFrame();
+            vm.PopFrame();
 
             // Gets last result and resets it
-            return env.GetLastResult();
+            return vm.GetLastResult();
         }
 
         public override HeronType GetHeronType()
@@ -837,11 +847,11 @@ namespace HeronEngine
     /// This is class is used for dynamic resolution of overloaded function
     /// names.
     /// </summary>
-    public class FunctionListObject : HeronObject
+    public class FunctionListValue : HeronValue
     {
-        HeronObject self;
+        HeronValue self;
         string name;
-        List<HeronFunction> functions = new List<HeronFunction>();
+        List<FunctionDefinition> functions = new List<FunctionDefinition>();
 
         public int Count
         {
@@ -851,13 +861,13 @@ namespace HeronEngine
             }
         }
 
-        public FunctionListObject(HeronObject self, string name, IEnumerable<HeronFunction> args)
+        public FunctionListValue(HeronValue self, string name, IEnumerable<FunctionDefinition> args)
         {
             this.self = self;
-            foreach (HeronFunction f in args)
+            foreach (FunctionDefinition f in args)
                 functions.Add(f);
             this.name = name;
-            foreach (HeronFunction f in functions)
+            foreach (FunctionDefinition f in functions)
                 if (f.name != name)
                     throw new Exception("All functions in function list object must share the same name");
         }
@@ -868,14 +878,14 @@ namespace HeronEngine
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        public FunctionObject Resolve(HeronObject[] args)
+        public FunctionValue Resolve(HeronValue[] args)
         {
-            List<FunctionObject> r = new List<FunctionObject>();
-            foreach (HeronFunction f in functions)
+            List<FunctionValue> r = new List<FunctionValue>();
+            foreach (FunctionDefinition f in functions)
             {
                 if (f.formals.Count == args.Length)
                 {
-                    r.Add(new FunctionObject(self, f));
+                    r.Add(new FunctionValue(self, f));
                 }
             }
             if (r.Count == 0)
@@ -886,19 +896,19 @@ namespace HeronEngine
                 return FindBestMatch(r, args);
         }
 
-        public FunctionObject FindBestMatch(List<FunctionObject> list, HeronObject[] args)
+        public FunctionValue FindBestMatch(List<FunctionValue> list, HeronValue[] args)
         {
             // Each iteration removes candidates. This list holds all of the matches
             // Necessary, because removing items from a list while we iterate it is hard.
-            List<FunctionObject> tmp = new List<FunctionObject>(list);
+            List<FunctionValue> tmp = new List<FunctionValue>(list);
             for (int pos=0; pos < args.Length; ++pos)
             {
                 // On each iteration, update the main list, to only contain the remaining items
-                list = new List<FunctionObject>(tmp);
+                list = new List<FunctionValue>(tmp);
                 HeronType argType = args[pos].GetHeronType();
                 for (int i=0; i < list.Count; ++i)
                 {
-                    FunctionObject fo = list[i];
+                    FunctionValue fo = list[i];
                     HeronType formalType = fo.GetFormalType(pos);
                     if (!formalType.Equals(argType))
                         tmp.Remove(fo);                        
@@ -915,16 +925,16 @@ namespace HeronEngine
             throw new Exception("Could not resolve function, several matched perfectly");
         }
 
-        public override HeronObject Apply(Environment env, HeronObject[] args)
+        public override HeronValue Apply(HeronExecutor vm, HeronValue[] args)
         {
             Trace.Assert(functions.Count > 0);
-            FunctionObject o = Resolve(args);
+            FunctionValue o = Resolve(args);
             if (o == null)
                 throw new Exception("Could not resolve function '" + name + "' with arguments " + ArgsToString(args));
-            return o.Apply(env, args);
+            return o.Apply(vm, args);
         }
 
-        public string ArgsToString(HeronObject[] args)
+        public string ArgsToString(HeronValue[] args)
         {
             string r = "(";
             for (int i = 0; i < args.Length; ++i)
@@ -947,7 +957,7 @@ namespace HeronEngine
     /// yields a group of methods. This class stores the object and the method
     /// name for invocation.
     /// </summary>
-    public class DotNetMethodGroup : HeronObject
+    public class DotNetMethodGroup : HeronValue
     {
         DotNetObject self;
         string name;
@@ -958,7 +968,7 @@ namespace HeronEngine
             this.name = name;
         }
 
-        public override HeronObject Apply(Environment env, HeronObject[] args)
+        public override HeronValue Apply(HeronExecutor vm, HeronValue[] args)
         {
             Object[] os = HeronDotNet.ObjectsToDotNetArray(args);
             Object o = self.GetSystemType().InvokeMember(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod, null, self.ToSystemObject(), os);
@@ -974,7 +984,7 @@ namespace HeronEngine
     /// <summary>
     /// Very similar to DotNetMethodGroup, except only static functions are bound.
     /// </summary>
-    public class DotNetStaticMethodGroup : HeronObject
+    public class DotNetStaticMethodGroup : HeronValue
     {
         DotNetClass self;
         string name;
@@ -985,10 +995,10 @@ namespace HeronEngine
             this.name = name;            
         }
 
-        public override HeronObject Apply(Environment env, HeronObject[] args)
+        public override HeronValue Apply(HeronExecutor vm, HeronValue[] args)
         {
             Object[] os = HeronDotNet.ObjectsToDotNetArray(args);
-             Object o = self.GetSystemType().InvokeMember(name, BindingFlags.Public | BindingFlags.Static | BindingFlags.InvokeMethod, null, null, os);
+            Object o = self.GetSystemType().InvokeMember(name, BindingFlags.Public | BindingFlags.Static | BindingFlags.InvokeMethod, null, null, os);
             return DotNetObject.Marshal(o); 
         }
 

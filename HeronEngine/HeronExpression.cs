@@ -22,7 +22,37 @@ namespace HeronEngine
                 Error(s);
         }
 
-        public abstract HeronObject Eval(Environment env);
+        public abstract HeronValue Eval(HeronExecutor vm);
+
+        static List<Expression> noExpressions = new List<Expression>();
+
+        public virtual IEnumerable<Expression> GetSubExpressions()
+        {
+            return noExpressions;
+        }
+
+        public IEnumerable<Expression> GetExpressionTree()
+        {
+            yield return this;
+            foreach (Expression x in GetSubExpressions())
+                foreach (Expression y in x.GetExpressionTree())
+                    yield return y;
+        }
+
+        public IEnumerable<Expression> TestTree()
+        {
+            return this.EnumerateTree((Expression x) => x.GetSubExpressions());
+        }
+    }
+
+    static class TreeExtensions
+    {
+        public static IEnumerable<T> EnumerateTree<T>(this T self, Func<T, IEnumerable<T>> func)
+        {
+            yield return self;
+            foreach (T x in func(self))
+                yield return x;
+        }
     }
 
     /// <summary>
@@ -42,11 +72,11 @@ namespace HeronEngine
             return s;
         }
 
-        public HeronObject[] Eval(Environment env)
+        public HeronValue[] Eval(HeronExecutor vm)
         {
-            List<HeronObject> list = new List<HeronObject>();
+            List<HeronValue> list = new List<HeronValue>();
             foreach (Expression x in this)
-                list.Add(x.Eval(env));
+                list.Add(x.Eval(vm));
             return list.ToArray();
         }
     }
@@ -62,22 +92,22 @@ namespace HeronEngine
             this.rvalue = rvalue;
         }
 
-        public override HeronObject Eval(Environment env)
+        public override HeronValue Eval(HeronExecutor vm)
         {            
-            HeronObject val = rvalue.Eval(env);
+            HeronValue val = rvalue.Eval(vm);
 
             if (lvalue is Name)
             {
                 string name = (lvalue as Name).name;
-                if (env.HasVar(name))
+                if (vm.HasVar(name))
                 {
-                    env.SetVar(name, val);
-                    return HeronObject.Void;
+                    vm.SetVar(name, val);
+                    return HeronValue.Void;
                 }
-                else if (env.HasField(name))
+                else if (vm.HasField(name))
                 {
-                    env.SetField(name, val);
-                    return HeronObject.Void;
+                    vm.SetField(name, val);
+                    return HeronValue.Void;
                 }
                 else
                 {
@@ -87,10 +117,10 @@ namespace HeronEngine
             else if (lvalue is SelectField)
             {
                 SelectField sf = lvalue as SelectField;
-                HeronObject self = sf.self.Eval(env);
+                HeronValue self = sf.self.Eval(vm);
                 string name = sf.name;
                 self.SetField(name, val);
-                return HeronObject.Void;
+                return HeronValue.Void;
             }
             else if (lvalue is ReadAt)
             {
@@ -108,6 +138,12 @@ namespace HeronEngine
         {
             return lvalue.ToString() + " = " + rvalue.ToString();
         }
+
+        public override IEnumerable<Expression> GetSubExpressions()
+        {
+            yield return lvalue;
+            yield return rvalue;
+        }
     }
 
     public class SelectField : Expression
@@ -121,9 +157,9 @@ namespace HeronEngine
             this.name = name;
         }
 
-        public override HeronObject Eval(Environment env)
+        public override HeronValue Eval(HeronExecutor vm)
         {
-            HeronObject x = self.Eval(env);
+            HeronValue x = self.Eval(vm);
             if (x == null)
                 throw new Exception("Cannot select field '" + name + "' from a null object: " + self.ToString());
             return x.GetFieldOrMethod(name);
@@ -146,16 +182,22 @@ namespace HeronEngine
             this.index = index;
         }
 
-        public override HeronObject Eval(Environment env)
+        public override HeronValue Eval(HeronExecutor vm)
         {
-            HeronObject o = coll.Eval(env);
-            HeronObject i = index.Eval(env);
+            HeronValue o = coll.Eval(vm);
+            HeronValue i = index.Eval(vm);
             return o.GetAt(i);
         }
 
         public override string ToString()
         {
             return coll + "[" + index.ToString() + "]";
+        }
+
+        public override IEnumerable<Expression> GetSubExpressions()
+        {
+            yield return coll;
+            yield return index;
         }
     }
 
@@ -170,18 +212,23 @@ namespace HeronEngine
             this.args = args;
         }
 
-        public override HeronObject Eval(Environment env)
+        public override HeronValue Eval(HeronExecutor vm)
         {
-            HeronObject o = env.LookupName(type);
+            HeronValue o = vm.LookupName(type);
             if (!(o is HeronType))
                 throw new Exception("Cannot instantiate non-type " + type);
             HeronType t = o as HeronType;
-            HeronObject[] argvals = args.Eval(env);
-            return t.Instantiate(env, argvals);
+            HeronValue[] argvals = args.Eval(vm);
+            return t.Instantiate(vm, argvals);
+        }
+
+        public override IEnumerable<Expression> GetSubExpressions()
+        {
+            return args;
         }
     }
 
-    public abstract class Literal<T> : Expression where T : HeronObject
+    public abstract class Literal<T> : Expression where T : HeronValue
     {
         T val;
 
@@ -190,7 +237,7 @@ namespace HeronEngine
             val = x;
         }
 
-        public override HeronObject Eval(Environment env)
+        public override HeronValue Eval(HeronExecutor vm)
         {
             return val;
         }
@@ -201,34 +248,34 @@ namespace HeronEngine
         }
     }
 
-    public class IntLiteral : Literal<IntObject>
+    public class IntLiteral : Literal<IntValue>
     {
         public IntLiteral(int x)
-            : base(new IntObject(x))
+            : base(new IntValue(x))
         {
         }
     }
 
-    public class FloatLiteral : Literal<FloatObject>
+    public class FloatLiteral : Literal<FloatValue>
     {
         public FloatLiteral(float x)
-            : base(new FloatObject(x))
+            : base(new FloatValue(x))
         {
         }
     }
 
-    public class CharLiteral : Literal<CharObject> 
+    public class CharLiteral : Literal<CharValue> 
     {
         public CharLiteral(char x)
-            : base(new CharObject(x))
+            : base(new CharValue(x))
         {
         }
     }
 
-    public class StringLiteral : Literal<StringObject>
+    public class StringLiteral : Literal<StringValue>
     {
         public StringLiteral(string x)
-            : base(new StringObject(x))
+            : base(new StringValue(x))
         {
         }
     }
@@ -242,10 +289,9 @@ namespace HeronEngine
             name = s;
         }
 
-        public override HeronObject Eval(Environment env)
+        public override HeronValue Eval(HeronExecutor vm)
         {
-            string s = env.ToString();
-            HeronObject r = env.LookupName(name);
+            HeronValue r = vm.LookupName(name);
             return r;
         }
 
@@ -266,16 +312,23 @@ namespace HeronEngine
             this.args = args;
         }
         
-        public override HeronObject Eval(Environment env)
+        public override HeronValue Eval(HeronExecutor vm)
         {
-            HeronObject[] argvals = args.Eval(env);
-            HeronObject f = funexpr.Eval(env);
-            return f.Apply(env, argvals);
+            HeronValue[] argvals = args.Eval(vm);
+            HeronValue f = funexpr.Eval(vm);
+            return f.Apply(vm, argvals);
         }
 
         public override string ToString()
         {
             return funexpr.ToString() + args.ToString();
+        }
+
+        public override IEnumerable<Expression> GetSubExpressions()
+        {
+            yield return funexpr;
+            foreach (Expression x in args)
+                yield return x;
         }
     }
 
@@ -290,15 +343,20 @@ namespace HeronEngine
             operand = x;
         }
 
-        public override HeronObject Eval(Environment env)
+        public override HeronValue Eval(HeronExecutor vm)
         {
-            HeronObject o = operand.Eval(env);
+            HeronValue o = operand.Eval(vm);
             return o.InvokeUnaryOperator(operation);
         }
 
         public override string ToString()
         {
             return "(" + operation + "  " + operand.ToString() + ")";
+        }
+
+        public override IEnumerable<Expression> GetSubExpressions()
+        {
+            yield return operand;
         }
     }
 
@@ -316,10 +374,10 @@ namespace HeronEngine
         }
 
         // TODO: improve efficiency. This is a pretty terrible operation
-        public override HeronObject Eval(Environment env)
+        public override HeronValue Eval(HeronExecutor vm)
         {
-            HeronObject a = operand1.Eval(env);
-            HeronObject b = operand2.Eval(env);
+            HeronValue a = operand1.Eval(vm);
+            HeronValue b = operand2.Eval(vm);
 
             if (a == null)
                 throw new Exception("Left hand operand '" + operand1.ToString() + "' could not be evaluated");
@@ -337,7 +395,7 @@ namespace HeronEngine
                 else
                     any = new Any(a);
 
-                return new BoolObject(any.Is(b as HeronType));                    
+                return new BoolValue(any.Is(b as HeronType));                    
             }
             else if (operation == "as")
             {
@@ -352,61 +410,61 @@ namespace HeronEngine
 
                 return any.As(b as HeronType);
             }
-            else if (a is NullObject)
+            else if (a is NullValue)
             {
                 return a.InvokeBinaryOperator(operation, b);
             }
-            else if (b is NullObject)
+            else if (b is NullValue)
             {
                 return b.InvokeBinaryOperator(operation, b);
             }
-            else if (a is IntObject)
+            else if (a is IntValue)
             {
-                if (b is IntObject)
+                if (b is IntValue)
                 {
-                    return a.InvokeBinaryOperator(operation, b as IntObject);
+                    return a.InvokeBinaryOperator(operation, b as IntValue);
                 }
-                else if (b is FloatObject)
+                else if (b is FloatValue)
                 {
-                    return (new FloatObject((a as IntObject).GetValue())).InvokeBinaryOperator(operation, b as FloatObject);
+                    return (new FloatValue((a as IntValue).GetValue())).InvokeBinaryOperator(operation, b as FloatValue);
                 }
                 else
                 {
                     throw new Exception("Incompatible types for binary operator " + a.GetType() + " and " + b.GetType());
                 }
             }
-            else if (a is FloatObject)
+            else if (a is FloatValue)
             {
-                if (b is IntObject)
+                if (b is IntValue)
                 {
-                    return a.InvokeBinaryOperator(operation, new FloatObject((b as IntObject).GetValue()));
+                    return a.InvokeBinaryOperator(operation, new FloatValue((b as IntValue).GetValue()));
                 }
-                else if (b is FloatObject)
+                else if (b is FloatValue)
                 {
-                    return a.InvokeBinaryOperator(operation, b as FloatObject);
+                    return a.InvokeBinaryOperator(operation, b as FloatValue);
                 }
                 else
                 {
                     throw new Exception("Incompatible types for binary operator " + operation + " : " + a.GetType() + " and " + b.GetType());
                 }
             }
-            else if (a is CharObject)
+            else if (a is CharValue)
             {
-                if (!(b is CharObject))
+                if (!(b is CharValue))
                     throw new Exception("Incompatible types for binary operator " + operation + " : " + a.GetType() + " and " + b.GetType());
-                return a.InvokeBinaryOperator(operation, b as CharObject);
+                return a.InvokeBinaryOperator(operation, b as CharValue);
             }
-            else if (a is StringObject)
+            else if (a is StringValue)
             {
-                if (!(b is StringObject))
+                if (!(b is StringValue))
                     throw new Exception("Incompatible types for binary operator " + operation + " : " + a.GetType() + " and " + b.GetType());
-                return a.InvokeBinaryOperator(operation, b as StringObject);
+                return a.InvokeBinaryOperator(operation, b as StringValue);
             }
-            else if (a is BoolObject)
+            else if (a is BoolValue)
             {
-                if (!(b is BoolObject))
+                if (!(b is BoolValue))
                     throw new Exception("Incompatible types for binary operator " + operation + " : " + a.GetType() + " and " + b.GetType());
-                return a.InvokeBinaryOperator(operation, b as BoolObject);
+                return a.InvokeBinaryOperator(operation, b as BoolValue);
             }
             else if (a is EnumInstance)
             {
@@ -418,9 +476,9 @@ namespace HeronEngine
                     EnumInstance eb = b as EnumInstance;
 
                     if (operation == "==")
-                        return new BoolObject(ea.Equals(eb));
+                        return new BoolValue(ea.Equals(eb));
                     else
-                        return new BoolObject(!ea.Equals(eb));
+                        return new BoolValue(!ea.Equals(eb));
                 }
                 else
                 {
@@ -437,9 +495,9 @@ namespace HeronEngine
                     ClassInstance cb = b as ClassInstance;
 
                     if (operation == "==")
-                        return new BoolObject(ca.Equals(cb));
+                        return new BoolValue(ca.Equals(cb));
                     else
-                        return new BoolObject(!ca.Equals(cb));
+                        return new BoolValue(!ca.Equals(cb));
                 }
                 else
                 {
@@ -456,9 +514,9 @@ namespace HeronEngine
                     InterfaceInstance ib = b as InterfaceInstance;
 
                     if (operation == "==")
-                        return new BoolObject(ia.Equals(ib));
+                        return new BoolValue(ia.Equals(ib));
                     else
-                        return new BoolObject(!ia.Equals(ib));
+                        return new BoolValue(!ia.Equals(ib));
                 }
                 else
                 {
@@ -476,6 +534,12 @@ namespace HeronEngine
         {
             return "(" + operand1.ToString() + " " + operation + " " + operand2.ToString() + ")";
         }
+
+        public override IEnumerable<Expression> GetSubExpressions()
+        {
+            yield return operand1;
+            yield return operand2;
+        }
     }
 
     public class AnonFunExpr : Expression
@@ -484,11 +548,11 @@ namespace HeronEngine
         public CodeBlock body;
         public HeronType rettype;
 
-        private HeronFunction function;
+        private FunctionDefinition function;
 
-        public override HeronObject Eval(Environment env)
+        public override HeronValue Eval(HeronExecutor vm)
         {
-            FunctionObject fo = new FunctionObject(null, GetFunction());
+            FunctionValue fo = new FunctionValue(null, GetFunction());
             return fo;
         }
 
@@ -497,17 +561,16 @@ namespace HeronEngine
             return "function" + formals.ToString() + body.ToString();
         }
 
-        private HeronFunction GetFunction()
+        private FunctionDefinition GetFunction()
         {
             if (function == null)
             {
-                function = new HeronFunction(null);
+                function = new FunctionDefinition(null);
                 function.formals = formals;
                 function.body = body;
                 function.rettype = rettype;
             }
-            return function;
-            
+            return function;            
         }
     }
 }
