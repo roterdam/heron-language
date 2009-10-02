@@ -8,7 +8,7 @@ using System.Diagnostics;
 namespace HeronEngine
 {
     /// <summary>
-    /// See also: HeronClass
+    /// See also: HeronClass. Note types are also values in Heron. 
     /// </summary>
     public abstract class HeronType : HeronValue 
     {

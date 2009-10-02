@@ -13,7 +13,30 @@ namespace HeronEngine
     /// </summary>
     public class Frame 
     {
-        Stack<NameValueTable> scopes = new Stack<NameValueTable>();
+        /// <summary>
+        /// Function associated with this activation record 
+        /// </summary>
+        public FunctionDefinition function = null;
+
+        /// <summary>
+        /// The 'this' pointer if applicable 
+        /// </summary>
+        public ClassInstance self = null;
+
+        /// <summary>
+        /// The type which contains the function
+        /// </summary>
+        public HeronType type = null;
+
+        /// <summary>
+        /// The module containing the type
+        /// </summary>
+        public HeronModule module = null;
+
+        /// <summary>
+        /// A list of scopes, which are effectivelyh name value pairs
+        /// </summary>
+        private Stack<NameValueTable> scopes = new Stack<NameValueTable>();
 
         public Frame(FunctionDefinition f, ClassInstance self)
         {
@@ -156,24 +179,11 @@ namespace HeronEngine
             return sb.ToString();
         }
 
-        /// <summary>
-        /// Function associated with this activation record 
-        /// </summary>
-        public FunctionDefinition function = null;
-
-        /// <summary>
-        /// The 'this' pointer if applicable 
-        /// </summary>
-        public ClassInstance self = null;
-
-        /// <summary>
-        /// The type which contains the function
-        /// </summary>
-        public HeronType type = null;
-
-        /// <summary>
-        /// The module containing the type
-        /// </summary>
-        public HeronModule module = null;
+        public HeronModule GetModule()
+        {
+            if (type == null)
+                return null;
+            return type.GetModule();
+        }
     }
 }

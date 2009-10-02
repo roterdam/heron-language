@@ -10,6 +10,8 @@ namespace HeronEngine
 {
     /// <summary>
     /// This represents the current state of the Heron virtual machine. 
+    /// TODO: update "module" when a new function is called. It should always be the current module.
+    /// TODO: add "module" and "types" to the lookup.
     /// </summary>
     public class HeronExecutor
     {
@@ -17,11 +19,6 @@ namespace HeronEngine
         /// Lexical environment: names and keys
         /// </summary>
         Environment env;
-
-        /// <summary>
-        /// Currently execution module
-        /// </summary>
-        HeronModule module;
 
         /// <summary>
         /// Currently executing program
@@ -40,6 +37,12 @@ namespace HeronEngine
         {
             program = new HeronProgram();
             env = new Environment(program);
+
+            // Load the global types
+            foreach (HeronType t in program.GetGlobal().GetTypes())
+                AddVar(t.name, t);
+
+            // TODO: add the program when it becomes a value 
         }
 
         #region evaluation functions
@@ -60,31 +63,41 @@ namespace HeronEngine
             env.Clear();
         }
 
-        public void EvalModule(HeronModule m)
+        public void RunPreMain(HeronModule m)
         {
-            module = m;
-            InitializeEnvironment();
             HeronClass premain = m.GetPremainClass();
             if (premain != null)
             {
-                HeronValue o = DotNetObject.Marshal(module.GetProgram());
+                // Start the parparse 
+                HeronValue o = DotNetObject.Marshal(m.GetProgram());
                 premain.Instantiate(this, new HeronValue[] { o });
             }
+        }
 
+        public void RunMain(HeronModule m)
+        {
             HeronClass main = m.GetMainClass();
             if (main != null)
-                main.Instantiate(this);            
+            {
+                main.Instantiate(this);
+            }
+        }
+
+        public void EvalModule(HeronModule m)
+        {
+            InitializeEnvironment();
+            RunPreMain(m);
+            RunMain(m);            
         }
         #endregion
 
-        public Environment GetEnv()
+        /// <summary>
+        /// Get the currently executing frame
+        /// </summary>
+        /// <returns></returns>
+        public Frame GetCurrentFrame()
         {
-            return env;
-        }
-
-        public HeronModule GetModule()
-        {
-            return module;
+            return env.GetCurrentFrame();
         }
 
         public void AddVar(string name, HeronValue initVal)
@@ -131,11 +144,12 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Removes the current activation-frame 
+        /// Removes the current stack frame (activation record)
         /// </summary>
         public void PopFrame()
         {
             env.PopFrame();
+            bReturning = false;
         }
 
         /// <summary>
@@ -185,16 +199,25 @@ namespace HeronEngine
             env.SetField(name, val);
         }
 
-        public HeronValue LookupName(string type)
+        public HeronValue LookupName(string name)
         {
-            return env.LookupName(type);
+            return env.LookupName(name);
         }
 
+        /// <summary>
+        /// Creates a new stack frame (activation record), containing a functions arguments 
+        /// </summary>
+        /// <param name="fun"></param>
+        /// <param name="classInstance"></param>
         public void PushNewFrame(FunctionDefinition fun, ClassInstance classInstance)
         {
             env.PushNewFrame(fun, classInstance);
         }
 
+        /// <summary>
+        /// Gets the value set by the last executed return statement
+        /// </summary>
+        /// <returns></returns>
         public HeronValue GetLastResult()
         {
             return env.GetLastResult();

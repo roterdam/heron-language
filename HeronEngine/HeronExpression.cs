@@ -38,21 +38,6 @@ namespace HeronEngine
                 foreach (Expression y in x.GetExpressionTree())
                     yield return y;
         }
-
-        public IEnumerable<Expression> TestTree()
-        {
-            return this.EnumerateTree((Expression x) => x.GetSubExpressions());
-        }
-    }
-
-    static class TreeExtensions
-    {
-        public static IEnumerable<T> EnumerateTree<T>(this T self, Func<T, IEnumerable<T>> func)
-        {
-            yield return self;
-            foreach (T x in func(self))
-                yield return x;
-        }
     }
 
     /// <summary>
@@ -553,6 +538,7 @@ namespace HeronEngine
         public override HeronValue Eval(HeronExecutor vm)
         {
             FunctionValue fo = new FunctionValue(null, GetFunction());
+            fo.ComputeFreeVars(vm);
             return fo;
         }
 

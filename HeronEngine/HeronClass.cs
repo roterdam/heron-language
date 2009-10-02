@@ -277,7 +277,7 @@ namespace HeronEngine
             if (ctors.Count == 0)
                 return r;
 
-            FunctionValue o = ctors.Resolve(args);
+            FunctionValue o = ctors.Resolve(vm, args);
             if (o == null)
                 return r; // No matching constructor
             o.Apply(vm, args);

@@ -51,6 +51,7 @@
     <Compile Include="HeronConfig.cs" />
     <Compile Include="HeronDotNet.cs" />
     <Compile Include="HeronFrame.cs" />
+    <Compile Include="HeronFunctionValues.cs" />
     <Compile Include="HeronModule.cs" />
     <Compile Include="HeronNameValueTable.cs" />
     <Compile Include="HeronParser.cs" />
@@ -77,6 +78,7 @@
     <Compile Include="Util.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="tests\test15.heron" />
     <None Include="tests\test1.heron" />
     <None Include="tests\test10.heron" />
     <None Include="tests\test11.heron" />
