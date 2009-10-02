@@ -22,35 +22,20 @@ namespace HeronEngine
         private HeronValue result;
 
         /// <summary>
-        /// Used for loading assemblies
+        /// A list of call stack frames (also called activation records)
         /// </summary>
-        private AppDomain domain;
+        private Stack<Frame> frames = new Stack<Frame>();
 
         /// <summary>
-        /// A list of call stack frames 
+        /// Currently executing program. It contains global names.
         /// </summary>
-        Stack<Frame> frames = new Stack<Frame>();
-
-        /// <summary>
-        /// Top level object representing an executable Heron program.
-        /// Contains all of the modules.
-        /// </summary>
-        HeronProgram program;
+        private HeronProgram program;
         #endregion
 
-        public Environment(HeronProgram p)
+        public Environment(HeronProgram program)
         {
-            program = p;
-
-            AppDomainSetup domaininfo = new AppDomainSetup();
-
-            //Create evidence for the new appdomain from evidence of the current application domain
-            Evidence evidence = AppDomain.CurrentDomain.Evidence;
-
-            // Create domain
-            domain = AppDomain.CreateDomain("MyDomain", evidence, domaininfo);
-            
             Clear();
+            this.program = program;
         }
 
         public void Clear()
@@ -65,7 +50,6 @@ namespace HeronEngine
             PushNewFrame(null, null);
             PushScope();
         }
-
 
         /// <summary>
         /// Throw an exception if condition is not true. However, not an assertion. 
@@ -178,6 +162,21 @@ namespace HeronEngine
                 if (bFound)
                     return r;
             }
+            HeronModule module = GetCurrentModule();
+            if (module != null)
+            {
+                foreach (HeronType t in module.GetTypes())
+                    if (t.name == s)
+                        return t;
+            }
+            if (program != null)
+            {
+                foreach (HeronType t in program.GetGlobal().GetTypes())
+                    if (t.name == s)
+                        return t;
+            }
+            
+
             throw new Exception("Could not find '" + s + "' in the environment");
        }
 
@@ -271,6 +270,11 @@ namespace HeronEngine
         public void SetResult(HeronValue ret)
         {
             result = ret;
+        }
+
+        public HeronModule GetCurrentModule()
+        {
+            return GetCurrentFrame().GetModule();
         }
     }
 }

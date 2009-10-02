@@ -59,20 +59,6 @@ namespace HeronEngine
                 if (x is Name)
                     yield return (x as Name).name;
         }
-
-        public void GetUndefinedNames(Stack<string> names, List<string> result)
-        {
-            var newNames = new List<string>(GetDefinedNames());
-            foreach (string name in newNames)
-                names.Push(name);
-            foreach (string name in GetUsedNames())
-                if (!names.Contains(name) && !result.Contains(name))
-                    result.Add(name);
-            foreach (Statement st in GetSubStatements())
-                st.GetUndefinedNames(names, result);
-            for (int i=0; i < newNames.Count; ++i)
-                names.Pop();
-        }
     }
 
     public class VariableDeclaration : Statement

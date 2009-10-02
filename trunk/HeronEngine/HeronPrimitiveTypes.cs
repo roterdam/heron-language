@@ -53,6 +53,8 @@ namespace HeronEngine
         public static HeronPrimitiveType ExternalMethodType = new HeronPrimitiveType(null, "ExternalMethod");
         public static HeronPrimitiveType ExternalStaticMethodListType = new HeronPrimitiveType(null, "ExternalStaticMethodList");
         public static HeronPrimitiveType ExternalMethodListType = new HeronPrimitiveType(null, "ExternalMethodList");
+        public static HeronPrimitiveType ModuleType = new HeronPrimitiveType(null, "Module");
+        public static HeronPrimitiveType ProgramType = new HeronPrimitiveType(null, "Program");
 
         static Dictionary<string, HeronPrimitiveType> types = null;
 

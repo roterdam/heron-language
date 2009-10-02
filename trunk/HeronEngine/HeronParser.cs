@@ -23,7 +23,8 @@ namespace HeronEngine
 
         static public HeronProgram CreateProgram(AstNode x)
         {
-            HeronProgram p = new HeronProgram();
+            string name = GetNameNode(x);
+            HeronProgram p = new HeronProgram(name);
             foreach (AstNode node in x.Children)
                 p.AddModule(CreateModule(p, node));
             return p;

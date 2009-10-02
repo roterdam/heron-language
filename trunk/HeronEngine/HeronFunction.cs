@@ -24,7 +24,7 @@ namespace HeronEngine
 
     /// <summary>
     /// Represents the definition of a Heron function or member function in the source code.
-    /// Not to be confused with a FunctionObject which represents a value of function type.
+    /// Not to be confused with a FunctionVale which represents a value of function type.
     /// </summary>
     public class FunctionDefinition : HeronValue
     {
@@ -49,6 +49,7 @@ namespace HeronEngine
         /// <returns></returns>
         public HeronValue Invoke(HeronValue self, HeronExecutor vm, HeronValue[] args)
         {
+            // TODO: in theory we can optimize this
             FunctionValue fo = new FunctionValue(self, this);
             return fo.Apply(vm, args);
         }
@@ -115,17 +116,6 @@ namespace HeronEngine
         {
             foreach (Statement st in body.GetSubStatements())
                 yield return st;
-        }
-
-        public IEnumerable<string> GetUndefinedNames()
-        {
-            var locals = new Stack<string>();
-            locals.Push(name);
-            var result = new List<string>();
-            foreach (FormalArg arg in formals)
-                locals.Push(arg.name);
-            body.GetUndefinedNames(locals, result);
-            return result;
         }
     }
 

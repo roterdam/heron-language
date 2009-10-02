@@ -23,7 +23,8 @@ namespace HeronEngine
 
         public static string GetCurrentFunctionName()
         {
-            return vm.GetEnv().GetCurrentFrame().function.name;
+            Frame f = vm.GetCurrentFrame();
+            return f.function.name;
         }
 
         public static void ToArray(HeronValue o, string s)
@@ -36,16 +37,6 @@ namespace HeronEngine
             // I think? I mean.
 
             throw new NotImplementedException();
-        }
-
-        public static Environment GetCurrentEnvironment()
-        {
-            return vm.GetEnv();
-        }
-
-        public static HeronModule GetModule()
-        {
-            return vm.GetModule();
         }
     }
 }

@@ -10,13 +10,15 @@ namespace HeronEngine
     /// <summary>
     /// Represents an executable Heron program.
     /// </summary>
-    public class HeronProgram
-    {        
-        List<HeronModule> modules = new List<HeronModule>();
-        HeronModule global;
+    public class HeronProgram : HeronValue
+    {
+        public string name;
+        private List<HeronModule> modules = new List<HeronModule>();
+        private HeronModule global;
 
-        public HeronProgram()
+        public HeronProgram(string name)
         {
+            this.name = name;
             global = new HeronModule(this);
             global.name = "_global_";
             RegisterPrimitives();
@@ -113,6 +115,11 @@ namespace HeronEngine
             // Load other libraries specified in the configuration file
             foreach (string lib in Config.libs)
                 LoadAssembly(lib);
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return HeronPrimitiveTypes.ProgramType;
         }
     }
 }
