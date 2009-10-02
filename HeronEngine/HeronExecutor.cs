@@ -41,8 +41,6 @@ namespace HeronEngine
             // Load the global types
             foreach (HeronType t in program.GetGlobal().GetTypes())
                 AddVar(t.name, t);
-
-            // TODO: add the program when it becomes a value 
         }
 
         #region evaluation functions
