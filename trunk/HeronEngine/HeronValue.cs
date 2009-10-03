@@ -352,7 +352,7 @@ namespace HeronEngine
             {
                 case "-": return new FloatValue(-GetValue());
                 default:
-                    throw new Exception("Unary operation: '" + s + "' not supported by integers");
+                    throw new Exception("Unary operation: '" + s + "' not supported by floats");
             }
         }
 
@@ -451,7 +451,7 @@ namespace HeronEngine
             switch (s)
             {
                 default:
-                    throw new Exception("Unary operation: '" + s + "' not supported by integers");
+                    throw new Exception("Unary operation: '" + s + "' not supported by strings");
             }
         }
 

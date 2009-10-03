@@ -101,12 +101,7 @@ namespace HeronEngine
 
         public IEnumerable<HeronType> GetTypes()
         {
-            foreach (HeronInterface i in interfaces)
-                yield return i;
-            foreach (HeronClass c in classes)
-                yield return c;
-            foreach (HeronEnum e in enums)
-                yield return e;
+            return types.Values;
         }
 
         public IEnumerable<HeronClass> GetClasses()

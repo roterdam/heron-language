@@ -87,12 +87,12 @@ namespace HeronEngine
                 if (vm.HasVar(name))
                 {
                     vm.SetVar(name, val);
-                    return HeronValue.Void;
+                    return val;
                 }
                 else if (vm.HasField(name))
                 {
                     vm.SetField(name, val);
-                    return HeronValue.Void;
+                    return val;
                 }
                 else
                 {
@@ -105,7 +105,7 @@ namespace HeronEngine
                 HeronValue self = sf.self.Eval(vm);
                 string name = sf.name;
                 self.SetField(name, val);
-                return HeronValue.Void;
+                return val;
             }
             else if (lvalue is ReadAt)
             {
@@ -557,6 +557,35 @@ namespace HeronEngine
                 function.rettype = rettype;
             }
             return function;            
+        }
+    }
+
+    public class PostIncExpr : Expression
+    {
+        Expression expr;
+        Assignment ass;
+
+        public PostIncExpr(Expression x)
+        {
+            expr = x;
+            ass = new Assignment(x, new BinaryOperator("+", x, new IntLiteral(1)));
+        }
+
+        public override HeronValue Eval(HeronExecutor vm)
+        {
+            HeronValue result = vm.Eval(expr);
+            vm.Eval(ass);
+            return result;
+        }
+
+        public override string ToString()
+        {
+            return expr.ToString() + "++";
+        }
+
+        public override IEnumerable<Expression> GetSubExpressions()
+        {
+            yield return expr;
         }
     }
 }
