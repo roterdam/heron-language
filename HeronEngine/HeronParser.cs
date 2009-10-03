@@ -589,7 +589,7 @@ namespace HeronEngine
                 {                    
                     // You can't have anything to the left of ++
                     i++;
-                    return new Assignment(r, new BinaryOperator("+", r, new IntLiteral(1)));
+                    return new PostIncExpr(r);
                 }
                 else
                 {

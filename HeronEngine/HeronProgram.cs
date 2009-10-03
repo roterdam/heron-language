@@ -12,9 +12,9 @@ namespace HeronEngine
     /// </summary>
     public class HeronProgram : HeronValue
     {
-        public string name;
         private List<HeronModule> modules = new List<HeronModule>();
         private HeronModule global;
+        public string name;
 
         public HeronProgram(string name)
         {

@@ -35,7 +35,7 @@ namespace HeronEngine
         /// </summary>
         public HeronExecutor()
         {
-            program = new HeronProgram();
+            program = new HeronProgram("_untitled_");
             env = new Environment(program);
 
             // Load the global types
@@ -132,7 +132,15 @@ namespace HeronEngine
         {
             env.PushScope();
         }
-        
+
+        /// <summary>
+        /// Adds a name-value group.
+        /// </summary>
+        public void PushScope(NameValueTable scope)
+        {
+            env.PushScope(scope);
+        }
+
         /// <summary>
         /// Removes the top-most lexical scope.
         /// </summary>

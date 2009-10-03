@@ -113,11 +113,14 @@ namespace HeronEngine
 
             // Copy free vars
             if (freeVars != null)
-                foreach (string s in freeVars.Keys)
-                    vm.AddVar(s, freeVars[s]);
+                vm.PushScope(freeVars);
 
             // Eval the function body
             vm.Eval(fun.body);
+
+            // Pop the free-vars scope
+            if (freeVars != null)
+                vm.PopScope();
 
             // Pop the arguments scope
             vm.PopScope();
