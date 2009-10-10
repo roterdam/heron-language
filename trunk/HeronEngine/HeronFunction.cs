@@ -28,7 +28,7 @@ namespace HeronEngine
     /// </summary>
     public class FunctionDefinition : HeronValue
     {
-        public string name;
+        public string name = "_anonymous_";
         public Statement body;
         public HeronFormalArgs formals;
         public HeronType parent;

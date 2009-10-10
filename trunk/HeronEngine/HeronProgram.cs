@@ -19,8 +19,7 @@ namespace HeronEngine
         public HeronProgram(string name)
         {
             this.name = name;
-            global = new HeronModule(this);
-            global.name = "_global_";
+            global = new HeronModule(this, "_global_");
             RegisterPrimitives();
         }
 
@@ -86,15 +85,14 @@ namespace HeronEngine
             RegisterDotNetType(typeof(Console), "Console");
             RegisterDotNetType(typeof(Math), "Math");
             RegisterDotNetType(typeof(HeronCollection), "Collection");
-            RegisterDotNetType(typeof(HeronReflection), "Reflector");
 
-            RegisterDotNetType(typeof(HeronProgram), "ProgramNode");
-            RegisterDotNetType(typeof(HeronModule), "ModuleNode");
-            RegisterDotNetType(typeof(HeronClass), "ClassNode");
-            RegisterDotNetType(typeof(HeronInterface), "InterfaceNode");
-            RegisterDotNetType(typeof(HeronEnum), "EnumNode");
-            RegisterDotNetType(typeof(HeronField), "FieldNode");
-            RegisterDotNetType(typeof(FunctionDefinition), "FunctionNode");
+            RegisterDotNetType(typeof(HeronProgram), "HeronProgram");
+            RegisterDotNetType(typeof(HeronModule), "HeronModule");
+            RegisterDotNetType(typeof(HeronClass), "HeronClass");
+            RegisterDotNetType(typeof(HeronInterface), "HeronInterface");
+            RegisterDotNetType(typeof(HeronEnum), "HeronEnum");
+            RegisterDotNetType(typeof(HeronField), "HeronField");
+            RegisterDotNetType(typeof(FunctionDefinition), "HeronFunctionDefinition");
 
             RegisterDotNetType(typeof(VariableDeclaration));
             RegisterDotNetType(typeof(DeleteStatement));

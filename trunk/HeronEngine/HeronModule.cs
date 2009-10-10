@@ -15,9 +15,10 @@ namespace HeronEngine
         Dictionary<string, HeronType> types = new Dictionary<string, HeronType>();
         HeronProgram program;
 
-        public HeronModule(HeronProgram prog)
+        public HeronModule(HeronProgram prog, string name)
         {
             program = prog;
+            this.name = name;
             program.AddModule(this);
         }
 

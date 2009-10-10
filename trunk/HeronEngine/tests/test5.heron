@@ -9,13 +9,13 @@
 	}
 	
 	class Main {
+		fields {
+			x : OtherClass;
+		}
 		methods {
 			Constructor() {
 				x = new OtherClass();
 			}
-		}
-		fields {
-			x : OtherClass;
 		}
 	}
 }

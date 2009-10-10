@@ -1,41 +1,44 @@
-﻿module HeronToActionScript
+﻿module TestInheritance
 {
-	class PrettyPrinter 
+	class BaseClass
 	{
 		fields
 		{
-			indent : String;
+			fieldA : String;
 		}
 		methods
 		{		
 			Constructor()
 			{
-				indent = new String();
+				Console.WriteLine("1. In constructor of base class");
+				Console.WriteLine("2. Testing a var");
+				var a = "test passed";
+				Console.WriteLine(a);
+				Console.WriteLine("3. Testing a field");				
+				fieldA = a;
+				Console.WriteLine(fieldA);
+				Console.WriteLine("4. Testing a field again");
+				fieldA = a;
+				Console.WriteLine(fieldA);
+				LocalWriteLine("5. Testing a local function");
+				LocalWriteLine(a);
+				LocalWriteLine("6. Testing a local function again");
+				LocalWriteLine(fieldA);
+				LocalWriteLine("7. Testing a local function with access to local field");
+				WriteField();
+				fieldA = "test failed";
 			}
-			Write(s : String)
+			LocalWriteLine(s : String)
 			{
 				if (s == null)
-					Console.Write("null");
-				else
-					Console.Write(s);
-			}			
-			WriteLine(s : String)
-			{
-				if (s == null)
-					Console.WriteLine("");
+					Console.WriteLine("???");
 				else
 					Console.WriteLine(s);
-				Write(indent);
 			}
-			BracesAround(f : Function)
+			WriteField()
 			{
-				WriteLine("{");
-				var old_indent = indent;
-				indent = indent + "  ";
-				f();
-				indent = old_indent;				
-				WriteLine("}");
-			}			
+				LocalWriteLine(fieldA);
+			}
 		}			
 	}
 	
@@ -43,89 +46,28 @@
 	{
 		inherits 
 		{
-			PrettyPrinter;
+			BaseClass;
 		}
 		methods
 		{					
-			Constructor(program : ProgramNode)
+			Constructor(program : HeronProgram)
 			{
 				base.Constructor();
-				foreach (m : ModuleNode in program.GetModules())
-					Output(m);
-			}
-						
-			Output(m : ModuleNode)
-			{
-				Write("module ");
-				WriteLine(m.name);
-				BracesAround(
-					function() 
-					{
-						foreach (c : ClassNode in m.GetClasses())
-							Output(c);
-						foreach (i : InterfaceNode in m.GetClasses())
-							Output(i);					
-						foreach (e : EnumNode in m.GetClasses())
-							Output(e);	
-					}
-				);	
-				
-				Console.ReadKey();
-			}
-				
-			Output(c : ClassNode, indent : String)
-			{
-				Write("class ");				
-				WriteLine(c.name);
-				WriteLine("{ }");
-			}
-
-			Output(i : InterfaceNode, indent : String)
-			{
-				Write("interface ");
-				WriteLine(i.name);
-				WriteLine("{ }");												
-			}
-
-			Output(e : EnumNode)
-			{
-				Write("enum ");
-				WriteLine(e.name);
-				WriteLine("{ }");
-			}
+				Console.WriteLine("8. In constructor of main class");
+				Console.WriteLine("9. Testing a var");
+				var a = "test passed";
+				Console.WriteLine(a);
+				Console.WriteLine("10. Negative testing an inherited field (expect test failed)");
+				Console.WriteLine(fieldA);				
+				Console.WriteLine("11. Testing assignment of an inherited field");				
+				fieldA = a;
+				Console.WriteLine(fieldA);
+				LocalWriteLine("12. Testing an inherited function");
+				LocalWriteLine(a);
+				LocalWriteLine("13. Testing an inherited function");
+				WriteField();
+			}						
 		}
 	}
-	
-	enum TestEnum
-	{
-		EnumValue1;
-		EnumValue2;
-	}
-	
-	interface TestInterface
-	{
-		methods 
-		{
-			F();
-			G(x : Int, y : Int) : Int;
-		}
-	}
-	
-	class TestClass
-	{
-		fields
-		{
-			x : Int;
-			y : Int;
-		}
-		methods
-		{
-			F(a : Int) : Int
-			{
-				x = a;
-				return y;
-			}
-		}
-	}		
 }
 

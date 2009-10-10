@@ -45,9 +45,8 @@ namespace HeronEngine
         #region construct parsing functions
         static public HeronModule CreateModule(HeronProgram p, AstNode x)
         {
-            HeronModule r = new HeronModule(p);
+            HeronModule r = new HeronModule(p, GetNameNode(x));
             m = r; // Sets the current modul
-            r.name = GetNameNode(x);
             for (int i=1; i < x.GetNumChildren(); ++i) {
                 AstNode child = x.GetChild(i);
                 switch (child.Label)

@@ -49,6 +49,7 @@
     <Compile Include="HeronAny.cs" />
     <Compile Include="HeronCollection.cs" />
     <Compile Include="HeronConfig.cs" />
+    <Compile Include="HeronDebugger.cs" />
     <Compile Include="HeronDotNet.cs" />
     <Compile Include="HeronFrame.cs" />
     <Compile Include="HeronFunctionValues.cs" />
@@ -56,12 +57,11 @@
     <Compile Include="HeronNameValueTable.cs" />
     <Compile Include="HeronParser.cs" />
     <Compile Include="HeronExpression.cs" />
-    <Compile Include="HeronClass.cs" />
     <Compile Include="HeronFunction.cs" />
     <Compile Include="HeronGrammar.cs" />
     <Compile Include="HeronPrimitiveTypes.cs" />
     <Compile Include="HeronProgram.cs" />
-    <Compile Include="HeronReflection.cs" />
+    <Compile Include="HeronStandardLibrary.cs" />
     <Compile Include="HeronStatements.cs" />
     <Compile Include="HeronExecutor.cs" />
     <Compile Include="HeronValue.cs" />
@@ -76,8 +76,15 @@
     <Compile Include="PegParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util.cs" />
+    <Compile Include="ViewportForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ViewportForm.Designer.cs">
+      <DependentUpon>ViewportForm.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="tests\test16.heron" />
     <None Include="tests\test15.heron" />
     <None Include="tests\test1.heron" />
     <None Include="tests\test10.heron" />
@@ -85,7 +92,6 @@
     <None Include="tests\test12.heron" />
     <None Include="tests\test13.heron" />
     <None Include="tests\test14.heron" />
-    <None Include="tests\unfinished-test.heron" />
     <None Include="tests\test2.heron" />
     <None Include="tests\test3.heron" />
     <None Include="tests\test4.heron" />
@@ -99,10 +105,10 @@
     <Content Include="Config.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\HeronStandardLibrary\HeronStandardLibrary.csproj">
-      <Project>{6CF170D8-5E9C-4C83-A5B7-F1D16F3C65F9}</Project>
-      <Name>HeronStandardLibrary</Name>
-    </ProjectReference>
+    <EmbeddedResource Include="ViewportForm.resx">
+      <DependentUpon>ViewportForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

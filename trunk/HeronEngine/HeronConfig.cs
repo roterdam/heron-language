@@ -28,7 +28,7 @@ namespace HeronEngine
             foreach (XmlElement e in root.GetElementsByTagName("section"))
             {
                 string sectionName = "";
-                if (e.HasAttribute("name"))
+                if (e.HasAttribute("name"))     
                     sectionName = e.GetAttribute("name");
                 foreach (XmlNode n in e.ChildNodes)
                     ProcessElement(n as XmlElement, sectionName);
