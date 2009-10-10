@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Reflection;
 
 namespace HeronEngine
 {
@@ -95,6 +96,128 @@ namespace HeronEngine
                     r[i] = array[i].ToSystemObject();
             }
             return r;
+        }
+    }
+
+    public class DotNetClass : HeronType
+    {
+        Type type;
+
+        public DotNetClass(HeronModule m, string name, Type type)
+            : base(m, name)
+        {
+            this.type = type;
+        }
+
+        public DotNetClass(HeronModule m, Type type)
+            : base(m, type.Name)
+        {
+            this.type = type;
+        }
+
+        public override HeronValue Instantiate(HeronExecutor vm, HeronValue[] args)
+        {
+            Object[] objs = HeronDotNet.ObjectsToDotNetArray(args);
+            Object o = type.InvokeMember(null, BindingFlags.Instance | BindingFlags.Public | BindingFlags.Default | BindingFlags.CreateInstance, null, null, objs);
+            if (o == null)
+                throw new Exception("Unable to construct " + name);
+            return DotNetObject.Marshal(o);
+        }
+
+        public Type GetSystemType()
+        {
+            return type;
+        }
+
+        /// <summary>
+        /// Returns the value of a static field, or a method group.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public override HeronValue GetFieldOrMethod(string name)
+        {
+            // We have to first look to see if there are static fields
+            FieldInfo[] fis = type.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.GetField);
+            foreach (FieldInfo fi in fis)
+                if (fi.Name == name)
+                    return DotNetObject.Marshal(fi.GetValue(null));
+
+            // Look for methods
+            MethodInfo[] mis = type.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.InvokeMethod);
+            if (mis.Length != 0)
+                return new DotNetStaticMethodGroup(this, name);
+
+            // No static field or method found.
+            // TODO: could eventually support property.
+            throw new Exception("Could not find static field, or static method " + name + " in object " + this.name);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is DotNetClass))
+                return false;
+            return (obj as DotNetClass).type.Equals(type);
+        }
+
+        public override int GetHashCode()
+        {
+            return type.GetHashCode();
+        }
+    }
+
+    /// <summary>
+    /// In .NET methods are overloaded, so resolve a method name on a .NET object
+    /// yields a group of methods. This class stores the object and the method
+    /// name for invocation.
+    /// </summary>
+    public class DotNetMethodGroup : HeronValue
+    {
+        DotNetObject self;
+        string name;
+
+        public DotNetMethodGroup(DotNetObject self, string name)
+        {
+            this.self = self;
+            this.name = name;
+        }
+
+        public override HeronValue Apply(HeronExecutor vm, HeronValue[] args)
+        {
+            Object[] os = HeronDotNet.ObjectsToDotNetArray(args);
+            Object o = self.GetSystemType().InvokeMember(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod, null, self.ToSystemObject(), os);
+            return DotNetObject.Marshal(o);
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return HeronPrimitiveTypes.ExternalMethodListType;
+        }
+    }
+
+    /// <summary>
+    /// Very similar to DotNetMethodGroup, except only static functions are bound.
+    /// </summary>
+    public class DotNetStaticMethodGroup : HeronValue
+    {
+        DotNetClass self;
+        string name;
+
+        public DotNetStaticMethodGroup(DotNetClass self, string name)
+        {
+            this.self = self;
+            this.name = name;
+        }
+
+        public override HeronValue Apply(HeronExecutor vm, HeronValue[] args)
+        {
+            Object[] os = HeronDotNet.ObjectsToDotNetArray(args);
+            Object o = self.GetSystemType().InvokeMember(name, BindingFlags.Public | BindingFlags.Static | BindingFlags.InvokeMethod, null, null, os);
+            return DotNetObject.Marshal(o);
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return HeronPrimitiveTypes.ExternalStaticMethodListType;
         }
     }
 }

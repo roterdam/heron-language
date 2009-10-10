@@ -33,16 +33,23 @@ namespace HeronEngine
             return noExpressions;
         }
 
-        public virtual IEnumerable<string> GetDefinedNames()
+        public virtual IEnumerable<string> GetLocallyDefinedNames()
         {
             return noStrings;
+        }
+
+        public IEnumerable<string> GetDefinedNames()
+        {
+            foreach (Statement st in GetStatementTree())
+                foreach (string name in st.GetLocallyDefinedNames())
+                    yield return name;
         }
 
         public virtual IEnumerable<Statement> GetStatementTree()
         {
             yield return this;
             foreach (Statement x in GetSubStatements())
-                foreach (Statement y in GetStatementTree())
+                foreach (Statement y in x.GetStatementTree())
                     yield return y;
         }
 
@@ -55,9 +62,10 @@ namespace HeronEngine
 
         public IEnumerable<string> GetUsedNames()
         {
-            foreach (Expression x in GetExpressionTree())
-                if (x is Name)
-                    yield return (x as Name).name;
+            foreach (Statement st in GetStatementTree())
+                foreach (Expression x in st.GetExpressionTree())
+                    if (x is Name)
+                        yield return (x as Name).name;
         }
     }
 
@@ -97,7 +105,7 @@ namespace HeronEngine
                 yield return value;
         }
 
-        public override IEnumerable<string> GetDefinedNames()
+        public override IEnumerable<string> GetLocallyDefinedNames()
         {
             yield return name;
         }
@@ -234,7 +242,7 @@ namespace HeronEngine
             yield return collection;
         }
 
-        public override IEnumerable<string> GetDefinedNames()
+        public override IEnumerable<string> GetLocallyDefinedNames()
         {
             yield return name;
         }
@@ -296,7 +304,7 @@ namespace HeronEngine
             yield return next;
         }
 
-        public override IEnumerable<string> GetDefinedNames()
+        public override IEnumerable<string> GetLocallyDefinedNames()
         {
             yield return name;
         }

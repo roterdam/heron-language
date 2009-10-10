@@ -179,11 +179,31 @@ namespace HeronEngine
             return sb.ToString();
         }
 
-        public HeronModule GetModule()
+        public string SimpleDescription
         {
-            if (type == null)
-                return null;
-            return type.GetModule();
+            get
+            {
+                string r = "";
+                if (module == null)
+                    r += "unknown_module : ";
+                else
+                    r += module.name + " : ";
+
+                if (self == null)
+                    r += "unknown_class : ";
+                else
+                    r += self.hclass.name + " : ";
+                if (function == null)
+                    r += "unknown_function";
+                else
+                    r += function.ToString();
+                return r;
+            }
+        }
+
+        public IEnumerable<NameValueTable> GetScopes()
+        {
+            return scopes;
         }
     }
 }

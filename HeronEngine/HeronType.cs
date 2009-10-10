@@ -87,6 +87,11 @@ namespace HeronEngine
         {
             return name.GetHashCode();
         }
+
+        public override string ToString()
+        {
+            return name;
+        }
     }
 
     /// <summary>
@@ -118,70 +123,331 @@ namespace HeronEngine
         }
     }
 
-    public class DotNetClass : HeronType
+    /// <summary>
+    /// Represents a member field of a class. 
+    /// </summary>
+    public class HeronField
     {
-        Type type;
+        public string name;
+        public HeronType type = HeronPrimitiveTypes.AnyType;
 
-        public DotNetClass(HeronModule m, string name, Type type)
+        public void ResolveTypes()
+        {
+            if (type is UnresolvedType)
+                type = (type as UnresolvedType).Resolve();
+        }
+    }
+
+    /// <summary>
+    /// An instance of an interface type.
+    /// </summary>
+    public class HeronInterface : HeronType
+    {
+        FunctionTable methods = new FunctionTable();
+        List<HeronType> basetypes = new List<HeronType>();
+
+        public HeronInterface(HeronModule m, string name)
             : base(m, name)
         {
-            this.type = type;
+        }
+        public void ResolveTypes()
+        {
+            for (int i = 0; i < basetypes.Count; ++i)
+            {
+                HeronType t = basetypes[i];
+                if (t is UnresolvedType)
+                    basetypes[i] = (t as UnresolvedType).Resolve();
+            }
+
+            foreach (FunctionDefinition f in GetMethods())
+                f.ResolveTypes();
+        }
+        public void AddBaseInterface(HeronType t)
+        {
+            basetypes.Add(t);
+        }
+        public override HeronValue Instantiate(HeronExecutor vm, HeronValue[] args)
+        {
+            throw new Exception("Cannot instantiate an interface");
+        }
+        public override IEnumerable<FunctionDefinition> GetMethods()
+        {
+            foreach (FunctionDefinition f in methods)
+                yield return f;
+            foreach (HeronInterface i in basetypes)
+                foreach (FunctionDefinition f in i.GetMethods())
+                    yield return f;
+        }
+        // TODO: see if I can remove all "HasMethod" calls.
+        public bool HasMethod(string name)
+        {
+            foreach (FunctionDefinition f in GetMethods(name))
+                return true;
+            return false;
+        }
+        public void AddMethod(FunctionDefinition x)
+        {
+            methods.Add(x);
         }
 
-        public DotNetClass(HeronModule m, Type type)
-            : base(m, type.Name)
+        public bool InheritsFrom(HeronInterface i)
         {
-            this.type = type;
+            string s = i.name;
+            if (s == name)
+                return true;
+            foreach (HeronInterface bi in basetypes)
+                if (bi.InheritsFrom(i))
+                    return true;
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// An instance of an enum type.
+    /// </summary>
+    public class HeronEnum : HeronType
+    {
+        List<String> values = new List<String>();
+
+        public HeronEnum(HeronModule m, string name)
+            : base(m, name)
+        {
         }
 
         public override HeronValue Instantiate(HeronExecutor vm, HeronValue[] args)
         {
-            Object[] objs = HeronDotNet.ObjectsToDotNetArray(args);
-            Object o = type.InvokeMember(null, BindingFlags.Instance | BindingFlags.Public | BindingFlags.Default | BindingFlags.CreateInstance, null, null, objs);
-            if (o == null)
-                throw new Exception("Unable to construct " + name);
-            return DotNetObject.Marshal(o);
+            throw new Exception("Cannot instantiate an enumeration");
         }
 
-        public Type GetSystemType()
+        public void AddValue(string s)
         {
-            return type;
+            values.Add(s);
         }
 
-        /// <summary>
-        /// Returns the value of a static field, or a method group.
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
+        public string GetValue(int n)
+        {
+            return values[n];
+        }
+
+        public int GetNumValues()
+        {
+            return values.Count;
+        }
+
+        public bool HasValue(string s)
+        {
+            return values.IndexOf(s) >= 0;
+        }
+
+        public IEnumerable<string> GetValues()
+        {
+            return values;
+        }
+
         public override HeronValue GetFieldOrMethod(string name)
         {
-            // We have to first look to see if there are static fields
-            FieldInfo[] fis = type.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.GetField);          
-            foreach (FieldInfo fi in fis) 
-                if (fi.Name == name)
-                   return DotNetObject.Marshal(fi.GetValue(null));
-            
-            // Look for methods
-            MethodInfo[] mis = type.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.InvokeMethod);
-            if (mis.Length != 0)
-                return new DotNetStaticMethodGroup(this, name);
-
-            // No static field or method found.
-            // TODO: could eventually support property.
-            throw new Exception("Could not find static field, or static method " + name + " in object " + this.name);
+            if (!HasValue(name))
+                throw new Exception(name + " is not a member of " + this.name);
+            return new EnumInstance(this, name);
         }
 
         public override bool Equals(object obj)
         {
-            if (!(obj is DotNetClass))
+            HeronEnum e = obj as HeronEnum;
+            if (e == null)
                 return false;
-            return (obj as DotNetClass).type.Equals(type);
+            return e.name == name;
         }
 
         public override int GetHashCode()
         {
-            return type.GetHashCode();
+            return name.GetHashCode();
         }
+    }
+
+    /// <summary>
+    /// An instance of a class type.
+    /// </summary>
+    public class HeronClass : HeronType
+    {
+        #region fields
+        FunctionTable methods = new FunctionTable();
+        List<HeronField> fields = new List<HeronField>();
+        HeronType baseclass = null;
+        List<HeronType> interfaces = new List<HeronType>();
+        FunctionListValue ctors;
+        #endregion
+
+        #region internal function
+
+        internal HeronClass(HeronModule m, string name)
+            : base(m, name)
+        {
+        }
+
+        internal void ResolveTypes()
+        {
+            if (baseclass != null)
+                if (baseclass is UnresolvedType)
+                    baseclass = (baseclass as UnresolvedType).Resolve();
+            for (int i = 0; i < interfaces.Count; ++i)
+            {
+                HeronType t = interfaces[i];
+                if (t is UnresolvedType)
+                    interfaces[i] = (t as UnresolvedType).Resolve();
+            }
+            foreach (HeronField f in GetFields())
+                f.ResolveTypes();
+            foreach (FunctionDefinition f in GetMethods())
+                f.ResolveTypes();
+        }
+
+        internal bool VerifyImplements(HeronInterface i)
+        {
+            foreach (FunctionDefinition f in i.GetMethods())
+                if (!HasFunction(f))
+                    return false;
+            return true;
+        }
+
+        internal void VerifyInterfaces()
+        {
+            foreach (HeronInterface i in interfaces)
+                if (!VerifyImplements(i))
+                    throw new Exception("Class '" + name + "' does not implement the interface '" + i.name + "'");
+        }
+
+        internal bool HasFunction(FunctionDefinition f)
+        {
+            foreach (FunctionDefinition g in GetMethods(f.name))
+                if (g.Matches(f))
+                    return true;
+            return false;
+        }
+
+        internal void SetBaseClass(HeronType c)
+        {
+            baseclass = c;
+        }
+
+        public HeronClass GetBaseClass()
+        {
+            return baseclass as HeronClass;
+        }
+
+        internal void AddInterface(HeronType i)
+        {
+            interfaces.Add(i);
+        }
+
+        internal void AddFields(ClassInstance i)
+        {
+            foreach (HeronField field in fields)
+                i.AddField(field.name, null);
+
+            if (GetBaseClass() != null)
+            {
+                ClassInstance b = new ClassInstance(GetBaseClass());
+                GetBaseClass().AddFields(b);
+                i.AddField("base", b);
+            }
+        }
+
+        internal bool HasMethod(string name)
+        {
+            foreach (FunctionDefinition f in GetMethods(name))
+                return true;
+            return false;
+        }
+
+        internal bool Implements(HeronInterface i)
+        {
+            string s = i.name;
+            foreach (HeronInterface i2 in interfaces)
+                if (i2.name == s)
+                    return true;
+            if (GetBaseClass() != null)
+                return GetBaseClass().Implements(i);
+            return false;
+        }
+
+        internal bool InheritsFrom(HeronClass c)
+        {
+            string s = c.name;
+            if (s == name)
+                return true;
+            if (GetBaseClass() != null)
+                return GetBaseClass().InheritsFrom(c);
+            return false;
+        }
+
+        #endregion
+
+        #region public methods
+
+        /// <summary>
+        /// Creates an instance of this class.
+        /// </summary>
+        /// <param name="env"></param>
+        /// <returns></returns>
+        public override HeronValue Instantiate(HeronExecutor vm, HeronValue[] args)
+        {
+            // TODO: this needs to be optimized
+            ClassInstance r = new ClassInstance(this);
+            AddFields(r);
+            // This is a last minute computation of the constructor list
+            List<FunctionDefinition> ctorlist = new List<FunctionDefinition>(GetMethods("Constructor"));
+            if (ctorlist == null)
+                return r;
+            ctors = new FunctionListValue(r, "Constructor", ctorlist);
+            if (ctors.Count == 0)
+                return r;
+
+            FunctionValue o = ctors.Resolve(vm, args);
+            if (o == null)
+                return r; // No matching constructor
+            o.Apply(vm, args);
+            return r;
+        }
+
+        public IEnumerable<HeronField> GetFields()
+        {
+            return fields;
+        }
+
+        public void AddMethod(FunctionDefinition x)
+        {
+            methods.Add(x);
+        }
+
+        public void AddField(HeronField x)
+        {
+            fields.Add(x);
+        }
+
+        public HeronField GetField(string s)
+        {
+            foreach (HeronField f in fields)
+                if (f.name == s)
+                    return f;
+            return null;
+        }
+
+        public FunctionListValue GetCtors()
+        {
+            return ctors;
+        }
+
+        public override IEnumerable<FunctionDefinition> GetMethods()
+        {
+            foreach (FunctionDefinition f in methods)
+                yield return f;
+            if (baseclass != null)
+                foreach (FunctionDefinition f in baseclass.GetMethods())
+                    yield return f;
+        }
+
+        #endregion
     }
 }
 

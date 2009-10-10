@@ -99,8 +99,10 @@ namespace HeronEngine
         {
             switch (s)
             {
-                case "==": return new BoolValue(x is NullValue);
-                case "!=": return new BoolValue(!(x is NullValue));
+                case "==": 
+                    return new BoolValue(x is NullValue);
+                case "!=": 
+                    return new BoolValue(!(x is NullValue));
                 default:
                     throw new Exception("Binary operation: '" + s + "' not supported by strings");
             }
@@ -228,10 +230,6 @@ namespace HeronEngine
             val = x;
         }
 
-        public PrimitiveValue()
-        {
-        }
-
         public override string ToString()
         {
             return val.ToString();
@@ -256,6 +254,7 @@ namespace HeronEngine
         }
 
         public IntValue()
+            : base(0)
         {
         }
 
@@ -308,6 +307,7 @@ namespace HeronEngine
         }
 
         public CharValue()
+            : base('\0')
         {
         }
 
@@ -343,6 +343,7 @@ namespace HeronEngine
         }
 
         public FloatValue()
+            : base(0.0f)
         {
         }
 
@@ -393,6 +394,7 @@ namespace HeronEngine
         }
 
         public BoolValue()
+            : base(false)
         {
         }
 
@@ -731,6 +733,9 @@ namespace HeronEngine
         }
    }
 
+    /// <summary>
+    /// An instance of an enumerable value.
+    /// </summary>
     public class EnumInstance : HeronValue
     {
         HeronEnum henum;

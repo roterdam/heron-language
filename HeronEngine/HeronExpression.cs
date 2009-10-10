@@ -24,12 +24,9 @@ namespace HeronEngine
 
         public abstract HeronValue Eval(HeronExecutor vm);
 
-        static List<Expression> noExpressions = new List<Expression>();
+        static protected List<Expression> noExpressions = new List<Expression>();
 
-        public virtual IEnumerable<Expression> GetSubExpressions()
-        {
-            return noExpressions;
-        }
+        public abstract IEnumerable<Expression> GetSubExpressions();
 
         public IEnumerable<Expression> GetExpressionTree()
         {
@@ -154,6 +151,11 @@ namespace HeronEngine
         {
             return "(" + self.ToString() + "." + name + ")";
         }
+
+        public override IEnumerable<Expression> GetSubExpressions()
+        {
+            yield return self;
+        }
     }
 
     public class ReadAt : Expression
@@ -231,6 +233,11 @@ namespace HeronEngine
         {
             return val.ToString();
         }
+
+        public override IEnumerable<Expression> GetSubExpressions()
+        {
+            return noExpressions;
+        }
     }
 
     public class IntLiteral : Literal<IntValue>
@@ -283,6 +290,11 @@ namespace HeronEngine
         public override string ToString()
         {
             return name;
+        }
+
+        public override IEnumerable<Expression> GetSubExpressions()
+        {
+            return noExpressions;
         }
     }
 
@@ -401,7 +413,7 @@ namespace HeronEngine
             }
             else if (b is NullValue)
             {
-                return b.InvokeBinaryOperator(operation, b);
+                return b.InvokeBinaryOperator(operation, a);
             }
             else if (a is IntValue)
             {
@@ -557,6 +569,11 @@ namespace HeronEngine
                 function.rettype = rettype;
             }
             return function;            
+        }
+
+        public override IEnumerable<Expression> GetSubExpressions()
+        {
+            return noExpressions;
         }
     }
 

@@ -68,6 +68,11 @@ namespace HeronTests
             }
         }
 
+        static public void TestEvalExpr(string sExpr)
+        {
+            TestEvalExpr(sExpr, "True");
+        }
+        
         static public void TestEvalExpr(string sExpr, string sOutput)
         {
             Console.WriteLine("testing evaluation of " + sExpr);
@@ -108,6 +113,7 @@ namespace HeronTests
             {
                 Console.WriteLine("Error occured when executing file " + file);
                 Console.WriteLine(e.Message);
+                HeronDebugger.Start(vm);
             }               
         }
 
@@ -123,12 +129,8 @@ namespace HeronTests
             {
                 string s = Config.testPath + "\\test" + n.ToString() + ".heron";
                 if (!File.Exists(s))
-                    return;
-                
-                // TEMP:
-                if (n == 14)
-                    RunFileTest(s);
-
+                    return;                
+                RunFileTest(s);
                 n += 1;
             }
         }
@@ -162,6 +164,12 @@ namespace HeronTests
             TestEvalExpr("1.0 + 2.5", "3.5");
             TestEvalExpr("(function() { return 1; })()", "1");
             TestEvalExpr("(function(x : Int) { return x + 1; })(12)", "13");
+            TestEvalExpr("null == null");
+            TestEvalExpr("null != new String()");
+            TestEvalExpr("null != \"abc\"");
+            TestEvalExpr("\"abc\" != null");
+            TestEvalExpr("null != 1");
+            TestEvalExpr("1 != null");
         }
 
         static void SimplePegTests()

@@ -272,9 +272,25 @@ namespace HeronEngine
             result = ret;
         }
 
+        /// <summary>
+        /// Returns the module associated with the current frame.
+        /// </summary>
+        /// <returns></returns>
         public HeronModule GetCurrentModule()
         {
-            return GetCurrentFrame().GetModule();
+            Frame f = GetCurrentFrame();
+            Trace.Assert(f != null);
+            HeronModule m = f.module;
+            return m;
+        }
+
+        /// <summary>
+        /// Returns all frames, useful for creating a call stack 
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<Frame> GetFrames()
+        {
+            return frames;
         }
     }
 }

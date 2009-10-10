@@ -228,5 +228,14 @@ namespace HeronEngine
         {
             return env.GetLastResult();
         }
+
+        /// <summary>
+        /// Should only ever be called by the debugger.
+        /// </summary>
+        /// <returns></returns>
+        internal Environment GetEnvironment()
+        {
+            return env;
+        }
     }
 }

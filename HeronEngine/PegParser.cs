@@ -82,16 +82,14 @@ namespace Peg
     /// </summary>
     public class ParserState
     {
-        int mIndex;
-        int mExtent;
+        int mIndex = 0;
+        int mExtent = 0;
         string mInput;
         AstNode mTree;
         AstNode mCur;
 
         public ParserState(string s)
         {
-            mIndex = 0;
-            mExtent = 0;
             mInput = s;
             mTree = new AstNode("ast", 0, mInput, null);
             mCur = mTree;
