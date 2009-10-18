@@ -55,7 +55,8 @@
     <Compile Include="HeronFunctionValues.cs" />
     <Compile Include="HeronModule.cs" />
     <Compile Include="HeronNameValueTable.cs" />
-    <Compile Include="HeronParser.cs" />
+    <Compile Include="HeronPrimitiveValue.cs" />
+    <Compile Include="HeronTypedAST.cs" />
     <Compile Include="HeronExpression.cs" />
     <Compile Include="HeronFunction.cs" />
     <Compile Include="HeronGrammar.cs" />
@@ -70,6 +71,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="HeronType.cs" />
+    <Compile Include="HeronXml.cs" />
+    <Compile Include="PegRuleTypes.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="PegAst.cs" />
     <Compile Include="PegBaseGrammar.cs" />
@@ -84,7 +87,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="tests\test16.heron" />
+    <None Include="tests\unfinished-test16.heron" />
     <None Include="tests\test15.heron" />
     <None Include="tests\test1.heron" />
     <None Include="tests\test10.heron" />

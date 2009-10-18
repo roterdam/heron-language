@@ -10,6 +10,8 @@ using System.Threading;
 using System.Diagnostics;
 using System.Reflection;
 
+/// In theory this namespace is used for holding the standard library
+/// It is not used much.
 namespace HeronStandardLibrary
 {
     public class Util
@@ -38,7 +40,7 @@ namespace HeronStandardLibrary
     /// Wraps a form with a canvas, that is used for drawing.
     /// What is special is that the form is on a separate thread, allowing drawing commands 
     /// to be invoked asynchronously, but still allowing the programmers to interact with 
-    /// the user via other mechanisms (e.g. the command-line).
+    /// the user via other mechanisms (e.r. the command-line).
     /// </summary>
     public class Viewport
     {
@@ -172,25 +174,5 @@ namespace HeronStandardLibrary
             Application.Run(form);
         }
         #endregion
-    }
-
-    public class Collection
-    {
-        List<Object> list = new List<Object>();
-
-        public void Add(Object o)
-        {
-            list.Add(o);
-        }
-
-        public int Count()
-        {
-            return list.Count;
-        }
-
-        internal IEnumerable<Object> InternalGetList()
-        {
-            return list;
-        }
     }
 }

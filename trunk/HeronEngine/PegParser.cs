@@ -35,9 +35,9 @@ namespace Peg
         public int col;
         public string line;
         public string ptr;
-        public Grammar.Rule rule;
+        public Rule rule;
 
-        public ParseExceptionContext(string s, int begin, int end, Grammar.Rule r, string msg)
+        public ParseExceptionContext(string s, int begin, int end, Rule r, string msg)
         {
             location = new ParseLocation(s, begin, end);
             this.msg = msg;
@@ -64,13 +64,13 @@ namespace Peg
     {
         public ParseExceptionContext context;
 
-        public ParsingException(string s, int begin, int end, Grammar.Rule r, string msg)
+        public ParsingException(string s, int begin, int end, Rule r, string msg)
             : base(msg)
         {          
             AddContext(s, begin, end, r, msg);
         }
 
-        public void AddContext(string s, int begin, int end, Grammar.Rule r, string msg)
+        public void AddContext(string s, int begin, int end, Rule r, string msg)
         {
             context = new ParseExceptionContext(s, begin, end, r, msg);
         }
@@ -209,9 +209,11 @@ namespace Peg
             return mTree;
         }
 
-        public AstNode Parse(Peg.Grammar.Rule g)
+        public AstNode Parse(Peg.Rule r)
         {
-            if (!g.Match(this))
+            Trace.Assert(r != null);
+
+            if (!r.Match(this))
                 return null;
                             
             if (mCur != mTree)
@@ -221,10 +223,12 @@ namespace Peg
             return mTree;
         }
         
-        public static AstNode Parse(Peg.Grammar.Rule g, string s)
+        public static AstNode Parse(Peg.Rule r, string s)
         {
+            Trace.Assert(r != null);
+
             ParserState p = new ParserState(s);
-            AstNode node = p.Parse(g);
+            AstNode node = p.Parse(r);
             if (node == null)
                 return null;
             if (node.Label != "ast")

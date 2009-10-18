@@ -53,8 +53,12 @@ namespace HeronEngine
         public static HeronPrimitiveType ExternalMethodType = new HeronPrimitiveType(null, "ExternalMethod");
         public static HeronPrimitiveType ExternalStaticMethodListType = new HeronPrimitiveType(null, "ExternalStaticMethodList");
         public static HeronPrimitiveType ExternalMethodListType = new HeronPrimitiveType(null, "ExternalMethodList");
-        public static HeronPrimitiveType ProgramType = new HeronPrimitiveType(null, "Program");
-        public static HeronPrimitiveType ModuleType = new HeronPrimitiveType(null, "Module");
+        
+        public static HeronPrimitiveType ProgramType = new HeronPrimitiveType(null, "HeronProgram");
+        public static HeronPrimitiveType ModuleType = new HeronPrimitiveType(null, "HeronModule");
+        public static HeronPrimitiveType ClassType = new HeronPrimitiveType(null, "HeronClass");
+        public static HeronPrimitiveType EnumType = new HeronPrimitiveType(null, "HeronEnum");
+        public static HeronPrimitiveType InterfaceType = new HeronPrimitiveType(null, "HeronInterface");
 
         static Dictionary<string, HeronPrimitiveType> types = null;
 
@@ -83,8 +87,12 @@ namespace HeronEngine
                 AddType(ExternalMethodType);
                 AddType(ExternalStaticMethodListType);
                 AddType(ExternalMethodListType);
+
                 AddType(ProgramType);
                 AddType(ModuleType);
+                AddType(ClassType);
+                AddType(EnumType);
+                AddType(InterfaceType);
             }
 
             return types;

@@ -7,7 +7,7 @@ using System.Diagnostics;
 
 namespace HeronEngine
 {
-    // <summary>
+    /// <summary>
     /// Represents an object that can be applied to arguments (i.e. called)
     /// You can think of this as a member function bound to the this argument.
     /// In C# this would be called a delegate.

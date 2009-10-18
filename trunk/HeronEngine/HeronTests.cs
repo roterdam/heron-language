@@ -14,14 +14,14 @@ namespace HeronTests
     {
         static HeronExecutor vm = new HeronExecutor();
 
-        static public void TestPeg(Grammar.Rule r, string s)
+        static public void TestPeg(Rule r, string s)
         {
             try
             {
                 Console.WriteLine("Trying to parse input " + s);
                 AstNode node = ParserState.Parse(r, s);
                 if (node == null)
-                    Console.WriteLine("Test failed");
+                    Console.WriteLine("Test failed"); 
                 else
                     Console.WriteLine("Test succeed, node = " + node.ToString());
             }
@@ -36,7 +36,7 @@ namespace HeronTests
             Console.WriteLine("testing expression: " + s);
             try
             {
-                Expression x = HeronParser.ParseExpr(s);
+                Expression x = HeronTypedAST.ParseExpr(s);
                 if (x != null)
                 {
                     Console.WriteLine("test passed");
@@ -56,7 +56,7 @@ namespace HeronTests
             Console.WriteLine("testing statement: " + s);
             try
             {
-                Statement x = HeronParser.ParseStatement(s);
+                Statement x = HeronTypedAST.ParseStatement(s);
                 if (x != null)
                     Console.WriteLine("test passed");
                 else
@@ -129,8 +129,9 @@ namespace HeronTests
             {
                 string s = Config.testPath + "\\test" + n.ToString() + ".heron";
                 if (!File.Exists(s))
-                    return;                
-                RunFileTest(s);
+                    return;
+                //if (n == 16)
+                    RunFileTest(s);
                 n += 1;
             }
         }
@@ -174,49 +175,55 @@ namespace HeronTests
 
         static void SimplePegTests()
         {
-            TestPeg(HeronGrammar.IntegerLiteral(), "1");
-            TestPeg(HeronGrammar.NumLiteral(), "1");
-            TestPeg(HeronGrammar.Literal(), "1");
-            TestPeg(HeronGrammar.SimpleExpr(), "1");
-            TestPeg(HeronGrammar.Expr(), "1");
-            TestPeg(HeronGrammar.Expr(), "12");
-            TestPeg(HeronGrammar.Expr(), "1.0");
-            TestPeg(HeronGrammar.Expr(), "abc");
-            TestPeg(HeronGrammar.Expr(), "a + b");
-            TestPeg(HeronGrammar.Expr(), "(1 + 2) * (3 + 4)");
-            TestPeg(HeronGrammar.Expr(), "ab()");
-            TestPeg(HeronGrammar.Expr(), "ab(a)");
-            TestPeg(HeronGrammar.Expr(), "a.x");
-            TestPeg(HeronGrammar.Expr(), "a.x()");
-            TestPeg(HeronGrammar.Expr(), "ab(a.x() + 24)");
-            TestPeg(HeronGrammar.Expr(), "function() { }");
-            TestPeg(HeronGrammar.Expr(), "function(a : Int) { return a + 1; }");
-            TestPeg(HeronGrammar.Expr(), "f(function(a : Int) { return a + 1; })");
+            TestPeg(HeronGrammar.IntegerLiteral, "1");
+            TestPeg(HeronGrammar.NumLiteral, "1");
+            TestPeg(HeronGrammar.Literal, "1");
+            TestPeg(HeronGrammar.BasicExpr, "1");
+            TestPeg(HeronGrammar.Name, "a");
+            TestPeg(HeronGrammar.Name, "abc");
+            TestPeg(HeronGrammar.Name, "*");
+            TestPeg(HeronGrammar.Expr, "1");
+            TestPeg(HeronGrammar.Expr, "12");
+            TestPeg(HeronGrammar.Expr, "1.0");
+            TestPeg(HeronGrammar.Expr, "abc");
+            TestPeg(HeronGrammar.Expr, "a + b");
+            TestPeg(HeronGrammar.ParanthesizedExpr, "(1)");
+            TestPeg(HeronGrammar.ParanthesizedExpr, "(1 + 2)");
+            TestPeg(HeronGrammar.Expr, "(1 + 2)");
+            TestPeg(HeronGrammar.Expr, "(1 + 2) * (3 + 4)");
+            TestPeg(HeronGrammar.Expr, "ab");
+            TestPeg(HeronGrammar.Expr, "ab(a)");
+            TestPeg(HeronGrammar.Expr, "a.x");
+            TestPeg(HeronGrammar.Expr, "a.x");
+            TestPeg(HeronGrammar.Expr, "ab(a.x + 24)");
+            TestPeg(HeronGrammar.Expr, "function() { }");
+            TestPeg(HeronGrammar.Expr, "function(a : Int) { return a + 1; }");
+            TestPeg(HeronGrammar.Expr, "f(function(a : Int) { return a + 1; })");
         }
 
         static void SimplePegStatementTests()
         {
-            TestPeg(HeronGrammar.ExprStatement(), "1;");
-            TestPeg(HeronGrammar.ExprStatement(), "f();");
-            TestPeg(HeronGrammar.ExprStatement(), "a.b;");
-            TestPeg(HeronGrammar.ExprStatement(), "a.b();");
-            TestPeg(HeronGrammar.CodeBlock(), "{}");
-            TestPeg(HeronGrammar.CodeBlock(), "{ }");
-            TestPeg(HeronGrammar.CodeBlock(), "{ a(); }");
-            TestPeg(HeronGrammar.VarDecl(), "var a;");
-            TestPeg(HeronGrammar.VarDecl(), "var a : Int;");
-            TestPeg(HeronGrammar.IfStatement(), "if (a) { }");
-            TestPeg(HeronGrammar.IfStatement(), "if (a) { } else { }");
-            TestPeg(HeronGrammar.ForEachStatement(), "foreach (a in b) { }");
-            TestPeg(HeronGrammar.ForEachStatement(), "foreach (a : A in b) { }");
-            TestPeg(HeronGrammar.ForStatement(), "for (a = 0; a != b; a + 1) { }");
-            TestPeg(HeronGrammar.WhileStatement(), "while (a) { }");
-            TestPeg(HeronGrammar.EmptyStatement(), ";");
-            TestPeg(HeronGrammar.ReturnStatement(), "return a;");
-            TestPeg(HeronGrammar.DeleteStatement(), "delete a;");
-            TestPeg(HeronGrammar.SwitchStatement(), "switch (a) { case (b) { } default { } }");
-            TestPeg(HeronGrammar.Statement(), "f(function() { return a + 1; });");
-            TestPeg(HeronGrammar.Statement(), "f(function(a : Int) { a += 1; return a * 2; });");
+            TestPeg(HeronGrammar.ExprStatement, "1;");
+            TestPeg(HeronGrammar.ExprStatement, "f;");
+            TestPeg(HeronGrammar.ExprStatement, "a.b;");
+            TestPeg(HeronGrammar.ExprStatement, "a.b;");
+            TestPeg(HeronGrammar.CodeBlock, "{}");
+            TestPeg(HeronGrammar.CodeBlock, "{ }");
+            TestPeg(HeronGrammar.CodeBlock, "{ a; }");
+            TestPeg(HeronGrammar.VarDecl, "var a;");
+            TestPeg(HeronGrammar.VarDecl, "var a : Int;");
+            TestPeg(HeronGrammar.IfStatement, "if (a) { }");
+            TestPeg(HeronGrammar.IfStatement, "if (a) { } else { }");
+            TestPeg(HeronGrammar.ForEachStatement, "foreach (a in b) { }");
+            TestPeg(HeronGrammar.ForEachStatement, "foreach (a : A in b) { }");
+            TestPeg(HeronGrammar.ForStatement, "for (a = 0; a != b; a + 1) { }");
+            TestPeg(HeronGrammar.WhileStatement, "while (a) { }");
+            TestPeg(HeronGrammar.EmptyStatement, ";");
+            TestPeg(HeronGrammar.ReturnStatement, "return a;");
+            TestPeg(HeronGrammar.DeleteStatement, "delete a;");
+            TestPeg(HeronGrammar.SwitchStatement, "switch (a) { case (b) { } default { } }");
+            TestPeg(HeronGrammar.Statement, "f(function() { return a + 1; });");
+            TestPeg(HeronGrammar.Statement, "f(function(a : Int) { a += 1; return a * 2; });");
         }
 
         static void SimpleExprTests()
