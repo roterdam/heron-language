@@ -6,9 +6,13 @@ using System.Reflection;
 
 namespace HeronEngine
 {
-    public class HeronDotNet
+    /// <summary>
+    /// This class is used for marshaling .NET values
+    /// to and from Heron value.
+    /// </summary>
+    public static class HeronDotNet
     {
-        public static string RenameType(string s)
+        public static string DotNetTypeToHeronType(string s)
         {
             switch (s)
             {
@@ -24,7 +28,7 @@ namespace HeronEngine
 
         public static string DotNetToHeronTypeString(Type t)
         {
-            string s = RenameType(t.Name);
+            string s = DotNetTypeToHeronType(t.Name);
 
             if (t.IsArray)
                 return "Array<" + s + ">";
@@ -50,6 +54,8 @@ namespace HeronEngine
         {
             if (o == null)
                 return HeronValue.Null;
+            if (o is HeronValue)
+                return o as HeronValue;
 
             Type t = o.GetType();
             
@@ -85,7 +91,7 @@ namespace HeronEngine
             }
         }
 
-        static public Object[] ObjectsToDotNetArray(HeronValue[] array)
+        public static Object[] ObjectsToDotNetArray(HeronValue[] array)
         {
             Object[] r = new Object[array.Length];
             for (int i = 0; i < array.Length; ++i)
@@ -118,7 +124,8 @@ namespace HeronEngine
         public override HeronValue Instantiate(HeronExecutor vm, HeronValue[] args)
         {
             Object[] objs = HeronDotNet.ObjectsToDotNetArray(args);
-            Object o = type.InvokeMember(null, BindingFlags.Instance | BindingFlags.Public | BindingFlags.Default | BindingFlags.CreateInstance, null, null, objs);
+            Object o = type.InvokeMember(null, BindingFlags.Instance | BindingFlags.Public 
+                | BindingFlags.Default | BindingFlags.CreateInstance, null, null, objs);
             if (o == null)
                 throw new Exception("Unable to construct " + name);
             return DotNetObject.Marshal(o);

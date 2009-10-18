@@ -10,7 +10,7 @@ namespace HeronEngine
     /// <summary>
     /// Represents an executable Heron program.
     /// </summary>
-    public class HeronProgram : HeronValue
+    public class HeronProgram 
     {
         private List<HeronModule> modules = new List<HeronModule>();
         private HeronModule global;
@@ -86,14 +86,6 @@ namespace HeronEngine
             RegisterDotNetType(typeof(Math), "Math");
             RegisterDotNetType(typeof(HeronCollection), "Collection");
 
-            RegisterDotNetType(typeof(HeronProgram), "HeronProgram");
-            RegisterDotNetType(typeof(HeronModule), "HeronModule");
-            RegisterDotNetType(typeof(HeronClass), "HeronClass");
-            RegisterDotNetType(typeof(HeronInterface), "HeronInterface");
-            RegisterDotNetType(typeof(HeronEnum), "HeronEnum");
-            RegisterDotNetType(typeof(HeronField), "HeronField");
-            RegisterDotNetType(typeof(FunctionDefinition), "HeronFunctionDefinition");
-
             RegisterDotNetType(typeof(VariableDeclaration));
             RegisterDotNetType(typeof(DeleteStatement));
             RegisterDotNetType(typeof(ExpressionStatement));
@@ -104,20 +96,13 @@ namespace HeronEngine
             RegisterDotNetType(typeof(WhileStatement));
             RegisterDotNetType(typeof(ReturnStatement));
 
-            // Load the HeronStandardLibrary assembly
-            foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
-                if (a.GetName().Name == "HeronStandardLibrary")
-                    foreach (Type t in a.GetExportedTypes())
-                        RegisterDotNetType(t);
-
             // Load other libraries specified in the configuration file
             foreach (string lib in Config.libs)
                 LoadAssembly(lib);
-        }
 
-        public override HeronType GetHeronType()
-        {
-            return HeronPrimitiveTypes.ProgramType;
+            // Load the standard library types
+            RegisterDotNetType(typeof(HeronStandardLibrary.Viewport), "Viewport");
+            RegisterDotNetType(typeof(HeronStandardLibrary.Util), "Util");
         }
     }
 }

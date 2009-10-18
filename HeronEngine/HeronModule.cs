@@ -5,7 +5,7 @@ using System.Text;
 
 namespace HeronEngine
 {
-    public class HeronModule : HeronValue
+    public class HeronModule 
     {
         public string name;
 
@@ -139,11 +139,6 @@ namespace HeronEngine
             if (FindType(s) != null)
                 throw new Exception("Type '" + s + "' already exists");
             types.Add(s, t);
-        }
-
-        public override HeronType GetHeronType()
-        {
-            return HeronPrimitiveTypes.ModuleType;
         }
     }
 }

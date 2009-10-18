@@ -200,6 +200,11 @@ namespace HeronEngine
                     return true;
             return false;
         }
+
+        public override HeronType GetHeronType()
+        {
+            return HeronPrimitiveTypes.InterfaceType;
+        }
     }
 
     /// <summary>
@@ -262,6 +267,11 @@ namespace HeronEngine
         public override int GetHashCode()
         {
             return name.GetHashCode();
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return HeronPrimitiveTypes.EnumType;
         }
     }
 
@@ -447,6 +457,10 @@ namespace HeronEngine
                     yield return f;
         }
 
+        public override HeronType GetHeronType()
+        {
+            return HeronPrimitiveTypes.ClassType;
+        }
         #endregion
     }
 }

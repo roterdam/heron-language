@@ -36,6 +36,10 @@
 			IPoint;
 			IGetX;
 		}
+		fields {
+			x : Int;
+			y : Int;
+		}
 		methods {
 			get_X() : Int {
 				return x;
@@ -50,10 +54,6 @@
 				y = v;
 			}
 		}
-		fields {
-			x : Int;
-			y : Int;
-		}
 	}
 	
 	class ColoredPoint {
@@ -64,6 +64,9 @@
 			// Notice: does not explicitly implement IGetX, 
 			// but inherits Point which implements IGetX
 			IColoredPoint;
+		}
+		fields {
+			c : Color;
 		}
 		methods {
 			Constructor(x : Int, y : Int, c : Color) {
@@ -78,9 +81,6 @@
 				c = v;
 			}
 		}		
-		fields {
-			c : Color;
-		}
 	}	
 	
 	class Main {

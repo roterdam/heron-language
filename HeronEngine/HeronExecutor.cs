@@ -10,8 +10,6 @@ namespace HeronEngine
 {
     /// <summary>
     /// This represents the current state of the Heron virtual machine. 
-    /// TODO: update "module" when a new function is called. It should always be the current module.
-    /// TODO: add "module" and "types" to the lookup.
     /// </summary>
     public class HeronExecutor
     {
@@ -46,13 +44,13 @@ namespace HeronEngine
         #region evaluation functions
         public HeronValue EvalString(string s)
         {
-            Expression x = HeronParser.ParseExpr(s);
+            Expression x = HeronTypedAST.ParseExpr(s);
             return Eval(x); ;
         }
 
         public void EvalModule(string sModule)
         {
-            HeronModule m = HeronParser.ParseModule(program, sModule);
+            HeronModule m = HeronTypedAST.ParseModule(program, sModule);
             EvalModule(m);
         }
 

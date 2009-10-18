@@ -173,7 +173,7 @@ namespace HeronEngine
         {
             HeronValue o = coll.Eval(vm);
             HeronValue i = index.Eval(vm);
-            return o.GetAt(i);
+            return o.GetAtIndex(i);
         }
 
         public override string ToString()

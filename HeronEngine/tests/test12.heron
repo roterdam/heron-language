@@ -2,6 +2,10 @@
 {
 	class Main
 	{
+		fields
+		{
+			v : Viewport;
+		}
 		methods
 		{				
 			Constructor()
@@ -27,10 +31,6 @@
 				// lower-left to upper-left
 				v.Line(x, y + h, x, y);
 			}
-		}
-		fields
-		{
-			v : Viewport;
 		}
 	}
 }
