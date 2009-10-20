@@ -105,9 +105,9 @@
     <None Include="tests\test9.heron" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="text files\Config.xml" />
-    <Content Include="text files\license.txt" />
-    <Content Include="text files\readme.txt" />
+    <Content Include="Config.xml" />
+    <Content Include="license.txt" />
+    <Content Include="readme.txt" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="ViewportForm.resx">
