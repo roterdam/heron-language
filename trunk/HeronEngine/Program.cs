@@ -107,7 +107,6 @@ namespace HeronEngine
         /// <param name="args"></param>
         static public void Main(string[] args)
         {
-            System.Environment.SpecialFolder.SendTo();
             if (args.Length < 1) 
             {
                 Usage();
