@@ -1,4 +1,10 @@
-﻿using System;
+﻿/// Heron language interpreter for Windows in C#
+/// http://www.heron-language.com
+/// Copyright (c) 2009 Christopher Diggins
+/// Licenced under the MIT License 1.0 
+/// http://www.opensource.org/licenses/mit-license.php
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -94,27 +100,7 @@ namespace HeronTests
         static public void RunFileTest(string file)
         {
             Console.WriteLine("Loading and evaluating file " + file);
-            string sModule = Util.Util.ReadFromFile(file);
-            try
-            {
-                vm.EvalModule(sModule);
-            }
-            catch (ParsingException e)
-            {
-                Console.WriteLine("Parsing exception occured in file " + file);                
-                Console.WriteLine("at character " + e.context.col + " of line " + e.context.row);
-                //if (e.rule != null)
-                //Console.WriteLine("while parsing rule " + e.rule.ToString());
-                Console.WriteLine(e.context.msg);
-                Console.WriteLine(e.context.line);
-                Console.WriteLine(e.context.ptr);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Error occured when executing file " + file);
-                Console.WriteLine(e.Message);
-                HeronDebugger.Start(vm);
-            }               
+            Program.RunFile(file);
         }
 
         /// <summary>
@@ -271,12 +257,6 @@ namespace HeronTests
             {
                 RunAllTestFiles();
             }
-
-             /*
-            RunFileTest(@"C:\Users\Chr15topher\AppData\Roaming\Heron\SeekingDemoPackage.heron");
-             */
-            Console.WriteLine("\nPress any key to continue ...");
-            Console.ReadKey();
         }
     }
 }

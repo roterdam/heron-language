@@ -1,4 +1,10 @@
-﻿using System;
+﻿/// Heron language interpreter for Windows in C#
+/// http://www.heron-language.com
+/// Copyright (c) 2009 Christopher Diggins
+/// Licenced under the MIT License 1.0 
+/// http://www.opensource.org/licenses/mit-license.php
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
