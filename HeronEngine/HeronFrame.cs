@@ -42,7 +42,7 @@ namespace HeronEngine
         /// <summary>
         /// A list of scopes, which are effectivelyh name value pairs
         /// </summary>
-        private Stack<NameValueTable> scopes = new Stack<NameValueTable>();
+        private Stack<Scope> scopes = new Stack<Scope>();
 
         public Frame(FunctionDefinition f, ClassInstance self)
         {
@@ -54,7 +54,7 @@ namespace HeronEngine
                 module = type.GetModule();
         }
 
-        public void AddScope(NameValueTable scope)
+        public void AddScope(Scope scope)
         {
             scopes.Push(scope);
         }
@@ -78,7 +78,7 @@ namespace HeronEngine
             if (s == "null")
                 return HeronValue.Null;
 
-            foreach (NameValueTable tbl in scopes)
+            foreach (Scope tbl in scopes)
                 if (tbl.ContainsKey(s))
                     return tbl[s];
 
@@ -109,7 +109,7 @@ namespace HeronEngine
         {
             if (s == "this")
                 return self;
-            foreach (NameValueTable tbl in scopes)
+            foreach (Scope tbl in scopes)
                 if (tbl.ContainsKey(s))
                     return tbl[s];
             return null;
@@ -130,7 +130,7 @@ namespace HeronEngine
         {
             if (s == "this")
                 return true;
-            foreach (NameValueTable tbl in scopes)
+            foreach (Scope tbl in scopes)
                 if (tbl.ContainsKey(s))
                     return true;
             return false;
@@ -138,7 +138,7 @@ namespace HeronEngine
 
         public bool SetVar(string s, HeronValue o)
         {
-            foreach (NameValueTable tbl in scopes)
+            foreach (Scope tbl in scopes)
             {
                 if (tbl.ContainsKey(s))
                 {
@@ -177,7 +177,7 @@ namespace HeronEngine
                 sb.Append("null");
             sb.AppendLine("]");
 
-            foreach (NameValueTable tab in scopes)
+            foreach (Scope tab in scopes)
             {
                 sb.Append("[scope]");
                 sb.Append(tab.ToString());
@@ -207,7 +207,7 @@ namespace HeronEngine
             }
         }
 
-        public IEnumerable<NameValueTable> GetScopes()
+        public IEnumerable<Scope> GetScopes()
         {
             return scopes;
         }

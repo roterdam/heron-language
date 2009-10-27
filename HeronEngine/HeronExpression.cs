@@ -28,7 +28,7 @@ namespace HeronEngine
                 Error(s);
         }
 
-        public abstract HeronValue Eval(HeronExecutor vm);
+        public abstract HeronValue Eval(HeronVM vm);
 
         static protected List<Expression> noExpressions = new List<Expression>();
 
@@ -60,7 +60,7 @@ namespace HeronEngine
             return s;
         }
 
-        public HeronValue[] Eval(HeronExecutor vm)
+        public HeronValue[] Eval(HeronVM vm)
         {
             List<HeronValue> list = new List<HeronValue>();
             foreach (Expression x in this)
@@ -80,7 +80,7 @@ namespace HeronEngine
             this.rvalue = rvalue;
         }
 
-        public override HeronValue Eval(HeronExecutor vm)
+        public override HeronValue Eval(HeronVM vm)
         {            
             HeronValue val = rvalue.Eval(vm);
 
@@ -145,7 +145,7 @@ namespace HeronEngine
             this.name = name;
         }
 
-        public override HeronValue Eval(HeronExecutor vm)
+        public override HeronValue Eval(HeronVM vm)
         {
             HeronValue x = self.Eval(vm);
             if (x == null)
@@ -175,7 +175,7 @@ namespace HeronEngine
             this.index = index;
         }
 
-        public override HeronValue Eval(HeronExecutor vm)
+        public override HeronValue Eval(HeronVM vm)
         {
             HeronValue o = coll.Eval(vm);
             HeronValue i = index.Eval(vm);
@@ -205,7 +205,7 @@ namespace HeronEngine
             this.args = args;
         }
 
-        public override HeronValue Eval(HeronExecutor vm)
+        public override HeronValue Eval(HeronVM vm)
         {
             HeronValue o = vm.LookupName(type);
             if (!(o is HeronType))
@@ -230,7 +230,7 @@ namespace HeronEngine
             val = x;
         }
 
-        public override HeronValue Eval(HeronExecutor vm)
+        public override HeronValue Eval(HeronVM vm)
         {
             return val;
         }
@@ -287,7 +287,7 @@ namespace HeronEngine
             name = s;
         }
 
-        public override HeronValue Eval(HeronExecutor vm)
+        public override HeronValue Eval(HeronVM vm)
         {
             HeronValue r = vm.LookupName(name);
             return r;
@@ -315,7 +315,7 @@ namespace HeronEngine
             this.args = args;
         }
         
-        public override HeronValue Eval(HeronExecutor vm)
+        public override HeronValue Eval(HeronVM vm)
         {
             HeronValue[] argvals = args.Eval(vm);
             HeronValue f = funexpr.Eval(vm);
@@ -346,7 +346,7 @@ namespace HeronEngine
             operand = x;
         }
 
-        public override HeronValue Eval(HeronExecutor vm)
+        public override HeronValue Eval(HeronVM vm)
         {
             HeronValue o = operand.Eval(vm);
             return o.InvokeUnaryOperator(operation);
@@ -377,7 +377,7 @@ namespace HeronEngine
         }
 
         // TODO: improve efficiency. This is a pretty terrible operation
-        public override HeronValue Eval(HeronExecutor vm)
+        public override HeronValue Eval(HeronVM vm)
         {
             HeronValue a = operand1.Eval(vm);
             HeronValue b = operand2.Eval(vm);
@@ -553,7 +553,7 @@ namespace HeronEngine
 
         private FunctionDefinition function;
 
-        public override HeronValue Eval(HeronExecutor vm)
+        public override HeronValue Eval(HeronVM vm)
         {
             FunctionValue fo = new FunctionValue(null, GetFunction());
             fo.ComputeFreeVars(vm);
@@ -594,7 +594,7 @@ namespace HeronEngine
             ass = new Assignment(x, new BinaryOperator("+", x, new IntLiteral(1)));
         }
 
-        public override HeronValue Eval(HeronExecutor vm)
+        public override HeronValue Eval(HeronVM vm)
         {
             HeronValue result = vm.Eval(expr);
             vm.Eval(ass);
@@ -609,6 +609,110 @@ namespace HeronEngine
         public override IEnumerable<Expression> GetSubExpressions()
         {
             yield return expr;
+        }
+    }
+
+    public class SelectExpr : Expression
+    {
+        public string name;
+        public Expression list;
+        public Expression pred;
+
+        public SelectExpr(string name, Expression list, Expression pred)
+        {
+            this.name = name;
+            this.list = list;
+            this.pred = pred;
+        }
+
+        public override HeronValue Eval(HeronVM vm)
+        {
+            return new SelectEnumerator(this);
+        }
+
+        public override string ToString()
+        {
+            return "select " + name + " from " + list.ToString() + " where " + pred.ToString();
+        }
+
+        public override IEnumerable<Expression> GetSubExpressions()
+        {
+            yield return list;
+            yield return pred;
+        }
+    }
+
+    public class MapEachExpr : Expression
+    {
+        string name;
+        Expression list;
+        Expression yield;
+
+        public MapEachExpr(string name, Expression list, Expression yield)
+        {
+            this.name = name;
+            this.list = list;
+            this.yield = yield;
+        }
+
+        public override HeronValue Eval(HeronVM vm)
+        {
+            return new MapEachEnumerator(name, list, yield);
+        }
+
+        public override string ToString()
+        {
+            return "mapeach " + name + " in " + list.ToString() + " to " + yield.ToString();
+        }
+
+        public override IEnumerable<Expression> GetSubExpressions()
+        {
+            yield return list;
+            yield return yield;
+        }
+    }
+
+    public class AccumulateExpr : Expression
+    {
+        string acc;
+        string each;
+        Expression init; 
+        Expression list;
+        Statement st;
+
+        public AccumulateExpr(string acc, string each, Expression init, Expression list, Statement st)
+        {
+            this.acc = acc;
+            this.each = each;
+            this.init = init;
+            this.list = list;
+            this.st = st;
+        }
+
+        public override HeronValue Eval(HeronVM vm)
+        {
+            using (vm.CreateScope())
+            {
+                vm.AddVar(acc, vm.Eval(yield));
+                vm.AddVar(each, null);
+
+                foreach (HeronValue x in vm.EvalList(list))
+                {
+                    vm.SetVar(each, x);
+                    vm.Eval(st);
+                }
+            }
+        }
+
+        public override string ToString()
+        {
+            return "accumulate " + name + " in " + list.ToString() + " yield " + yield.ToString();
+        }
+
+        public override IEnumerable<Expression> GetSubExpressions()
+        {
+            yield return init;
+            yield return list;
         }
     }
 }

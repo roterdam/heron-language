@@ -18,7 +18,7 @@ namespace HeronTests
 {
     public class HeronTests
     {
-        static HeronExecutor vm = new HeronExecutor();
+        static HeronVM vm = new HeronVM();
 
         static public void TestPeg(Rule r, string s)
         {

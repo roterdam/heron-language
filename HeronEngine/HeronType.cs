@@ -33,9 +33,9 @@ namespace HeronEngine
         /// </summary>
         /// <param name="env"></param>
         /// <returns></returns>
-        public abstract HeronValue Instantiate(HeronExecutor vm, HeronValue[] args);
+        public abstract HeronValue Instantiate(HeronVM vm, HeronValue[] args);
 
-        public HeronValue Instantiate(HeronExecutor vm)
+        public HeronValue Instantiate(HeronVM vm)
         {
             return Instantiate(vm, new HeronValue[] { });
         }
@@ -111,7 +111,7 @@ namespace HeronEngine
         {
         }
 
-        public override HeronValue Instantiate(HeronExecutor vm, HeronValue[] args)
+        public override HeronValue Instantiate(HeronVM vm, HeronValue[] args)
         {
             throw new Exception("Type '" + name + "' was not resolved.");
         }
@@ -172,7 +172,7 @@ namespace HeronEngine
         {
             basetypes.Add(t);
         }
-        public override HeronValue Instantiate(HeronExecutor vm, HeronValue[] args)
+        public override HeronValue Instantiate(HeronVM vm, HeronValue[] args)
         {
             throw new Exception("Cannot instantiate an interface");
         }
@@ -225,7 +225,7 @@ namespace HeronEngine
         {
         }
 
-        public override HeronValue Instantiate(HeronExecutor vm, HeronValue[] args)
+        public override HeronValue Instantiate(HeronVM vm, HeronValue[] args)
         {
             throw new Exception("Cannot instantiate an enumeration");
         }
@@ -406,7 +406,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="env"></param>
         /// <returns></returns>
-        public override HeronValue Instantiate(HeronExecutor vm, HeronValue[] args)
+        public override HeronValue Instantiate(HeronVM vm, HeronValue[] args)
         {
             // TODO: this needs to be optimized
             ClassInstance r = new ClassInstance(this);
