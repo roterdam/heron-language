@@ -53,7 +53,7 @@ namespace HeronEngine
         /// <param name="env"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public HeronValue Invoke(HeronValue self, HeronExecutor vm, HeronValue[] args)
+        public HeronValue Invoke(HeronValue self, HeronVM vm, HeronValue[] args)
         {
             // TODO: in theory we can optimize this
             FunctionValue fo = new FunctionValue(self, this);

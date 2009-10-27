@@ -93,9 +93,10 @@ namespace HeronEngine
         public static Rule ParanthesizedExpr = Store("paranexpr", Paranthesized(Opt(Delay(() => Expr))));
         public static Rule BracketedExpr = Store("bracketedexpr", Bracketed(Opt(Delay(() => Expr))));
         public static Rule NewExpr = Store("new", Token("new") + NoFail(TypeExpr + ParanthesizedExpr));
-        public static Rule SelectExpr = Store("select", Token("select") + Name + Token("from") + Delay(() => Expr));
-        public static Rule AccumulateExpr = Store("accumulate", Token("accumulate") + Token("(") + Name + Delay(() => Initializer) + Token("from")); 
-        public static Rule BasicExpr = (NewExpr | Delay(() => ForEachStatement) | SelectExpr | AccumulateExpr | AnonFxn | NameOrLiteral | ParanthesizedExpr | BracketedExpr);
+        public static Rule SelectExpr = Store("select", Token("select") + Name + Token("from") + Delay(() => Expr) + Token("where") + Expr);
+        public static Rule AccumulateExpr = Store("accumulate", Token("accumulate") + Token("(") + Name + Delay(() => Initializer) + Token("forall") + Name + Token("in") + Delay(() => Expr) + Token(")") + Delay(Statement));
+        public static Rule WithEachExpr = Store("witheach", Token("witheach") + Name + " in " + Delay(() => Expr) + Token("yield") + NoFail(Delay(() => Expr)));
+        public static Rule BasicExpr = (NewExpr | WithEachExpr | SelectExpr | AccumulateExpr | AnonFxn | NameOrLiteral | ParanthesizedExpr | BracketedExpr);
         public static Rule Expr = Store("expr", Plus(BasicExpr));
         #endregion
 
@@ -106,10 +107,9 @@ namespace HeronEngine
         public static Rule VarDecl = Store("vardecl", Token("var") + NoFail(Name + Opt(TypeDecl) + Opt(Initializer) + Eos));
 	    public static Rule ElseStatement = (Token("else") + NoFail(DelayedStatement));
         public static Rule IfStatement= Store("if", Token("if") + NoFail(ParanthesizedExpr + DelayedStatement + Opt(ElseStatement)));
-        public static Rule ForEachParms= NoFail(Token("(") + Name + Opt(TypeDecl) + Token("in") + Expr + Token(")"));
-	    public static Rule ForEachStatement= Store("foreach", Token("foreach") + NoFail(ForEachParms + DelayedStatement));
-        public static Rule YieldStatement= Store("yield", Token("yield") + Expr + Eos);
-        public static Rule ForParams= NoFail(Token("(") + Name + Initializer + Eos + Expr + Eos + Expr + Token(")"));
+        public static Rule ForEachParams = NoFail(Token("(") + Name + Opt(TypeDecl) + Token("in") + Expr + Token(")"));
+	    public static Rule ForEachStatement = Store("foreach", Token("foreach") + NoFail(ForEachParams + DelayedStatement));
+        public static Rule ForParams = NoFail(Token("(") + Name + Initializer + Eos + Expr + Eos + Expr + Token(")"));
         public static Rule ForStatement = Store("for", Token("for") + NoFail(ForParams + DelayedStatement));
 	    public static Rule ExprStatement = Store("exprstatement", Expr + Eos);
         public static Rule ReturnStatement = Store("return", Token("return") + NoFail(Expr + Eos));

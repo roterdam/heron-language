@@ -78,7 +78,7 @@ namespace HeronEngine
         /// </summary>
         public void PushScope()
         {
-            PushScope(new NameValueTable());
+            PushScope(new Scope());
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace HeronEngine
         /// or class fields.
         /// </summary>
         /// <param name="scope"></param>
-        public void PushScope(NameValueTable scope)
+        public void PushScope(Scope scope)
         {
             frames.Peek().AddScope(scope);
         }

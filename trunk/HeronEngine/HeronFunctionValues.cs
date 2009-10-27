@@ -21,7 +21,7 @@ namespace HeronEngine
     public class FunctionValue : HeronValue
     {
         HeronValue self;
-        NameValueTable freeVars;
+        Scope freeVars;
         FunctionDefinition fun;
 
         public FunctionValue(HeronValue self, FunctionDefinition f)
@@ -36,9 +36,9 @@ namespace HeronEngine
         /// to values
         /// </summary>
         /// <param name="vm"></param>
-        public void ComputeFreeVars(HeronExecutor vm)
+        public void ComputeFreeVars(HeronVM vm)
         {
-            freeVars = new NameValueTable();
+            freeVars = new Scope();
             var boundVars = new Stack<string>();
             boundVars.Push(fun.name);
             foreach (FormalArg arg in fun.formals)
@@ -46,7 +46,7 @@ namespace HeronEngine
             GetFreeVars(vm, fun.body, boundVars, freeVars);
         }
 
-        private void GetFreeVars(HeronExecutor vm, Statement st, Stack<string> boundVars, NameValueTable result)
+        private void GetFreeVars(HeronVM vm, Statement st, Stack<string> boundVars, Scope result)
         {
             // Count and store the names defined by this statement 
             int nNewVars = 0;
@@ -77,7 +77,7 @@ namespace HeronEngine
                 boundVars.Pop();
         }
 
-        private void PushArgsAsScope(HeronExecutor vm, HeronValue[] args)
+        private void PushArgsAsScope(HeronVM vm, HeronValue[] args)
         {
             vm.PushScope();
             int n = fun.formals.Count;
@@ -105,7 +105,7 @@ namespace HeronEngine
             return fun.formals[n].type;
         }
 
-        public override HeronValue Apply(HeronExecutor vm, HeronValue[] args)
+        public override HeronValue Apply(HeronVM vm, HeronValue[] args)
         {
             // Create a stack frame 
             vm.PushNewFrame(fun, GetSelfAsInstance());
@@ -181,7 +181,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        public FunctionValue Resolve(HeronExecutor vm, HeronValue[] args)
+        public FunctionValue Resolve(HeronVM vm, HeronValue[] args)
         {
             List<FunctionValue> r = new List<FunctionValue>();
             foreach (FunctionDefinition f in functions)
@@ -228,7 +228,7 @@ namespace HeronEngine
             throw new Exception("Could not resolve function, several matched perfectly");
         }
 
-        public override HeronValue Apply(HeronExecutor vm, HeronValue[] args)
+        public override HeronValue Apply(HeronVM vm, HeronValue[] args)
         {
             Trace.Assert(functions.Count > 0);
             FunctionValue o = Resolve(vm, args);

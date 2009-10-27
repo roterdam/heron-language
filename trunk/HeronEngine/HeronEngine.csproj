@@ -53,8 +53,9 @@
     <Compile Include="HeronDotNet.cs" />
     <Compile Include="HeronFrame.cs" />
     <Compile Include="HeronFunctionValues.cs" />
+    <Compile Include="HeronInterfaces.cs" />
     <Compile Include="HeronModule.cs" />
-    <Compile Include="HeronNameValueTable.cs" />
+    <Compile Include="HeronScope.cs" />
     <Compile Include="HeronPrimitiveValue.cs" />
     <Compile Include="HeronTypedAST.cs" />
     <Compile Include="HeronExpression.cs" />
@@ -64,7 +65,7 @@
     <Compile Include="HeronProgram.cs" />
     <Compile Include="HeronStandardLibrary.cs" />
     <Compile Include="HeronStatements.cs" />
-    <Compile Include="HeronExecutor.cs" />
+    <Compile Include="HeronVM.cs" />
     <Compile Include="HeronValue.cs" />
     <Compile Include="HeronEnvironment.cs" />
     <Compile Include="HeronTests.cs">

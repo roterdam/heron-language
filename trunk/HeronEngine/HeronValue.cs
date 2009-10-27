@@ -43,7 +43,7 @@ namespace HeronEngine
             throw new Exception("Indexing is not supported on " + ToString());
         }
 
-        public virtual HeronValue Apply(HeronExecutor vm, HeronValue[] args)
+        public virtual HeronValue Apply(HeronVM vm, HeronValue[] args)
         {
             throw new Exception(ToString() + " is not recognized a function object");
         }
@@ -147,7 +147,7 @@ namespace HeronEngine
             this.self = self;
         }
 
-        public override HeronValue Apply(HeronExecutor vm, HeronValue[] args)
+        public override HeronValue Apply(HeronVM vm, HeronValue[] args)
         {
             Object[] objs = HeronDotNet.ObjectsToDotNetArray(args);
             Object r = mi.Invoke(self, objs);
@@ -241,7 +241,7 @@ namespace HeronEngine
     public class ClassInstance : HeronValue
     {
         public HeronClass hclass;
-        public NameValueTable fields = new NameValueTable();
+        public Scope fields = new Scope();
         
         public ClassInstance(HeronClass c)
         {

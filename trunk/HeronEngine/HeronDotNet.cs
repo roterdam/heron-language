@@ -127,7 +127,7 @@ namespace HeronEngine
             this.type = type;
         }
 
-        public override HeronValue Instantiate(HeronExecutor vm, HeronValue[] args)
+        public override HeronValue Instantiate(HeronVM vm, HeronValue[] args)
         {
             Object[] objs = HeronDotNet.ObjectsToDotNetArray(args);
             Object o = type.InvokeMember(null, BindingFlags.Instance | BindingFlags.Public 
@@ -194,7 +194,7 @@ namespace HeronEngine
             this.name = name;
         }
 
-        public override HeronValue Apply(HeronExecutor vm, HeronValue[] args)
+        public override HeronValue Apply(HeronVM vm, HeronValue[] args)
         {
             Object[] os = HeronDotNet.ObjectsToDotNetArray(args);
             Object o = self.GetSystemType().InvokeMember(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod, null, self.ToSystemObject(), os);
@@ -221,7 +221,7 @@ namespace HeronEngine
             this.name = name;
         }
 
-        public override HeronValue Apply(HeronExecutor vm, HeronValue[] args)
+        public override HeronValue Apply(HeronVM vm, HeronValue[] args)
         {
             Object[] os = HeronDotNet.ObjectsToDotNetArray(args);
             Object o = self.GetSystemType().InvokeMember(name, BindingFlags.Public | BindingFlags.Static | BindingFlags.InvokeMethod, null, null, os);

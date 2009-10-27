@@ -20,7 +20,7 @@ namespace HeronEngine
 
         public Peg.AstNode node;
 
-        public abstract void Eval(HeronExecutor vm);
+        public abstract void Eval(HeronVM vm);
 
         internal Statement(Peg.AstNode node)
         {
@@ -86,7 +86,7 @@ namespace HeronEngine
         {
         }
 
-        public override void Eval(HeronExecutor vm)
+        public override void Eval(HeronVM vm)
         {
             HeronValue initVal = vm.Eval(value);
             vm.AddVar(name, initVal);
@@ -126,7 +126,7 @@ namespace HeronEngine
         {
         }
 
-        public override void Eval(HeronExecutor vm)
+        public override void Eval(HeronVM vm)
         {
             // TODO: check if the expression is a name.
             // if so, then set it to NULL. 
@@ -159,7 +159,7 @@ namespace HeronEngine
         {
         }
 
-        public override void Eval(HeronExecutor vm)
+        public override void Eval(HeronVM vm)
         {
             vm.Eval(expression);
         }
@@ -194,37 +194,28 @@ namespace HeronEngine
         {
         }
 
-        public override void Eval(HeronExecutor vm)
+        public override void Eval(HeronVM vm)
         {
-            // TODO: make this exception safe. Have a "using" with a special scope 
-            // construction object.
-            vm.PushScope();
-            vm.AddVar(name, HeronValue.Null);
-            HeronValue c = vm.Eval(this.collection);
-            if (!(c is DotNetObject))
-                throw new Exception("Unable to iterate over " + collection.ToString() + " because it is not a collection");
-
-            DotNetObject tmp = c as DotNetObject;
-            Object o = tmp.ToSystemObject();
-            IEnumerable list = o as IEnumerable;
-            if (list == null)
+            using (vm.CreateScope())
             {
-                HeronCollection hc = o as HeronCollection;
-                if (hc == null)
+                vm.AddVar(name, HeronValue.Null);
+                HeronValue val = vm.Eval(this.collection);
+                IHeronEnumerable col = val as IHeronEnumerable;
+                if (col == null)
                     throw new Exception("Unable to iterate over " + collection.ToString() + " because it is not a collection");
-                list = hc.InternalGetList();
-                if (list == null)
-                    throw new Exception("Unable to iterate over " + collection.ToString() + " because the internal collection was not set");
+                IHeronEnumerator iter = col.GetEnumerator(vm);
+                if (iter == null)
+                    throw new Exception("Missing iterator");
+                iter.Reset();
+                while (iter.MoveNext(vm)) 
+                {
+                    HeronValue local = iter.GetValue(vm);
+                    vm.SetVar(name, local);
+                    vm.Eval(body);
+                    if (vm.ShouldExitScope())
+                        return;
+                }
             }
-
-            foreach (Object e in list) {
-                HeronValue ho = DotNetObject.Marshal(e);
-                vm.SetVar(name, ho);
-                vm.Eval(body);
-                if (vm.ShouldExitScope())
-                    break;
-            }
-            vm.PopScope();
         }
 
         public override string ToString()
@@ -267,7 +258,7 @@ namespace HeronEngine
         {
         }
 
-        public override void Eval(HeronExecutor vm)
+        public override void Eval(HeronVM vm)
         {
             HeronValue initVal = initial.Eval(vm);
             vm.AddVar(name, initVal);
@@ -325,16 +316,17 @@ namespace HeronEngine
         {
         }
 
-        public override void Eval(HeronExecutor vm)
+        public override void Eval(HeronVM vm)
         {
-            vm.PushScope();
-            foreach (Statement s in statements)
+            using (vm.CreateScope())
             {
-                vm.Eval(s);
-                if (vm.ShouldExitScope())
-                    break;
+                foreach (Statement s in statements)
+                {
+                    vm.Eval(s);
+                    if (vm.ShouldExitScope())
+                        return;
+                }
             }
-            vm.PopScope();
         }
 
         public override string StatementType()
@@ -371,7 +363,7 @@ namespace HeronEngine
         {
         }
 
-        public override void Eval(HeronExecutor vm)
+        public override void Eval(HeronVM vm)
         {
             bool b = condition.Eval(vm).ToBool();
             if (b)
@@ -409,7 +401,7 @@ namespace HeronEngine
         {
         }
 
-        public override void Eval(HeronExecutor vm)
+        public override void Eval(HeronVM vm)
         {
             while (true)
             {
@@ -448,7 +440,7 @@ namespace HeronEngine
         {
         }
 
-        public override void Eval(HeronExecutor vm)
+        public override void Eval(HeronVM vm)
         {
             HeronValue result = vm.Eval(expression);
             vm.Return(result);
@@ -476,7 +468,7 @@ namespace HeronEngine
         {
         }
 
-        public override void Eval(HeronExecutor vm)
+        public override void Eval(HeronVM vm)
         {
             HeronValue o = condition.Eval(vm);
             foreach (CaseStatement c in cases)
@@ -524,7 +516,7 @@ namespace HeronEngine
         {
         }
 
-        public override void Eval(HeronExecutor vm)
+        public override void Eval(HeronVM vm)
         {
             vm.Eval(statement);
         }

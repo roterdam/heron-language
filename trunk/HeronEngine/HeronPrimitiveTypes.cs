@@ -18,7 +18,7 @@ namespace HeronEngine
         {
         }
 
-        public override HeronValue Instantiate(HeronExecutor vm, HeronValue[] args)
+        public override HeronValue Instantiate(HeronVM vm, HeronValue[] args)
         {
             if (args.Length != 0)
                 throw new Exception("arguments not supported when instantiating primitives");

@@ -11,87 +11,61 @@ using System.Text;
 
 namespace HeronEngine
 {
-    /* This is under development
-     * 
+    public interface IHeronEnumerator
+    {
+        bool MoveNext(HeronVM vm);
+        HeronValue GetValue(HeronVM vm);
+        void Reset(HeronVM vm);
+    }
+
     public interface IHeronEnumerable
     {
-        IEnumerable<HeronValue> GetValues(HeronExecutor vm);
-        bool GetCount(out int result);
-        bool IsEmpty(out bool result);
-        bool Evaluated();
+        IHeronEnumerator GetEnumerator(HeronVM vm);
     }
 
-    public class FilteredHeronEnumerable
+    public interface IHeronCollection
         : IHeronEnumerable
     {
-        FunctionValue predicate;
-        IHeronEnumerable list;
+        void Add(HeronValue v);
+        int Count();
+    }
 
-        FilteredHeronEnumerable(FunctionValue predicate, IHeronEnumerable list)
+    public class NewHeronCollection
+        : IHeronCollection
+    {
+        public class HeronEnumerator
+            : IHeronEnumerator
         {
-            this.predicate = predicate;
-            this.list = list;
-        }
+            IEnumerator<HeronValue> iter;
 
-        #region IHeronEnumerable Members
-
-        public IEnumerable<HeronValue> GetValues(HeronExecutor vm)
-        {
-            foreach (HeronValue v in list)
+            HeronEnumerator(IEnumerator<HeronValue> iter)
             {
-                HeronValue tmp = f.Apply(vm, new HeronValue[] { v });
-                if (tmp.ToBool())
-                    yield return v;
+                this.iter = iter;
             }
+
+            #region IHeronEnumerator Members
+
+            public bool MoveNext(HeronVM vm)
+            {
+                return iter.MoveNext();
+            }
+
+            public HeronValue GetValue(HeronVM vm)
+            {
+                return iter.Current;
+            }
+
+            public void Reset()
+            {
+                iter.Reset();
+            }
+
+            #endregion
         }
 
-        public bool GetCount(out int result)
-        {
-            result = -1;
-            return false;
-        }
+        List<HeronValue> list = new List<HeronValue>();
 
-        public bool IsEmpty(out bool result)
-        {
-            result = false;
-            return false;
-        }
-
-        public bool Evaluated()
-        {
-            return false;
-        }
-
-        #endregion
-    }
-
-    public static class IHeronEnumerableExtensions
-    {
-        public IHeronEnumerable Select(this IHeronEnumerable self, FunctionValue f)
-        {
-            
-        }
-
-        IHeronEnumerable ForEach(FunctionValue f);
-        HeronValue Accumulate(HeronValue init, FunctionValue f);
-    }
-
-    public class IntRange : IHeronEnumerable   
-    {
-        int min;
-        int max;
-
-        public IntRange(int min, int max)
-        {
-        }
-    }
-    */
-
-    public class HeronCollection
-    {
-        List<Object> list = new List<Object>();
-
-        public void Add(Object o)
+        public void Add(HeronValue x)
         {
             list.Add(o);
         }
@@ -101,9 +75,9 @@ namespace HeronEngine
             return list.Count;
         }
 
-        internal IEnumerable<Object> InternalGetList()
+        public IHeronEnumerator GetEnumerator(HeronVM vm)
         {
-            return list;
+            return new HeronEnumerator(list.GetEnumerator());
         }
     }
 }
