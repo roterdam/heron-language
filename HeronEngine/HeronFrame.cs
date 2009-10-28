@@ -52,6 +52,7 @@ namespace HeronEngine
                 type = function.GetParentType();
             if (type != null)
                 module = type.GetModule();
+            AddScope(new Scope());
         }
 
         public void AddScope(Scope scope)

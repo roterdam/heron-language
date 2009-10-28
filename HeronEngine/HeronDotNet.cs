@@ -67,11 +67,11 @@ namespace HeronEngine
             
             if (t.IsArray)
             {
-                HeronCollection c = new HeronCollection();
+                ListValue list = new ListValue();
                 Array a = o as Array;
                 foreach (Object e in a)
-                    c.Add(DotNetToHeronObject(e));
-                return DotNetObject.CreateDotNetObjectNoMarshal(c);
+                    list.Add(DotNetToHeronObject(e));
+                return list;
             }
             else
             {

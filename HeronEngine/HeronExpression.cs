@@ -627,12 +627,13 @@ namespace HeronEngine
 
         public override HeronValue Eval(HeronVM vm)
         {
-            return new SelectEnumerator(this);
+            IHeronEnumerator iter = vm.EvalList(list); 
+            return new SelectEnumerator(vm, name, iter, pred);
         }
 
         public override string ToString()
         {
-            return "select " + name + " from " + list.ToString() + " where " + pred.ToString();
+            return "select (" + name + " from " + list.ToString() + ") where " + pred.ToString();
         }
 
         public override IEnumerable<Expression> GetSubExpressions()
@@ -657,12 +658,13 @@ namespace HeronEngine
 
         public override HeronValue Eval(HeronVM vm)
         {
-            return new MapEachEnumerator(name, list, yield);
+            IHeronEnumerator iter = vm.EvalList(list);
+            return new MapEachEnumerator(name, iter, yield);
         }
 
         public override string ToString()
         {
-            return "mapeach " + name + " in " + list.ToString() + " to " + yield.ToString();
+            return "mapeach (" + name + " in " + list.ToString() + ") to " + yield.ToString();
         }
 
         public override IEnumerable<Expression> GetSubExpressions()
@@ -693,20 +695,22 @@ namespace HeronEngine
         {
             using (vm.CreateScope())
             {
-                vm.AddVar(acc, vm.Eval(yield));
+                vm.AddVar(acc, vm.Eval(init));
                 vm.AddVar(each, null);
 
-                foreach (HeronValue x in vm.EvalList(list))
+                foreach (HeronValue x in vm.EvalListAsDotNet(list))
                 {
                     vm.SetVar(each, x);
                     vm.Eval(st);
                 }
+
+                return vm.LookupName(acc);
             }
         }
 
         public override string ToString()
         {
-            return "accumulate " + name + " in " + list.ToString() + " yield " + yield.ToString();
+            return "accumulate (" + acc + " = " + init.ToString() + " forall " + each + " in " + list.ToString() + ")";
         }
 
         public override IEnumerable<Expression> GetSubExpressions()

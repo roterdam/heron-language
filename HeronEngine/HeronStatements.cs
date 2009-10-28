@@ -199,18 +199,9 @@ namespace HeronEngine
             using (vm.CreateScope())
             {
                 vm.AddVar(name, HeronValue.Null);
-                HeronValue val = vm.Eval(this.collection);
-                IHeronEnumerable col = val as IHeronEnumerable;
-                if (col == null)
-                    throw new Exception("Unable to iterate over " + collection.ToString() + " because it is not a collection");
-                IHeronEnumerator iter = col.GetEnumerator(vm);
-                if (iter == null)
-                    throw new Exception("Missing iterator");
-                iter.Reset();
-                while (iter.MoveNext(vm)) 
+                foreach (HeronValue x in vm.EvalListAsDotNet(collection))
                 {
-                    HeronValue local = iter.GetValue(vm);
-                    vm.SetVar(name, local);
+                    vm.SetVar(name, x);
                     vm.Eval(body);
                     if (vm.ShouldExitScope())
                         return;
