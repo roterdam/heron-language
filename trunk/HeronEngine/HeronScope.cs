@@ -15,7 +15,7 @@ namespace HeronEngine
     /// This is an association list of objects with names.
     /// This is used as a mechanism for creating scoped names.
     /// </summary>
-    public class NameValueTable : Dictionary<String, HeronValue>
+    public class Scope : Dictionary<String, HeronValue>
     {
         public override string ToString()
         {

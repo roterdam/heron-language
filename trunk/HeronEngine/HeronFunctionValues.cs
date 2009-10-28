@@ -77,9 +77,8 @@ namespace HeronEngine
                 boundVars.Pop();
         }
 
-        private void PushArgsAsScope(HeronVM vm, HeronValue[] args)
+        private void PushArgs(HeronVM vm, HeronValue[] args)
         {
-            vm.PushScope();
             int n = fun.formals.Count;
             Trace.Assert(n == args.Length);
             for (int i = 0; i < n; ++i)
@@ -108,31 +107,21 @@ namespace HeronEngine
         public override HeronValue Apply(HeronVM vm, HeronValue[] args)
         {
             // Create a stack frame 
-            vm.PushNewFrame(fun, GetSelfAsInstance());
+            using (vm.CreateFrame(fun, GetSelfAsInstance()))
+            {
+                // Convert the arguments into appropriate types
+                PerformConversions(args);
 
-            // Convert the arguments into appropriate types
-            // TODO: optimize
-            PerformConversions(args);
+                // Push the arguments into the current scope
+                PushArgs(vm, args);
 
-            // Create a new scope containing the arguments 
-            PushArgsAsScope(vm, args);
+                // Copy free vars
+                if (freeVars != null)
+                    vm.AddVars(freeVars);
 
-            // Copy free vars
-            if (freeVars != null)
-                vm.PushScope(freeVars);
-
-            // Eval the function body
-            vm.Eval(fun.body);
-
-            // Pop the free-vars scope
-            if (freeVars != null)
-                vm.PopScope();
-
-            // Pop the arguments scope
-            vm.PopScope();
-
-            // Pop the calling frame
-            vm.PopFrame();
+                // Eval the function body
+                vm.Eval(fun.body);
+            }
 
             // Gets last result and resets it
             return vm.GetLastResult();

@@ -90,7 +90,6 @@ namespace HeronEngine
 
             RegisterDotNetType(typeof(Console), "Console");
             RegisterDotNetType(typeof(Math), "Math");
-            RegisterDotNetType(typeof(HeronCollection), "Collection");
 
             RegisterDotNetType(typeof(VariableDeclaration));
             RegisterDotNetType(typeof(DeleteStatement));
