@@ -194,12 +194,12 @@ namespace HeronEngine
         }
     }
 
-    public class New : Expression
+    public class NewExpr : Expression
     {
         string type;
         ExpressionList args;
 
-        public New(string type, ExpressionList args)
+        public NewExpr(string type, ExpressionList args)
         {
             this.type = type;
             this.args = args;
@@ -717,6 +717,26 @@ namespace HeronEngine
         {
             yield return init;
             yield return list;
+        }
+    }
+
+    public class TupleExpr : Expression
+    {
+        ExpressionList exprs;
+
+        public TupleExpr(ExpressionList xs)
+        {
+            exprs = xs;
+        }
+
+        public override HeronValue Eval(HeronVM vm)
+        {
+            return vm.Eval(exprs);
+        }
+
+        public override IEnumerable<Expression> GetSubExpressions()
+        {
+            throw new NotImplementedException();
         }
     }
 }

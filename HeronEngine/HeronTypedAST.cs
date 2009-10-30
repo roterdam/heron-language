@@ -483,14 +483,45 @@ namespace HeronEngine
             return false;
         }
 
-        static New CreateNewExpr(AstNode x)
+        // TODO: clean-up all of the error checking and stuff. 
+        // Make this stuff into functions.
+
+        static NewExpr CreateNewExpr(AstNode x)
         {
             Assure(x, x.GetNumChildren() == 2, "new operator must be followed by type expression and arguments in paranthesis");
             AstNode type = x.GetChild(0);
-            Assure(x, type.Label == "type", "new operator is missing type exprresion");
+            Assure(x, type.Label == "type", "new operator is missing type expression");
             AstNode args = x.GetChild(1);
             Assure(args, args.Label == "paranexpr", "new operator is missing argument list");
-            return new New(type.ToString(), CreateArgList(args));
+            return new NewExpr(type.ToString(), CreateExprList(args));
+        }
+
+        static MapEachExpr CreateMapEachExpr(AstNode x)
+        {
+            Assure(x, child.GetNumChildren() == 3, "map each operator must have three child nodes");
+            AstNode name = child.GetChild(0);
+            AstNode list = child.GetChild(1);
+            AstNode func = child.GetChild(2);
+            return new MapEachExpr(name.ToString(), CreateExpr(list), CreateExpr(func));
+        }
+
+        static SelectExpr CreateSelectExpr(AstNode x)
+        {
+            Assure(x, child.GetNumChildren() == 3, "select operator must have three child nodes");
+            AstNode name = child.GetChild(0);
+            AstNode list = child.GetChild(1);
+            AstNode func = child.GetChild(2);
+            return new SelectExpr(name.ToString(), CreateExpr(list), CreateExpr(func));
+        }
+
+        static AccumulateExpr CreateAccumulateExpr(AstNode x)
+        {
+            Assure(x, child.GetNumChildren() == 4, "accumulate operator must have four child nodes");
+            AstNode acc = child.GetChild(0);
+            AstNode each = child.GetChild(1);
+            AstNode list = child.GetChild(2);
+            AstNode func = child.GetChild(3);
+            return new AccumulateExpr(acc.ToString(), each.ToString(), CreateExpr(list), CreateExpr(func));
         }
 
         static Expression CreatePrimaryExpr(AstNode x, ref int i)
@@ -532,16 +563,24 @@ namespace HeronEngine
                     AstNode tmp = child.GetChild(0);
                     i++;
                     return CreateExpr(tmp);
+                case "bracketedexpr":
+                    return new TupleExpr(CreateExprList(child));
+                case "mapeach":
+                    return CreateMapEachExpr(child);
+                case "select":
+                    return CreateSelectExpr(child);
+                case "accumulate":
+                    return CreateAccumulateExpr(child);
                 default:
                     Assure(child, false, "unrecognized primary expression: '" + sLabel + "'");
                     return null; // unreachable
             }
         }
 
-        static ExpressionList CreateArgList(AstNode x)
+        static ExpressionList CreateExprList(AstNode x)
         {
-            Assure(x, x.Label == "paranexpr", "Can only create argument lists from paranthesized expression");
-            Assure(x, x.GetNumChildren() <= 1, "Paranthesized expression must contain at most one compound expression");
+            Assure(x, x.Label == "paranexpr" || x.Label == "bracketedexpr", "Can only create argument lists from paranthesized or bracketed expression");
+            Assure(x, x.GetNumChildren() <= 1, "Must contain at most one compound expression");
             ExpressionList r = new ExpressionList();
 
             // If there are no arguments, return an empty expression list
@@ -578,7 +617,7 @@ namespace HeronEngine
                 else if (tmp.Label == "paranexpr")
                 {
                     i++;
-                    r = new FunCall(r, CreateArgList(tmp));
+                    r = new FunCall(r, CreateExprList(tmp));
                 }
                 else if (tmp.ToString() == ".")
                 {
@@ -751,9 +790,17 @@ namespace HeronEngine
             return r;
         }
 
-        static Expression CreateCondExpr(AstNode x, ref int i)
+        static Expression CreateRangeExpr(AstNode x, ref int i)
         {
             Expression r = CreateOrExpr(x, ref i);
+            if (ChildNodeMatches(x, ref i, ".."))
+                r = new BinaryOperator("..", r, CreateOrExpr(x, ref i));
+            return r;
+        }
+
+        static Expression CreateCondExpr(AstNode x, ref int i)
+        {
+            Expression r = CreateRangeExpr(x, ref i);
             // TODO: support the ternary "a ? b : c" operator
             return r;
         }
@@ -793,27 +840,27 @@ namespace HeronEngine
                 case "=":
                     if (++i >= x.GetNumChildren())
                         throw new Exception("illegal expression");
-                    return new Assignment(r, CreateCondExpr(x, ref i));
+                    return new Assignment(r, CreateAnonFunExpr(x, ref i));
                 case "+=":
                     if (++i >= x.GetNumChildren())
                         throw new Exception("illegal expression");
-                    return new Assignment(r, new BinaryOperator("+", r, CreateCondExpr(x, ref i)));
+                    return new Assignment(r, new BinaryOperator("+", r, CreateAnonFunExpr(x, ref i)));
                 case "-=":
                     if (++i >= x.GetNumChildren())
                         throw new Exception("illegal expression");
-                    return new Assignment(r, new BinaryOperator("-", r, CreateCondExpr(x, ref i)));
+                    return new Assignment(r, new BinaryOperator("-", r, CreateAnonFunExpr(x, ref i)));
                 case "*=":
                     if (++i >= x.GetNumChildren())
                         throw new Exception("illegal expression");
-                    return new Assignment(r, new BinaryOperator("*", r, CreateCondExpr(x, ref i)));
+                    return new Assignment(r, new BinaryOperator("*", r, CreateAnonFunExpr(x, ref i)));
                 case "/=":
                     if (++i >= x.GetNumChildren())
                         throw new Exception("illegal expression");
-                    return new Assignment(r, new BinaryOperator("/", r, CreateCondExpr(x, ref i)));
+                    return new Assignment(r, new BinaryOperator("/", r, CreateAnonFunExpr(x, ref i)));
                 case "%=":
                     if (++i >= x.GetNumChildren())
                         throw new Exception("illegal expression");
-                    return new Assignment(r, new BinaryOperator("%", r, CreateCondExpr(x, ref i)));
+                    return new Assignment(r, new BinaryOperator("%", r, CreateAnonFunExpr(x, ref i)));
                 default:
                     // TODO: support other assignment operators.
                     return r;
@@ -822,7 +869,7 @@ namespace HeronEngine
 
         /// <summary>
         /// This function might be called by the top-level CreateExpr(AstNode x), 
-        /// or by CreateArgList(AstNode x)
+        /// or by CreateExprList(AstNode x)
         /// </summary>
         /// <param name="x"></param>
         /// <param name="i"></param>

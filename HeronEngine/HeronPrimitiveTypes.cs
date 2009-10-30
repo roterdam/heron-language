@@ -48,22 +48,21 @@ namespace HeronEngine
         public static HeronPrimitiveType FloatType = new HeronPrimitiveType(null, typeof(FloatValue), "Float");
         public static HeronPrimitiveType CharType = new HeronPrimitiveType(null, typeof(CharValue), "Char");
         public static HeronPrimitiveType StringType = new HeronPrimitiveType(null, typeof(StringValue), "String");
-        public static HeronPrimitiveType SeqType = new HeronPrimitiveType(null, typeof(SeqValue), "Seq");
+        public static HeronPrimitiveType IteratorType = new HeronPrimitiveType(null, null, "Iterator");
+        public static HeronPrimitiveType SeqType = new HeronPrimitiveType(null, null, "Seq");
         public static HeronPrimitiveType ListType = new HeronPrimitiveType(null, typeof(ListValue), "List");
 
-        /*
-        public static HeronPrimitiveType FunctionType = new HeronPrimitiveType(null, "Function");
-        public static HeronPrimitiveType FunctionListType = new HeronPrimitiveType(null, "FunctionList");
-        public static HeronPrimitiveType ExternalMethodType = new HeronPrimitiveType(null, "ExternalMethod");
-        public static HeronPrimitiveType ExternalStaticMethodListType = new HeronPrimitiveType(null, "ExternalStaticMethodList");
-        public static HeronPrimitiveType ExternalMethodListType = new HeronPrimitiveType(null, "ExternalMethodList");
-        
-        public static HeronPrimitiveType ProgramType = new HeronPrimitiveType(null, "HeronProgram");
-        public static HeronPrimitiveType ModuleType = new HeronPrimitiveType(null, "HeronModule");
-        public static HeronPrimitiveType ClassType = new HeronPrimitiveType(null, "HeronClass");
-        public static HeronPrimitiveType EnumType = new HeronPrimitiveType(null, "HeronEnum");
-        public static HeronPrimitiveType InterfaceType = new HeronPrimitiveType(null, "HeronInterface");
-        */
+        public static HeronPrimitiveType FunctionType = new HeronPrimitiveType(null, null, "Function");
+        public static HeronPrimitiveType FunctionListType = new HeronPrimitiveType(null, null, "FunctionList");
+        public static HeronPrimitiveType ExternalMethodType = new HeronPrimitiveType(null, null, "ExternalMethod");
+        public static HeronPrimitiveType ExternalStaticMethodListType = new HeronPrimitiveType(null, null, "ExternalStaticMethodList");
+        public static HeronPrimitiveType ExternalMethodListType = new HeronPrimitiveType(null, null, "ExternalMethodList");
+
+        public static HeronPrimitiveType ProgramType = new HeronPrimitiveType(null, null, "HeronProgram");
+        public static HeronPrimitiveType ModuleType = new HeronPrimitiveType(null, null, "HeronModule");
+        public static HeronPrimitiveType ClassType = new HeronPrimitiveType(null, null, "HeronClass");
+        public static HeronPrimitiveType EnumType = new HeronPrimitiveType(null, null, "HeronEnum");
+        public static HeronPrimitiveType InterfaceType = new HeronPrimitiveType(null, null, "HeronInterface");
 
         static Dictionary<string, HeronPrimitiveType> types = null;
 
