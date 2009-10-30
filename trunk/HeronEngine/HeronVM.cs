@@ -52,11 +52,10 @@ namespace HeronEngine
         public class DisposableFrame : IDisposable
         {
             HeronVM vm;
-            Frame frame;
             public DisposableFrame(HeronVM vm, FunctionDefinition def, ClassInstance ci)
             {
                 this.vm = vm;
-                frame = vm.PushNewFrame(def, ci);
+                vm.PushNewFrame(def, ci);
             }
             public void Dispose()
             {
@@ -151,7 +150,7 @@ namespace HeronEngine
             HeronValue tmp = Eval(list);
             if (!(tmp is SeqValue))
                 throw new Exception("Expected an enumerable value");
-            return tmp as SeqValue;
+            return (tmp as SeqValue).GetEnumerator(this);
         }
 
         /// <summary>
@@ -161,7 +160,7 @@ namespace HeronEngine
         /// <returns></returns>
         public IEnumerable<HeronValue> EvalListAsDotNet(Expression list)
         {
-            return new HeronToEnumeratorAdapter(EvalList(list));
+            return new HeronToEnumeratorAdapter(this, EvalList(list));
         }
 
         /// <summary>

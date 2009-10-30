@@ -181,10 +181,20 @@ namespace HeronTests
             TestPeg(HeronGrammar.Expr, "ab(a)");
             TestPeg(HeronGrammar.Expr, "a.x");
             TestPeg(HeronGrammar.Expr, "a.x");
+            TestPeg(HeronGrammar.Expr, "a[1]");
+            TestPeg(HeronGrammar.Expr, "a[1,2]");
+            TestPeg(HeronGrammar.Expr, "a['b']");
+            TestPeg(HeronGrammar.Expr, "a[\"hello\"]");
+            TestPeg(HeronGrammar.Expr, "a && b");
+            TestPeg(HeronGrammar.Expr, "a .. b");
+            TestPeg(HeronGrammar.Expr, "[a, b, c]");
             TestPeg(HeronGrammar.Expr, "ab(a.x + 24)");
             TestPeg(HeronGrammar.Expr, "function() { }");
             TestPeg(HeronGrammar.Expr, "function(a : Int) { return a + 1; }");
             TestPeg(HeronGrammar.Expr, "f(function(a : Int) { return a + 1; })");
+            TestPeg(HeronGrammar.SelectExpr, "select (a from b..c) a % 2 == 0");
+            TestPeg(HeronGrammar.MapExpr, "mapeach (a in b..c) a * 2");
+            TestPeg(HeronGrammar.AccumulateExpr, "accumulate (a = 0 forall b in c..d) a + b");
         }
 
         static void SimplePegStatementTests()

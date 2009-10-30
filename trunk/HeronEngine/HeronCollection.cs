@@ -17,8 +17,19 @@ namespace HeronEngine
         HeronValue GetValue(HeronVM vm);
     }
 
-    public class SelectEnumerator
+    public abstract class EnumeratorValue
         : HeronValue, IHeronEnumerator
+    {
+        public override HeronType GetHeronType()
+        {
+            return HeronPrimitiveTypes.IteratorType;
+        }
+        public abstract bool MoveNext(HeronVM vm);
+        public abstract HeronValue GetValue(HeronVM vm);
+    }
+
+    public class SelectEnumerator
+        : EnumeratorValue
     {
         IHeronEnumerator iter;
         string name;
@@ -32,12 +43,7 @@ namespace HeronEngine
             this.pred = pred;
         }
 
-        public void Reset(HeronVM vm)
-        {
-            iter.Reset(vm);
-        }
-
-        public bool MoveNext(HeronVM vm)
+        public override bool MoveNext(HeronVM vm)
         {
             using (vm.CreateScope())
             {
@@ -57,19 +63,14 @@ namespace HeronEngine
             }
         }
 
-        public HeronValue GetValue(HeronVM vm)
+        public override HeronValue GetValue(HeronVM vm)
         {
             return current;
-        }
-
-        public override HeronType GetHeronType()
-        {
-            return HeronPrimitiveTypes.SeqType;
         }
     }
 
     public class RangeEnumerator
-        : HeronValue, IHeronEnumerator
+        : EnumeratorValue
     {
         int min;
         int max;
@@ -84,13 +85,7 @@ namespace HeronEngine
             next = this.min;
         }
 
-        public void Reset(HeronVM vm)
-        {
-            cur = min;
-            next = min;
-        }
-
-        public bool MoveNext(HeronVM vm)
+        public override bool MoveNext(HeronVM vm)
         {
             if (next > max)
                 return false;
@@ -98,7 +93,7 @@ namespace HeronEngine
             return true;
         }
 
-        public HeronValue GetValue(HeronVM vm)
+        public override HeronValue GetValue(HeronVM vm)
         {
             return new IntValue(cur);
         }
@@ -110,7 +105,7 @@ namespace HeronEngine
     }
 
     public class MapEachEnumerator
-            : HeronValue, IHeronEnumerator
+        : EnumeratorValue
     {
         string name;
         IHeronEnumerator iter;
@@ -123,13 +118,12 @@ namespace HeronEngine
             this.yield = yield;
         }
 
-        public bool MoveNext(HeronVM vm)
+        public override bool MoveNext(HeronVM vm)
         {
-            if (!iter.MoveNext(vm))
-                return false;
+            return iter.MoveNext(vm);
         }
 
-        public HeronValue GetValue(HeronVM vm)
+        public override HeronValue GetValue(HeronVM vm)
         {
             using (vm.CreateScope())
             {
@@ -137,17 +131,7 @@ namespace HeronEngine
                 return vm.Eval(yield);
             }
         }
-
-        public void Reset(HeronVM vm)
-        {
-            iter.Reset(vm);
-        }
-
-        public override HeronType GetHeronType()
-        {
-            return HeronPrimitiveTypes.SeqType;
-        }
-    }
+   }
 
     public class HeronToEnumeratorAdapter
         : IEnumerable<HeronValue>, IEnumerator<HeronValue>
@@ -191,6 +175,12 @@ namespace HeronEngine
             get { return iter.GetValue(vm); }
         }
 
+        public void Reset()
+        {
+            // This is allowed according to MSDN
+            throw new NotImplementedException();
+        }
+
         #endregion
 
         #region IDisposable Members
@@ -213,11 +203,6 @@ namespace HeronEngine
             return iter.MoveNext(vm);
         }
 
-        public void Reset()
-        {
-            iter.Reset(vm); ;
-        }
-
         #endregion
     }
 
@@ -226,6 +211,10 @@ namespace HeronEngine
         IHeronEnumerator GetEnumerator(HeronVM vm);
     }
 
+    /// <summary>
+    /// Represents a sequence, which is a collection which can only be
+    /// iterated over once 
+    /// </summary>
     public abstract class SeqValue
         : HeronValue, IHeronEnumerable
     {
@@ -233,18 +222,42 @@ namespace HeronEngine
 
         public override HeronType GetHeronType()
         {
-            return HeronPrimitiveTypes.EnumerableType;
+            return HeronPrimitiveTypes.SeqType;
         }
     }
 
+    public class EnumeratorToHeronAdapter
+        : EnumeratorValue
+    {
+        IEnumerator<HeronValue> iter;
+
+        public EnumeratorToHeronAdapter(IEnumerator<HeronValue> iter)
+        {
+            this.iter = iter;
+        }
+
+        public override bool MoveNext(HeronVM vm)
+        {
+            return iter.MoveNext();
+        }
+
+        public override HeronValue GetValue(HeronVM vm)
+        {
+            return iter.Current;
+        }
+    }
+
+    /// <summary>
+    /// Represents a collection which can be iterated over multiple times.
+    /// </summary>
     public class ListValue
         : SeqValue, IHeronCollection
     {
-        List<HeronValue> list;
+        List<HeronValue> list = new List<HeronValue>();
 
         public override IHeronEnumerator GetEnumerator(HeronVM vm)
         {
-            return new HeronToEnumeratorAdapter(list.GetEnumerator());    
+            return new EnumeratorToHeronAdapter(list.GetEnumerator());    
         }
 
         public void Add(HeronValue v)
@@ -265,6 +278,7 @@ namespace HeronEngine
         int Count();
     }
 
+    /* TODO: remove
     public class NewHeronCollection
         : IHeronCollection
     {
@@ -289,11 +303,6 @@ namespace HeronEngine
             {
                 return iter.Current;
             }
-            
-            public void Reset(HeronVM vm)
-            {
-                iter.Reset();
-            }
             #endregion
         }
 
@@ -301,7 +310,7 @@ namespace HeronEngine
 
         public void Add(HeronValue x)
         {
-            list.Add(o);
+            list.Add(x);
         }
 
         public int Count()
@@ -314,4 +323,5 @@ namespace HeronEngine
             return new HeronEnumerator(list.GetEnumerator());
         }
     }
+     */
 }

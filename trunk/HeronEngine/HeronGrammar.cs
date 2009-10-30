@@ -94,7 +94,7 @@ namespace HeronEngine
         public static Rule BracketedExpr = Store("bracketedexpr", Bracketed(Opt(Delay(() => Expr))));
         public static Rule NewExpr = Store("new", Token("new") + NoFail(TypeExpr + ParanthesizedExpr));
         public static Rule SelectExpr = Store("select", Token("select") + Token("(") + Name + Token("from") + Delay(() => Expr) + Token(")") + Expr);
-        public static Rule AccumulateExpr = Store("accumulate", Token("accumulate") + Token("(") + Name + Delay(() => Initializer) + Token("witheach") + Name + Token("in") + Delay(() => Expr) + Token(")") + Delay(() => Statement));
+        public static Rule AccumulateExpr = Store("accumulate", Token("accumulate") + Token("(") + Name + Delay(() => Initializer) + Token("forall") + Name + Token("in") + Delay(() => Expr) + Token(")") + Delay(() => Statement));
         public static Rule MapEachExpr = Store("mapeach", Token("mapeach") + Token("(") + Name + Token("in") + Delay(() => Expr) + Token(")") + NoFail(Delay(() => Expr)));
         public static Rule BasicExpr = (NewExpr | MapEachExpr | SelectExpr | AccumulateExpr | AnonFxn | NameOrLiteral | ParanthesizedExpr | BracketedExpr);
         public static Rule Expr = Store("expr", Plus(BasicExpr));
