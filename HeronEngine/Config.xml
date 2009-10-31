@@ -6,7 +6,7 @@
   </version>
   <section name="main">
     <path name="testfiles" relative="true">..\..\tests</path>
-    <bool name="rununittests">false</bool>
+    <bool name="rununittests">true</bool>
     <bool name="runtestfiles">false</bool>
   </section>
 </cfgxml>

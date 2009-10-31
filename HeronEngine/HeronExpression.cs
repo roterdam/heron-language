@@ -28,7 +28,7 @@ namespace HeronEngine
                 Error(s);
         }
 
-        public abstract HeronValue Eval(HeronVM vm);
+        public abstract HeronValue Eval(VM vm);
 
         static protected List<Expression> noExpressions = new List<Expression>();
 
@@ -60,7 +60,7 @@ namespace HeronEngine
             return s;
         }
 
-        public HeronValue[] Eval(HeronVM vm)
+        public HeronValue[] Eval(VM vm)
         {
             List<HeronValue> list = new List<HeronValue>();
             foreach (Expression x in this)
@@ -80,9 +80,10 @@ namespace HeronEngine
             this.rvalue = rvalue;
         }
 
-        public override HeronValue Eval(HeronVM vm)
+        public override HeronValue Eval(VM vm)
         {            
-            HeronValue val = rvalue.Eval(vm);
+            HeronValue val = 
+                rvalue.Eval(vm);
 
             if (lvalue is Name)
             {
@@ -145,7 +146,7 @@ namespace HeronEngine
             this.name = name;
         }
 
-        public override HeronValue Eval(HeronVM vm)
+        public override HeronValue Eval(VM vm)
         {
             HeronValue x = self.Eval(vm);
             if (x == null)
@@ -175,7 +176,7 @@ namespace HeronEngine
             this.index = index;
         }
 
-        public override HeronValue Eval(HeronVM vm)
+        public override HeronValue Eval(VM vm)
         {
             HeronValue o = coll.Eval(vm);
             HeronValue i = index.Eval(vm);
@@ -205,7 +206,7 @@ namespace HeronEngine
             this.args = args;
         }
 
-        public override HeronValue Eval(HeronVM vm)
+        public override HeronValue Eval(VM vm)
         {
             HeronValue o = vm.LookupName(type);
             if (!(o is HeronType))
@@ -230,7 +231,7 @@ namespace HeronEngine
             val = x;
         }
 
-        public override HeronValue Eval(HeronVM vm)
+        public override HeronValue Eval(VM vm)
         {
             return val;
         }
@@ -287,7 +288,7 @@ namespace HeronEngine
             name = s;
         }
 
-        public override HeronValue Eval(HeronVM vm)
+        public override HeronValue Eval(VM vm)
         {
             HeronValue r = vm.LookupName(name);
             return r;
@@ -315,7 +316,7 @@ namespace HeronEngine
             this.args = args;
         }
         
-        public override HeronValue Eval(HeronVM vm)
+        public override HeronValue Eval(VM vm)
         {
             HeronValue[] argvals = args.Eval(vm);
             HeronValue f = funexpr.Eval(vm);
@@ -346,7 +347,7 @@ namespace HeronEngine
             operand = x;
         }
 
-        public override HeronValue Eval(HeronVM vm)
+        public override HeronValue Eval(VM vm)
         {
             HeronValue o = operand.Eval(vm);
             return o.InvokeUnaryOperator(operation);
@@ -377,7 +378,7 @@ namespace HeronEngine
         }
 
         // TODO: improve efficiency. This is a pretty terrible operation
-        public override HeronValue Eval(HeronVM vm)
+        public override HeronValue Eval(VM vm)
         {
             HeronValue a = operand1.Eval(vm);
             HeronValue b = operand2.Eval(vm);
@@ -553,7 +554,7 @@ namespace HeronEngine
 
         private FunctionDefinition function;
 
-        public override HeronValue Eval(HeronVM vm)
+        public override HeronValue Eval(VM vm)
         {
             FunctionValue fo = new FunctionValue(null, GetFunction());
             fo.ComputeFreeVars(vm);
@@ -594,7 +595,7 @@ namespace HeronEngine
             ass = new Assignment(x, new BinaryOperator("+", x, new IntLiteral(1)));
         }
 
-        public override HeronValue Eval(HeronVM vm)
+        public override HeronValue Eval(VM vm)
         {
             HeronValue result = vm.Eval(expr);
             vm.Eval(ass);
@@ -625,7 +626,7 @@ namespace HeronEngine
             this.pred = pred;
         }
 
-        public override HeronValue Eval(HeronVM vm)
+        public override HeronValue Eval(VM vm)
         {
             IHeronEnumerator iter = vm.EvalList(list); 
             return new SelectEnumerator(vm, name, iter, pred);
@@ -656,7 +657,7 @@ namespace HeronEngine
             this.yield = yield;
         }
 
-        public override HeronValue Eval(HeronVM vm)
+        public override HeronValue Eval(VM vm)
         {
             IHeronEnumerator iter = vm.EvalList(list);
             return new MapEachEnumerator(name, iter, yield);
@@ -677,21 +678,21 @@ namespace HeronEngine
     public class AccumulateExpr : Expression
     {
         string acc;
+        Expression init;
         string each;
-        Expression init; 
         Expression list;
-        Statement st;
+        Expression expr;
 
-        public AccumulateExpr(string acc, string each, Expression init, Expression list, Statement st)
+        public AccumulateExpr(string acc, Expression init, string each, Expression list, Expression expr)
         {
             this.acc = acc;
             this.each = each;
             this.init = init;
             this.list = list;
-            this.st = st;
+            this.expr = expr;
         }
 
-        public override HeronValue Eval(HeronVM vm)
+        public override HeronValue Eval(VM vm)
         {
             using (vm.CreateScope())
             {
@@ -701,7 +702,7 @@ namespace HeronEngine
                 foreach (HeronValue x in vm.EvalListAsDotNet(list))
                 {
                     vm.SetVar(each, x);
-                    vm.Eval(st);
+                    vm.SetVar(acc, vm.Eval(expr));
                 }
 
                 return vm.LookupName(acc);
@@ -710,9 +711,9 @@ namespace HeronEngine
 
         public override string ToString()
         {
-            return "accumulate (" + acc + " = " + init.ToString() + " forall " + each + " in " + list.ToString() + ")";
+            return "accumulate (" + acc + " = " + init.ToString() + " forall " + each + " in " + list.ToString() + ") " + expr.ToString();
         }
-
+        
         public override IEnumerable<Expression> GetSubExpressions()
         {
             yield return init;
@@ -729,9 +730,12 @@ namespace HeronEngine
             exprs = xs;
         }
 
-        public override HeronValue Eval(HeronVM vm)
+        public override HeronValue Eval(VM vm)
         {
-            return vm.Eval(exprs);
+            ListValue list = new ListValue();
+            foreach (Expression expr in exprs)
+                list.Add(vm.Eval(expr));
+            return list;
         }
 
         public override IEnumerable<Expression> GetSubExpressions()

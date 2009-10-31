@@ -140,7 +140,7 @@ namespace HeronEngine
             types.Add(s, new DotNetClass(this, s, t));
         }
 
-        internal void AddPrimitive(string s, HeronPrimitiveType t)
+        internal void AddPrimitive(string s, PrimitiveType t)
         {
             if (FindType(s) != null)
                 throw new Exception("Type '" + s + "' already exists");

@@ -33,9 +33,9 @@ namespace HeronEngine
         /// </summary>
         /// <param name="env"></param>
         /// <returns></returns>
-        public abstract HeronValue Instantiate(HeronVM vm, HeronValue[] args);
+        public abstract HeronValue Instantiate(VM vm, HeronValue[] args);
 
-        public HeronValue Instantiate(HeronVM vm)
+        public HeronValue Instantiate(VM vm)
         {
             return Instantiate(vm, new HeronValue[] { });
         }
@@ -79,7 +79,7 @@ namespace HeronEngine
 
         public override HeronType GetHeronType()
         {
-            return HeronPrimitiveTypes.TypeType;
+            return PrimitiveTypes.TypeType;
         }
 
         public override bool Equals(object obj)
@@ -111,7 +111,7 @@ namespace HeronEngine
         {
         }
 
-        public override HeronValue Instantiate(HeronVM vm, HeronValue[] args)
+        public override HeronValue Instantiate(VM vm, HeronValue[] args)
         {
             throw new Exception("Type '" + name + "' was not resolved.");
         }
@@ -135,7 +135,7 @@ namespace HeronEngine
     public class HeronField
     {
         public string name;
-        public HeronType type = HeronPrimitiveTypes.AnyType;
+        public HeronType type = PrimitiveTypes.AnyType;
 
         public void ResolveTypes()
         {
@@ -172,7 +172,7 @@ namespace HeronEngine
         {
             basetypes.Add(t);
         }
-        public override HeronValue Instantiate(HeronVM vm, HeronValue[] args)
+        public override HeronValue Instantiate(VM vm, HeronValue[] args)
         {
             throw new Exception("Cannot instantiate an interface");
         }
@@ -209,7 +209,7 @@ namespace HeronEngine
 
         public override HeronType GetHeronType()
         {
-            return HeronPrimitiveTypes.InterfaceType;
+            return PrimitiveTypes.InterfaceType;
         }
     }
 
@@ -225,7 +225,7 @@ namespace HeronEngine
         {
         }
 
-        public override HeronValue Instantiate(HeronVM vm, HeronValue[] args)
+        public override HeronValue Instantiate(VM vm, HeronValue[] args)
         {
             throw new Exception("Cannot instantiate an enumeration");
         }
@@ -277,7 +277,7 @@ namespace HeronEngine
 
         public override HeronType GetHeronType()
         {
-            return HeronPrimitiveTypes.EnumType;
+            return PrimitiveTypes.EnumType;
         }
     }
 
@@ -406,7 +406,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="env"></param>
         /// <returns></returns>
-        public override HeronValue Instantiate(HeronVM vm, HeronValue[] args)
+        public override HeronValue Instantiate(VM vm, HeronValue[] args)
         {
             // TODO: this needs to be optimized
             ClassInstance r = new ClassInstance(this);
@@ -465,7 +465,7 @@ namespace HeronEngine
 
         public override HeronType GetHeronType()
         {
-            return HeronPrimitiveTypes.ClassType;
+            return PrimitiveTypes.ClassType;
         }
         #endregion
     }

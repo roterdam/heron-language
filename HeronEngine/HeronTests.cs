@@ -18,7 +18,7 @@ namespace HeronTests
 {
     public class HeronTests
     {
-        static HeronVM vm = new HeronVM();
+        static VM vm = new VM();
 
         static public void TestPeg(Rule r, string s)
         {
@@ -122,7 +122,7 @@ namespace HeronTests
             }
         }
 
-        static void SimpleEvalExprTests()
+        static void EvalExprTests()
         {
             TestEvalExpr("1", "1");
             TestEvalExpr("(1)", "1");
@@ -159,7 +159,12 @@ namespace HeronTests
             TestEvalExpr("1 != null");
         }
 
-        static void SimplePegTests()
+        static void EvalListTests()
+        {
+            TestEvalExpr("0..2", "[0, 1, 2]");
+        }
+
+        static void PegTests()
         {
             TestPeg(HeronGrammar.IntegerLiteral, "1");
             TestPeg(HeronGrammar.NumLiteral, "1");
@@ -193,11 +198,11 @@ namespace HeronTests
             TestPeg(HeronGrammar.Expr, "function(a : Int) { return a + 1; }");
             TestPeg(HeronGrammar.Expr, "f(function(a : Int) { return a + 1; })");
             TestPeg(HeronGrammar.SelectExpr, "select (a from b..c) a % 2 == 0");
-            TestPeg(HeronGrammar.MapExpr, "mapeach (a in b..c) a * 2");
+            TestPeg(HeronGrammar.MapEachExpr, "mapeach (a in b..c) a * 2");
             TestPeg(HeronGrammar.AccumulateExpr, "accumulate (a = 0 forall b in c..d) a + b");
         }
 
-        static void SimplePegStatementTests()
+        static void PegStatementTests()
         {
             TestPeg(HeronGrammar.ExprStatement, "1;");
             TestPeg(HeronGrammar.ExprStatement, "f;");
@@ -222,7 +227,7 @@ namespace HeronTests
             TestPeg(HeronGrammar.Statement, "f(function(a : Int) { a += 1; return a * 2; });");
         }
 
-        static void SimpleExprTests()
+        static void ExprParseTests()
         {
             TestExprParse("1");
             TestExprParse("123");
@@ -257,10 +262,11 @@ namespace HeronTests
         {
             if (Config.runUnitTests)
             {
-                SimplePegTests();
-                SimplePegStatementTests();
-                SimpleExprTests();
-                SimpleEvalExprTests();
+                //PegTests();
+                //PegStatementTests();
+                //ExprParseTests();
+                //EvalExprTests();
+                EvalListTests();
             }
 
             if (Config.runTestFiles)

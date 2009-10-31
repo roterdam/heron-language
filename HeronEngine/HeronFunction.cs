@@ -18,7 +18,7 @@ namespace HeronEngine
     public class FormalArg
     {
         public string name;
-        public HeronType type = HeronPrimitiveTypes.AnyType;
+        public HeronType type = PrimitiveTypes.AnyType;
     }
 
     /// <summary>
@@ -53,7 +53,7 @@ namespace HeronEngine
         /// <param name="env"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public HeronValue Invoke(HeronValue self, HeronVM vm, HeronValue[] args)
+        public HeronValue Invoke(HeronValue self, VM vm, HeronValue[] args)
         {
             // TODO: in theory we can optimize this
             FunctionValue fo = new FunctionValue(self, this);
@@ -79,7 +79,7 @@ namespace HeronEngine
 
         public override HeronType GetHeronType()
         {
-            return HeronPrimitiveTypes.FunctionType;
+            return PrimitiveTypes.FunctionType;
         }
 
         public HeronType GetParentType()

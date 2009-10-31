@@ -13,6 +13,18 @@ using System.Diagnostics;
 
 namespace HeronEngine
 {
+    /// <summary>
+    /// This attribute allows us to identify methods and properties on a HeronValue derived type 
+    /// which are to be exposed automatically to Heron. The exposed functions are managed by PrimitiveType.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property)]    
+    public class HeronVisible : Attribute
+    {
+    }
+
+    /// <summary>
+    /// This is the base class of all values that are exposed to Heron.
+    /// </summary>
     public abstract class HeronValue
     {
         public static VoidValue Void = new VoidValue();
@@ -43,7 +55,7 @@ namespace HeronEngine
             throw new Exception("Indexing is not supported on " + ToString());
         }
 
-        public virtual HeronValue Apply(HeronVM vm, HeronValue[] args)
+        public virtual HeronValue Apply(VM vm, HeronValue[] args)
         {
             throw new Exception(ToString() + " is not recognized a function object");
         }
@@ -78,7 +90,7 @@ namespace HeronEngine
 
         public abstract HeronType GetHeronType();
 
-        public bool EqualsValue(HeronValue x)
+        public virtual bool EqualsValue(VM vm, HeronValue x)
         {
             return InvokeBinaryOperator("==", x).ToBool();
         }
@@ -93,7 +105,7 @@ namespace HeronEngine
 
         public override HeronType GetHeronType()
         {
-            return HeronPrimitiveTypes.VoidType;
+            return PrimitiveTypes.VoidType;
         }
     }
 
@@ -106,7 +118,7 @@ namespace HeronEngine
 
         public override HeronType GetHeronType()
         {
-            return HeronPrimitiveTypes.NullType;
+            return PrimitiveTypes.NullType;
         }
 
         public override HeronValue InvokeBinaryOperator(string s, HeronValue x)
@@ -132,7 +144,7 @@ namespace HeronEngine
 
         public override HeronType GetHeronType()
         {
-            return HeronPrimitiveTypes.UndefinedType;
+            return PrimitiveTypes.UndefinedType;
         }
     }
 
@@ -147,7 +159,7 @@ namespace HeronEngine
             this.self = self;
         }
 
-        public override HeronValue Apply(HeronVM vm, HeronValue[] args)
+        public override HeronValue Apply(VM vm, HeronValue[] args)
         {
             Object[] objs = HeronDotNet.ObjectsToDotNetArray(args);
             Object r = mi.Invoke(self, objs);
@@ -156,7 +168,7 @@ namespace HeronEngine
 
         public override HeronType GetHeronType()
         {
-            return HeronPrimitiveTypes.ExternalMethodType;
+            return PrimitiveTypes.ExternalMethodType;
         }
     }
 

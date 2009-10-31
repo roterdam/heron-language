@@ -8,22 +8,58 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Reflection;
 using System.Diagnostics;
 
 namespace HeronEngine
 {
-    public class HeronPrimitiveType : HeronType
+    public class PrimitiveType : HeronType
     {
+        /// <summary>
+        /// Can be null.
+        /// </summary>
         Type type;
 
-        public HeronPrimitiveType(HeronModule m, Type t, string name)
+        /// <summary>
+        /// Maps names to functions
+        /// </summary>
+        Dictionary<string, FunctionValue> functions = new Dictionary<string, FunctionValue>();
+
+        public PrimitiveType(HeronModule m, Type t, string name)
             : base(m, name)
         {
-            Trace.Assert(t.Equals(typeof(HeronValue)));
+            if (t != null)
+            {
+                if (!typeof(HeronValue).IsAssignableFrom(t))
+                    throw new Exception("Only types derived from HeronValue can be primitives");
+            }
             this.type = t;
+            StoreExposedFunctions();
         }
 
-        public override HeronValue Instantiate(HeronVM vm, HeronValue[] args)
+        private void StoreExposedFunctions()
+        {
+            if (type == null)
+                return;
+
+            foreach (MethodInfo mi in type.GetMethods()) 
+            {
+                object[] attrs = mi.GetCustomAttributes(typeof(HeronVisible), false);
+                if (attrs.Length > 0)
+                    StoreFunction(mi);
+            }
+        }
+
+        private void StoreFunction(MethodInfo mi)
+        {
+            foreach (ParameterInfo pi in mi.GetParameters())
+                if (!pi.ParameterType.Equals(typeof(HeronValue)))
+                    throw new Exception("Only functions that take HeronValue type parameters can be exposed to Heron");
+
+            throw new NotImplementedException();
+        }
+
+        public override HeronValue Instantiate(VM vm, HeronValue[] args)
         {
             if (args.Length != 0)
                 throw new Exception("arguments not supported when instantiating primitive type " + name);
@@ -36,46 +72,47 @@ namespace HeronEngine
         }
     }
 
-    static class HeronPrimitiveTypes
+    static class PrimitiveTypes
     {
-        public static HeronPrimitiveType TypeType = new HeronPrimitiveType(null, typeof(HeronType), "Type");
-        public static HeronPrimitiveType AnyType = new HeronPrimitiveType(null, null, "Any");
-        public static HeronPrimitiveType VoidType = new HeronPrimitiveType(null, null, "Void");
-        public static HeronPrimitiveType UndefinedType = new HeronPrimitiveType(null, null, "Undefined");
-        public static HeronPrimitiveType NullType = new HeronPrimitiveType(null, null, "Null");
-        public static HeronPrimitiveType BoolType = new HeronPrimitiveType(null, typeof(BoolValue), "Bool");
-        public static HeronPrimitiveType IntType = new HeronPrimitiveType(null, typeof(IntValue), "Int");
-        public static HeronPrimitiveType FloatType = new HeronPrimitiveType(null, typeof(FloatValue), "Float");
-        public static HeronPrimitiveType CharType = new HeronPrimitiveType(null, typeof(CharValue), "Char");
-        public static HeronPrimitiveType StringType = new HeronPrimitiveType(null, typeof(StringValue), "String");
-        public static HeronPrimitiveType IteratorType = new HeronPrimitiveType(null, null, "Iterator");
-        public static HeronPrimitiveType SeqType = new HeronPrimitiveType(null, null, "Seq");
-        public static HeronPrimitiveType ListType = new HeronPrimitiveType(null, typeof(ListValue), "List");
+        public static PrimitiveType TypeType = new PrimitiveType(null, typeof(HeronType), "Type");
+        public static PrimitiveType AnyType = new PrimitiveType(null, null, "Any");
+        public static PrimitiveType VoidType = new PrimitiveType(null, null, "Void");
+        public static PrimitiveType UndefinedType = new PrimitiveType(null, null, "Undefined");
+        public static PrimitiveType NullType = new PrimitiveType(null, null, "Null");
+        public static PrimitiveType BoolType = new PrimitiveType(null, typeof(BoolValue), "Bool");
+        public static PrimitiveType IntType = new PrimitiveType(null, typeof(IntValue), "Int");
+        public static PrimitiveType FloatType = new PrimitiveType(null, typeof(FloatValue), "Float");
+        public static PrimitiveType CharType = new PrimitiveType(null, typeof(CharValue), "Char");
+        public static PrimitiveType StringType = new PrimitiveType(null, typeof(StringValue), "String");
+        public static PrimitiveType IteratorType = new PrimitiveType(null, null, "Iterator");
+        public static PrimitiveType SeqType = new PrimitiveType(null, typeof(SeqValue), "Seq");
+        public static PrimitiveType ListType = new PrimitiveType(null, typeof(ListValue), "List");
 
-        public static HeronPrimitiveType FunctionType = new HeronPrimitiveType(null, null, "Function");
-        public static HeronPrimitiveType FunctionListType = new HeronPrimitiveType(null, null, "FunctionList");
-        public static HeronPrimitiveType ExternalMethodType = new HeronPrimitiveType(null, null, "ExternalMethod");
-        public static HeronPrimitiveType ExternalStaticMethodListType = new HeronPrimitiveType(null, null, "ExternalStaticMethodList");
-        public static HeronPrimitiveType ExternalMethodListType = new HeronPrimitiveType(null, null, "ExternalMethodList");
+        public static PrimitiveType PrimitiveMethodType = new PrimitiveType(null, typeof(HeronPrimitiveMethod), "PrimitiveMethod");
+        public static PrimitiveType FunctionType = new PrimitiveType(null, null, "Function");
+        public static PrimitiveType FunctionListType = new PrimitiveType(null, null, "FunctionList");
+        public static PrimitiveType ExternalMethodType = new PrimitiveType(null, null, "ExternalMethod");
+        public static PrimitiveType ExternalStaticMethodListType = new PrimitiveType(null, null, "ExternalStaticMethodList");
+        public static PrimitiveType ExternalMethodListType = new PrimitiveType(null, null, "ExternalMethodList");
 
-        public static HeronPrimitiveType ProgramType = new HeronPrimitiveType(null, null, "HeronProgram");
-        public static HeronPrimitiveType ModuleType = new HeronPrimitiveType(null, null, "HeronModule");
-        public static HeronPrimitiveType ClassType = new HeronPrimitiveType(null, null, "HeronClass");
-        public static HeronPrimitiveType EnumType = new HeronPrimitiveType(null, null, "HeronEnum");
-        public static HeronPrimitiveType InterfaceType = new HeronPrimitiveType(null, null, "HeronInterface");
+        public static PrimitiveType ProgramType = new PrimitiveType(null, null, "HeronProgram");
+        public static PrimitiveType ModuleType = new PrimitiveType(null, null, "HeronModule");
+        public static PrimitiveType ClassType = new PrimitiveType(null, null, "HeronClass");
+        public static PrimitiveType EnumType = new PrimitiveType(null, null, "HeronEnum");
+        public static PrimitiveType InterfaceType = new PrimitiveType(null, null, "HeronInterface");
 
-        static Dictionary<string, HeronPrimitiveType> types = null;
+        static Dictionary<string, PrimitiveType> types = null;
 
-        static void AddType(HeronPrimitiveType prim)
+        static void AddType(PrimitiveType prim)
         {
             types.Add(prim.name, prim);
         }
 
-        static public Dictionary<string, HeronPrimitiveType> GetTypes()
+        static public Dictionary<string, PrimitiveType> GetTypes()
         {
             if (types == null)
             {
-                types = new Dictionary<string, HeronPrimitiveType>();
+                types = new Dictionary<string, PrimitiveType>();
                 AddType(AnyType);
                 AddType(VoidType);
                 AddType(UndefinedType);

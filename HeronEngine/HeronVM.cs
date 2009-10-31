@@ -17,23 +17,23 @@ namespace HeronEngine
     /// <summary>
     /// This represents the current state of the Heron virtual machine. 
     /// </summary>
-    public class HeronVM
+    public class VM
     {
         #region helper classes
         /// <summary>
         /// Used for creation and deletion of scopes.
-        /// Do not instantiate directly, only HeronVM creates this.
+        /// Do not instantiate directly, only VM creates this.
         /// <seealso cref="HeronVm.CreateFrame"/>
         /// </summary>
         public class DisposableScope : IDisposable
         {
-            HeronVM vm;
-            public DisposableScope(HeronVM vm)
+            VM vm;
+            public DisposableScope(VM vm)
             {
                 this.vm = vm;
                 vm.PushScope();
             }
-            public DisposableScope(HeronVM vm, Scope scope)
+            public DisposableScope(VM vm, Scope scope)
             {
                 this.vm = vm;
                 vm.PushScope(scope);
@@ -46,13 +46,13 @@ namespace HeronEngine
 
         /// <summary>
         /// Helper class for the creation and deletion of frames.
-        /// Do not instantiate directly, only HeronVM creates this.
+        /// Do not instantiate directly, only VM creates this.
         /// <seealso cref="HeronVm.CreateFrame"/>
         /// </summary>
         public class DisposableFrame : IDisposable
         {
-            HeronVM vm;
-            public DisposableFrame(HeronVM vm, FunctionDefinition def, ClassInstance ci)
+            VM vm;
+            public DisposableFrame(VM vm, FunctionDefinition def, ClassInstance ci)
             {
                 this.vm = vm;
                 vm.PushNewFrame(def, ci);
@@ -82,7 +82,7 @@ namespace HeronEngine
         /// <summary>
         /// Constructor
         /// </summary>
-        public HeronVM()
+        public VM()
         {
             program = new HeronProgram("_untitled_");
             env = new Environment(program);
@@ -142,6 +142,8 @@ namespace HeronEngine
 
         /// <summary>
         /// Evaluates a list expression as an IHeronEnumerator
+        /// TODO: I am not so sure that this should return an "IHeronEnumerator".
+        /// Maybe an IHeronEnumerable or a SeqValue?
         /// </summary>
         /// <param name="list"></param>
         /// <returns></returns>

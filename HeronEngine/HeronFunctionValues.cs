@@ -36,7 +36,7 @@ namespace HeronEngine
         /// to values
         /// </summary>
         /// <param name="vm"></param>
-        public void ComputeFreeVars(HeronVM vm)
+        public void ComputeFreeVars(VM vm)
         {
             freeVars = new Scope();
             var boundVars = new Stack<string>();
@@ -46,7 +46,7 @@ namespace HeronEngine
             GetFreeVars(vm, fun.body, boundVars, freeVars);
         }
 
-        private void GetFreeVars(HeronVM vm, Statement st, Stack<string> boundVars, Scope result)
+        private void GetFreeVars(VM vm, Statement st, Stack<string> boundVars, Scope result)
         {
             // Count and store the names defined by this statement 
             int nNewVars = 0;
@@ -77,7 +77,7 @@ namespace HeronEngine
                 boundVars.Pop();
         }
 
-        private void PushArgs(HeronVM vm, HeronValue[] args)
+        private void PushArgs(VM vm, HeronValue[] args)
         {
             int n = fun.formals.Count;
             Trace.Assert(n == args.Length);
@@ -104,7 +104,7 @@ namespace HeronEngine
             return fun.formals[n].type;
         }
 
-        public override HeronValue Apply(HeronVM vm, HeronValue[] args)
+        public override HeronValue Apply(VM vm, HeronValue[] args)
         {
             // Create a stack frame 
             using (vm.CreateFrame(fun, GetSelfAsInstance()))
@@ -129,7 +129,7 @@ namespace HeronEngine
 
         public override HeronType GetHeronType()
         {
-            return HeronPrimitiveTypes.FunctionType;
+            return PrimitiveTypes.FunctionType;
         }
     }
 
@@ -170,7 +170,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        public FunctionValue Resolve(HeronVM vm, HeronValue[] args)
+        public FunctionValue Resolve(VM vm, HeronValue[] args)
         {
             List<FunctionValue> r = new List<FunctionValue>();
             foreach (FunctionDefinition f in functions)
@@ -217,7 +217,7 @@ namespace HeronEngine
             throw new Exception("Could not resolve function, several matched perfectly");
         }
 
-        public override HeronValue Apply(HeronVM vm, HeronValue[] args)
+        public override HeronValue Apply(VM vm, HeronValue[] args)
         {
             Trace.Assert(functions.Count > 0);
             FunctionValue o = Resolve(vm, args);
@@ -240,7 +240,7 @@ namespace HeronEngine
 
         public override HeronType GetHeronType()
         {
-            return HeronPrimitiveTypes.FunctionListType;
+            return PrimitiveTypes.FunctionListType;
         }
     }
 }
