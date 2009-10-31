@@ -111,6 +111,9 @@ namespace HeronEngine
         }
     }
 
+    /// <summary>
+    /// Exposes a .NET class to Heron
+    /// </summary>
     public class DotNetClass : HeronType
     {
         Type type;
@@ -127,7 +130,7 @@ namespace HeronEngine
             this.type = type;
         }
 
-        public override HeronValue Instantiate(HeronVM vm, HeronValue[] args)
+        public override HeronValue Instantiate(VM vm, HeronValue[] args)
         {
             Object[] objs = HeronDotNet.ObjectsToDotNetArray(args);
             Object o = type.InvokeMember(null, BindingFlags.Instance | BindingFlags.Public 
@@ -194,7 +197,7 @@ namespace HeronEngine
             this.name = name;
         }
 
-        public override HeronValue Apply(HeronVM vm, HeronValue[] args)
+        public override HeronValue Apply(VM vm, HeronValue[] args)
         {
             Object[] os = HeronDotNet.ObjectsToDotNetArray(args);
             Object o = self.GetSystemType().InvokeMember(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod, null, self.ToSystemObject(), os);
@@ -203,7 +206,7 @@ namespace HeronEngine
 
         public override HeronType GetHeronType()
         {
-            return HeronPrimitiveTypes.ExternalMethodListType;
+            return PrimitiveTypes.ExternalMethodListType;
         }
     }
 
@@ -221,7 +224,7 @@ namespace HeronEngine
             this.name = name;
         }
 
-        public override HeronValue Apply(HeronVM vm, HeronValue[] args)
+        public override HeronValue Apply(VM vm, HeronValue[] args)
         {
             Object[] os = HeronDotNet.ObjectsToDotNetArray(args);
             Object o = self.GetSystemType().InvokeMember(name, BindingFlags.Public | BindingFlags.Static | BindingFlags.InvokeMethod, null, null, os);
@@ -230,7 +233,40 @@ namespace HeronEngine
 
         public override HeronType GetHeronType()
         {
-            return HeronPrimitiveTypes.ExternalStaticMethodListType;
+            return PrimitiveTypes.ExternalStaticMethodListType;
+        }
+    }
+
+    /// <summary>
+    /// Exposes a method from a Heron primitive type to Heron
+    /// </summary>
+    public class HeronPrimitiveMethod : HeronValue
+    {
+        MethodInfo method;
+        Type type;
+
+        public HeronPrimitiveMethod(Type t, MethodInfo mi)
+        {
+            method = mi;
+            type = t;
+        }
+
+        public String Name
+        {
+            get { return method.Name; }
+        }
+
+        public override HeronValue Apply(VM vm, HeronValue[] args)
+        {
+            // TODO: check that "self" is the right type.
+            // Check that there are the right number of args.
+            // Do any necessary marshalling.
+            throw new NotImplementedException();
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.PrimitiveMethodType;
         }
     }
 }

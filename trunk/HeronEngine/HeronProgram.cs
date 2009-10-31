@@ -84,7 +84,7 @@ namespace HeronEngine
         /// </summary>
         void RegisterPrimitives()
         {
-            Dictionary<string, HeronPrimitiveType> prims = HeronPrimitiveTypes.GetTypes();
+            Dictionary<string, PrimitiveType> prims = PrimitiveTypes.GetTypes();
             foreach (string s in prims.Keys)
                 global.AddPrimitive(s, prims[s]);
 

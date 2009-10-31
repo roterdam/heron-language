@@ -17,7 +17,7 @@ using System.Diagnostics;
 using System.Reflection;
 
 /// In theory this namespace is used for holding the standard library
-/// It is not used much.
+/// It is not used much and will probably become deprecated.
 namespace HeronStandardLibrary
 {
     public class Util

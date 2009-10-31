@@ -78,7 +78,7 @@ namespace HeronEngine
                 case ">": return new BoolValue(GetValue() > arg);
                 case "<=": return new BoolValue(GetValue() <= arg);
                 case ">=": return new BoolValue(GetValue() >= arg);
-                case "..": throw new NotImplementedException();
+                case "..": return new RangeEnumerator(this, x as IntValue);
                 default:
                     throw new Exception("Binary operation: '" + s + "' not supported by integers");
             }
@@ -86,7 +86,7 @@ namespace HeronEngine
 
         public override HeronType GetHeronType()
         {
-            return HeronPrimitiveTypes.IntType;
+            return PrimitiveTypes.IntType;
         }
     }
 
@@ -122,7 +122,7 @@ namespace HeronEngine
 
         public override HeronType GetHeronType()
         {
-            return HeronPrimitiveTypes.CharType;
+            return PrimitiveTypes.CharType;
         }
     }
 
@@ -173,7 +173,7 @@ namespace HeronEngine
 
         public override HeronType GetHeronType()
         {
-            return HeronPrimitiveTypes.FloatType;
+            return PrimitiveTypes.FloatType;
         }
     }
 
@@ -223,7 +223,7 @@ namespace HeronEngine
 
         public override HeronType GetHeronType()
         {
-            return HeronPrimitiveTypes.BoolType;
+            return PrimitiveTypes.BoolType;
         }
     }
 
@@ -266,7 +266,7 @@ namespace HeronEngine
 
         public override HeronType GetHeronType()
         {
-            return HeronPrimitiveTypes.StringType;
+            return PrimitiveTypes.StringType;
         }
     }
 }

@@ -43,7 +43,7 @@ namespace HeronEngine
         /// <param name="s"></param>
         static public void RunFile(string file)
         {
-            HeronVM vm = new HeronVM();
+            VM vm = new VM();
             string sModule = Util.Util.ReadFromFile(file);
             try
             {

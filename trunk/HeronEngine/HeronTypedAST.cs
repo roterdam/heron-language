@@ -498,30 +498,31 @@ namespace HeronEngine
 
         static MapEachExpr CreateMapEachExpr(AstNode x)
         {
-            Assure(x, child.GetNumChildren() == 3, "map each operator must have three child nodes");
-            AstNode name = child.GetChild(0);
-            AstNode list = child.GetChild(1);
-            AstNode func = child.GetChild(2);
+            Assure(x, x.GetNumChildren() == 3, "map each operator must have three child nodes");
+            AstNode name = x.GetChild(0);
+            AstNode list = x.GetChild(1);
+            AstNode func = x.GetChild(2);
             return new MapEachExpr(name.ToString(), CreateExpr(list), CreateExpr(func));
         }
 
         static SelectExpr CreateSelectExpr(AstNode x)
         {
-            Assure(x, child.GetNumChildren() == 3, "select operator must have three child nodes");
-            AstNode name = child.GetChild(0);
-            AstNode list = child.GetChild(1);
-            AstNode func = child.GetChild(2);
+            Assure(x, x.GetNumChildren() == 3, "select operator must have three child nodes");
+            AstNode name = x.GetChild(0);
+            AstNode list = x.GetChild(1);
+            AstNode func = x.GetChild(2);
             return new SelectExpr(name.ToString(), CreateExpr(list), CreateExpr(func));
         }
 
         static AccumulateExpr CreateAccumulateExpr(AstNode x)
         {
-            Assure(x, child.GetNumChildren() == 4, "accumulate operator must have four child nodes");
-            AstNode acc = child.GetChild(0);
-            AstNode each = child.GetChild(1);
-            AstNode list = child.GetChild(2);
-            AstNode func = child.GetChild(3);
-            return new AccumulateExpr(acc.ToString(), each.ToString(), CreateExpr(list), CreateExpr(func));
+            Assure(x, x.GetNumChildren() == 5, "accumulate operator must have five child nodes");
+            AstNode acc = x.GetChild(0);
+            AstNode init = x.GetChild(1);
+            AstNode each = x.GetChild(2);
+            AstNode list = x.GetChild(3);
+            AstNode expr = x.GetChild(4);
+            return new AccumulateExpr(acc.ToString(), CreateExpr(init), each.ToString(), CreateExpr(list), CreateExpr(expr));
         }
 
         static Expression CreatePrimaryExpr(AstNode x, ref int i)
@@ -667,32 +668,21 @@ namespace HeronEngine
             }
         }
 
-        static Expression CreateRangeExpr(AstNode x, ref int i)
+        static Expression CreateMultExpr(AstNode x, ref int i)
         {
             Expression r = CreateUnaryExpr(x, ref i);
 
-            if (ChildNodeMatches(x, ref i, ".."))
-            {
-                r = new BinaryOperator("..", r, CreateUnaryExpr(x, ref i));
-            }
-            return r;
-        }
-
-        static Expression CreateMultExpr(AstNode x, ref int i)
-        {
-            Expression r = CreateRangeExpr(x, ref i);
-
             if (ChildNodeMatches(x, ref i, "*"))
             {
-                r = new BinaryOperator("*", r, CreateRangeExpr(x, ref i));
+                r = new BinaryOperator("*", r, CreateUnaryExpr(x, ref i));
             }
             else if (ChildNodeMatches(x, ref i, "/"))
             {
-                r = new BinaryOperator("/", r, CreateRangeExpr(x, ref i));
+                r = new BinaryOperator("/", r, CreateUnaryExpr(x, ref i));
             }
             else if (ChildNodeMatches(x, ref i, "%"))
             {
-                r = new BinaryOperator("%", r, CreateRangeExpr(x, ref i));
+                r = new BinaryOperator("%", r, CreateUnaryExpr(x, ref i));
             }
             return r;
         }

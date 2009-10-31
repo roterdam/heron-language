@@ -76,10 +76,11 @@ namespace HeronEngine
         public static Rule BinaryLiteral = CharSeq("0b") + NoFail(BinaryValue);
         public static Rule NumLiteral = HexLiteral | BinaryLiteral | FloatLiteral | IntegerLiteral;
         public static Rule Literal = (StringLiteral | CharLiteral | NumLiteral) + WS;
-        public static Rule Name = Token(Store("name", (Symbol | Ident)));
         #endregion
 
         #region expression rules
+        public static Rule SpecialDelimiter = Token("forall");
+        public static Rule Name = Token(Store("name", Not(SpecialDelimiter) + (Symbol | Ident)));
         public static Rule TypeArgs = Store("typeargs", (CharSeq("<") + NoFail(Delay(() => TypeExpr) + Token(">"))));
         public static Rule NameOrLiteral = Literal | Name;
         public static Rule TypeName = Store("name", (Ident + Star((Token(".") + NoFail(Ident)))));
@@ -93,9 +94,9 @@ namespace HeronEngine
         public static Rule ParanthesizedExpr = Store("paranexpr", Paranthesized(Opt(Delay(() => Expr))));
         public static Rule BracketedExpr = Store("bracketedexpr", Bracketed(Opt(Delay(() => Expr))));
         public static Rule NewExpr = Store("new", Token("new") + NoFail(TypeExpr + ParanthesizedExpr));
-        public static Rule SelectExpr = Store("select", Token("select") + Token("(") + Name + Token("from") + Delay(() => Expr) + Token(")") + Expr);
-        public static Rule AccumulateExpr = Store("accumulate", Token("accumulate") + Token("(") + Name + Delay(() => Initializer) + Token("forall") + Name + Token("in") + Delay(() => Expr) + Token(")") + Delay(() => Statement));
-        public static Rule MapEachExpr = Store("mapeach", Token("mapeach") + Token("(") + Name + Token("in") + Delay(() => Expr) + Token(")") + NoFail(Delay(() => Expr)));
+        public static Rule SelectExpr = Store("select", Token("select") + NoFail(Token("(") + Name + Token("from") + Delay(() => Expr) + Token(")") + Delay(() => Expr)));
+        public static Rule AccumulateExpr = Store("accumulate", Token("accumulate") + NoFail(Token("(") + Name + Delay(() => Initializer) + Token("forall") + Name + Token("in") + Delay(() => Expr) + Token(")") + Delay(() => Expr)));
+        public static Rule MapEachExpr = Store("mapeach", Token("mapeach") + NoFail(Token("(") + Name + Token("in") + Delay(() => Expr) + Token(")") + NoFail(Delay(() => Expr))));
         public static Rule BasicExpr = (NewExpr | MapEachExpr | SelectExpr | AccumulateExpr | AnonFxn | NameOrLiteral | ParanthesizedExpr | BracketedExpr);
         public static Rule Expr = Store("expr", Plus(BasicExpr));
         #endregion

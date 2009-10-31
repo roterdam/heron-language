@@ -15,7 +15,7 @@ namespace HeronEngine
     {
         static bool debugging = false;
 
-        public static void PrintCallStack(HeronVM vm)
+        public static void PrintCallStack(VM vm)
         {
             Environment env = vm.GetEnvironment();
             foreach (Frame f in env.GetFrames())
@@ -24,13 +24,13 @@ namespace HeronEngine
             }
         }
 
-        public static void PrintCurrentFrame(HeronVM vm)
+        public static void PrintCurrentFrame(VM vm)
         {
             Frame f = vm.GetCurrentFrame();
             PrintFrame(f);
         }
 
-        public static void PrintAllFrames(HeronVM vm)
+        public static void PrintAllFrames(VM vm)
         {
             foreach (Frame f in vm.GetEnvironment().GetFrames())
                 PrintFrame(f);
@@ -49,7 +49,7 @@ namespace HeronEngine
             }
         }
 
-        public static void Evaluate(HeronVM vm, string sArg)
+        public static void Evaluate(VM vm, string sArg)
         {
             if (sArg.Length == 0)
             {
@@ -68,7 +68,7 @@ namespace HeronEngine
             }
         }
 
-        public static void Start(HeronVM vm)
+        public static void Start(VM vm)
         {
             // Make sure that an exception triggered when evaluating from within debugger 
             // doesn't cause multiple instances of the debugger.

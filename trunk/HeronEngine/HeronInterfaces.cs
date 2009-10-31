@@ -9,7 +9,7 @@ namespace HeronEngine
      * 
     public interface IHeronEnumerable
     {
-        IEnumerable<HeronValue> GetValues(HeronVM vm);
+        IEnumerable<HeronValue> GetValues(VM vm);
         bool GetCount(out int result);
         bool IsEmpty(out bool result);
         bool Evaluated();
@@ -29,7 +29,7 @@ namespace HeronEngine
 
         #region IHeronEnumerable Members
 
-        public IEnumerable<HeronValue> GetValues(HeronVM vm)
+        public IEnumerable<HeronValue> GetValues(VM vm)
         {
             foreach (HeronValue v in list)
             {
@@ -319,7 +319,7 @@ namespace HeronEngine
      * 
     public interface IHeronEnumerable
     {
-        IEnumerable<HeronValue> GetValues(HeronVM vm);
+        IEnumerable<HeronValue> GetValues(VM vm);
         bool GetCount(out int result);
         bool IsEmpty(out bool result);
         bool Evaluated();
@@ -339,7 +339,7 @@ namespace HeronEngine
 
         #region IHeronEnumerable Members
 
-        public IEnumerable<HeronValue> GetValues(HeronVM vm)
+        public IEnumerable<HeronValue> GetValues(VM vm)
         {
             foreach (HeronValue v in list)
             {

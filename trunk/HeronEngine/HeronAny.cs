@@ -96,7 +96,7 @@ namespace HeronEngine
 
         public override HeronType GetHeronType()
         {
-            return HeronPrimitiveTypes.AnyType;
+            return PrimitiveTypes.AnyType;
         }
     }
 }

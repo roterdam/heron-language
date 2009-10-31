@@ -20,7 +20,7 @@ namespace HeronEngine
 
         public Peg.AstNode node;
 
-        public abstract void Eval(HeronVM vm);
+        public abstract void Eval(VM vm);
 
         internal Statement(Peg.AstNode node)
         {
@@ -86,7 +86,7 @@ namespace HeronEngine
         {
         }
 
-        public override void Eval(HeronVM vm)
+        public override void Eval(VM vm)
         {
             HeronValue initVal = vm.Eval(value);
             vm.AddVar(name, initVal);
@@ -126,7 +126,7 @@ namespace HeronEngine
         {
         }
 
-        public override void Eval(HeronVM vm)
+        public override void Eval(VM vm)
         {
             // TODO: check if the expression is a name.
             // if so, then set it to NULL. 
@@ -159,7 +159,7 @@ namespace HeronEngine
         {
         }
 
-        public override void Eval(HeronVM vm)
+        public override void Eval(VM vm)
         {
             vm.Eval(expression);
         }
@@ -194,7 +194,7 @@ namespace HeronEngine
         {
         }
 
-        public override void Eval(HeronVM vm)
+        public override void Eval(VM vm)
         {
             using (vm.CreateScope())
             {
@@ -249,7 +249,7 @@ namespace HeronEngine
         {
         }
 
-        public override void Eval(HeronVM vm)
+        public override void Eval(VM vm)
         {
             HeronValue initVal = initial.Eval(vm);
             vm.AddVar(name, initVal);
@@ -307,7 +307,7 @@ namespace HeronEngine
         {
         }
 
-        public override void Eval(HeronVM vm)
+        public override void Eval(VM vm)
         {
             using (vm.CreateScope())
             {
@@ -354,7 +354,7 @@ namespace HeronEngine
         {
         }
 
-        public override void Eval(HeronVM vm)
+        public override void Eval(VM vm)
         {
             bool b = condition.Eval(vm).ToBool();
             if (b)
@@ -392,7 +392,7 @@ namespace HeronEngine
         {
         }
 
-        public override void Eval(HeronVM vm)
+        public override void Eval(VM vm)
         {
             while (true)
             {
@@ -431,7 +431,7 @@ namespace HeronEngine
         {
         }
 
-        public override void Eval(HeronVM vm)
+        public override void Eval(VM vm)
         {
             HeronValue result = vm.Eval(expression);
             vm.Return(result);
@@ -459,13 +459,13 @@ namespace HeronEngine
         {
         }
 
-        public override void Eval(HeronVM vm)
+        public override void Eval(VM vm)
         {
             HeronValue o = condition.Eval(vm);
             foreach (CaseStatement c in cases)
             {
                 HeronValue cond = vm.Eval(c.condition);
-                if (o.EqualsValue(cond))
+                if (o.EqualsValue(vm, cond))
                 {
                     vm.Eval(c.statement);
                     return;
@@ -507,7 +507,7 @@ namespace HeronEngine
         {
         }
 
-        public override void Eval(HeronVM vm)
+        public override void Eval(VM vm)
         {
             vm.Eval(statement);
         }
