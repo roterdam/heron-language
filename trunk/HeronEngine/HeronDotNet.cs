@@ -12,6 +12,103 @@ using System.Reflection;
 
 namespace HeronEngine
 {
+    public class DotNetMethod : HeronValue
+    {
+        MethodInfo mi;
+        HeronValue self;
+
+        public DotNetMethod(MethodInfo mi, HeronValue self)
+        {
+            this.mi = mi;
+            this.self = self;
+        }
+
+        public override HeronValue Apply(VM vm, HeronValue[] args)
+        {
+            Object[] objs = HeronDotNet.ObjectsToDotNetArray(args);
+            Object r = mi.Invoke(self, objs);
+            return DotNetObject.Marshal(r);
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.ExternalMethodType;
+        }
+    }
+
+    public class DotNetObject : HeronValue
+    {
+        Object obj;
+        HeronType type;
+
+        /// <summary>
+        /// This is private because you should used DotNetObject.Marshal instead
+        /// </summary>
+        /// <param name="obj"></param>
+        private DotNetObject(Object obj)
+        {
+            this.obj = obj;
+            type = new DotNetClass(null, this.obj.GetType().Name, this.obj.GetType());
+        }
+
+        /// <summary>
+        /// Creates a Heron object from a System (.NET) object
+        /// If it is a primitive, this will convert to the Heron primitives
+        /// </summary>
+        /// <param name="o"></param>
+        /// <returns></returns>
+        public static HeronValue Marshal(Object o)
+        {
+            return HeronDotNet.DotNetToHeronObject(o);
+        }
+
+        internal static HeronValue CreateDotNetObjectNoMarshal(Object o)
+        {
+            return new DotNetObject(o);
+        }
+
+        public override Object ToSystemObject()
+        {
+            return obj;
+        }
+
+        public override string ToString()
+        {
+            return obj.ToString();
+        }
+
+        public Type GetSystemType()
+        {
+            return obj.GetType();
+        }
+
+        public override HeronValue GetFieldOrMethod(string name)
+        {
+            Type type = GetSystemType();
+
+            // We have to first look to see if there are static fields
+            FieldInfo[] fis = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetField);
+            foreach (FieldInfo fi in fis)
+                if (fi.Name == name)
+                    return DotNetObject.Marshal(fi.GetValue(obj));
+
+            // Look for methods
+            MethodInfo[] mis = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod);
+            if (mis.Length != 0)
+                return new DotNetMethodGroup(this, name);
+
+            // No static field or method found.
+            // TODO: could eventually support property.
+            throw new Exception("Could not find field, or static method " + name);
+        }
+
+
+        public override HeronType GetHeronType()
+        {
+            return type;
+        }
+    }
+
     /// <summary>
     /// This class is used for marshaling .NET values
     /// to and from Heron value.
@@ -240,15 +337,13 @@ namespace HeronEngine
     /// <summary>
     /// Exposes a method from a Heron primitive type to Heron
     /// </summary>
-    public class HeronPrimitiveMethod : HeronValue
+    public class PrimitiveMethod : Method
     {
         MethodInfo method;
-        Type type;
 
-        public HeronPrimitiveMethod(Type t, MethodInfo mi)
+        public PrimitiveMethod(MethodInfo mi)
         {
             method = mi;
-            type = t;
         }
 
         public String Name
@@ -256,17 +351,29 @@ namespace HeronEngine
             get { return method.Name; }
         }
 
-        public override HeronValue Apply(VM vm, HeronValue[] args)
-        {
-            // TODO: check that "self" is the right type.
-            // Check that there are the right number of args.
-            // Do any necessary marshalling.
-            throw new NotImplementedException();
-        }
-
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.PrimitiveMethodType;
         }
+
+        public override HeronValue Invoke(VM vm, HeronValue self, HeronValue[] args)
+        {
+            int nParams = method.GetParameters().Length;
+            if (nParams != args.Length)
+                throw new Exception("Insufficient number of arguments " + args.Length + " expected " + nParams);
+            for (int i = 0; i < nParams; ++i )
+            {
+                ParameterInfo pi = method.GetParameters()[i];
+                if (!pi.ParameterType.IsAssignableFrom(args[i].GetType()))
+                {
+                    String msg = "Cannot convert parameter " + i + " from a " 
+                        + pi.ParameterType.Name + " to a " + args[i].GetType().Name;
+                    throw new Exception(msg);
+                }
+            }
+            return method.Invoke(self, args) as HeronValue;
+        }
     }
+
+
 }

@@ -35,6 +35,11 @@ namespace HeronEngine
         /// <returns></returns>
         public abstract HeronValue Instantiate(VM vm, HeronValue[] args);
 
+        /// <summary>
+        /// Creates an instance of the type, without arguments. 
+        /// </summary>
+        /// <param name="vm"></param>
+        /// <returns></returns>
         public HeronValue Instantiate(VM vm)
         {
             return Instantiate(vm, new HeronValue[] { });
@@ -97,6 +102,12 @@ namespace HeronEngine
         public override string ToString()
         {
             return name;
+        }
+
+        [HeronVisible]
+        public StringValue GetName()
+        {
+            return new StringValue(name);
         }
     }
 

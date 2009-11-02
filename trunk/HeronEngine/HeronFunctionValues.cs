@@ -188,6 +188,13 @@ namespace HeronEngine
                 return FindBestMatch(r, args);
         }
 
+        /// <summary>
+        /// Given a list of arguments, it looks at the types and tries to find out which function 
+        /// in this list is the best match.
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
         public FunctionValue FindBestMatch(List<FunctionValue> list, HeronValue[] args)
         {
             // Each iteration removes candidates. This list holds all of the matches
@@ -241,6 +248,52 @@ namespace HeronEngine
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.FunctionListType;
+        }
+    }
+
+    /// <summary>
+    /// Represents a member function that is bound to the "this" value.
+    /// Just like a C# delegate. Note that when you get a method from a PrimitiveValue
+    /// you have to convert it to a BoundMethod.
+    /// </summary>
+    public class BoundMethod : HeronValue
+    {
+        HeronValue self;
+        Method method;
+
+        public BoundMethod(HeronValue self, Method method)
+        {
+            this.self = self;
+            this.method = method;
+        }
+
+        public override HeronValue Apply(VM vm, HeronValue[] args)
+        {
+            return method.Invoke(vm, self, args);
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.BoundMethodType;
+        }
+    }
+
+    /// <summary>
+    /// Represents a member function value. Note that it can't be called (applied), until
+    /// bound to a "this" value. This is done by creating a bound method. 
+    /// </summary>
+    public abstract class Method : HeronValue
+    {
+        public abstract HeronValue Invoke(VM vm, HeronValue self, HeronValue[] args);
+
+        public BoundMethod CreateBoundMethod(HeronValue self)
+        {
+            return new BoundMethod(self, this);
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.MethodType;
         }
     }
 }

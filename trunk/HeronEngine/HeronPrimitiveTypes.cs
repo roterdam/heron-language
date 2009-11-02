@@ -23,7 +23,7 @@ namespace HeronEngine
         /// <summary>
         /// Maps names to functions
         /// </summary>
-        Dictionary<string, FunctionValue> functions = new Dictionary<string, FunctionValue>();
+        Dictionary<string, Method> functions = new Dictionary<string, Method>();
 
         public PrimitiveType(HeronModule m, Type t, string name)
             : base(m, name)
@@ -44,7 +44,7 @@ namespace HeronEngine
 
             foreach (MethodInfo mi in type.GetMethods()) 
             {
-                object[] attrs = mi.GetCustomAttributes(typeof(HeronVisible), false);
+                object[] attrs = mi.GetCustomAttributes(typeof(HeronVisible), true);
                 if (attrs.Length > 0)
                     StoreFunction(mi);
             }
@@ -52,11 +52,8 @@ namespace HeronEngine
 
         private void StoreFunction(MethodInfo mi)
         {
-            foreach (ParameterInfo pi in mi.GetParameters())
-                if (!pi.ParameterType.Equals(typeof(HeronValue)))
-                    throw new Exception("Only functions that take HeronValue type parameters can be exposed to Heron");
-
-            throw new NotImplementedException();
+            PrimitiveMethod m = new PrimitiveMethod(mi);
+            functions.Add(m.Name, m);
         }
 
         public override HeronValue Instantiate(VM vm, HeronValue[] args)
@@ -69,6 +66,11 @@ namespace HeronEngine
  
             Object r = type.InvokeMember(null, System.Reflection.BindingFlags.CreateInstance, null, null, new Object[] { });
             return r as HeronValue;
+        }
+
+        public Method GetMethod(string name)
+        {
+            return functions[name];
         }
     }
 
@@ -88,9 +90,11 @@ namespace HeronEngine
         public static PrimitiveType SeqType = new PrimitiveType(null, typeof(SeqValue), "Seq");
         public static PrimitiveType ListType = new PrimitiveType(null, typeof(ListValue), "List");
 
-        public static PrimitiveType PrimitiveMethodType = new PrimitiveType(null, typeof(HeronPrimitiveMethod), "PrimitiveMethod");
+        public static PrimitiveType PrimitiveMethodType = new PrimitiveType(null, typeof(PrimitiveMethod), "PrimitiveMethod");
         public static PrimitiveType FunctionType = new PrimitiveType(null, null, "Function");
         public static PrimitiveType FunctionListType = new PrimitiveType(null, null, "FunctionList");
+        public static PrimitiveType BoundMethodType = new PrimitiveType(null, typeof(BoundMethod), "BoundMethod");
+        public static PrimitiveType MethodType = new PrimitiveType(null, typeof(Method), "Method");
         public static PrimitiveType ExternalMethodType = new PrimitiveType(null, null, "ExternalMethod");
         public static PrimitiveType ExternalStaticMethodListType = new PrimitiveType(null, null, "ExternalStaticMethodList");
         public static PrimitiveType ExternalMethodListType = new PrimitiveType(null, null, "ExternalMethodList");

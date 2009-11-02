@@ -565,6 +565,7 @@ namespace HeronEngine
                     i++;
                     return CreateExpr(tmp);
                 case "bracketedexpr":
+                    i++;
                     return new TupleExpr(CreateExprList(child));
                 case "mapeach":
                     return CreateMapEachExpr(child);
