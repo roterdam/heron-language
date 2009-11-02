@@ -11,11 +11,34 @@ using System.Text;
 
 namespace HeronEngine
 {
-    public abstract class PrimitiveValue<T> : HeronValue
+    /// <summary>
+    /// This is the base class of several of the primitive values.
+    /// Currently it does not i
+    /// </summary>
+    public abstract class PrimitiveValue : HeronValue
+    {
+        /// <summary>
+        /// Overridden in different values 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public override HeronValue GetFieldOrMethod(string name)
+        {
+            HeronType t = GetHeronType();
+            if (t == null)
+                throw new Exception("No fields or methods associated with this value");
+            PrimitiveType pt = t as PrimitiveType;
+            if (pt == null)
+                throw new Exception("Error: primitive values should be associated with only primitive types");
+            return pt.GetMethod(name).CreateBoundMethod(this);
+        }
+    }
+
+    public abstract class PrimitiveTemplate<T> : PrimitiveValue
     {
         T val;
 
-        public PrimitiveValue(T x)
+        public PrimitiveTemplate(T x)
         {
             val = x;
         }
@@ -34,9 +57,15 @@ namespace HeronEngine
         {
             return val;
         }
+
+        [HeronVisible]
+        public HeronValue AsString()
+        {
+            return new StringValue(val.ToString());
+        }
     }
 
-    public class IntValue : PrimitiveValue<int>
+    public class IntValue : PrimitiveTemplate<int>
     {
         public IntValue(int x)
             : base(x)
@@ -48,7 +77,7 @@ namespace HeronEngine
         {
         }
 
-        public override HeronValue InvokeUnaryOperator(string s)
+        public override HeronValue InvokeUnaryOperator(VM vm, string s)
         {
             switch (s)
             {
@@ -59,7 +88,7 @@ namespace HeronEngine
             }
         }
 
-        public override HeronValue InvokeBinaryOperator(string s, HeronValue x)
+        public override HeronValue InvokeBinaryOperator(VM vm, string s, HeronValue x)
         {
             if (!(x is IntValue))
                 throw new Exception("binary operation not supported on differently typed objects");
@@ -90,7 +119,7 @@ namespace HeronEngine
         }
     }
 
-    public class CharValue : PrimitiveValue<char>
+    public class CharValue : PrimitiveTemplate<char>
     {
         public CharValue(char x)
             : base(x)
@@ -102,7 +131,7 @@ namespace HeronEngine
         {
         }
 
-        public override HeronValue InvokeUnaryOperator(string s)
+        public override HeronValue InvokeUnaryOperator(VM vm, string s)
         {
             switch (s)
             {
@@ -111,10 +140,13 @@ namespace HeronEngine
             }
         }
 
-        public override HeronValue InvokeBinaryOperator(string s, HeronValue x)
+        public override HeronValue InvokeBinaryOperator(VM vm, string s, HeronValue x)
         {
+            char arg = (x as CharValue).GetValue();
             switch (s)
             {
+                case "==": return new BoolValue(GetValue() == arg);
+                case "!=": return new BoolValue(GetValue() != arg);
                 default:
                     throw new Exception("Binary operation: '" + s + "' not supported by chars");
             }
@@ -126,7 +158,7 @@ namespace HeronEngine
         }
     }
 
-    public class FloatValue : PrimitiveValue<float>
+    public class FloatValue : PrimitiveTemplate<float>
     {
         public FloatValue(float x)
             : base(x)
@@ -138,7 +170,7 @@ namespace HeronEngine
         {
         }
 
-        public override HeronValue InvokeUnaryOperator(string s)
+        public override HeronValue InvokeUnaryOperator(VM vm, string s)
         {
             switch (s)
             {
@@ -148,7 +180,7 @@ namespace HeronEngine
             }
         }
 
-        public override HeronValue InvokeBinaryOperator(string s, HeronValue x)
+        public override HeronValue InvokeBinaryOperator(VM vm, string s, HeronValue x)
         {
             if (!(x is FloatValue))
                 throw new Exception("binary operation not supported on differently typed objects");
@@ -177,7 +209,7 @@ namespace HeronEngine
         }
     }
 
-    public class BoolValue : PrimitiveValue<bool>
+    public class BoolValue : PrimitiveTemplate<bool>
     {
         public BoolValue(bool x)
             : base(x)
@@ -189,7 +221,7 @@ namespace HeronEngine
         {
         }
 
-        public override HeronValue InvokeUnaryOperator(string s)
+        public override HeronValue InvokeUnaryOperator(VM vm, string s)
         {
             switch (s)
             {
@@ -199,7 +231,7 @@ namespace HeronEngine
             }
         }
 
-        public override HeronValue InvokeBinaryOperator(string s, HeronValue x)
+        public override HeronValue InvokeBinaryOperator(VM vm, string s, HeronValue x)
         {
             if (!(x is BoolValue))
                 throw new Exception("binary operation not supported on differently typed objects");
@@ -227,7 +259,7 @@ namespace HeronEngine
         }
     }
 
-    public class StringValue : PrimitiveValue<string>
+    public class StringValue : PrimitiveTemplate<string>
     {
         public StringValue(string x)
             : base(x)
@@ -239,7 +271,7 @@ namespace HeronEngine
         {
         }
 
-        public override HeronValue InvokeUnaryOperator(string s)
+        public override HeronValue InvokeUnaryOperator(VM vm, string s)
         {
             switch (s)
             {
@@ -248,7 +280,7 @@ namespace HeronEngine
             }
         }
 
-        public override HeronValue InvokeBinaryOperator(string s, HeronValue x)
+        public override HeronValue InvokeBinaryOperator(VM vm, string s, HeronValue x)
         {
             if (!(x is StringValue))
                 throw new Exception("binary operation not supported on differently typed objects");
@@ -267,6 +299,18 @@ namespace HeronEngine
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.StringType;
+        }
+
+        [HeronVisible]
+        public HeronValue Length()
+        {
+            return new IntValue(GetValue().Length);
+        }
+
+        [HeronVisible]
+        public HeronValue GetChar(IntValue index)
+        {
+            return new CharValue(GetValue()[index.GetValue()]);
         }
     }
 }

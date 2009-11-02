@@ -14,7 +14,7 @@ using System.Diagnostics;
 namespace HeronEngine
 {
     /// <summary>
-    /// This attribute allows us to identify methods and properties on a HeronValue derived type 
+    /// An attribute used to identify methods and properties on a HeronValue derived type 
     /// which are to be exposed automatically to Heron. The exposed functions are managed by PrimitiveType.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property)]    
@@ -55,14 +55,25 @@ namespace HeronEngine
             throw new Exception("Indexing is not supported on " + ToString());
         }
 
+        /// <summary>
+        /// Treats this value as a function and calls it.
+        /// </summary>
+        /// <param name="vm"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
         public virtual HeronValue Apply(VM vm, HeronValue[] args)
         {
             throw new Exception(ToString() + " is not recognized a function object");
         }
-
+        
+        /// <summary>
+        /// Given a name returns the appropriate field (or method)
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public virtual HeronValue GetFieldOrMethod(string name)
         {
-            throw new Exception(ToString() + " does not supported GetFields()");
+            throw new Exception("No fields or methods associated with this value, could not lookup " + name);
         }
 
         public virtual void SetField(string name, HeronValue val)
@@ -70,12 +81,12 @@ namespace HeronEngine
             throw new Exception(ToString() + " does not supported SetField()");
         }
 
-        public virtual HeronValue InvokeUnaryOperator(string s)
+        public virtual HeronValue InvokeUnaryOperator(VM vm, string s)
         {
             throw new Exception("unary operator invocation not supported on " + ToString());
         }
 
-        public virtual HeronValue InvokeBinaryOperator(string s, HeronValue x)
+        public virtual HeronValue InvokeBinaryOperator(VM vm, string s, HeronValue x)
         {
             switch (s)
             {
@@ -92,10 +103,13 @@ namespace HeronEngine
 
         public virtual bool EqualsValue(VM vm, HeronValue x)
         {
-            return InvokeBinaryOperator("==", x).ToBool();
+            return InvokeBinaryOperator(vm, "==", x).ToBool();
         }
     }
 
+    /// <summary>
+    /// Used to represent void types, which are non-value returned from a function.
+    /// </summary>
     public class VoidValue : HeronValue
     {
         public override string ToString()
@@ -109,6 +123,9 @@ namespace HeronEngine
         }
     }
 
+    /// <summary>
+    /// Represents a null value (called NULL or nil in other languages
+    /// </summary>
     public class NullValue : HeronValue
     {
         public override string ToString()
@@ -121,7 +138,7 @@ namespace HeronEngine
             return PrimitiveTypes.NullType;
         }
 
-        public override HeronValue InvokeBinaryOperator(string s, HeronValue x)
+        public override HeronValue InvokeBinaryOperator(VM vm, string s, HeronValue x)
         {
             switch (s)
             {
@@ -135,6 +152,9 @@ namespace HeronEngine
         }
     }
 
+    /// <summary>
+    /// Not currently used 
+    /// </summary>
     public class UndefinedValue : HeronValue
     {
         public override string ToString()
@@ -145,103 +165,6 @@ namespace HeronEngine
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.UndefinedType;
-        }
-    }
-
-    public class DotNetMethod : HeronValue
-    {
-        MethodInfo mi;
-        HeronValue self;
-
-        public DotNetMethod(MethodInfo mi, HeronValue self)
-        {
-            this.mi = mi;
-            this.self = self;
-        }
-
-        public override HeronValue Apply(VM vm, HeronValue[] args)
-        {
-            Object[] objs = HeronDotNet.ObjectsToDotNetArray(args);
-            Object r = mi.Invoke(self, objs);
-            return DotNetObject.Marshal(r);
-        }
-
-        public override HeronType GetHeronType()
-        {
-            return PrimitiveTypes.ExternalMethodType;
-        }
-    }
-
-    public class DotNetObject : HeronValue
-    {
-        Object obj;
-        HeronType type;
-
-        /// <summary>
-        /// This is private because you should used DotNetObject.Marshal instead
-        /// </summary>
-        /// <param name="obj"></param>
-        private DotNetObject(Object obj)
-        {
-            this.obj = obj;
-            type = new DotNetClass(null, this.obj.GetType().Name, this.obj.GetType());
-        }
-
-        /// <summary>
-        /// Creates a Heron object from a System (.NET) object
-        /// If it is a primitive, this will convert to the Heron primitives
-        /// </summary>
-        /// <param name="o"></param>
-        /// <returns></returns>
-        public static HeronValue Marshal(Object o)
-        {
-            return HeronDotNet.DotNetToHeronObject(o);
-        }
-
-        internal static HeronValue CreateDotNetObjectNoMarshal(Object o)
-        {
-            return new DotNetObject(o);
-        }
-
-        public override Object ToSystemObject()
-        {
-            return obj;
-        }
-
-        public override string ToString()
-        {
-            return obj.ToString();
-        }
-
-        public Type GetSystemType()
-        {
-            return obj.GetType();
-        }
-
-        public override HeronValue GetFieldOrMethod(string name)
-        {
-            Type type = GetSystemType();
-
-            // We have to first look to see if there are static fields
-            FieldInfo[] fis = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetField);
-            foreach (FieldInfo fi in fis)
-                if (fi.Name == name)
-                    return DotNetObject.Marshal(fi.GetValue(obj));
-
-            // Look for methods
-            MethodInfo[] mis = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod);
-            if (mis.Length != 0)
-                return new DotNetMethodGroup(this, name);
-
-            // No static field or method found.
-            // TODO: could eventually support property.
-            throw new Exception("Could not find field, or static method " + name);
-        }
-
-
-        public override HeronType GetHeronType()
-        {
-            return type;
         }
     }
 
@@ -329,6 +252,12 @@ namespace HeronEngine
             return false;
         }
 
+        /// <summary>
+        /// Returns the field associated with the name. Throws 
+        /// an exception if it does not exist.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public HeronValue GetField(string name)
         {
             if (fields.ContainsKey(name))
@@ -370,6 +299,11 @@ namespace HeronEngine
             fields.Add(name, val);
         }
 
+        /// <summary>
+        /// Gets a field or method associated with the name.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public override HeronValue GetFieldOrMethod(string name)
         {
             if (fields.ContainsKey(name))
@@ -391,6 +325,11 @@ namespace HeronEngine
             return hclass;
         }
 
+        /// <summary>
+        /// Returns the base class that that this class instance derives from,
+        /// or NULL if not applicable.
+        /// </summary>
+        /// <returns></returns>
         public ClassInstance GetBase()
         {
             if (!fields.ContainsKey("base"))
@@ -401,6 +340,11 @@ namespace HeronEngine
             return r as ClassInstance;
         }
 
+        /// <summary>
+        /// Used to cast the class instance to its base class.
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
         public HeronValue As(HeronType t)
         {
             if (t is HeronClass)
@@ -427,6 +371,12 @@ namespace HeronEngine
                 return GetBase().As(t);
             }
             throw new Exception("Could not cast from '" + hclass.name + "' to '" + t.name + "'");
+        }
+
+        [HeronVisible]
+        HeronValue GetTypeName()
+        {
+            return hclass.GetName();
         }
     }
 

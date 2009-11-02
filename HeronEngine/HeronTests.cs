@@ -74,21 +74,23 @@ namespace HeronTests
             }
         }
 
-        static public void TestEvalExpr(string sExpr)
+        static public void TestCompareValues(string sExpr)
         {
-            TestEvalExpr(sExpr, "True");
+            TestCompareValues(sExpr, "True");
         }
         
-        static public void TestEvalExpr(string sExpr, string sOutput)
+        static public void TestCompareValues(string sInput, string sOutput)
         {
-            Console.WriteLine("testing evaluation of " + sExpr);
+            Console.WriteLine("testing evaluation of " + sInput);
             Console.WriteLine("expecting result of " + sOutput);
             try
             {
-                HeronValue o = vm.EvalString(sExpr);
-                Console.WriteLine("test result was " + o.ToString());
-                if (o.ToString() != sOutput)
-                    throw new Exception("Result " + o.ToString() + " is different from expected " + sOutput);
+                HeronValue input = vm.EvalString(sInput);
+                HeronValue output = vm.EvalString(sOutput);
+                Console.WriteLine("test input was " + input.ToString());
+                Console.WriteLine("test output was " + output.ToString());
+                if (!input.EqualsValue(vm, output))
+                    throw new Exception("Result was different than expected");
 
             }
             catch (Exception e)
@@ -97,6 +99,9 @@ namespace HeronTests
             }
         }
 
+        /// <summary>
+        /// An enumerator that is the result of a select operator
+        /// </summary>
         static public void RunFileTest(string file)
         {
             Console.WriteLine("Loading and evaluating file " + file);
@@ -124,44 +129,51 @@ namespace HeronTests
 
         static void EvalExprTests()
         {
-            TestEvalExpr("1", "1");
-            TestEvalExpr("(1)", "1");
-            TestEvalExpr("1 + 2", "3");
-            TestEvalExpr("(1 + 2)", "3");
-            TestEvalExpr("4 / 2", "2");
-            TestEvalExpr("4 % 2", "0");
-            TestEvalExpr("4 % 3", "1");
-            TestEvalExpr("2 * 3 + 2", "8");
-            TestEvalExpr("2 * (3 + 2)", "10");
-            TestEvalExpr("2 * (3 - 2)", "2");
-            TestEvalExpr("1 < 2", "True");
-            TestEvalExpr("1 <= 2", "True");
-            TestEvalExpr("1 >= 2", "False");
-            TestEvalExpr("1 == 1", "True");
-            TestEvalExpr("1 != 1", "False");
-            TestEvalExpr("1 == 2", "False");
-            TestEvalExpr("1 != 2", "True");
-            TestEvalExpr("1.0 < 2.3", "True");
-            TestEvalExpr("180.23 <= 2.34203", "False");
-            TestEvalExpr("1 >= 2", "False");
-            TestEvalExpr("1 == 1", "True");
-            TestEvalExpr("1.0 != 1.0", "False");
-            TestEvalExpr("1.123 == 0.2", "False");
-            TestEvalExpr("1 != 2", "True");
-            TestEvalExpr("1.0 + 2.5", "3.5");
-            TestEvalExpr("(function() { return 1; })()", "1");
-            TestEvalExpr("(function(x : Int) { return x + 1; })(12)", "13");
-            TestEvalExpr("null == null");
-            TestEvalExpr("null != new String()");
-            TestEvalExpr("null != \"abc\"");
-            TestEvalExpr("\"abc\" != null");
-            TestEvalExpr("null != 1");
-            TestEvalExpr("1 != null");
+            TestCompareValues("1", "1");
+            TestCompareValues("(1)", "1");
+            TestCompareValues("1 + 2", "3");
+            TestCompareValues("(1 + 2)", "3");
+            TestCompareValues("4 / 2", "2");
+            TestCompareValues("4 % 2", "0");
+            TestCompareValues("4 % 3", "1");
+            TestCompareValues("2 * 3 + 2", "8");
+            TestCompareValues("2 * (3 + 2)", "10");
+            TestCompareValues("2 * (3 - 2)", "2");
+            TestCompareValues("1 < 2", "True");
+            TestCompareValues("1 <= 2", "True");
+            TestCompareValues("1 >= 2", "False");
+            TestCompareValues("1 == 1", "True");
+            TestCompareValues("1 != 1", "False");
+            TestCompareValues("1 == 2", "False");
+            TestCompareValues("1 != 2", "True");
+            TestCompareValues("1.0 < 2.3", "True");
+            TestCompareValues("180.23 <= 2.34203", "False");
+            TestCompareValues("1 >= 2", "False");
+            TestCompareValues("1 == 1", "True");
+            TestCompareValues("1.0 != 1.0", "False");
+            TestCompareValues("1.123 == 0.2", "False");
+            TestCompareValues("1 != 2", "True");
+            TestCompareValues("1.0 + 2.5", "3.5");
+            TestCompareValues("(function() { return 1; })()", "1");
+            TestCompareValues("(function(x : Int) { return x + 1; })(12)", "13");
+            TestCompareValues("null == null");
+            TestCompareValues("null != new String()");
+            TestCompareValues("null != \"abc\"");
+            TestCompareValues("\"abc\" != null");
+            TestCompareValues("null != 1");
+            TestCompareValues("1 != null");
+        }
+
+        static void EvalPrimitiveMethodTests()
+        {
+            TestCompareValues("\"abc\".Length()", "3");
+            TestCompareValues("\"abc\".GetChar(1)", "'b'");
+            TestCompareValues("1.AsString()", "\"1\"");
         }
 
         static void EvalListTests()
         {
-            TestEvalExpr("0..2", "[0, 1, 2]");
+            TestCompareValues("0..2", "[0, 1, 2]");
         }
 
         static void PegTests()
@@ -266,6 +278,7 @@ namespace HeronTests
                 //PegStatementTests();
                 //ExprParseTests();
                 //EvalExprTests();
+                EvalPrimitiveMethodTests(); 
                 EvalListTests();
             }
 

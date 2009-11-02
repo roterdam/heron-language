@@ -69,6 +69,9 @@ namespace HeronEngine
         }
     }
 
+    /// <summary>
+    /// Represents an assignment to a variable or member variable.
+    /// </summary>
     public class Assignment : Expression
     {
         public Expression lvalue;
@@ -135,6 +138,9 @@ namespace HeronEngine
         }
     }
 
+    /// <summary>
+    /// Represents access of a member field (or method) of an object
+    /// </summary>
     public class SelectField : Expression
     {
         public string name;
@@ -165,6 +171,9 @@ namespace HeronEngine
         }
     }
 
+    /// <summary>
+    /// Represents indexing of an object, like you would of an array or dictionary.
+    /// </summary>
     public class ReadAt : Expression
     {
         public Expression coll;
@@ -195,6 +204,9 @@ namespace HeronEngine
         }
     }
 
+    /// <summary>
+    /// Represents an expression that instantiates a class.
+    /// </summary>
     public class NewExpr : Expression
     {
         string type;
@@ -222,6 +234,10 @@ namespace HeronEngine
         }
     }
 
+    /// <summary>
+    /// Represents literal constants.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public abstract class Literal<T> : Expression where T : HeronValue
     {
         T val;
@@ -247,6 +263,9 @@ namespace HeronEngine
         }
     }
 
+    /// <summary>
+    /// Constant integer literal expression
+    /// </summary>
     public class IntLiteral : Literal<IntValue>
     {
         public IntLiteral(int x)
@@ -255,6 +274,9 @@ namespace HeronEngine
         }
     }
 
+    /// <summary>
+    /// Constant floating point literal expression
+    /// </summary>
     public class FloatLiteral : Literal<FloatValue>
     {
         public FloatLiteral(float x)
@@ -263,6 +285,9 @@ namespace HeronEngine
         }
     }
 
+    /// <summary>
+    /// Constant character literal expression
+    /// </summary>
     public class CharLiteral : Literal<CharValue> 
     {
         public CharLiteral(char x)
@@ -271,6 +296,9 @@ namespace HeronEngine
         }
     }
 
+    /// <summary>
+    /// Constant string literal expression
+    /// </summary>
     public class StringLiteral : Literal<StringValue>
     {
         public StringLiteral(string x)
@@ -279,6 +307,9 @@ namespace HeronEngine
         }
     }
 
+    /// <summary>
+    /// An identifier expression. Could be a function name, variable name, etc.
+    /// </summary>
     public class Name : Expression
     {
         public string name;
@@ -305,6 +336,9 @@ namespace HeronEngine
         }
     }
 
+    /// <summary>
+    /// Represents a function call expression.
+    /// </summary>
     public class FunCall : Expression
     {
         public Expression funexpr;
@@ -336,6 +370,10 @@ namespace HeronEngine
         }
     }
 
+    /// <summary>
+    /// Represents an expression with a unary operator. That is with one operand (e.g. the not operator '!' or the negation operator '-').
+    /// This does not include the post-increment operator.
+    /// </summary>
     public class UnaryOperator : Expression
     {
         public Expression operand;
@@ -350,7 +388,7 @@ namespace HeronEngine
         public override HeronValue Eval(VM vm)
         {
             HeronValue o = operand.Eval(vm);
-            return o.InvokeUnaryOperator(operation);
+            return o.InvokeUnaryOperator(vm, operation);
         }
 
         public override string ToString()
@@ -364,6 +402,9 @@ namespace HeronEngine
         }
     }
 
+    /// <summary>
+    /// Represents an expression with a binary operator (like + or *), that is that has two operands. 
+    /// </summary>
     public class BinaryOperator : Expression
     {
         public Expression operand1;
@@ -416,21 +457,21 @@ namespace HeronEngine
             }
             else if (a is NullValue)
             {
-                return a.InvokeBinaryOperator(operation, b);
+                return a.InvokeBinaryOperator(vm, operation, b);
             }
             else if (b is NullValue)
             {
-                return b.InvokeBinaryOperator(operation, a);
+                return b.InvokeBinaryOperator(vm, operation, a);
             }
             else if (a is IntValue)
             {
                 if (b is IntValue)
                 {
-                    return a.InvokeBinaryOperator(operation, b as IntValue);
+                    return a.InvokeBinaryOperator(vm, operation, b as IntValue);
                 }
                 else if (b is FloatValue)
                 {
-                    return (new FloatValue((a as IntValue).GetValue())).InvokeBinaryOperator(operation, b as FloatValue);
+                    return (new FloatValue((a as IntValue).GetValue())).InvokeBinaryOperator(vm, operation, b as FloatValue);
                 }
                 else
                 {
@@ -441,11 +482,11 @@ namespace HeronEngine
             {
                 if (b is IntValue)
                 {
-                    return a.InvokeBinaryOperator(operation, new FloatValue((b as IntValue).GetValue()));
+                    return a.InvokeBinaryOperator(vm, operation, new FloatValue((b as IntValue).GetValue()));
                 }
                 else if (b is FloatValue)
                 {
-                    return a.InvokeBinaryOperator(operation, b as FloatValue);
+                    return a.InvokeBinaryOperator(vm, operation, b as FloatValue);
                 }
                 else
                 {
@@ -456,19 +497,19 @@ namespace HeronEngine
             {
                 if (!(b is CharValue))
                     throw new Exception("Incompatible types for binary operator " + operation + " : " + a.GetType() + " and " + b.GetType());
-                return a.InvokeBinaryOperator(operation, b as CharValue);
+                return a.InvokeBinaryOperator(vm, operation, b as CharValue);
             }
             else if (a is StringValue)
             {
                 if (!(b is StringValue))
                     throw new Exception("Incompatible types for binary operator " + operation + " : " + a.GetType() + " and " + b.GetType());
-                return a.InvokeBinaryOperator(operation, b as StringValue);
+                return a.InvokeBinaryOperator(vm, operation, b as StringValue);
             }
             else if (a is BoolValue)
             {
                 if (!(b is BoolValue))
                     throw new Exception("Incompatible types for binary operator " + operation + " : " + a.GetType() + " and " + b.GetType());
-                return a.InvokeBinaryOperator(operation, b as BoolValue);
+                return a.InvokeBinaryOperator(vm, operation, b as BoolValue);
             }
             else if (a is EnumInstance)
             {
@@ -546,6 +587,11 @@ namespace HeronEngine
         }
     }
 
+    /// <summary>
+    /// An anonymous function expression. An anonymous function may be a closure, 
+    /// if it has free variables. A free variable is a variable that is not local
+    /// to the function and that is not an argument.
+    /// </summary>
     public class AnonFunExpr : Expression
     {
         public HeronFormalArgs formals;
@@ -584,6 +630,10 @@ namespace HeronEngine
         }
     }
 
+    /// <summary>
+    /// An expression that is modified by the post-increment operator.
+    /// It is converted to an assignment of the variable to itself plus one
+    /// </summary>
     public class PostIncExpr : Expression
     {
         Expression expr;
@@ -613,6 +663,10 @@ namespace HeronEngine
         }
     }
 
+    /// <summary>
+    /// Represents an expression involving the "select" operator
+    /// which filters a list depending on a predicate.
+    /// </summary>
     public class SelectExpr : Expression
     {
         public string name;
@@ -644,6 +698,11 @@ namespace HeronEngine
         }
     }
 
+    /// <summary>
+    /// Represents an expression involving the mapeach operator.
+    /// This transforms a list into a new list by applying a transfomation
+    /// to each value.
+    /// </summary>
     public class MapEachExpr : Expression
     {
         string name;
@@ -675,6 +734,11 @@ namespace HeronEngine
         }
     }
 
+    /// <summary>
+    /// Represents an expression that involves the accumulate operator.
+    /// This transforms a list into a single value by applying a binary function
+    /// to an accumulator and each item in the list consecutively.
+    /// </summary>
     public class AccumulateExpr : Expression
     {
         string acc;
@@ -721,6 +785,9 @@ namespace HeronEngine
         }
     }
 
+    /// <summary>
+    /// Represents a literal list expression, such as [1, 'q', "hello"]
+    /// </summary>
     public class TupleExpr : Expression
     {
         ExpressionList exprs;
