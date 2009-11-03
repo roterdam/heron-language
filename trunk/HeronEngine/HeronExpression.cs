@@ -106,9 +106,9 @@ namespace HeronEngine
                     throw new Exception(name + " is not a member field or local variable that can be assigned to");
                 }
             }
-            else if (lvalue is SelectField)
+            else if (lvalue is ChooseField)
             {
-                SelectField sf = lvalue as SelectField;
+                ChooseField sf = lvalue as ChooseField;
                 HeronValue self = sf.self.Eval(vm);
                 string name = sf.name;
                 self.SetField(name, val);
@@ -141,12 +141,12 @@ namespace HeronEngine
     /// <summary>
     /// Represents access of a member field (or method) of an object
     /// </summary>
-    public class SelectField : Expression
+    public class ChooseField : Expression
     {
         public string name;
         public Expression self;
 
-        public SelectField(Expression self, string name)
+        public ChooseField(Expression self, string name)
         {
             this.self = self;
             this.name = name;
@@ -235,6 +235,26 @@ namespace HeronEngine
     }
 
     /// <summary>
+    /// Represents the value returned by the keyword "null"
+    /// </summary>
+    public class NullExpr : Expression
+    {
+        public NullExpr()
+        {
+        }
+
+        public override HeronValue Eval(VM vm)
+        {
+            return new NullValue();
+        }
+
+        public override IEnumerable<Expression> GetSubExpressions()
+        {
+            return noExpressions;
+        }
+    }
+
+    /// <summary>
     /// Represents literal constants.
     /// </summary>
     /// <typeparam name="T"></typeparam>
@@ -270,6 +290,17 @@ namespace HeronEngine
     {
         public IntLiteral(int x)
             : base(new IntValue(x))
+        {
+        }
+    }
+
+    /// <summary>
+    /// Constant boolean literal expression
+    /// </summary>
+    public class BoolLiteral : Literal<BoolValue>
+    {
+        public BoolLiteral(bool x)
+            : base(new BoolValue(x))
         {
         }
     }

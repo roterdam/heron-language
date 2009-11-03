@@ -525,6 +525,20 @@ namespace HeronEngine
             return new AccumulateExpr(acc.ToString(), CreateExpr(init), each.ToString(), CreateExpr(list), CreateExpr(expr));
         }
 
+        static Expression CreateNullaryOperatorExpr(AstNode x)
+        {
+            switch (x.ToString())
+            {
+                case "null":
+                    return new NullExpr();
+                case "true":
+                    return new BoolLiteral(true);
+                case "false":
+                    return new BoolLiteral(false);
+            }
+            throw new Exception("Not a recognized keyword/operator " + x.ToString());
+        }
+
         static Expression CreatePrimaryExpr(AstNode x, ref int i)
         {
             Assure(i < x.GetNumChildren(), "sub-expression index went out of bounds");
@@ -538,6 +552,9 @@ namespace HeronEngine
                 case "new":
                     i++;
                     return CreateNewExpr(child);
+                case "specialname":
+                    i++;
+                    return CreateNullaryOperatorExpr(child);
                 case "name":
                     i++;
                     return new Name(child.ToString());
@@ -568,10 +585,13 @@ namespace HeronEngine
                     i++;
                     return new TupleExpr(CreateExprList(child));
                 case "mapeach":
+                    i++;
                     return CreateMapEachExpr(child);
                 case "select":
+                    i++;
                     return CreateSelectExpr(child);
                 case "accumulate":
+                    i++;
                     return CreateAccumulateExpr(child);
                 default:
                     Assure(child, false, "unrecognized primary expression: '" + sLabel + "'");
@@ -630,7 +650,7 @@ namespace HeronEngine
                     string sName = tmp.ToString();
                     Assure(x, sName.Length > 0, "Name expression must have non-zero length");
                     i++;
-                    r = new SelectField(r, sName);
+                    r = new ChooseField(r, sName);
                 }
                 else if (tmp.ToString() == "++")
                 {                    

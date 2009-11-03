@@ -37,7 +37,7 @@ namespace HeronTests
             }
         }
 
-        static public void TestExprParse(string s)
+        static public void TestCreateExprParse(string s)
         {
             Console.WriteLine("testing expression: " + s);
             try
@@ -76,7 +76,7 @@ namespace HeronTests
 
         static public void TestCompareValues(string sExpr)
         {
-            TestCompareValues(sExpr, "True");
+            TestCompareValues(sExpr, "true");
         }
         
         static public void TestCompareValues(string sInput, string sOutput)
@@ -91,7 +91,6 @@ namespace HeronTests
                 Console.WriteLine("test output was " + output.ToString());
                 if (!input.EqualsValue(vm, output))
                     throw new Exception("Result was different than expected");
-
             }
             catch (Exception e)
             {
@@ -139,20 +138,20 @@ namespace HeronTests
             TestCompareValues("2 * 3 + 2", "8");
             TestCompareValues("2 * (3 + 2)", "10");
             TestCompareValues("2 * (3 - 2)", "2");
-            TestCompareValues("1 < 2", "True");
-            TestCompareValues("1 <= 2", "True");
-            TestCompareValues("1 >= 2", "False");
-            TestCompareValues("1 == 1", "True");
-            TestCompareValues("1 != 1", "False");
-            TestCompareValues("1 == 2", "False");
-            TestCompareValues("1 != 2", "True");
-            TestCompareValues("1.0 < 2.3", "True");
-            TestCompareValues("180.23 <= 2.34203", "False");
-            TestCompareValues("1 >= 2", "False");
-            TestCompareValues("1 == 1", "True");
-            TestCompareValues("1.0 != 1.0", "False");
-            TestCompareValues("1.123 == 0.2", "False");
-            TestCompareValues("1 != 2", "True");
+            TestCompareValues("1 < 2", "true");
+            TestCompareValues("1 <= 2", "true");
+            TestCompareValues("1 >= 2", "false");
+            TestCompareValues("1 == 1", "true");
+            TestCompareValues("1 != 1", "false");
+            TestCompareValues("1 == 2", "false");
+            TestCompareValues("1 != 2", "true");
+            TestCompareValues("1.0 < 2.3", "true");
+            TestCompareValues("180.23 <= 2.34203", "false");
+            TestCompareValues("1 >= 2", "false");
+            TestCompareValues("1 == 1", "true");
+            TestCompareValues("1.0 != 1.0", "false");
+            TestCompareValues("1.123 == 0.2", "false");
+            TestCompareValues("1 != 2", "true");
             TestCompareValues("1.0 + 2.5", "3.5");
             TestCompareValues("(function() { return 1; })()", "1");
             TestCompareValues("(function(x : Int) { return x + 1; })(12)", "13");
@@ -174,6 +173,9 @@ namespace HeronTests
         static void EvalListTests()
         {
             TestCompareValues("0..2", "[0, 1, 2]");
+            TestCompareValues("0..2", "[0, 1, 2]");
+            TestCompareValues("mapeach (i in 0..2) i * 2", "[0, 2, 4]");
+            TestCompareValues("[1, 2, 3].Length()", "3");
         }
 
         static void PegTests()
@@ -197,7 +199,7 @@ namespace HeronTests
             TestPeg(HeronGrammar.Expr, "ab");
             TestPeg(HeronGrammar.Expr, "ab(a)");
             TestPeg(HeronGrammar.Expr, "a.x");
-            TestPeg(HeronGrammar.Expr, "a.x");
+            TestPeg(HeronGrammar.Expr, "a.f");
             TestPeg(HeronGrammar.Expr, "a[1]");
             TestPeg(HeronGrammar.Expr, "a[1,2]");
             TestPeg(HeronGrammar.Expr, "a['b']");
@@ -212,6 +214,9 @@ namespace HeronTests
             TestPeg(HeronGrammar.SelectExpr, "select (a from b..c) a % 2 == 0");
             TestPeg(HeronGrammar.MapEachExpr, "mapeach (a in b..c) a * 2");
             TestPeg(HeronGrammar.AccumulateExpr, "accumulate (a = 0 forall b in c..d) a + b");
+            TestPeg(HeronGrammar.SpecialName, "null");
+            TestPeg(HeronGrammar.SpecialName, "true");
+            TestPeg(HeronGrammar.SpecialName, "false");
         }
 
         static void PegStatementTests()
@@ -241,43 +246,44 @@ namespace HeronTests
 
         static void ExprParseTests()
         {
-            TestExprParse("1");
-            TestExprParse("123");
-            TestExprParse("1.0");
-            TestExprParse("abc");
-            TestExprParse("a");
-            TestExprParse("(1)");
-            TestExprParse("1 + 2");
-            TestExprParse("(1 + 2)");
-            TestExprParse("-35");
-            TestExprParse("a.f");
-            TestExprParse("a = 5");
-            TestExprParse("a.f = 5");
-            TestExprParse("a[1]");
-            TestExprParse("f()");
-            TestExprParse("f(1)");
-            TestExprParse("f(1,2)");
-            TestExprParse("f ( 1 , 2 )");
-            TestExprParse("f ( 1 , 2 )");
-            TestExprParse("f() + 5");
-            TestExprParse("1 + (2 * 3)");
-            TestExprParse("a == 12");
-            TestExprParse("a != 12");
-            TestExprParse("a < 12");
-            TestExprParse("a > 12");
-            TestExprParse("4 + 12 * 3");
-            TestExprParse("(4 + 12) * 3");
-            TestExprParse("a == 3 || b == 4");
+            TestCreateExprParse("null");
+            TestCreateExprParse("a.f");
+            TestCreateExprParse("1");
+            TestCreateExprParse("123");
+            TestCreateExprParse("1.0");
+            TestCreateExprParse("abc");
+            TestCreateExprParse("a");
+            TestCreateExprParse("(1)");
+            TestCreateExprParse("1 + 2");
+            TestCreateExprParse("(1 + 2)");
+            TestCreateExprParse("-35");
+            TestCreateExprParse("a = 5");
+            TestCreateExprParse("a.f = 5");
+            TestCreateExprParse("a[1]");
+            TestCreateExprParse("f()");
+            TestCreateExprParse("f(1)");
+            TestCreateExprParse("f(1,2)");
+            TestCreateExprParse("f ( 1 , 2 )");
+            TestCreateExprParse("f ( 1 , 2 )");
+            TestCreateExprParse("f() + 5");
+            TestCreateExprParse("1 + (2 * 3)");
+            TestCreateExprParse("a == 12");
+            TestCreateExprParse("a != 12");
+            TestCreateExprParse("a < 12");
+            TestCreateExprParse("a > 12");
+            TestCreateExprParse("4 + 12 * 3");
+            TestCreateExprParse("(4 + 12) * 3");
+            TestCreateExprParse("a == 3 || b == 4");
         }
 
         static public void MainTest()
         {
             if (Config.runUnitTests)
             {
-                //PegTests();
-                //PegStatementTests();
-                //ExprParseTests();
-                //EvalExprTests();
+                PegTests();
+                PegStatementTests();
+                ExprParseTests();
+                EvalExprTests();
                 EvalPrimitiveMethodTests(); 
                 EvalListTests();
             }

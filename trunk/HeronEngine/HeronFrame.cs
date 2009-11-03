@@ -69,16 +69,6 @@ namespace HeronEngine
         {
             bFound = true;
 
-            // TODO: it would be more efficient to make "this" 
-            // parsed as a special expression. 
-            if (s == "this")
-                return self;
-
-            // TODO: it would be more efficient to make "null" 
-            // parsed as a special expression. 
-            if (s == "null")
-                return HeronValue.Null;
-
             foreach (Scope tbl in scopes)
                 if (tbl.ContainsKey(s))
                     return tbl[s];
@@ -108,8 +98,6 @@ namespace HeronEngine
 
         public HeronValue LookupVar(string s)
         {
-            if (s == "this")
-                return self;
             foreach (Scope tbl in scopes)
                 if (tbl.ContainsKey(s))
                     return tbl[s];
@@ -129,8 +117,6 @@ namespace HeronEngine
 
         public bool HasVar(string s)
         {
-            if (s == "this")
-                return true;
             foreach (Scope tbl in scopes)
                 if (tbl.ContainsKey(s))
                     return true;
