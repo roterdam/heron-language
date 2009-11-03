@@ -280,7 +280,7 @@ namespace HeronEngine
     /// iterated over once. It is constructed from a Heron enumerator
     /// </summary>
     public abstract class SeqValue
-        : HeronValue, IHeronEnumerable
+        : PrimitiveValue, IHeronEnumerable
     {
         public abstract IHeronEnumerator GetEnumerator(VM vm);
 
@@ -366,6 +366,12 @@ namespace HeronEngine
         public int Count()
         {
             return list.Count();
+        }
+
+        [HeronVisible]
+        public HeronValue Length()
+        {
+            return new IntValue(Count());
         }
 
         public override HeronType GetHeronType()

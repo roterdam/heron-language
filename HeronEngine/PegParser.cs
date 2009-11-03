@@ -113,7 +113,7 @@ namespace Peg
             return mIndex >= mInput.Length;
         }
 
-        public int GetIndex()
+        public int GetPos()
         {
             return mIndex; 
         }

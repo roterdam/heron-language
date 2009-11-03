@@ -257,6 +257,11 @@ namespace HeronEngine
         {
             return PrimitiveTypes.BoolType;
         }
+
+        public override string ToString()
+        {
+            return GetValue() ? "true" : "false";
+        }
     }
 
     public class StringValue : PrimitiveTemplate<string>

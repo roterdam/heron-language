@@ -41,14 +41,14 @@ namespace Peg
 
         public AstNode Add(string sLabel, ParserState p)
         {
-            AstNode ret = new AstNode(sLabel, p.GetIndex(), msText, this);
+            AstNode ret = new AstNode(sLabel, p.GetPos(), msText, this);
             mChildren.Add(ret);
             return ret;
         }
 
         public void Complete(ParserState p)
         {
-            mnCount = p.GetIndex() - mnBegin;
+            mnCount = p.GetPos() - mnBegin;
         }
 
         public AstNode GetParent()

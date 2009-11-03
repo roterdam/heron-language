@@ -148,6 +148,8 @@ namespace Peg
         public override bool Match(ParserState p)
         {
             p.CreateNode(sLabel);
+            // Used just to make sure the position is restored
+            int pos = p.GetPos();
             bool result = FirstChild.Match(p);
             if (result)
             {
@@ -156,6 +158,8 @@ namespace Peg
             else
             {
                 p.AbandonNode();
+                // ASsure that the position is restored
+                Trace.Assert(p.GetPos() == pos);
             }
             return result;
         }
@@ -216,10 +220,10 @@ namespace Peg
 
         public override bool Match(ParserState p)
         {
-            int store = p.GetIndex();
+            int store = p.GetPos();
 
             if (!FirstChild.Match(p))
-                throw new ParsingException(p.GetInput(), store, p.GetIndex(), FirstChild, Msg);
+                throw new ParsingException(p.GetInput(), store, p.GetPos(), FirstChild, Msg);
 
             return true;
         }
@@ -266,7 +270,7 @@ namespace Peg
        
         public override bool Match(ParserState p)
         {
-            int iter = p.GetIndex();
+            int iter = p.GetPos();
             foreach (Rule r in Children)
             {
                 if (!r.Match(p))
@@ -487,13 +491,13 @@ namespace Peg
 
         public override bool Match(ParserState p)
         {
-            int pos = p.GetIndex();
+            int pos = p.GetPos();
             if (FirstChild.Match(p))
             {
                 p.SetPos(pos);
                 return false;
             }
-            Trace.Assert(p.GetIndex() == pos);
+            Trace.Assert(p.GetPos() == pos);
             return true;
         }
 
@@ -522,7 +526,7 @@ namespace Peg
 
         public override bool Match(ParserState p)
         {
-            int pos = p.GetIndex();
+            int pos = p.GetPos();
             if (FirstChild.Match(p))
             {
                 p.SetPos(pos);
@@ -591,11 +595,14 @@ namespace Peg
 
         public override bool Match(ParserState p)
         {
-            int pos = p.GetIndex();
+            int pos = p.GetPos();
             foreach (char c in mData)
             {
                 if (p.AtEnd())
+                {
+                    p.SetPos(pos);
                     return false;
+                }
 
                 if (p.GetChar() != c)
                 {
@@ -734,7 +741,7 @@ namespace Peg
 
         public override bool Match(ParserState p)
         {
-            int pos = p.GetIndex();
+            int pos = p.GetPos();
             while (!mTerm.Match(p))
             {
                 if (!mElem.Match(p))

@@ -176,9 +176,8 @@ namespace HeronEngine
                         return t;
             }
             
-
             throw new Exception("Could not find '" + s + "' in the environment");
-       }
+        }
 
         /// <summary>
         /// Looks up a name in the local variables in current scope only.

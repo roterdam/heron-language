@@ -369,6 +369,8 @@ namespace HeronEngine
 
         internal void AddFields(ClassInstance i)
         {
+            i.AddField("this", i);
+
             foreach (HeronField field in fields)
                 i.AddField(field.name, null);
 
