@@ -68,7 +68,7 @@ namespace HeronEngine
         {
             using (vm.CreateScope())
             {
-                vm.AddVar(name, null);
+                vm.AddVar(name, Null);
 
                 while (iter.MoveNext(vm))
                 {

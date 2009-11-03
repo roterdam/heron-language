@@ -172,10 +172,13 @@ namespace HeronTests
 
         static void EvalListTests()
         {
-            TestCompareValues("0..2", "[0, 1, 2]");
+            TestCompareValues("[1, 2, 3].Length()", "3");
+            TestCompareValues("0..2", "0..2");
+            TestCompareValues("[0, 1, 2]", "[0, 1, 2]");
             TestCompareValues("0..2", "[0, 1, 2]");
             TestCompareValues("mapeach (i in 0..2) i * 2", "[0, 2, 4]");
-            TestCompareValues("[1, 2, 3].Length()", "3");
+            TestCompareValues("select (i from 0..5) i % 2 == 1", "[1, 3, 5]");
+            TestCompareValues("accumulate (a = 0 forall i in 0..3) a + i", "6");
         }
 
         static void PegTests()
@@ -211,7 +214,7 @@ namespace HeronTests
             TestPeg(HeronGrammar.Expr, "function() { }");
             TestPeg(HeronGrammar.Expr, "function(a : Int) { return a + 1; }");
             TestPeg(HeronGrammar.Expr, "f(function(a : Int) { return a + 1; })");
-            TestPeg(HeronGrammar.SelectExpr, "select (a from b..c) a % 2 == 0");
+            TestPeg(HeronGrammar.SelectExpr, "select (a from b..c) a % 2 == 1");
             TestPeg(HeronGrammar.MapEachExpr, "mapeach (a in b..c) a * 2");
             TestPeg(HeronGrammar.AccumulateExpr, "accumulate (a = 0 forall b in c..d) a + b");
             TestPeg(HeronGrammar.SpecialName, "null");
@@ -295,4 +298,3 @@ namespace HeronTests
         }
     }
 }
-
