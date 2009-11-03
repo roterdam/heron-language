@@ -792,7 +792,7 @@ namespace HeronEngine
             using (vm.CreateScope())
             {
                 vm.AddVar(acc, vm.Eval(init));
-                vm.AddVar(each, null);
+                vm.AddVar(each, HeronValue.Null);
 
                 foreach (HeronValue x in vm.EvalListAsDotNet(list))
                 {
