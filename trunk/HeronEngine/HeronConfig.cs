@@ -15,14 +15,15 @@ using System.Diagnostics;
 
 namespace HeronEngine
 {
+    /// <summary>
+    /// Singleton for managing configuration information for the whole engine.
+    /// Uses default settings, but can be loaded and saved to an XML file. 
+    /// </summary>
     public static class Config
     {
-        public static List<string> libraryPath = new List<string>();
-        public static string testPath = "";
-        public static bool runTestFiles = true;
-        public static bool runUnitTests = true;
-        public static bool tracing = false;
+        public static List<string> inputPath = new List<string>();
         public static List<string> libs = new List<string>();
+        public static bool runUnitTests = false;
 
         public static void LoadFromFile(string s)
         {
@@ -51,20 +52,14 @@ namespace HeronEngine
 
             switch (e.GetAttribute("name"))
             {
-                case "library":
-                    libraryPath = ProcessPathList(e);
+                case "inputpath":
+                    inputPath = ProcessPathList(e);
                     break;
-                case "testfiles":
-                    testPath = ProcessPath(e);
-                    break;
-                case "runtestfiles":
-                    runTestFiles = ProcessBool(e);
+                case "libs":
+                    libs = ProcessStringList(e);
                     break;
                 case "rununittests":
                     runUnitTests = ProcessBool(e);
-                    break;
-                case "inputlibs":
-                    libs = ProcessStringList(e);
                     break;
             }
         }

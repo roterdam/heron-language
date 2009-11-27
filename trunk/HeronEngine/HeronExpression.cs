@@ -452,7 +452,7 @@ namespace HeronEngine
         // TODO: improve efficiency. This is a pretty terrible operation
         public override HeronValue Eval(VM vm)
         {
-            HeronValue a = operand1.Eval(vm);
+             HeronValue a = operand1.Eval(vm);
             HeronValue b = operand2.Eval(vm);
 
             if (a == null)
@@ -714,7 +714,8 @@ namespace HeronEngine
         public override HeronValue Eval(VM vm)
         {
             IHeronEnumerator iter = vm.EvalList(list); 
-            return new SelectEnumerator(vm, name, iter, pred);
+            var seq = new SelectEnumerator(vm, name, iter, pred);
+            return seq.ToList(vm);
         }
 
         public override string ToString()
@@ -750,7 +751,8 @@ namespace HeronEngine
         public override HeronValue Eval(VM vm)
         {
             IHeronEnumerator iter = vm.EvalList(list);
-            return new MapEachEnumerator(name, iter, yield);
+            var seq = new MapEachEnumerator(name, iter, yield);
+            return seq.ToList(vm);
         }
 
         public override string ToString()

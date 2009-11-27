@@ -159,6 +159,12 @@ namespace HeronEngine
         {
         }
 
+        internal ExpressionStatement(Expression expr)
+            : base(null)
+        {
+            expression = expr;
+        }
+
         public override void Eval(VM vm)
         {
             vm.Eval(expression);
@@ -304,6 +310,11 @@ namespace HeronEngine
         
         internal CodeBlock(Peg.AstNode node)
             : base(node)
+        {
+        }
+
+        public CodeBlock()
+            : base(null)
         {
         }
 

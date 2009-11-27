@@ -56,7 +56,7 @@ namespace HeronEngine
         public void LoadAssembly(string s)
         {
             Assembly a = null;
-            foreach (String tmp in Config.libraryPath)
+            foreach (String tmp in Config.inputPath)
             {
                 string path = tmp + "//" + s;
                 if (File.Exists(path)) {

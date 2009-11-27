@@ -22,7 +22,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>.\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -30,7 +30,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>.\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -88,25 +88,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="tests\unfinished-test16.heron" />
-    <None Include="tests\test15.heron" />
-    <None Include="tests\test1.heron" />
-    <None Include="tests\test10.heron" />
-    <None Include="tests\test11.heron" />
-    <None Include="tests\test12.heron" />
-    <None Include="tests\test13.heron" />
-    <None Include="tests\test14.heron" />
-    <None Include="tests\test2.heron" />
-    <None Include="tests\test3.heron" />
-    <None Include="tests\test4.heron" />
-    <None Include="tests\test5.heron" />
-    <None Include="tests\test6.heron" />
-    <None Include="tests\test7.heron" />
-    <None Include="tests\test8.heron" />
-    <None Include="tests\test9.heron" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Config.xml" />
     <Content Include="license.txt" />
     <Content Include="readme.txt" />
   </ItemGroup>

@@ -1,0 +1,129 @@
+﻿module PrettyPrinting
+{
+	class PrettyPrinter 
+	{
+		fields
+		{
+			indent : String;
+		}
+		methods
+		{		
+			Constructor()
+			{
+				indent = new String();
+			}
+			Write(s : String)
+			{
+				if (s == null)
+					Console.Write("???");
+				else
+					Console.Write(s);
+			}			
+			WriteLine(s : String)
+			{
+				if (s == null)
+					Console.WriteLine("???");
+				else
+					Console.WriteLine(s);
+				Write(indent);
+			}
+			BracesAround(f : Function)
+			{
+				WriteLine("{");
+				var old_indent = indent;
+				indent = indent + "  ";
+				f();
+				indent = old_indent;				
+				WriteLine("}");
+			}			
+		}			
+	}
+	
+	class Premain 
+	{
+		inherits 
+		{
+			PrettyPrinter;
+		}
+		methods
+		{					
+			Constructor(program : HeronProgram)
+			{
+				base.Constructor();
+				foreach (m in program.GetModules())
+					Output(m);
+			}
+						
+			Output(m : HeronModule)
+			{
+				Write("module ");
+				WriteLine(m.name);
+				BracesAround(
+					function() 
+					{
+						foreach (c in m.GetClasses())
+							Output(c);
+						foreach (i in m.GetInterfaces())
+							Output(i);					
+						foreach (e in m.GetEnums())
+							Output(e);	
+					}
+				);	
+			}
+				
+			Output(c : HeronClass)
+			{
+				Write("class ");				
+				WriteLine(c.name);
+				WriteLine("{ }");
+			}
+
+			Output(i : HeronInterface)
+			{
+				Write("interface ");
+				WriteLine(i.name);
+				WriteLine("{ }");												
+			}
+
+			Output(e : HeronEnum)
+			{
+				Write("enum ");
+				WriteLine(e.name);
+				WriteLine("{ }");
+			}
+		}
+	}
+	
+	enum TestEnum
+	{
+		EnumValue1;
+		EnumValue2;
+	}
+	
+	interface TestInterface
+	{
+		methods 
+		{
+			F();
+			G(x : Int, y : Int) : Int;
+		}
+	}
+	
+	class TestClass
+	{
+		fields
+		{
+			x : Int;
+			y : Int;
+		}
+		methods
+		{
+			F(a : Int) : Int
+			{
+				x = a;
+				return y;
+			}
+		}
+	}		
+}
+

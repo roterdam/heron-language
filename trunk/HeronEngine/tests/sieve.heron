@@ -1,0 +1,12 @@
+script Sieve;
+
+var max = 10;
+
+Main() 
+{
+	var primes = 0..(max * max);
+	foreach (i in 2..max)
+		primes = select (j from primes) j % i != 0;		
+	foreach (i in primes)
+		Console.WriteLine(i);	
+}

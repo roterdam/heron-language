@@ -1,0 +1,14 @@
+script Factorial;
+
+var max = 10;
+
+Fact(n : Int) : Int
+{
+	return n * n;
+}
+
+Main() 
+{
+	foreach (i in 0..max)
+		Console.WriteLine(Fact(i));
+}

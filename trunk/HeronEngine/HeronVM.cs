@@ -107,9 +107,9 @@ namespace HeronEngine
             return Eval(x); ;
         }
 
-        public void EvalModule(string sModule)
+        public void EvalFile(string sFileContents)
         {
-            HeronModule m = HeronTypedAST.ParseModule(program, sModule);
+            HeronModule m = HeronTypedAST.ParseFile(program, sFileContents);
             RunModule(m);
         }
 
