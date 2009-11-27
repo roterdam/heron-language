@@ -98,34 +98,6 @@ namespace HeronTests
             }
         }
 
-        /// <summary>
-        /// An enumerator that is the result of a select operator
-        /// </summary>
-        static public void RunFileTest(string file)
-        {
-            Console.WriteLine("Loading and evaluating file " + file);
-            Program.RunFile(file);
-        }
-
-        /// <summary>
-        /// Iterates over the files in the test directory named: 
-        /// test1.heron, test2.heron, etc. until it fails to find 
-        /// a consecutively named file.
-        /// </summary>
-        static public void RunAllTestFiles()
-        {
-            int n = 1;
-            while (true)
-            {
-                string s = Config.testPath + "\\test" + n.ToString() + ".heron";
-                if (!File.Exists(s))
-                    return;
-                //if (n == 16)
-                    RunFileTest(s);
-                n += 1;
-            }
-        }
-
         static void EvalExprTests()
         {
             TestCompareValues("1", "1");
@@ -289,11 +261,6 @@ namespace HeronTests
                 EvalExprTests();
                 EvalPrimitiveMethodTests(); 
                 EvalListTests();
-            }
-
-            if (Config.runTestFiles)
-            {
-                RunAllTestFiles();
             }
         }
     }

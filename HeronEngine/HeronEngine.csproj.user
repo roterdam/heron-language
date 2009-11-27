@@ -1,7 +1,10 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <StartArguments>-c ..\..\Config.xml -x ..\..\tests\test15.heron</StartArguments>
+    <StartArguments>tests\sieve.heron</StartArguments>
     <StartWorkingDirectory>
     </StartWorkingDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <StartArguments>tests\fact.heron</StartArguments>
   </PropertyGroup>
 </Project>

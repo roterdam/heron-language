@@ -124,7 +124,7 @@ namespace HeronEngine
         #endregion
 
         #region structural rules
-        public static Rule Field = Store("attribute", (Name + NoFail(Opt(TypeDecl) + Eos)));
+        public static Rule Field = Store("field", Name + Opt(TypeDecl) + Eos);
         public static Rule FunDecl = Store("fundecl", Name + ArgList + Opt(TypeDecl));
         public static Rule EOSOrCodeBlock = Eos | CodeBlock;
         public static Rule Method = Store("method", FunDecl + NoFail(EOSOrCodeBlock));
@@ -145,6 +145,9 @@ namespace HeronEngine
         public static Rule Enum = Store("enum", Opt(Annotations) + Token("enum") + NoFail(Name + EnumValues));
         public static Rule ModuleElement = Class | Interface | Enum;
         public static Rule Module = Store("module", Token("module") + NoFail(Name + BracedGroup(ModuleElement)));
+        public static Rule ScriptElement = VarDecl |  Method;
+        public static Rule Script = Store("script", Token("script") + NoFail(Name + Eos + Star(ScriptElement)));
+        public static Rule File = (Module | Script) + EndOfInput;
         #endregion
 
         static HeronGrammar()

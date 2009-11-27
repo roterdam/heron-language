@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-
 using Peg;
 
 namespace HeronEngine
@@ -24,16 +23,17 @@ namespace HeronEngine
             Console.WriteLine("HeronEngine.exe");
             Console.WriteLine("    by Christopher Diggins");
             Console.WriteLine("    version 0.6");
-            Console.WriteLine("    October 18, 2009");
+            Console.WriteLine("    November 24, 2009");
             Console.WriteLine("");
             Console.WriteLine("An execution engine for the Heron language.");
             Console.WriteLine("This program tests the Heron language, but is");
             Console.WriteLine("intended to be used as a class library.");
             Console.WriteLine("");
             Console.WriteLine("Usage: ");
-            Console.WriteLine("  HeronEngine.exe"); 
-            Console.WriteLine("    -c configfile.xml   Specifies configuration file to use");
-            Console.WriteLine("    -r inputfile.heron  Specifies input file to run");
+            Console.WriteLine("  HeronEngine.exe inputfile.heron ");
+            Console.WriteLine("");
+            Console.WriteLine("The configuration file 'config.xml' is loaded if it is found");
+            Console.WriteLine("in the same directory as the Heron executable.");
             Console.WriteLine("");
         }
 
@@ -44,10 +44,10 @@ namespace HeronEngine
         static public void RunFile(string file)
         {
             VM vm = new VM();
-            string sModule = Util.Util.ReadFromFile(file);
+            string sFileContents = Util.Util.ReadFromFile(file);
             try
             {
-                vm.EvalModule(sModule);
+                vm.EvalFile(sFileContents);
             }
             catch (ParsingException e)
             {
@@ -69,36 +69,11 @@ namespace HeronEngine
         /// Load the config file if specified in the command-line argument list
         /// </summary>
         /// <param name="args"></param>
-        static public void LoadConfig(string[] args)
+        static public void LoadConfig()
         {
-            for (int i = 0; i < args.Length - 1; ++i)
-            {
-                if (args[i] == "-c" || args[i] == "/c")
-                {
-                    string config = args[i + 1];
-                    Config.LoadFromFile(config);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Run a file if specified in the command-line argument list
-        /// </summary>
-        /// <param name="args"></param>
-        static public void RunFile(string[] args)
-        {
-            for (int i = 0; i < args.Length - 1; ++i)
-            {
-                if (args[i] == "-x" || args[i] == "/x")
-                {
-                    string input = args[i + 1];
-
-                    if (!File.Exists(input))
-                        throw new Exception("Could not open file: " + args[1]);
-
-                    RunFile(input);
-                }
-            }
+            string configFile = Util.Util.GetExeDir() + "\\Config.xml";
+            if (File.Exists(configFile))
+                Config.LoadFromFile(configFile);
         }
 
         /// <summary>
@@ -107,7 +82,7 @@ namespace HeronEngine
         /// <param name="args"></param>
         static public void Main(string[] args)
         {
-            if (args.Length < 1) 
+            if (args.Length != 1) 
             {
                 Usage();
                 Console.ReadKey();
@@ -115,9 +90,9 @@ namespace HeronEngine
             }
             try
             {
-                LoadConfig(args);
+                LoadConfig();
                 HeronTests.HeronTests.MainTest();
-                RunFile(args);
+                RunFile(Util.Util.GetExeDir() + "\\" + args[0]);
                 Console.WriteLine("Press any key to exit ...");
                 Console.ReadKey();
             }

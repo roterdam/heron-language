@@ -1,0 +1,19 @@
+script Fibonacci;
+
+var max = 10;
+
+Fib(n : Int) : Int
+{
+	if (n <= 0) 
+		return 0;
+	else if (n == 1)
+		return 1;
+	else
+		return Fib(n - 1) + Fib(n - 2);
+}
+
+Main() 
+{
+	foreach (i in 0..max)
+		Console.WriteLine(Fib(i));
+}

@@ -138,6 +138,8 @@ namespace HeronEngine
 
         public void AddVar(string s, HeronValue o)
         {
+            if (scopes.Peek().ContainsKey(s))
+                throw new Exception(s + " is already declared in the scope");
             scopes.Peek().Add(s, o);
         }
 

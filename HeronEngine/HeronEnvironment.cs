@@ -99,8 +99,6 @@ namespace HeronEngine
         public void AddVar(string s, HeronValue o)
         {
             Trace.Assert(o != null);
-            if (frames.Peek().HasVar(s))
-                throw new Exception(s + " is already declared in the scope");
             frames.Peek().AddVar(s, o);
         }
 

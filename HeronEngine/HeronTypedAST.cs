@@ -26,7 +26,7 @@ namespace HeronEngine
     /// </summary>
     static public class HeronTypedAST
     {
-        static HeronModule m;
+        static HeronModule currentModule;
 
         static public HeronProgram CreateProgram(AstNode x)
         {
@@ -53,7 +53,7 @@ namespace HeronEngine
         static public HeronModule CreateModule(HeronProgram p, AstNode x)
         {
             HeronModule r = new HeronModule(p, GetNameNode(x));
-            m = r; // Sets the current modul
+            currentModule = r; // Sets the current modul
             for (int i=1; i < x.GetNumChildren(); ++i) {
                 AstNode child = x.GetChild(i);
                 switch (child.Label)
@@ -68,12 +68,114 @@ namespace HeronEngine
                         CreateEnum(r, child);
                         break;
                     default:
-                        throw new Exception("Unrecognize module sub-element " + child.Label);
+                        throw new Exception("Unrecognized module sub-element " + child.Label);
                 }
             }
 
             FinishModule(r, x);
             return r;
+        }
+
+        /// <summary>
+        /// A script is transformed into a module with a single class.
+        /// Each function becomes a method, and each variable becomes 
+        /// a field. 
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="x"></param>
+        /// <returns></returns>
+        static public HeronModule CreateScript(HeronProgram p, AstNode x)
+        {
+            string name = GetNameNode(x);
+            HeronModule r = new HeronModule(p, name);
+            currentModule = r; // Sets the current module
+
+            // Create the class
+            HeronClass c = new HeronClass(currentModule, "Main");
+            r.AddClass(c);
+            
+            // Used to store the main function once it is found.
+            FunctionDefinition main = null;
+
+            // Create a list of the initializers used for the variables 
+            // declared at the scope level.
+            List<Assignment> initializers = new List<Assignment>();
+
+            // The first child is the name
+            for (int i = 1; i < x.GetNumChildren(); ++i)
+            {
+                AstNode child = x.GetChild(i);
+                switch (child.Label)
+                {
+                    case "method":
+                        FunctionDefinition func = CreateFunction(child, c);
+                        
+                        // Store the function if it is the 'Main' function
+                        if (func.name == "Main")
+                        {
+                            if (main != null)
+                                throw new Exception("Only one function named 'Main' can exist in a script");
+                            main = func;
+                        }
+
+                        c.AddMethod(func);
+                        break;
+
+                    case "vardecl":
+                        HeronField field = CreateField(child);                        
+                        c.AddField(field);
+
+                        // Check if there is an initializer we are going to need 
+                        AstNode tmp = child.GetChild("expr");
+                        if (tmp != null)
+                        {
+                            Expression expr = CreateExpr(tmp);
+                            Assignment ass = new Assignment(new Name(field.name), expr);
+                            initializers.Add(ass);
+                        }
+                        
+                        break;
+                    
+                    default:
+                        throw new Exception("Unrecognized script sub-element " + child.Label);
+                }
+            }
+
+            // Check for the 'main'
+            if (main == null)
+                throw new Exception("A script has to have one function named 'Main'");
+
+            // The main function of a script becomes a constructor of the class
+            main.name = "Constructor";
+
+            // we may need to insert new statements into the constructor, 
+            // for initialized fields 
+            if (initializers.Count > 0)
+            {
+                // We do this by creating a new code block, that contains the initializers 
+                // and the new assignments 
+                CodeBlock cb = new CodeBlock();
+                foreach (Assignment a in initializers)
+                    cb.statements.Add(new ExpressionStatement(a));
+                cb.statements.Add(main.body);
+                main.body = cb;
+            }
+
+            FinishModule(r, x);
+            return r;
+        }
+
+        static public HeronModule CreateFile(HeronProgram p, AstNode x)
+        {
+            switch (x.Label)
+            {
+                case "script":
+                    return CreateScript(p, x);
+                case "module":
+                    return CreateModule(p, x);
+                default:
+                    throw new Exception("Expected a script or module as a child of the AST, but found " + x.Label);
+            }
         }
 
         static public string GetNameNode(AstNode x)
@@ -224,7 +326,7 @@ namespace HeronEngine
         {
             HeronField r = new HeronField();
             r.name = x.GetChild("name").ToString();
-            r.type = new UnresolvedType(GetTypeName(x, "Any"), m);
+            r.type = new UnresolvedType(GetTypeName(x, "Any"), currentModule);
             return r;
         }
 
@@ -232,7 +334,7 @@ namespace HeronEngine
         {
             FormalArg r = new FormalArg();
             r.name = x.GetChild("name").ToString();
-            r.type = new UnresolvedType(GetTypeName(x, "Any"), m);
+            r.type = new UnresolvedType(GetTypeName(x, "Any"), currentModule);
             return r;            
         }
 
@@ -251,7 +353,7 @@ namespace HeronEngine
             AstNode fundecl = x.GetChild("fundecl");            
             r.name = fundecl.GetChild("name").ToString();
             r.formals = CreateFormalArgs(fundecl.GetChild("arglist"));
-            r.rettype = new UnresolvedType(GetTypeName(x, "Void"), m);
+            r.rettype = new UnresolvedType(GetTypeName(x, "Void"), currentModule);
             AstNode codeblock = x.GetChild("codeblock");
             r.body = CreateCodeBlock(codeblock);
             return r;
@@ -827,7 +929,7 @@ namespace HeronEngine
                 ++i;
                 AnonFunExpr r = new AnonFunExpr();
                 r.formals = CreateFormalArgs(child.GetChild("arglist"));
-                r.rettype = new UnresolvedType(GetTypeName(child, "Void"), m);
+                r.rettype = new UnresolvedType(GetTypeName(child, "Void"), currentModule);
                 r.body = CreateCodeBlock(child.GetChild("codeblock"));
                 return r;
             }
@@ -947,6 +1049,24 @@ namespace HeronEngine
             if (node == null)
                 return null;
             HeronModule r = HeronTypedAST.CreateModule(p, node);
+            return r;
+        }
+
+        static public HeronModule ParseScript(HeronProgram p, string s)
+        {
+            AstNode node = ParserState.Parse(HeronGrammar.Script, s);
+            if (node == null)
+                return null;
+            HeronModule r = HeronTypedAST.CreateScript(p, node);
+            return r;
+        }
+
+        static public HeronModule ParseFile(HeronProgram p, string s)
+        {
+            AstNode node = ParserState.Parse(HeronGrammar.File, s);
+            if (node == null)
+                return null;
+            HeronModule r = HeronTypedAST.CreateFile(p, node);
             return r;
         }
 

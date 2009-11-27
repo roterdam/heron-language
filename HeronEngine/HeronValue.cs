@@ -147,7 +147,7 @@ namespace HeronEngine
                 case "!=": 
                     return new BoolValue(!(x is NullValue));
                 default:
-                    throw new Exception("Binary operation: '" + s + "' not supported by strings");
+                    throw new Exception("Binary operation: '" + s + "' not supported by null");
             }
         }
     }
