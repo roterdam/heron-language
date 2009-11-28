@@ -1,0 +1,29 @@
+#summary The design goals of the Heron language
+#labels Phase-Design
+
+= Heron Design Goals =
+
+The primary goal of Heron is to be a general-purpose language which is appropriate for large-scale team based development of software. Many design decisions reflect the realities of software development when large groups of developers of various skill levels and experience are involved.
+
+Heron is also intended to be appropriate for small one-off programs. The script construct, makes it easy for small programs to written and re-used. 
+
+== Zen of Heron ==
+
+Just like Time Peter's [http://www.python.org/dev/peps/pep-0020/ Zen of Python] here are some of the Heron guiding principles: 
+
+  * Correctness trumps all else
+  * Code is for humans, not computers
+  * Code should be self-documenting
+  * There should be one obvious way to accomplish things
+  * The obvious and most elegant way to do things should be sufficiently efficient.
+  * It is more important that code is easy to read than it is to write
+  * Code should not be ambiguous
+  * Code should not contains superfluous constraints
+  * Assumptions should be explicit rather than implicit
+  * There should be as few  constructs and operators as necessary (but no fewer) 
+  * It should be easy for the compiler to optimize code 
+  * The user should be given the tools to optimize code via macros and meta-programming
+  * Programmers should be able to write elegant code without worrying about the compile
+  * Types annotations are useful, except when they aren't
+  * Programming is the art of giving names to things  
+   
