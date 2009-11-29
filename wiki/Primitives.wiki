@@ -3,7 +3,9 @@
 
 = Primitive Types =
 
-== Primitive Value Types == 
+Primitive types are the types that are guaranteed to be available for any compliant implementation of Heron. 
+
+== Value Types == 
 
 Heron has the following primitive value types:
 
@@ -26,11 +28,11 @@ A reference type is shared when assigned, and can be assigned to null. Heron has
 
 === Collection Types ===
 
-The following types are related to collections. 
+The following types are related to [Collections collections]. 
 
+  * Seq - a sequence, the base type of all collections
   * List - a mutable collection of value derived from Seq
   * Range - an integer generator derived from Iterator 
-  * Seq - a sequence, the base type of all collections
   * Iterator - an enumerator derived from Seq
 
 === Special Types ===
@@ -43,4 +45,4 @@ The following are special types, which can not be instantiated.
 
 = Implementation Details =
 
-The primitive types are declared in the file HeronPrimitiveTypes.cs.
+The types of primitives are declared in the file `HeronPrimitiveTypes.cs`, and the values of many of the primitives are defined in the file `HeronPrimitiveValue.cs`. 
