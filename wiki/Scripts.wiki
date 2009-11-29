@@ -1,0 +1,49 @@
+#summary Overview of Heron scripts.
+#labels Phase-Design
+
+= Scripts =
+
+A Heron script is syntactic sugar for a module with a single class. It is intended to make it easier to write small programs, and to reuse them in larger programs.
+
+A script entry point is a function named `Main()`. 
+
+A script has the following form:
+
+{{{
+script MyScript;
+
+var x = 10;
+
+Main() {
+  foreach (i in 0..x)
+    Console.WriteLine(i.ToString());
+}
+}}}
+
+The previous example is equivalent to the following program:
+
+{{{
+module MyScript
+{
+  class Main
+  {
+    fields 
+    {
+      x : Any;
+    }
+    methods 
+    {
+       Constructor() {
+         foreach (i in 0..x)
+           Console.WriteLine(i.ToString());
+       }
+    }
+  }
+}
+}}}
+
+= Implementation Details =
+
+The conversion from a script to Module is done in the file HeronTypedAST.cs. 
+
+  
