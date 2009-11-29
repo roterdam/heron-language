@@ -45,4 +45,4 @@ The following are special types, which can not be instantiated.
 
 = Implementation Details =
 
-The types of primitives are declared in the file `HeronPrimitiveTypes.cs`, and the values of many of the primitives are defined in the file `HeronPrimitiveValue.cs`. 
+The types of primitives are declared in the file `HeronPrimitiveTypes.cs`, and the implementations of several of the primitive values are defined in the file `HeronPrimitiveValue.cs`. 
