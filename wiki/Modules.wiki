@@ -3,7 +3,9 @@
 
 = Modules =
 
-A module is a named package of type definitions. It may contains classes, interfaces, and enums. A file can contain only one module. A module has the following layout:
+A module is a named package of type definitions. It may contains classes, interfaces, and enums. A file can contain only one module. Every program consists of at least one module. A Heron script maps to a module.  
+
+A module has the following layout:
 
 {{{
 module MyModule
@@ -21,6 +23,10 @@ module MyModule
   }
 } 
 }}}
+
+= Implementation Details =
+
+The implementation of modules can be found in the file HeronModule.cs.  
 
 = To do =
 
