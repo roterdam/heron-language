@@ -1,0 +1,17 @@
+#summary The collection types in Heron
+#labels Phase-Design
+
+= Collection Types =
+
+There are four primary collection types in Heron:
+
+  * Seq - The sequence is the base class of all collections. It provides access to an iterator (also known as an enumerator) through the method GetIterator() and can be converted to a list through the method ToList(). 
+  * Iterator - An iterator, also known as an enumerator in some languages, derives from Seq and is used to iterate over a sequence of items.
+  * List - The list class also derives from Seq and is effectively a dynamic array. 
+  * Range - A range is an iterator over integers, and is created by using the range operator  '..'. 
+
+= Implementation Details =
+
+The implementation of collections can be found in the file [http://code.google.com/p/heron-language/source/browse/trunk/HeronEngine/HeronCollection.cs HeronCollection.cs].
+
+Currently the Seq type supports comparison, but this is not clear whether or not it should stay. 
