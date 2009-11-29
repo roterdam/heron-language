@@ -1,0 +1,6 @@
+#summary Layout of a Heron file.
+#labels Phase-Design
+
+= Layout of a Heron File =
+
+Heron files contain either a single [Module module] or [Script script]. 
