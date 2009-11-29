@@ -1,0 +1,27 @@
+#summary Overview of Modules in Heron.
+#labels Phase-Design
+
+= Modules =
+
+A module is a named package of type definitions. It may contains classes, interfaces, and enums. A file can contain only one module. A module has the following layout:
+
+{{{
+module MyModule
+{
+  class SomeClass 
+  {
+  }
+ 
+  interface SomeInterface
+  {
+  }
+  
+  enum SomeEnum
+  {
+  }
+} 
+}}}
+
+= To do =
+
+The module design is not complete yet. The details of how to handle exports and imports still have to be done. 
