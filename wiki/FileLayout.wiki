@@ -3,4 +3,4 @@
 
 = Layout of a Heron File =
 
-Heron files contain either a single [Module module] or [Script script]. 
+Heron files contain either a single [Modules module] or [Scripts script]. 
