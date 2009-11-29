@@ -22,7 +22,7 @@ namespace HeronEngine
         {
             Console.WriteLine("HeronEngine.exe");
             Console.WriteLine("    by Christopher Diggins");
-            Console.WriteLine("    version 0.6");
+            Console.WriteLine("    version 0.7");
             Console.WriteLine("    November 24, 2009");
             Console.WriteLine("");
             Console.WriteLine("An execution engine for the Heron language.");
