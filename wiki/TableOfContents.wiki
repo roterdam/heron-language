@@ -1,0 +1,24 @@
+#summary A table of contents for the Wiki-documentation
+#labels Phase-Design
+
+= Table of Contents =
+
+== Design Principles and Philosphy ==
+
+  # [HeronDesignGoals Design goals]
+  # [ZenOfHeron Zen of Heron (guiding principles)]
+
+== Basic Topics ==
+
+  # [Primitives Primitives - The built-in primitive types
+  # [Collections Collections] - Seq, Iterator, List and Range
+  # [UpcastingAndDowncasting Type casting (coercions)]
+  # [Variants Any] - the Any variant type
+  # [Scripts Scripts] 
+  # [Modules Modules]
+  
+== User Defined Types ==
+ 
+  # [Classes Classes]
+  # [Interfaces Interfaces]
+  # [Enums Enums]
