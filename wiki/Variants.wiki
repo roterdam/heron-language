@@ -1,0 +1,8 @@
+#summary An overview of the variant type "Any".
+#labels Phase-Design
+
+= Any =
+
+Heron has a variant type called `Any` which can be assigned any value. The `Any` type holds type information that can be retrieved dynamically. 
+
+The `Any` is useful in situations where [UpcastingAndDowncasting downcasting] semantics is desired. 
