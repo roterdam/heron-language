@@ -1,9 +1,0 @@
-#summary Class and state diagrams for bouncing balls example.
-
-= Introduction =
-
-The following are UML class and state diagrams for the [http://code.google.com/p/heron-language/wiki/BouncingBallsExample bouncing balls demo]. 
-
-http://www.heron-language.com/BouncingBallsClassDiagram.png
-
-http://www.heron-language.com/BouncingBallsStateDiagram.png
