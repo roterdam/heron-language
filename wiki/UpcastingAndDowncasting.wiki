@@ -5,7 +5,7 @@
 
 An _upcast_ is a cast from a derived type to a base type. A _downcast_ is a cast from a base type to a derived type. In Heron upcasts are legal, but downcasts are not. 
 
-If a downcast is absolutely required, and an interface is not appropriate, a programmer can instead use a [Any variant]. 
+If a downcast is absolutely required, and an interface is not appropriate, a programmer can instead use the [Variants `Any` variant]. 
 
 == Rationale ==
 
