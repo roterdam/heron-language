@@ -3,6 +3,8 @@
 
 = Table of Contents =
 
+These are the different Wiki topics related to the Heron documentation.
+
 == Design Principles and Philosphy ==
 
   # [HeronDesignGoals Design goals]
@@ -10,9 +12,9 @@
 
 == Basic Topics ==
 
-  # [Primitives Primitives - The built-in primitive types
+  # [Primitives Primitives] - built-in primitive types
   # [Collections Collections] - Seq, Iterator, List and Range
-  # [UpcastingAndDowncasting Type casting (coercions)]
+  # [UpcastingAndDowncasting Type casting]
   # [Variants Any] - the Any variant type
   # [Scripts Scripts] 
   # [Modules Modules]
@@ -22,3 +24,7 @@
   # [Classes Classes]
   # [Interfaces Interfaces]
   # [Enums Enums]
+
+== Planned Features ==
+
+For planned features see the [http://code.google.com/p/heron-language/issues/list?q=label:Type-Enhancement issues labeled as enhancement].
