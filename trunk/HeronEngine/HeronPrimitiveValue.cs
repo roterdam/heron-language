@@ -11,30 +11,7 @@ using System.Text;
 
 namespace HeronEngine
 {
-    /// <summary>
-    /// This is the base class of several of the primitive values.
-    /// Currently it does not i
-    /// </summary>
-    public abstract class PrimitiveValue : HeronValue
-    {
-        /// <summary>
-        /// Overridden in different values 
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        public override HeronValue GetFieldOrMethod(string name)
-        {
-            HeronType t = GetHeronType();
-            if (t == null)
-                throw new Exception("No fields or methods associated with this value");
-            PrimitiveType pt = t as PrimitiveType;
-            if (pt == null)
-                throw new Exception("Error: primitive values should be associated with only primitive types");
-            return pt.GetMethod(name).CreateBoundMethod(this);
-        }
-    }
-
-    public abstract class PrimitiveTemplate<T> : PrimitiveValue
+    public abstract class PrimitiveTemplate<T> : HeronValue
     {
         T val;
 

@@ -5,13 +5,40 @@
 /// http://www.opensource.org/licenses/mit-license.php
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace HeronEngine
 {
+    /// <summary>
+    /// Takes an IEnumerator instance and converts it into a HeronValue
+    /// specifically: an IteratorValue
+    /// </summary>
+    public class DotNetEnumeratorToHeronAdapter
+        : IteratorValue
+    {
+        IEnumerator iter;
+
+        public DotNetEnumeratorToHeronAdapter(IEnumerator iter)
+        {
+            this.iter = iter;
+        }
+
+        public override bool MoveNext(VM vm)
+        {
+            return iter.MoveNext();
+        }
+
+        public override HeronValue GetValue(VM vm)
+        {
+            return DotNetObject.Marshal(iter.Current);
+        }
+    }
+
     public class DotNetMethod : HeronValue
     {
         MethodInfo mi;
@@ -60,6 +87,13 @@ namespace HeronEngine
         public static HeronValue Marshal(Object o)
         {
             return HeronDotNet.DotNetToHeronObject(o);
+        }
+
+        public static Object Unmarshal(Type t, HeronValue v)
+        {
+            Object o = v.ToSystemObject();
+            Trace.Assert(o.GetType().Equals(t));
+            return o;
         }
 
         internal static HeronValue CreateDotNetObjectNoMarshal(Object o)
@@ -161,36 +195,29 @@ namespace HeronEngine
                 return o as HeronValue;
 
             Type t = o.GetType();
-            
-            if (t.IsArray)
+
+            switch (o.GetType().Name)
             {
-                ListValue list = new ListValue();
-                Array a = o as Array;
-                foreach (Object e in a)
-                    list.Add(DotNetToHeronObject(e));
-                return list;
-            }
-            else
-            {
-                switch (o.GetType().Name)
-                {
-                    case "Single":
-                        return new FloatValue((float)o);
-                    case "Double":
-                        double d = (double)o;
-                        // TEMP: Downcasts doubles to floats for now.
-                        return new FloatValue((float)d);
-                    case "Int32":
-                        return new IntValue((int)o);
-                    case "Char":
-                        return new CharValue((char)o);
-                    case "String":
-                        return new StringValue((string)o);
-                    case "Boolean":
-                        return new BoolValue((bool)o);
-                    default:
+                case "Single":
+                    return new FloatValue((float)o);
+                case "Double":
+                    double d = (double)o;
+                    // TEMP: Downcasts doubles to floats for now.
+                    return new FloatValue((float)d);
+                case "Int32":
+                    return new IntValue((int)o);
+                case "Char":
+                    return new CharValue((char)o);
+                case "String":
+                    return new StringValue((string)o);
+                case "Boolean":
+                    return new BoolValue((bool)o);
+                default:
+                    // This is Her because a string implements IEnumerable
+                    if (o is IEnumerable)
+                        return new DotNetEnumeratorToHeronAdapter((o as IEnumerable).GetEnumerator());
+                    else
                         return DotNetObject.CreateDotNetObjectNoMarshal(o);
-                }
             }
         }
 
@@ -213,33 +240,24 @@ namespace HeronEngine
     /// </summary>
     public class DotNetClass : HeronType
     {
-        Type type;
-
         public DotNetClass(HeronModule m, string name, Type type)
-            : base(m, name)
+            : base(m, type, name)
         {
-            this.type = type;
         }
 
         public DotNetClass(HeronModule m, Type type)
-            : base(m, type.Name)
+            : base(m, type, type.Name)
         {
-            this.type = type;
         }
 
         public override HeronValue Instantiate(VM vm, HeronValue[] args)
         {
             Object[] objs = HeronDotNet.ObjectsToDotNetArray(args);
-            Object o = type.InvokeMember(null, BindingFlags.Instance | BindingFlags.Public 
+            Object o = GetSystemType().InvokeMember(null, BindingFlags.Instance | BindingFlags.Public 
                 | BindingFlags.Default | BindingFlags.CreateInstance, null, null, objs);
             if (o == null)
                 throw new Exception("Unable to construct " + name);
             return DotNetObject.Marshal(o);
-        }
-
-        public Type GetSystemType()
-        {
-            return type;
         }
 
         /// <summary>
@@ -250,13 +268,13 @@ namespace HeronEngine
         public override HeronValue GetFieldOrMethod(string name)
         {
             // We have to first look to see if there are static fields
-            FieldInfo[] fis = type.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.GetField);
+            FieldInfo[] fis = GetSystemType().GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.GetField);
             foreach (FieldInfo fi in fis)
                 if (fi.Name == name)
                     return DotNetObject.Marshal(fi.GetValue(null));
 
             // Look for methods
-            MethodInfo[] mis = type.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.InvokeMethod);
+            MethodInfo[] mis = GetSystemType().GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.InvokeMethod);
             if (mis.Length != 0)
                 return new DotNetStaticMethodGroup(this, name);
 
@@ -269,12 +287,12 @@ namespace HeronEngine
         {
             if (!(obj is DotNetClass))
                 return false;
-            return (obj as DotNetClass).type.Equals(type);
+            return (obj as DotNetClass).GetSystemType().Equals(GetSystemType());
         }
 
         public override int GetHashCode()
         {
-            return type.GetHashCode();
+            return GetSystemType().GetHashCode();
         }
     }
 
@@ -337,11 +355,11 @@ namespace HeronEngine
     /// <summary>
     /// Exposes a method from a Heron primitive type to Heron
     /// </summary>
-    public class PrimitiveMethod : Method
+    public class ExposedMethod : Method
     {
         MethodInfo method;
 
-        public PrimitiveMethod(MethodInfo mi)
+        public ExposedMethod(MethodInfo mi)
         {
             method = mi;
         }
@@ -371,9 +389,7 @@ namespace HeronEngine
                     throw new Exception(msg);
                 }
             }
-            return method.Invoke(self, args) as HeronValue;
+            return DotNetObject.Marshal(method.Invoke(self, args));
         }
     }
-
-
 }

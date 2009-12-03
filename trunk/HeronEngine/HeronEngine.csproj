@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HeronAny.cs" />
+    <Compile Include="HeronUserType.cs" />
     <Compile Include="HeronCollection.cs" />
     <Compile Include="HeronConfig.cs" />
     <Compile Include="HeronDebugger.cs" />
@@ -55,8 +56,10 @@
     <Compile Include="HeronFunctionValues.cs" />
     <Compile Include="HeronInterfaces.cs" />
     <Compile Include="HeronModule.cs" />
+    <Compile Include="HeronASTValue.cs" />
     <Compile Include="HeronScope.cs" />
     <Compile Include="HeronPrimitiveValue.cs" />
+    <Compile Include="HeronTree.cs" />
     <Compile Include="HeronTypedAST.cs" />
     <Compile Include="HeronExpression.cs" />
     <Compile Include="HeronFunction.cs" />

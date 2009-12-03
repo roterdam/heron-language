@@ -16,10 +16,12 @@ namespace HeronEngine
     /// <summary>
     /// Represents an executable Heron program.
     /// </summary>
-    public class HeronProgram 
+    public class HeronProgram : HeronValue
     {
         private List<HeronModule> modules = new List<HeronModule>();
         private HeronModule global;
+
+        [HeronVisible]
         public string name;
 
         public HeronProgram(string name)
@@ -28,38 +30,65 @@ namespace HeronEngine
             global = new HeronModule(this, "_global_");
             RegisterPrimitives();
         }
-
-        internal void AddModule(HeronModule m)
-        {
-            modules.Add(m);
-        }
-
-        public HeronModule GetGlobal()
-        {
-            return global;
-        }
-
-        public IEnumerable<HeronModule> GetModules()
-        {
-            return modules;
-        }
-        internal void RegisterDotNetType(Type t, string name)
+        public void RegisterDotNetType(Type t, string name)
         {
             global.AddDotNetType(name, t);
         }
 
-        internal void RegisterDotNetType(Type t)
+        public void RegisterDotNetType(Type t)
         {
             global.AddDotNetType(t.Name, t);
         }
+        /// <summary>
+        /// This exposes a set of globally recognized Heron and .NET 
+        /// types to the environment (essentially global variables).
+        /// A simple way to extend the scope of Heron is to introduce
+        /// new types in this function.
+        /// </summary>
+        private void RegisterPrimitives()
+        {
+            Dictionary<string, HeronType> prims = PrimitiveTypes.GetTypes();
+            foreach (string s in prims.Keys)
+                global.AddPrimitive(s, prims[s]);
 
+            RegisterDotNetType(typeof(Console), "Console");
+            RegisterDotNetType(typeof(Math), "Math");
+
+            /*
+            RegisterDotNetType(typeof(VariableDeclaration));
+            RegisterDotNetType(typeof(DeleteStatement));
+            RegisterDotNetType(typeof(ExpressionStatement));
+            RegisterDotNetType(typeof(ForEachStatement));
+            RegisterDotNetType(typeof(ForStatement));
+            RegisterDotNetType(typeof(CodeBlock));
+            RegisterDotNetType(typeof(IfStatement));
+            RegisterDotNetType(typeof(WhileStatement));
+            RegisterDotNetType(typeof(ReturnStatement));
+            */
+
+            // Load other libraries specified in the configuration file
+            foreach (string lib in Config.libs)
+                LoadAssembly(lib);
+
+            // Load the standard library types
+            RegisterDotNetType(typeof(HeronStandardLibrary.Viewport), "Viewport");
+            RegisterDotNetType(typeof(HeronStandardLibrary.Util), "Util");
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.ProgramType;
+        }
+        #region heron visible functions
+        [HeronVisible]
         public void LoadAssembly(string s)
         {
             Assembly a = null;
             foreach (String tmp in Config.inputPath)
             {
                 string path = tmp + "//" + s;
-                if (File.Exists(path)) {
+                if (File.Exists(path))
+                {
                     a = Assembly.LoadFrom(path);
                     break;
                 }
@@ -75,39 +104,21 @@ namespace HeronEngine
             foreach (Type t in a.GetExportedTypes())
                 RegisterDotNetType(t);
         }
-
-        /// <summary>
-        /// This exposes a set of globally recognized Heron and .NET 
-        /// types to the environment (essentially global variables).
-        /// A simple way to extend the scope of Heron is to introduce
-        /// new types in this function.
-        /// </summary>
-        void RegisterPrimitives()
+        [HeronVisible]
+        public void AddModule(HeronModule m)
         {
-            Dictionary<string, PrimitiveType> prims = PrimitiveTypes.GetTypes();
-            foreach (string s in prims.Keys)
-                global.AddPrimitive(s, prims[s]);
-
-            RegisterDotNetType(typeof(Console), "Console");
-            RegisterDotNetType(typeof(Math), "Math");
-
-            RegisterDotNetType(typeof(VariableDeclaration));
-            RegisterDotNetType(typeof(DeleteStatement));
-            RegisterDotNetType(typeof(ExpressionStatement));
-            RegisterDotNetType(typeof(ForEachStatement));
-            RegisterDotNetType(typeof(ForStatement));
-            RegisterDotNetType(typeof(CodeBlock));
-            RegisterDotNetType(typeof(IfStatement));
-            RegisterDotNetType(typeof(WhileStatement));
-            RegisterDotNetType(typeof(ReturnStatement));
-
-            // Load other libraries specified in the configuration file
-            foreach (string lib in Config.libs)
-                LoadAssembly(lib);
-
-            // Load the standard library types
-            RegisterDotNetType(typeof(HeronStandardLibrary.Viewport), "Viewport");
-            RegisterDotNetType(typeof(HeronStandardLibrary.Util), "Util");
+            modules.Add(m);
         }
+        [HeronVisible]
+        public HeronModule GetGlobal()
+        {
+            return global;
+        }
+        [HeronVisible]
+        public IEnumerable<HeronModule> GetModules()
+        {
+            return modules;
+        }
+        #endregion
     }
 }
