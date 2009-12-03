@@ -113,14 +113,14 @@ namespace HeronEngine
             RunModule(m);
         }
 
-        public void RunPreMain(HeronModule m)
+        public void RunMeta(HeronModule m)
         {
-            HeronClass premain = m.GetPremainClass();
-            if (premain != null)
+            HeronClass meta = m.GetMetaClass();
+            if (meta != null)
             {
                 // Start the parparse 
                 HeronValue o = DotNetObject.Marshal(m.GetProgram());
-                premain.Instantiate(this, new HeronValue[] { o });
+                meta.Instantiate(this, new HeronValue[] { o });
             }
         }
 
@@ -136,23 +136,21 @@ namespace HeronEngine
         public void RunModule(HeronModule m)
         {
             InitializeEnvironment();
-            RunPreMain(m);
+            RunMeta(m);
             RunMain(m);            
         }
 
         /// <summary>
         /// Evaluates a list expression as an IHeronEnumerator
-        /// TODO: I am not so sure that this should return an "IHeronEnumerator".
-        /// Maybe an IHeronEnumerable or a SeqValue?
         /// </summary>
         /// <param name="list"></param>
         /// <returns></returns>
-        public IHeronEnumerator EvalList(Expression list)
+        public SeqValue EvalList(Expression list)
         {
             HeronValue tmp = Eval(list);
             if (!(tmp is SeqValue))
                 throw new Exception("Expected an enumerable value");
-            return (tmp as SeqValue).GetEnumerator(this);
+            return (tmp as SeqValue);
         }
 
         /// <summary>

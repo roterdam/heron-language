@@ -122,7 +122,7 @@ namespace HeronEngine
                         break;
 
                     case "vardecl":
-                        HeronField field = CreateField(child);                        
+                        Field field = CreateField(child);                        
                         c.AddField(field);
 
                         // Check if there is an initializer we are going to need 
@@ -322,9 +322,9 @@ namespace HeronEngine
             return def;
         }
 
-        static public HeronField CreateField(AstNode x)
+        static public Field CreateField(AstNode x)
         {
-            HeronField r = new HeronField();
+            Field r = new Field();
             r.name = x.GetChild("name").ToString();
             r.type = new UnresolvedType(GetTypeName(x, "Any"), currentModule);
             return r;

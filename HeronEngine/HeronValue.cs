@@ -73,12 +73,26 @@ namespace HeronEngine
         /// <returns></returns>
         public virtual HeronValue GetFieldOrMethod(string name)
         {
-            throw new Exception("No fields or methods associated with this value, could not lookup " + name);
+            HeronType t = GetHeronType();
+            Method m = t.GetMethod(name); 
+            if (m != null)
+                return m.CreateBoundMethod(this);
+            Field f = t.GetField(name);
+            if (f != null)
+                return f.GetValue(this);
+            return null;
         }
 
+        /// <summary>
+        /// Sets the value associated with the named field
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="val"></param>
         public virtual void SetField(string name, HeronValue val)
         {
-            throw new Exception(ToString() + " does not supported SetField()");
+            HeronType t = GetHeronType();
+            Field fi = t.GetField(name);
+            fi.SetValue(this, val);
         }
 
         public virtual HeronValue InvokeUnaryOperator(VM vm, string s)
@@ -429,7 +443,7 @@ namespace HeronEngine
         public override HeronValue GetFieldOrMethod(string name)
         {
             if (!HasMethod(name))
-                throw new Exception("Could not find field or method '" + name + "' in '" + ToString() + "'");
+                base.GetFieldOrMethod(name);
             return obj.GetFieldOrMethod(name);
         }
 

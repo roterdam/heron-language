@@ -85,8 +85,7 @@ namespace HeronEngine
 
         public override HeronValue Eval(VM vm)
         {            
-            HeronValue val = 
-                rvalue.Eval(vm);
+            HeronValue val = vm.Eval(rvalue);
 
             if (lvalue is Name)
             {
@@ -108,10 +107,9 @@ namespace HeronEngine
             }
             else if (lvalue is ChooseField)
             {
-                ChooseField sf = lvalue as ChooseField;
-                HeronValue self = sf.self.Eval(vm);
-                string name = sf.name;
-                self.SetField(name, val);
+                ChooseField field = lvalue as ChooseField;
+                HeronValue self = vm.Eval(field.self);
+                self.SetField(field.name, val);
                 return val;
             }
             else if (lvalue is ReadAt)
@@ -713,9 +711,9 @@ namespace HeronEngine
 
         public override HeronValue Eval(VM vm)
         {
-            IHeronEnumerator iter = vm.EvalList(list); 
-            var seq = new SelectEnumerator(vm, name, iter, pred);
-            return seq.ToList(vm);
+            SeqValue seq = vm.EvalList(list); 
+            var r = new SelectEnumerator(vm, name, seq.GetIterator(vm), pred);
+            return r.ToList(vm);
         }
 
         public override string ToString()
@@ -750,9 +748,9 @@ namespace HeronEngine
 
         public override HeronValue Eval(VM vm)
         {
-            IHeronEnumerator iter = vm.EvalList(list);
-            var seq = new MapEachEnumerator(name, iter, yield);
-            return seq.ToList(vm);
+            SeqValue seq = vm.EvalList(list);
+            var result= new MapEachEnumerator(name, seq.GetIterator(vm), yield);
+            return result.ToList(vm);
         }
 
         public override string ToString()

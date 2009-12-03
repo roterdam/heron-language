@@ -12,34 +12,26 @@ using System.Text;
 namespace HeronEngine
 {
     /// <summary>
-    /// Like a regular .NET enumerator is is used to iterate over Heron collections at 
-    /// run-time. The difference is that it requires a reference to the VM 
-    /// </summary>
-    public interface IHeronEnumerator
-    {
-        bool MoveNext(VM vm);
-        HeronValue GetValue(VM vm);
-    }
-
-    /// <summary>
     /// Represents an enumerator at run-time. Any enumerator is also an enumerable: it just 
     /// returns itself.
     /// </summary>
-    public abstract class EnumeratorValue
-        : SeqValue, IHeronEnumerator, IHeronEnumerable
+    public abstract class IteratorValue
+        : SeqValue
     {
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.IteratorType;
         }
 
-        #region IHeronEnumerator Members
+        #region iterator functions
+        [HeronVisible]
         public abstract bool MoveNext(VM vm);
+        [HeronVisible]
         public abstract HeronValue GetValue(VM vm);
         #endregion 
 
-        #region SeqValue Members
-        public override IHeronEnumerator GetEnumerator(VM vm)
+        #region sequence functions 
+        public override IteratorValue GetIterator(VM vm)
         {
             return this;
         }
@@ -50,14 +42,14 @@ namespace HeronEngine
     /// An enumerator that is the result of a select operator
     /// </summary>
     public class SelectEnumerator
-        : EnumeratorValue
+        : IteratorValue
     {
-        IHeronEnumerator iter;
+        IteratorValue iter;
         string name;
         Expression pred;
         HeronValue current;
 
-        public SelectEnumerator(VM vm, string name, IHeronEnumerator iter, Expression pred)
+        public SelectEnumerator(VM vm, string name, IteratorValue iter, Expression pred)
         {
             this.name = name;
             this.iter = iter;
@@ -94,7 +86,7 @@ namespace HeronEngine
     /// An enumerator that is the result of a range operator (a..b)
     /// </summary>
     public class RangeEnumerator
-        : EnumeratorValue
+        : IteratorValue
     {
         int min;
         int max;
@@ -137,13 +129,13 @@ namespace HeronEngine
     /// An enumerator that is the result of a map-each operator
     /// </summary>
     public class MapEachEnumerator
-        : EnumeratorValue
+        : IteratorValue
     {
         string name;
-        IHeronEnumerator iter;
+        IteratorValue iter;
         Expression yield;
 
-        public MapEachEnumerator(string name, IHeronEnumerator iter, Expression yield)
+        public MapEachEnumerator(string name, IteratorValue iter, Expression yield)
         {
             this.name = name;
             this.iter = iter;
@@ -173,14 +165,14 @@ namespace HeronEngine
         : IEnumerable<HeronValue>, IEnumerator<HeronValue>
     {
         VM vm;
-        IHeronEnumerator iter;
+        IteratorValue iter;
 
-        public HeronToEnumeratorAdapter(VM vm, IHeronEnumerable list)
-            : this(vm, list.GetEnumerator(vm))
+        public HeronToEnumeratorAdapter(VM vm, SeqValue list)
+            : this(vm, list.GetIterator(vm))
         {
         }
 
-        public HeronToEnumeratorAdapter(VM vm, IHeronEnumerator iter)
+        public HeronToEnumeratorAdapter(VM vm, IteratorValue iter)
         {
             this.vm = vm;
             this.iter = iter;
@@ -243,19 +235,11 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Simple interfaces for anything which can be enumerated (collections, streams, ranges, etc.)
-    /// </summary>
-    public interface IHeronEnumerable
-    {
-        IHeronEnumerator GetEnumerator(VM vm);
-    }
-
-    /// <summary>
-    /// Takes an IEnumerator instance and converts it into a HeronValue
-    /// specifically: an EnumeratorValue
+    /// Takes a generic .NET enumerator instance and converts it into a HeronValue
+    /// specifically: an IteratorValue
     /// </summary>
     public class EnumeratorToHeronAdapter
-        : EnumeratorValue
+        : IteratorValue
     {
         IEnumerator<HeronValue> iter;
 
@@ -280,10 +264,8 @@ namespace HeronEngine
     /// iterated over once. It is constructed from a Heron enumerator
     /// </summary>
     public abstract class SeqValue
-        : PrimitiveValue, IHeronEnumerable
+        : HeronValue
     {
-        public abstract IHeronEnumerator GetEnumerator(VM vm);
-
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.SeqType;
@@ -311,8 +293,8 @@ namespace HeronEngine
         {
             if (!(x is SeqValue))
                 return false;
-            IHeronEnumerator e1 = GetEnumerator(vm);
-            IHeronEnumerator e2 = (x as SeqValue).GetEnumerator(vm);
+            IteratorValue e1 = GetIterator(vm);
+            IteratorValue e2 = (x as SeqValue).GetIterator(vm);
             bool b1 = e1.MoveNext(vm);
             bool b2 = e2.MoveNext(vm);
 
@@ -334,11 +316,12 @@ namespace HeronEngine
             return true;
         }
 
-        [HeronVisible]
-        public ListValue ToList(VM vm)
+        public virtual ListValue ToList(VM vm)
         {
             return new ListValue(ToDotNetEnumerable(vm));
         }
+
+        public abstract IteratorValue GetIterator(VM vm);
     }
 
     /// <summary>
@@ -358,9 +341,16 @@ namespace HeronEngine
             list.AddRange(xs);
         }
 
+        [HeronVisible]
         public void Add(HeronValue v)
         {
             list.Add(v);
+        }
+
+        [HeronVisible]
+        public void Remove()
+        {
+            list.RemoveAt(list.Count - 1);
         }
 
         public int Count()
@@ -379,20 +369,15 @@ namespace HeronEngine
             return PrimitiveTypes.ListType;
         }
 
-        public override IHeronEnumerator GetEnumerator(VM vm)
+        public override IteratorValue GetIterator(VM vm)
         {
             return new EnumeratorToHeronAdapter(list.GetEnumerator());
         }
-    }
+    
+        public override ListValue ToList(VM vm)
+        {
+            return this;
+        }
 
-    /// <summary>
-    /// A collection allows items to be added,
-    /// and for the count to be queried. 
-    /// </summary>
-    public interface IHeronCollection
-        : IHeronEnumerable
-    {
-        void Add(HeronValue v);
-        int Count();
     }
 }
