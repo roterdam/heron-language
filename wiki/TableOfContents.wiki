@@ -14,8 +14,14 @@ These are the different Wiki topics related to the Heron documentation.
 
   # [Primitives Primitives] - built-in primitive types
   # [Collections Collections] - Seq, Iterator, List and Range
-  # [UpcastingAndDowncasting Type casting]
   # [Variants Any] - the Any variant type
+  # [UpcastingAndDowncasting Type casting]
+  # [FirstClassFunctions First class functions] 
+  # [Closures]
+
+== Top Level Constructs ==
+
+  # [FileLayout File layout]
   # [Scripts Scripts] 
   # [Modules Modules]
   
