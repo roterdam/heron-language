@@ -23,7 +23,7 @@ namespace HeronEngine
 
         HeronModule module;
         Type type;
-        Dictionary<string, Method> functions = new Dictionary<string, Method>();
+        Dictionary<string, ExposedMethod> functions = new Dictionary<string, ExposedMethod>();
         Dictionary<string, ExposedField> fields = new Dictionary<string, ExposedField>();
 
         public HeronType(HeronModule m, Type t, string name)
@@ -61,14 +61,14 @@ namespace HeronEngine
         }
 
         [HeronVisible]
-        public virtual IEnumerable<FunctionDefinition> GetMethods()
+        public virtual IEnumerable<FunctionDefn> GetMethods()
         {
-            return new List<FunctionDefinition>();
+            return new List<FunctionDefn>();
         }
 
-        public IEnumerable<FunctionDefinition> GetMethods(string name)
+        public IEnumerable<FunctionDefn> GetMethods(string name)
         {
-            foreach (FunctionDefinition f in GetMethods())
+            foreach (FunctionDefn f in GetMethods())
                 if (f.name == name)
                     yield return f;
         }
@@ -144,7 +144,7 @@ namespace HeronEngine
 
         #region heron visible functions
         [HeronVisible]
-        public virtual Method GetMethod(string name)
+        public virtual ExposedMethod GetMethod(string name)
         {
             if (!functions.ContainsKey(name))
                 return null;
@@ -152,7 +152,7 @@ namespace HeronEngine
         }
 
         [HeronVisible]
-        public virtual Field GetField(string name)
+        public virtual FieldDefn GetField(string name)
         {
             if (!fields.ContainsKey(name))
                 return null;

@@ -14,12 +14,14 @@ using System.Diagnostics;
 namespace HeronEngine
 {
     /// <summary>
-    /// Represents a member field of a Heron class. 
+    /// Represents the definition of a member field of a Heron class. 
+    /// Like "MethodInfo" in C#.
     /// </summary>
-    public class Field
+    public class FieldDefn : HeronValue
     {
         [HeronVisible]
         public string name;
+        [HeronVisible]
         public HeronType type = PrimitiveTypes.AnyType;
 
         public void ResolveTypes()
@@ -37,12 +39,22 @@ namespace HeronEngine
         {
             self.SetField(name, x);
         }
+
+        public override string ToString()
+        {
+            return name + " : " + type.ToString();
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.FieldDefnType;
+        }
     }
 
     /// <summary>
     /// Represents a field of a class derived from HeronValue
     /// </summary>
-    public class ExposedField : Field
+    public class ExposedField : FieldDefn
     {
         private FieldInfo fi;
 
@@ -69,7 +81,7 @@ namespace HeronEngine
     /// </summary>
     public class HeronInterface : HeronType
     {
-        FunctionTable methods = new FunctionTable();
+        List<FunctionDefn> methods = new List<FunctionDefn>();
         List<HeronType> basetypes = new List<HeronType>();
 
         public HeronInterface(HeronModule m, string name)
@@ -85,7 +97,7 @@ namespace HeronEngine
                     basetypes[i] = (t as UnresolvedType).Resolve();
             }
 
-            foreach (FunctionDefinition f in GetMethods())
+            foreach (FunctionDefn f in GetMethods())
                 f.ResolveTypes();
         }
         public void AddBaseInterface(HeronType t)
@@ -96,22 +108,22 @@ namespace HeronEngine
         {
             throw new Exception("Cannot instantiate an interface");
         }
-        public override IEnumerable<FunctionDefinition> GetMethods()
+        public override IEnumerable<FunctionDefn> GetMethods()
         {
-            foreach (FunctionDefinition f in methods)
+            foreach (FunctionDefn f in methods)
                 yield return f;
             foreach (HeronInterface i in basetypes)
-                foreach (FunctionDefinition f in i.GetMethods())
+                foreach (FunctionDefn f in i.GetMethods())
                     yield return f;
         }
         // TODO: see if I can remove all "HasMethod" calls.
         public bool HasMethod(string name)
         {
-            foreach (FunctionDefinition f in GetMethods(name))
+            foreach (FunctionDefn f in GetMethods(name))
                 return true;
             return false;
         }
-        public void AddMethod(FunctionDefinition x)
+        public void AddMethod(FunctionDefn x)
         {
             methods.Add(x);
         }
@@ -207,11 +219,11 @@ namespace HeronEngine
     public class HeronClass : HeronType
     {
         #region fields
-        FunctionTable methods = new FunctionTable();
-        List<Field> fields = new List<Field>();
+        List<FunctionDefn> methods = new List<FunctionDefn>();
+        List<FieldDefn> fields = new List<FieldDefn>();
         HeronType baseclass = null;
         List<HeronType> interfaces = new List<HeronType>();
-        FunctionListValue ctors;
+        FunDefnListValue ctors;
         #endregion
 
         #region internal function
@@ -230,17 +242,23 @@ namespace HeronEngine
             {
                 HeronType t = interfaces[i];
                 if (t is UnresolvedType)
-                    interfaces[i] = (t as UnresolvedType).Resolve();
+                {
+                    HeronType ht = (t as UnresolvedType).Resolve();
+                    HeronInterface hi = ht as HeronInterface;
+                    if (hi == null)
+                        throw new Exception(ht.name + " is not an interface");
+                    interfaces[i] = hi;
+                }
             }
-            foreach (Field f in GetFields())
+            foreach (FieldDefn f in GetFields())
                 f.ResolveTypes();
-            foreach (FunctionDefinition f in GetMethods())
+            foreach (FunctionDefn f in GetMethods())
                 f.ResolveTypes();
         }
 
         public bool VerifyImplements(HeronInterface i)
         {
-            foreach (FunctionDefinition f in i.GetMethods())
+            foreach (FunctionDefn f in i.GetMethods())
                 if (!HasFunction(f))
                     return false;
             return true;
@@ -253,9 +271,9 @@ namespace HeronEngine
                     throw new Exception("Class '" + name + "' does not implement the interface '" + i.name + "'");
         }
 
-        public bool HasFunction(FunctionDefinition f)
+        public bool HasFunction(FunctionDefn f)
         {
-            foreach (FunctionDefinition g in GetMethods(f.name))
+            foreach (FunctionDefn g in GetMethods(f.name))
                 if (g.Matches(f))
                     return true;
             return false;
@@ -267,6 +285,21 @@ namespace HeronEngine
         }
 
         [HeronVisible]
+        public List<HeronType> GetInheritedTypes()
+        {
+            List<HeronType> r = new List<HeronType>();
+            if (GetBaseClass() != null)
+                r.Add(GetBaseClass());
+            return r;
+        }
+
+        [HeronVisible]
+        public IEnumerable<HeronType> GetImplementedInterfaces()
+        {
+            return interfaces;
+        }
+
+        [HeronVisible]
         public HeronClass GetBaseClass()
         {
             return baseclass as HeronClass;
@@ -275,6 +308,8 @@ namespace HeronEngine
         [HeronVisible]
         public void AddInterface(HeronType i)
         {
+            if (i == null)
+                throw new Exception("Cannot add 'null' as an interface");
             interfaces.Add(i);
         }
 
@@ -282,7 +317,7 @@ namespace HeronEngine
         {
             i.AddField("this", i);
 
-            foreach (Field field in fields)
+            foreach (FieldDefn field in fields)
                 i.AddField(field.name, null);
 
             if (GetBaseClass() != null)
@@ -295,7 +330,7 @@ namespace HeronEngine
 
         public bool HasMethod(string name)
         {
-            foreach (FunctionDefinition f in GetMethods(name))
+            foreach (FunctionDefn f in GetMethods(name))
                 return true;
             return false;
         }
@@ -338,10 +373,10 @@ namespace HeronEngine
             ClassInstance r = new ClassInstance(this);
             AddFields(r);
             // This is a last minute computation of the constructor list
-            List<FunctionDefinition> ctorlist = new List<FunctionDefinition>(GetMethods("Constructor"));
+            List<FunctionDefn> ctorlist = new List<FunctionDefn>(GetMethods("Constructor"));
             if (ctorlist == null)
                 return r;
-            ctors = new FunctionListValue(r, "Constructor", ctorlist);
+            ctors = new FunDefnListValue(r, "Constructor", ctorlist);
             if (ctors.Count == 0)
                 return r;
 
@@ -353,44 +388,44 @@ namespace HeronEngine
         }
 
         [HeronVisible]
-        public IEnumerable<Field> GetFields()
+        public IEnumerable<FieldDefn> GetFields()
         {
             return fields;
         }
 
         [HeronVisible]
-        public void AddMethod(FunctionDefinition x)
+        public void AddMethod(FunctionDefn x)
         {
             methods.Add(x);
         }
 
         [HeronVisible]
-        public void AddField(Field x)
+        public void AddField(FieldDefn x)
         {
             fields.Add(x);
         }
 
         [HeronVisible]
-        public override Field GetField(string s)
+        public override FieldDefn GetField(string s)
         {
-            foreach (Field f in fields)
+            foreach (FieldDefn f in fields)
                 if (f.name == s)
                     return f;
             return base.GetField(s);
         }
 
         [HeronVisible]
-        public FunctionListValue GetCtors()
+        public FunDefnListValue GetCtors()
         {
             return ctors;
         }
 
-        public override IEnumerable<FunctionDefinition> GetMethods()
+        public override IEnumerable<FunctionDefn> GetMethods()
         {
-            foreach (FunctionDefinition f in methods)
+            foreach (FunctionDefn f in methods)
                 yield return f;
             if (baseclass != null)
-                foreach (FunctionDefinition f in baseclass.GetMethods())
+                foreach (FunctionDefn f in baseclass.GetMethods())
                     yield return f;
         }
 

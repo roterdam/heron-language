@@ -52,7 +52,7 @@ namespace HeronEngine
         public class DisposableFrame : IDisposable
         {
             VM vm;
-            public DisposableFrame(VM vm, FunctionDefinition def, ClassInstance ci)
+            public DisposableFrame(VM vm, FunctionDefn def, ClassInstance ci)
             {
                 this.vm = vm;
                 vm.PushNewFrame(def, ci);
@@ -80,12 +80,18 @@ namespace HeronEngine
         bool bReturning = false;
 
         /// <summary>
+        /// Used for debugging the execution of the VM
+        /// </summary>
+        HeronVMDebugger debugger;
+
+        /// <summary>
         /// Constructor
         /// </summary>
         public VM()
         {
             program = new HeronProgram("_untitled_");
             env = new Environment(program);
+            debugger = new HeronVMDebugger(env);
 
             // Load the global types
             foreach (HeronType t in program.GetGlobal().GetTypes())
@@ -182,6 +188,7 @@ namespace HeronEngine
         /// <returns></returns>
         public void Eval(Statement statement)
         {
+            debugger.AddStatement(statement);
             statement.Eval(this);
         }
         #endregion
@@ -257,7 +264,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="fun"></param>
         /// <param name="classInstance"></param>
-        private void PushNewFrame(FunctionDefinition fun, ClassInstance classInstance)
+        private void PushNewFrame(FunctionDefn fun, ClassInstance classInstance)
         {
             env.PushNewFrame(fun, classInstance);
         }
@@ -278,7 +285,7 @@ namespace HeronEngine
         /// <param name="fun"></param>
         /// <param name="classInstance"></param>
         /// <returns></returns>
-        public DisposableFrame CreateFrame(FunctionDefinition fun, ClassInstance classInstance)
+        public DisposableFrame CreateFrame(FunctionDefn fun, ClassInstance classInstance)
         {
             return new DisposableFrame(this, fun, classInstance);
         }

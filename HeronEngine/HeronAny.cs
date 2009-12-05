@@ -90,6 +90,14 @@ namespace HeronEngine
 
                 return obj;
             }
+            else 
+            {
+                Type from = type.GetSystemType();
+                Type to = t.GetSystemType();
+
+                if (from != null && to != null && to.IsAssignableFrom(from))
+                    return obj;
+            }
 
             throw new Exception("Cannot convert from '" + type.name + "' to '" + t.name);
         }

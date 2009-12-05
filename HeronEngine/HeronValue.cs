@@ -74,13 +74,13 @@ namespace HeronEngine
         public virtual HeronValue GetFieldOrMethod(string name)
         {
             HeronType t = GetHeronType();
-            Method m = t.GetMethod(name); 
+            ExposedMethod m = t.GetMethod(name); 
             if (m != null)
                 return m.CreateBoundMethod(this);
-            Field f = t.GetField(name);
+            FieldDefn f = t.GetField(name);
             if (f != null)
                 return f.GetValue(this);
-            return null;
+            throw new Exception("Could not find field or method : " + name);
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace HeronEngine
         public virtual void SetField(string name, HeronValue val)
         {
             HeronType t = GetHeronType();
-            Field fi = t.GetField(name);
+            FieldDefn fi = t.GetField(name);
             fi.SetValue(this, val);
         }
 
@@ -118,6 +118,12 @@ namespace HeronEngine
         public virtual bool EqualsValue(VM vm, HeronValue x)
         {
             return InvokeBinaryOperator(vm, "==", x).ToBool();
+        }
+
+        [HeronVisible]
+        public override string ToString()
+        {
+            return base.ToString();
         }
     }
 
@@ -297,13 +303,13 @@ namespace HeronEngine
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public FunctionListValue GetMethods(string name)
+        public FunDefnListValue GetMethods(string name)
         {
-            return new FunctionListValue(this, name, hclass.GetMethods(name));
+            return new FunDefnListValue(this, name, hclass.GetMethods(name));
         }
 
         /// <summary>
-        /// Adds a field. Field must not already exist. 
+        /// Adds a field. FieldDefn must not already exist. 
         /// </summary>
         /// <param name="name"></param>
         /// <param name="val"></param>
@@ -436,9 +442,9 @@ namespace HeronEngine
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public FunctionListValue GetMethods(string name)
+        public FunDefnListValue GetMethods(string name)
         {
-            return new FunctionListValue(obj, name, hinterface.GetMethods(name));
+            return new FunDefnListValue(obj, name, hinterface.GetMethods(name));
         }
         public override HeronValue GetFieldOrMethod(string name)
         {

@@ -12,7 +12,7 @@ using System.Text;
 
 namespace HeronEngine
 {
-    public abstract class Statement 
+    public abstract class Statement : HeronValue
     {
         static List<Statement> noStatements = new List<Statement>();
         static List<Expression> noExpressions = new List<Expression>();
@@ -77,8 +77,11 @@ namespace HeronEngine
 
     public class VariableDeclaration : Statement
     {
+        [HeronVisible]
         public string name;
+        [HeronVisible]
         public string type;
+        [HeronVisible]
         public Expression value;
 
         internal VariableDeclaration(Peg.AstNode node)
@@ -115,10 +118,16 @@ namespace HeronEngine
         {
             yield return name;
         }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.VariableDeclarationStatement;
+        }
     }
 
     public class DeleteStatement : Statement
     {
+        [HeronVisible]
         public Expression expression;
 
         internal DeleteStatement(Peg.AstNode node)
@@ -148,10 +157,16 @@ namespace HeronEngine
         {            
             yield return expression;
         }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.DeleteStatement;
+        }
     }
 
     public class ExpressionStatement : Statement
     {
+        [HeronVisible]
         public Expression expression;
 
         internal ExpressionStatement(Peg.AstNode node)
@@ -184,14 +199,23 @@ namespace HeronEngine
         {
             yield return expression;
         }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.ExpressionStatement;
+        }
     }
 
     public class ForEachStatement : Statement
     {
+        [HeronVisible]
         public string name;
+        [HeronVisible]
         public Expression collection;
+        [HeronVisible]
         public Statement body;
 
+        [HeronVisible]
         // TODO: make this a real Heron type
         public string type;
 
@@ -240,14 +264,24 @@ namespace HeronEngine
         {
             yield return name;
         }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.ForEachStatement;
+        }
     }
 
     public class ForStatement : Statement
     {
+        [HeronVisible]
         public string name;
+        [HeronVisible]
         public Expression initial;
+        [HeronVisible]
         public Expression condition;
+        [HeronVisible]
         public Expression next;
+        [HeronVisible]
         public Statement body;
 
         internal ForStatement(Peg.AstNode node)
@@ -302,10 +336,16 @@ namespace HeronEngine
         {
             yield return name;
         }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.ForStatement;
+        }
     }
 
     public class CodeBlock : Statement
     {
+        [HeronVisible]
         public List<Statement> statements = new List<Statement>();
         
         internal CodeBlock(Peg.AstNode node)
@@ -352,12 +392,20 @@ namespace HeronEngine
         {
             return statements;
         }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.CodeBlock;
+        }
     }
 
     public class IfStatement : Statement
     {
+        [HeronVisible]
         public Expression condition;
+        [HeronVisible]
         public Statement ontrue;
+        [HeronVisible]
         public Statement onfalse;
 
         internal IfStatement(Peg.AstNode node)
@@ -391,11 +439,18 @@ namespace HeronEngine
         {
             yield return condition;
         }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.IfStatement;
+        }
     }
 
     public class WhileStatement : Statement
     {
+        [HeronVisible]
         public Expression condition;
+        [HeronVisible]
         public Statement body;
 
         internal WhileStatement(Peg.AstNode node)
@@ -431,10 +486,16 @@ namespace HeronEngine
         {
             yield return condition;
         }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.WhileStatement;
+        }
     }
 
     public class ReturnStatement : Statement
     {
+        [HeronVisible]
         public Expression expression;
 
         internal ReturnStatement(Peg.AstNode node)
@@ -457,12 +518,20 @@ namespace HeronEngine
         {
             yield return expression;
         }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.ReturnStatement;
+        }
     }
 
     public class SwitchStatement : Statement
     {
+        [HeronVisible]
         public Expression condition;
+        [HeronVisible]
         public List<CaseStatement> cases;
+        [HeronVisible]
         public CodeBlock ondefault;
         
         internal SwitchStatement(Peg.AstNode node)
@@ -506,11 +575,18 @@ namespace HeronEngine
         {
             yield return condition;
         }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.SwitchStatement;
+        }
     }
 
     public class CaseStatement : Statement
     {
+        [HeronVisible]
         public Expression condition;
+        [HeronVisible]
         public CodeBlock statement;
 
         internal CaseStatement(Peg.AstNode node)
@@ -531,6 +607,11 @@ namespace HeronEngine
         public override IEnumerable<Expression> GetSubExpressions()
         {
             yield return condition;
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.CaseStatement;
         }
     }
 }

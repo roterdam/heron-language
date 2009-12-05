@@ -86,7 +86,7 @@ namespace HeronEngine
         /// <returns></returns>
         public static HeronValue Marshal(Object o)
         {
-            return HeronDotNet.DotNetToHeronObject(o);
+            return HeronDotNet.Marshal(o);
         }
 
         public static Object Unmarshal(Type t, HeronValue v)
@@ -187,7 +187,7 @@ namespace HeronEngine
             return s;
         }
 
-        public static HeronValue DotNetToHeronObject(Object o)
+        public static HeronValue Marshal(Object o)
         {
             if (o == null)
                 return HeronValue.Null;
@@ -213,8 +213,9 @@ namespace HeronEngine
                 case "Boolean":
                     return new BoolValue((bool)o);
                 default:
-                    // This is Her because a string implements IEnumerable
-                    if (o is IEnumerable)
+                    if (o is IList)
+                        return new ListValue(o as IList);
+                    else if (o is IEnumerable)
                         return new DotNetEnumeratorToHeronAdapter((o as IEnumerable).GetEnumerator());
                     else
                         return DotNetObject.CreateDotNetObjectNoMarshal(o);
@@ -355,7 +356,7 @@ namespace HeronEngine
     /// <summary>
     /// Exposes a method from a Heron primitive type to Heron
     /// </summary>
-    public class ExposedMethod : Method
+    public class ExposedMethod : HeronValue
     {
         MethodInfo method;
 
@@ -371,10 +372,15 @@ namespace HeronEngine
 
         public override HeronType GetHeronType()
         {
-            return PrimitiveTypes.PrimitiveMethodType;
+            return PrimitiveTypes.ExposedMethodType;
         }
 
-        public override HeronValue Invoke(VM vm, HeronValue self, HeronValue[] args)
+        public BoundMethod CreateBoundMethod(HeronValue self)
+        {
+            return new BoundMethod(self, this);
+        }
+
+        public HeronValue Invoke(VM vm, HeronValue self, HeronValue[] args)
         {
             int nParams = method.GetParameters().Length;
             if (nParams != args.Length)
