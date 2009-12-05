@@ -68,7 +68,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="f"></param>
         /// <param name="self"></param>
-        public void PushNewFrame(FunctionDefinition f, ClassInstance self)
+        public void PushNewFrame(FunctionDefn f, ClassInstance self)
         {
             frames.Push(new Frame(f, self));
         }

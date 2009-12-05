@@ -5,27 +5,29 @@
 		fields
 		{
 			indent : String;
+			atNewLine : Bool;
 		}
 		methods
 		{		
 			Constructor()
 			{
 				indent = new String();
+				atNewLine = false;
 			}
 			Write(s : String)
 			{
-				if (s == null)
-					Console.Write("???");
-				else
-					Console.Write(s);
+				if (atNewLine)
+				{
+					atNewLine = false;
+					Console.WriteLine();
+					Console.Write(indent);
+				} 
+				Console.Write(s);
 			}			
 			WriteLine(s : String)
 			{
-				if (s == null)
-					Console.WriteLine("???");
-				else
-					Console.WriteLine(s);
-				Write(indent);
+				Write(s);
+				atNewLine = true;
 			}
 			BracesAround(f : Function)
 			{
@@ -53,7 +55,11 @@
 				foreach (m in program.GetModules())
 					Output(m);
 			}
-						
+			OutputAll(xs : Seq)
+			{
+				foreach (x in xs)
+					Output(x);
+			}						
 			Output(m : HeronModule)
 			{
 				Write("module ");
@@ -61,35 +67,81 @@
 				BracesAround(
 					function() 
 					{
-						foreach (c in m.GetClasses())
-							Output(c);
-						foreach (i in m.GetInterfaces())
-							Output(i);					
-						foreach (e in m.GetEnums())
-							Output(e);	
+						OutputAll(m.GetClasses());
+						OutputAll(m.GetInterfaces());
+						OutputAll(m.GetEnums());
 					}
 				);	
 			}
-				
+			OutputSection(name : String, xs : Seq)
+			{
+				WriteLine(name);
+				BracesAround(
+					function() {
+						OutputAll(xs);
+					});
+			}
+			OutputDelimited(xs : List, sDelim : String)
+			{
+				foreach (i in 0..xs.Count() - 1) {
+					if (i > 0)
+						Write(sDelim);
+					Output(xs[i]);
+				}
+			}
 			Output(c : HeronClass)
 			{
 				Write("class ");				
 				WriteLine(c.name);
-				WriteLine("{ }");
+				OutputSection("inherits", c.GetInheritedTypes());
+				OutputSection("implements", c.GetImplementedInterfaces());				
+				OutputSection("fields", c.GetFields());
+				OutputSection("methods", c.GetMethods());
 			}
-
 			Output(i : HeronInterface)
 			{
 				Write("interface ");
 				WriteLine(i.name);
 				WriteLine("{ }");												
 			}
-
 			Output(e : HeronEnum)
 			{
 				Write("enum ");
 				WriteLine(e.name);
 				WriteLine("{ }");
+			}
+			Output(f : FieldDefn)
+			{
+				Write(f.name);
+				OutputTypeDecl(f.type);
+				WriteLine(";");			
+			}
+			Output(t : Type)
+			{
+				Write(t.ToString());
+			}
+			OutputTypeDecl(t : Type)
+			{
+				if (t.name != "Void")
+					Write(" : " + t.name); 
+			}
+			Output(m : FunctionDefn)
+			{
+				Write(m.name);
+				Write("(");
+				OutputDelimited(m.formals, ", ");
+				Write(")");
+				OutputTypeDecl(m.rettype);
+				Output(m.body);
+			}
+			Output(fa : FormalArg)
+			{
+				Write(fa.name);
+				OutputTypeDecl(fa.type);
+			}
+			Output(s : Statement)
+			{
+			
 			}
 		}
 	}

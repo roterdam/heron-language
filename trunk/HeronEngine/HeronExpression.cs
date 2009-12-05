@@ -622,12 +622,15 @@ namespace HeronEngine
     /// to the function and that is not an argument.
     /// </summary>
     public class AnonFunExpr : Expression
-    {
-        public HeronFormalArgs formals;
+    {       
+        [HeronVisible]
+        public FormalArgs formals;
+        [HeronVisible]
         public CodeBlock body;
+        [HeronVisible]
         public HeronType rettype;
 
-        private FunctionDefinition function;
+        private FunctionDefn function;
 
         public override HeronValue Eval(VM vm)
         {
@@ -641,11 +644,11 @@ namespace HeronEngine
             return "function" + formals.ToString() + body.ToString();
         }
 
-        private FunctionDefinition GetFunction()
+        private FunctionDefn GetFunction()
         {
             if (function == null)
             {
-                function = new FunctionDefinition(null);
+                function = new FunctionDefn(null);
                 function.formals = formals;
                 function.body = body;
                 function.rettype = rettype;

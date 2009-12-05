@@ -125,5 +125,27 @@ namespace Peg
                     return node;
             return null;
         }
+
+        public string CurrentLine
+        {
+            get
+            {
+                int begin = mnBegin;
+                while (begin > 0 && msText[begin-1] != '\n')
+                    begin--;
+                int end = begin;
+                while (end < msText.Length - 1 && msText[end + 1] != '\n')
+                    end++;
+                return msText.Substring(begin, end - begin);
+            }
+        }
+
+        public int CurrentLineIndex
+        {
+            get
+            {
+                return msText.LineOfIndex(mnBegin);
+            }
+        }
     }
 }

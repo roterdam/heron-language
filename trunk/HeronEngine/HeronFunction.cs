@@ -15,32 +15,45 @@ namespace HeronEngine
     /// <summary>
     /// Represents the formal argument to a function
     /// </summary>
-    public class FormalArg
+    public class FormalArg : HeronValue
     {
+        [HeronVisible]
         public string name;
+        [HeronVisible]
         public HeronType type = PrimitiveTypes.AnyType;
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.FormalArg;
+        }
     }
 
     /// <summary>
     /// Represents all of the formals arguments to a function.
     /// </summary>
-    public class HeronFormalArgs : List<FormalArg>
+    public class FormalArgs : List<FormalArg>
     {
     }
 
     /// <summary>
-    /// Represents the definition of a Heron function or member function in the source code.
-    /// Not to be confused with a FunctionVale which represents a value of function type.
+    /// Represents the definition of a Heron member function in the source code.
+    /// Like MethodINfo in C#
+    /// Not to be confused with a FunctionValue which represents a value of function type.
     /// </summary>
-    public class FunctionDefinition : HeronValue
+    public class FunctionDefn : HeronValue
     {
+        [HeronVisible]
         public string name = "_anonymous_";
+        [HeronVisible]
         public Statement body;
-        public HeronFormalArgs formals;
+        [HeronVisible]
+        public FormalArgs formals;
+        [HeronVisible]
         public HeronType parent;
+        [HeronVisible]
         public HeronType rettype;
 
-        public FunctionDefinition(HeronType parent)
+        public FunctionDefn(HeronType parent)
         {
             this.parent = parent;
         }
@@ -60,7 +73,7 @@ namespace HeronEngine
             return fo.Apply(vm, args);
         }
 
-        public bool Matches(FunctionDefinition f)
+        public bool Matches(FunctionDefn f)
         {
             if (f.name != name)
                 return false;
@@ -79,7 +92,7 @@ namespace HeronEngine
 
         public override HeronType GetHeronType()
         {
-            return PrimitiveTypes.FunctionType;
+            return PrimitiveTypes.FunctionDefnType;
         }
 
         public HeronType GetParentType()
@@ -118,16 +131,11 @@ namespace HeronEngine
             return sb.ToString();
         }
 
+        [HeronVisible]
         public IEnumerable<Statement> GetStatements()
         {
             foreach (Statement st in body.GetSubStatements())
                 yield return st;
         }
-    }
-
-    /// <summary>
-    /// </summary>
-    public class FunctionTable : List<FunctionDefinition>
-    {
     }
 }

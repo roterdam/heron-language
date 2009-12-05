@@ -95,7 +95,7 @@ namespace HeronEngine
             r.AddClass(c);
             
             // Used to store the main function once it is found.
-            FunctionDefinition main = null;
+            FunctionDefn main = null;
 
             // Create a list of the initializers used for the variables 
             // declared at the scope level.
@@ -108,7 +108,7 @@ namespace HeronEngine
                 switch (child.Label)
                 {
                     case "method":
-                        FunctionDefinition func = CreateFunction(child, c);
+                        FunctionDefn func = CreateFunction(child, c);
                         
                         // Store the function if it is the 'Main' function
                         if (func.name == "Main")
@@ -122,7 +122,7 @@ namespace HeronEngine
                         break;
 
                     case "vardecl":
-                        Field field = CreateField(child);                        
+                        FieldDefn field = CreateField(child);                        
                         c.AddField(field);
 
                         // Check if there is an initializer we are going to need 
@@ -235,7 +235,7 @@ namespace HeronEngine
             {
                 foreach (AstNode node in methods.Children)
                 {
-                    FunctionDefinition f = CreateFunction(node, r);
+                    FunctionDefn f = CreateFunction(node, r);
                     r.AddMethod(f);
                 }
             }
@@ -271,7 +271,7 @@ namespace HeronEngine
             {
                 foreach (AstNode node in methods.Children)
                 {
-                    FunctionDefinition f = CreateFunction(node, r);
+                    FunctionDefn f = CreateFunction(node, r);
                     r.AddMethod(f);
                 }
             }
@@ -322,9 +322,9 @@ namespace HeronEngine
             return def;
         }
 
-        static public Field CreateField(AstNode x)
+        static public FieldDefn CreateField(AstNode x)
         {
-            Field r = new Field();
+            FieldDefn r = new FieldDefn();
             r.name = x.GetChild("name").ToString();
             r.type = new UnresolvedType(GetTypeName(x, "Any"), currentModule);
             return r;
@@ -338,18 +338,18 @@ namespace HeronEngine
             return r;            
         }
 
-        static public HeronFormalArgs CreateFormalArgs(AstNode x)
+        static public FormalArgs CreateFormalArgs(AstNode x)
         {
-            HeronFormalArgs r = new HeronFormalArgs();
+            FormalArgs r = new FormalArgs();
             foreach (AstNode node in x.Children)
                 r.Add(CreateFormalArg(node));
             return r;
         }
 
-        static public FunctionDefinition CreateFunction(AstNode x, HeronType parent)
+        static public FunctionDefn CreateFunction(AstNode x, HeronType parent)
         {
             HeronModule module = parent.GetModule();
-            FunctionDefinition r = new FunctionDefinition(parent);
+            FunctionDefn r = new FunctionDefn(parent);
             AstNode fundecl = x.GetChild("fundecl");            
             r.name = fundecl.GetChild("name").ToString();
             r.formals = CreateFormalArgs(fundecl.GetChild("arglist"));

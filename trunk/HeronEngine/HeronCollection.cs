@@ -5,6 +5,7 @@
 /// http://www.opensource.org/licenses/mit-license.php
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -315,7 +316,7 @@ namespace HeronEngine
 
             return true;
         }
-
+        
         public virtual ListValue ToList(VM vm)
         {
             return new ListValue(ToDotNetEnumerable(vm));
@@ -341,6 +342,12 @@ namespace HeronEngine
             list.AddRange(xs);
         }
 
+        public ListValue(IList xs)
+        {
+            foreach (Object x in xs) 
+                list.Add(DotNetObject.Marshal(x));
+        }
+
         [HeronVisible]
         public void Add(HeronValue v)
         {
@@ -353,15 +360,15 @@ namespace HeronEngine
             list.RemoveAt(list.Count - 1);
         }
 
-        public int Count()
+        public int InternalCount()
         {
             return list.Count();
         }
 
         [HeronVisible]
-        public HeronValue Length()
+        public HeronValue Count()
         {
-            return new IntValue(Count());
+            return new IntValue(InternalCount());
         }
 
         public override HeronType GetHeronType()
@@ -379,5 +386,18 @@ namespace HeronEngine
             return this;
         }
 
+        public override HeronValue GetAtIndex(HeronValue index)
+        {
+            if (!(index is IntValue))
+                throw new Exception("Can only index lists using integers");
+            return list[(index as IntValue).GetValue()];
+        }
+
+        public override void SetAtIndex(HeronValue index, HeronValue val)
+        {
+            if (!(index is IntValue))
+                throw new Exception("Can only index lists using integers");
+            list[(index as IntValue).GetValue()] = val;
+        }
     }
 }

@@ -54,7 +54,6 @@
     <Compile Include="HeronDotNet.cs" />
     <Compile Include="HeronFrame.cs" />
     <Compile Include="HeronFunctionValues.cs" />
-    <Compile Include="HeronInterfaces.cs" />
     <Compile Include="HeronModule.cs" />
     <Compile Include="HeronASTValue.cs" />
     <Compile Include="HeronScope.cs" />
@@ -75,6 +74,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="HeronType.cs" />
+    <Compile Include="HeronVMDebugger.cs" />
     <Compile Include="HeronXml.cs" />
     <Compile Include="PegRuleTypes.cs" />
     <Compile Include="Program.cs" />

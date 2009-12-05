@@ -22,7 +22,7 @@ namespace HeronEngine
         /// <summary>
         /// Function associated with this activation record 
         /// </summary>
-        public FunctionDefinition function = null;
+        public FunctionDefn function = null;
 
         /// <summary>
         /// The 'this' pointer if applicable 
@@ -44,7 +44,7 @@ namespace HeronEngine
         /// </summary>
         private Stack<Scope> scopes = new Stack<Scope>();
 
-        public Frame(FunctionDefinition f, ClassInstance self)
+        public Frame(FunctionDefn f, ClassInstance self)
         {
             this.function = f;
             this.self = self;

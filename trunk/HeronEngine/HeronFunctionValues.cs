@@ -22,9 +22,9 @@ namespace HeronEngine
     {
         HeronValue self;
         Scope freeVars;
-        FunctionDefinition fun;
+        FunctionDefn fun;
 
-        public FunctionValue(HeronValue self, FunctionDefinition f)
+        public FunctionValue(HeronValue self, FunctionDefn f)
         {
             this.self = self;
             fun = f;
@@ -48,7 +48,7 @@ namespace HeronEngine
 
         private void GetFreeVars(VM vm, Statement st, Stack<string> boundVars, Scope result)
         {
-            // Count and store the names defined by this statement 
+            // InternalCount and store the names defined by this statement 
             int nNewVars = 0;
             foreach (string name in st.GetDefinedNames())
             {
@@ -139,11 +139,11 @@ namespace HeronEngine
     /// This is class is used for dynamic resolution of overloaded function
     /// names.
     /// </summary>
-    public class FunctionListValue : HeronValue
+    public class FunDefnListValue : HeronValue
     {
         HeronValue self;
         string name;
-        List<FunctionDefinition> functions = new List<FunctionDefinition>();
+        List<FunctionDefn> functions = new List<FunctionDefn>();
 
         public int Count
         {
@@ -153,13 +153,13 @@ namespace HeronEngine
             }
         }
 
-        public FunctionListValue(HeronValue self, string name, IEnumerable<FunctionDefinition> args)
+        public FunDefnListValue(HeronValue self, string name, IEnumerable<FunctionDefn> args)
         {
             this.self = self;
-            foreach (FunctionDefinition f in args)
+            foreach (FunctionDefn f in args)
                 functions.Add(f);
             this.name = name;
-            foreach (FunctionDefinition f in functions)
+            foreach (FunctionDefn f in functions)
                 if (f.name != name)
                     throw new Exception("All functions in function list object must share the same name");
         }
@@ -173,7 +173,7 @@ namespace HeronEngine
         public FunctionValue Resolve(VM vm, HeronValue[] args)
         {
             List<FunctionValue> r = new List<FunctionValue>();
-            foreach (FunctionDefinition f in functions)
+            foreach (FunctionDefn f in functions)
             {
                 if (f.formals.Count == args.Length)
                 {
@@ -213,7 +213,7 @@ namespace HeronEngine
                         tmp.Remove(fo);
                 }
                 if (tmp.Count == 0)
-                    throw new Exception("Could not resolve function, no function matches perfectly");
+                    throw new Exception("Could not resolve function " + name + " no function matches perfectly");
 
                 // We found a single best match
                 if (tmp.Count == 1)
@@ -259,9 +259,9 @@ namespace HeronEngine
     public class BoundMethod : HeronValue
     {
         HeronValue self;
-        Method method;
+        ExposedMethod method;
 
-        public BoundMethod(HeronValue self, Method method)
+        public BoundMethod(HeronValue self, ExposedMethod method)
         {
             this.self = self;
             this.method = method;
@@ -278,11 +278,12 @@ namespace HeronEngine
         }
     }
 
+    /*
     /// <summary>
     /// Represents a member function value. Note that it can't be called (applied), until
     /// bound to a "this" value. This is done by creating a bound method. 
     /// </summary>
-    public abstract class Method : HeronValue
+    public abstract class ExposedMethod : HeronValue
     {
         public abstract HeronValue Invoke(VM vm, HeronValue self, HeronValue[] args);
 
@@ -296,4 +297,5 @@ namespace HeronEngine
             return PrimitiveTypes.MethodType;
         }
     }
+    */
 }
