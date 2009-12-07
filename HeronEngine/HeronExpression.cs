@@ -15,7 +15,7 @@ namespace HeronEngine
     /// <summary>
     /// An expression in its represtantation as part of the abstract syntax tree.     
     /// </summary>
-    public abstract class Expression 
+    public abstract class Expression : HeronValue
     {
         protected void Error(string s)
         {
@@ -32,14 +32,45 @@ namespace HeronEngine
 
         static protected List<Expression> noExpressions = new List<Expression>();
 
-        public abstract IEnumerable<Expression> GetSubExpressions();
-
+        public IEnumerable<Expression> GetSubExpressions()
+        {
+            foreach (FieldInfo fi in GetInstanceFields())
+            {
+                if (fi.FieldType.Equals(typeof(ExpressionList)))
+                {
+                    foreach (Expression expr in fi.GetValue(this) as ExpressionList)
+                        yield return expr;
+                }
+                if (fi.FieldType.Equals(typeof(Expression)))
+                {
+                    yield return fi.GetValue(this) as Expression;
+                }
+            }
+        }
+        
         public IEnumerable<Expression> GetExpressionTree()
         {
             yield return this;
             foreach (Expression x in GetSubExpressions())
                 foreach (Expression y in x.GetExpressionTree())
                     yield return y;
+        }
+
+        public void ResolveTypes()
+        {
+            foreach (FieldInfo fi in GetInstanceFields())
+            {
+                if (fi.FieldType.Equals(typeof(HeronType)))
+                {
+                    HeronType t = fi.GetValue(this) as HeronType;
+                    if (t == null)
+                        throw new Exception("The type field cannot be null, expected an UnresolvedType");
+                    UnresolvedType ut = t as UnresolvedType;
+                    if (ut == null)
+                        throw new Exception("Expected an unresolved type not a " + t.name);
+                    fi.SetValue(this, ut.Resolve());
+                }
+            }
         }
     }
 
@@ -74,8 +105,8 @@ namespace HeronEngine
     /// </summary>
     public class Assignment : Expression
     {
-        public Expression lvalue;
-        public Expression rvalue;
+        [HeronVisible] public Expression lvalue;
+        [HeronVisible] public Expression rvalue;
 
         public Assignment(Expression lvalue, Expression rvalue)
         {
@@ -129,10 +160,9 @@ namespace HeronEngine
             return lvalue.ToString() + " = " + rvalue.ToString();
         }
 
-        public override IEnumerable<Expression> GetSubExpressions()
+        public override HeronType GetHeronType()
         {
-            yield return lvalue;
-            yield return rvalue;
+            return PrimitiveTypes.Assignment;
         }
     }
 
@@ -141,8 +171,8 @@ namespace HeronEngine
     /// </summary>
     public class ChooseField : Expression
     {
-        public string name;
-        public Expression self;
+        [HeronVisible] public string name;
+        [HeronVisible] public Expression self;
 
         public ChooseField(Expression self, string name)
         {
@@ -163,9 +193,9 @@ namespace HeronEngine
             return "(" + self.ToString() + "." + name + ")";
         }
 
-        public override IEnumerable<Expression> GetSubExpressions()
+        public override HeronType GetHeronType()
         {
-            yield return self;
+            return PrimitiveTypes.ChooseField;
         }
     }
 
@@ -174,31 +204,30 @@ namespace HeronEngine
     /// </summary>
     public class ReadAt : Expression
     {
-        public Expression coll;
-        public Expression index;
+        [HeronVisible] public Expression self;
+        [HeronVisible] public Expression index;
 
         public ReadAt(Expression coll, Expression index)
         {
-            this.coll = coll;
+            this.self = coll;
             this.index = index;
         }
 
         public override HeronValue Eval(VM vm)
         {
-            HeronValue o = coll.Eval(vm);
+            HeronValue o = self.Eval(vm);
             HeronValue i = index.Eval(vm);
             return o.GetAtIndex(i);
         }
 
         public override string ToString()
         {
-            return coll + "[" + index.ToString() + "]";
+            return self + "[" + index.ToString() + "]";
         }
 
-        public override IEnumerable<Expression> GetSubExpressions()
+        public override HeronType GetHeronType()
         {
-            yield return coll;
-            yield return index;
+            return PrimitiveTypes.ReadAt;
         }
     }
 
@@ -207,10 +236,10 @@ namespace HeronEngine
     /// </summary>
     public class NewExpr : Expression
     {
-        string type;
-        ExpressionList args;
+        [HeronVisible] HeronType type;
+        [HeronVisible] ExpressionList args;
 
-        public NewExpr(string type, ExpressionList args)
+        public NewExpr(HeronType type, ExpressionList args)
         {
             this.type = type;
             this.args = args;
@@ -218,17 +247,13 @@ namespace HeronEngine
 
         public override HeronValue Eval(VM vm)
         {
-            HeronValue o = vm.LookupName(type);
-            if (!(o is HeronType))
-                throw new Exception("Cannot instantiate non-type " + type);
-            HeronType t = o as HeronType;
             HeronValue[] argvals = args.Eval(vm);
-            return t.Instantiate(vm, argvals);
+            return type.Instantiate(vm, argvals);
         }
 
-        public override IEnumerable<Expression> GetSubExpressions()
+        public override HeronType GetHeronType()
         {
-            return args;
+            return PrimitiveTypes.NewExpr;
         }
     }
 
@@ -246,9 +271,9 @@ namespace HeronEngine
             return new NullValue();
         }
 
-        public override IEnumerable<Expression> GetSubExpressions()
+        public override HeronType GetHeronType()
         {
-            return noExpressions;
+            return PrimitiveTypes.NullExpr;
         }
     }
 
@@ -274,11 +299,6 @@ namespace HeronEngine
         {
             return val.ToString();
         }
-
-        public override IEnumerable<Expression> GetSubExpressions()
-        {
-            return noExpressions;
-        }
     }
 
     /// <summary>
@@ -289,6 +309,11 @@ namespace HeronEngine
         public IntLiteral(int x)
             : base(new IntValue(x))
         {
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.IntLiteral;
         }
     }
 
@@ -301,6 +326,11 @@ namespace HeronEngine
             : base(new BoolValue(x))
         {
         }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.BoolLiteral;
+        }
     }
 
     /// <summary>
@@ -311,6 +341,11 @@ namespace HeronEngine
         public FloatLiteral(float x)
             : base(new FloatValue(x))
         {
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.FloatLiteral;
         }
     }
 
@@ -323,6 +358,11 @@ namespace HeronEngine
             : base(new CharValue(x))
         {
         }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.CharLiteral;
+        }
     }
 
     /// <summary>
@@ -334,6 +374,11 @@ namespace HeronEngine
             : base(new StringValue(x))
         {
         }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.StringLiteral;
+        }
     }
 
     /// <summary>
@@ -341,7 +386,7 @@ namespace HeronEngine
     /// </summary>
     public class Name : Expression
     {
-        public string name;
+        [HeronVisible] public string name;
 
         public Name(string s)
         {
@@ -359,9 +404,9 @@ namespace HeronEngine
             return name;
         }
 
-        public override IEnumerable<Expression> GetSubExpressions()
+        public override HeronType GetHeronType()
         {
-            return noExpressions;
+            return PrimitiveTypes.Name;
         }
     }
 
@@ -370,8 +415,8 @@ namespace HeronEngine
     /// </summary>
     public class FunCall : Expression
     {
-        public Expression funexpr;
-        public ExpressionList args;
+        [HeronVisible] public Expression funexpr;
+        [HeronVisible] public ExpressionList args;
 
         public FunCall(Expression f, ExpressionList args)
         {
@@ -391,11 +436,9 @@ namespace HeronEngine
             return funexpr.ToString() + args.ToString();
         }
 
-        public override IEnumerable<Expression> GetSubExpressions()
+        public override HeronType GetHeronType()
         {
-            yield return funexpr;
-            foreach (Expression x in args)
-                yield return x;
+            return PrimitiveTypes.FunCall;
         }
     }
 
@@ -403,12 +446,12 @@ namespace HeronEngine
     /// Represents an expression with a unary operator. That is with one operand (e.g. the not operator '!' or the negation operator '-').
     /// This does not include the post-increment operator.
     /// </summary>
-    public class UnaryOperator : Expression
+    public class UnaryOperation : Expression
     {
-        public Expression operand;
-        public string operation;
+        [HeronVisible] public Expression operand;
+        [HeronVisible] public string operation;
 
-        public UnaryOperator(string sOp, Expression x)
+        public UnaryOperation(string sOp, Expression x)
         {
             operation = sOp;
             operand = x;
@@ -425,22 +468,22 @@ namespace HeronEngine
             return "(" + operation + "  " + operand.ToString() + ")";
         }
 
-        public override IEnumerable<Expression> GetSubExpressions()
+        public override HeronType GetHeronType()
         {
-            yield return operand;
+            return PrimitiveTypes.UnaryOperation;
         }
     }
 
     /// <summary>
     /// Represents an expression with a binary operator (like + or *), that is that has two operands. 
     /// </summary>
-    public class BinaryOperator : Expression
+    public class BinaryOperation : Expression
     {
-        public Expression operand1;
-        public Expression operand2;
-        public string operation;
+        [HeronVisible] public Expression operand1;
+        [HeronVisible] public Expression operand2;
+        [HeronVisible] public string operation;
 
-        public BinaryOperator(string sOp, Expression x, Expression y)
+        public BinaryOperation(string sOp, Expression x, Expression y)
         {
             operation = sOp;
             operand1 = x;
@@ -609,10 +652,9 @@ namespace HeronEngine
             return "(" + operand1.ToString() + " " + operation + " " + operand2.ToString() + ")";
         }
 
-        public override IEnumerable<Expression> GetSubExpressions()
+        public override HeronType GetHeronType()
         {
-            yield return operand1;
-            yield return operand2;
+            return PrimitiveTypes.BinaryOperation;
         }
     }
 
@@ -623,12 +665,9 @@ namespace HeronEngine
     /// </summary>
     public class AnonFunExpr : Expression
     {       
-        [HeronVisible]
-        public FormalArgs formals;
-        [HeronVisible]
-        public CodeBlock body;
-        [HeronVisible]
-        public HeronType rettype;
+        [HeronVisible] public FormalArgs formals;
+        [HeronVisible] public CodeBlock body;
+        [HeronVisible] public HeronType rettype;
 
         private FunctionDefn function;
 
@@ -656,9 +695,9 @@ namespace HeronEngine
             return function;            
         }
 
-        public override IEnumerable<Expression> GetSubExpressions()
+        public override HeronType GetHeronType()
         {
-            return noExpressions;
+            return PrimitiveTypes.AnonFunExpr;
         }
     }
 
@@ -668,13 +707,13 @@ namespace HeronEngine
     /// </summary>
     public class PostIncExpr : Expression
     {
-        Expression expr;
-        Assignment ass;
+        [HeronVisible] Expression expr;
+        [HeronVisible] Assignment ass;
 
         public PostIncExpr(Expression x)
         {
             expr = x;
-            ass = new Assignment(x, new BinaryOperator("+", x, new IntLiteral(1)));
+            ass = new Assignment(x, new BinaryOperation("+", x, new IntLiteral(1)));
         }
 
         public override HeronValue Eval(VM vm)
@@ -689,9 +728,9 @@ namespace HeronEngine
             return expr.ToString() + "++";
         }
 
-        public override IEnumerable<Expression> GetSubExpressions()
+        public override HeronType GetHeronType()
         {
-            yield return expr;
+            return PrimitiveTypes.PostIncExpr;
         }
     }
 
@@ -701,9 +740,9 @@ namespace HeronEngine
     /// </summary>
     public class SelectExpr : Expression
     {
-        public string name;
-        public Expression list;
-        public Expression pred;
+        [HeronVisible] public string name;
+        [HeronVisible] public Expression list;
+        [HeronVisible] public Expression pred;
 
         public SelectExpr(string name, Expression list, Expression pred)
         {
@@ -724,10 +763,9 @@ namespace HeronEngine
             return "select (" + name + " from " + list.ToString() + ") where " + pred.ToString();
         }
 
-        public override IEnumerable<Expression> GetSubExpressions()
+        public override HeronType GetHeronType()
         {
-            yield return list;
-            yield return pred;
+            return PrimitiveTypes.SelectExpr;
         }
     }
 
@@ -738,9 +776,9 @@ namespace HeronEngine
     /// </summary>
     public class MapEachExpr : Expression
     {
-        string name;
-        Expression list;
-        Expression yield;
+        [HeronVisible] string name;
+        [HeronVisible] Expression list;
+        [HeronVisible] Expression yield;
 
         public MapEachExpr(string name, Expression list, Expression yield)
         {
@@ -761,10 +799,9 @@ namespace HeronEngine
             return "mapeach (" + name + " in " + list.ToString() + ") to " + yield.ToString();
         }
 
-        public override IEnumerable<Expression> GetSubExpressions()
+        public override HeronType GetHeronType()
         {
-            yield return list;
-            yield return yield;
+            return PrimitiveTypes.MapEachExpr;
         }
     }
 
@@ -775,11 +812,11 @@ namespace HeronEngine
     /// </summary>
     public class AccumulateExpr : Expression
     {
-        string acc;
-        Expression init;
-        string each;
-        Expression list;
-        Expression expr;
+        [HeronVisible] string acc;
+        [HeronVisible] Expression init;
+        [HeronVisible] string each;
+        [HeronVisible] Expression list;
+        [HeronVisible] Expression expr;
 
         public AccumulateExpr(string acc, Expression init, string each, Expression list, Expression expr)
         {
@@ -811,11 +848,10 @@ namespace HeronEngine
         {
             return "accumulate (" + acc + " = " + init.ToString() + " forall " + each + " in " + list.ToString() + ") " + expr.ToString();
         }
-        
-        public override IEnumerable<Expression> GetSubExpressions()
+
+        public override HeronType GetHeronType()
         {
-            yield return init;
-            yield return list;
+            return PrimitiveTypes.AccumulateExpr;
         }
     }
 
@@ -824,7 +860,7 @@ namespace HeronEngine
     /// </summary>
     public class TupleExpr : Expression
     {
-        ExpressionList exprs;
+        [HeronVisible] ExpressionList exprs;
 
         public TupleExpr(ExpressionList xs)
         {
@@ -839,9 +875,9 @@ namespace HeronEngine
             return list;
         }
 
-        public override IEnumerable<Expression> GetSubExpressions()
+        public override HeronType GetHeronType()
         {
-            throw new NotImplementedException();
+            return PrimitiveTypes.TupleExpr;
         }
     }
 }

@@ -26,6 +26,11 @@ namespace HeronEngine
         Dictionary<string, ExposedMethod> functions = new Dictionary<string, ExposedMethod>();
         Dictionary<string, ExposedField> fields = new Dictionary<string, ExposedField>();
 
+        public HeronType(Type t)
+            : this(null, t, t.Name)
+        {
+        }
+
         public HeronType(HeronModule m, Type t, string name)
         {
             module = m;
@@ -188,8 +193,11 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// A place-holder for types during parsing. 
-    /// Should be replaced with an actual type during run-time
+    /// A place-holder for types after parsing. Once parsing is complete, any occurence of an
+    /// instance of UnresolvedType should be replaced with the correct type. To do this, requires
+    /// all modules to be parsed, so it has to be done after parsing. There are probably more 
+    /// elegant solutions available, but this is the best I could come up with. It does not 
+    /// require a lot of code, and errors are easy to detect.
     /// </summary>
     public class UnresolvedType : HeronType
     {

@@ -125,6 +125,11 @@ namespace HeronEngine
         {
             return base.ToString();
         }
+
+        public IEnumerable<FieldInfo> GetInstanceFields()
+        {
+            return GetType().GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+        }
     }
 
     /// <summary>

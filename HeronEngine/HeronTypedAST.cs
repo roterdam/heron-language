@@ -404,7 +404,7 @@ namespace HeronEngine
         {
             VariableDeclaration r = new VariableDeclaration(x);
             r.name = x.GetChild("name").ToString();
-            r.type = GetTypeName(x, "Object");
+            r.type = new UnresolvedType(GetTypeName(x, "Object"), currentModule);
             AstNode tmp = x.GetChild("expr");
             if (tmp != null)
                 r.value = CreateExpr(tmp);
@@ -485,7 +485,7 @@ namespace HeronEngine
             else if (x.GetNumChildren() == 4)
             {
                 r.name = x.GetChild(0).ToString();
-                r.type = x.GetChild(1).ToString();
+                r.type = new UnresolvedType(GetTypeName(x.GetChild(1), "Void"), currentModule);
                 r.collection = CreateExpr(x.GetChild(2));
                 r.body = CreateStatement(x.GetChild(3));
             }
@@ -595,7 +595,7 @@ namespace HeronEngine
             Assure(x, type.Label == "type", "new operator is missing type expression");
             AstNode args = x.GetChild(1);
             Assure(args, args.Label == "paranexpr", "new operator is missing argument list");
-            return new NewExpr(type.ToString(), CreateExprList(args));
+            return new NewExpr(new UnresolvedType(GetTypeName(type, "Void"), currentModule), CreateExprList(args));
         }
 
         static MapEachExpr CreateMapEachExpr(AstNode x)
@@ -775,13 +775,13 @@ namespace HeronEngine
             if (ChildNodeMatches(x, ref i, "-"))
             {
                 Expression tmp = CreatePostfixExpr(x, ref i);
-                Expression r = new UnaryOperator("-", tmp);
+                Expression r = new UnaryOperation("-", tmp);
                 return r;
             }
             if (ChildNodeMatches(x, ref i, "!"))
             {
                 Expression tmp = CreatePostfixExpr(x, ref i);
-                Expression r = new UnaryOperator("!", tmp);
+                Expression r = new UnaryOperation("!", tmp);
                 return r;
             }
             else
@@ -797,15 +797,15 @@ namespace HeronEngine
 
             if (ChildNodeMatches(x, ref i, "*"))
             {
-                r = new BinaryOperator("*", r, CreateUnaryExpr(x, ref i));
+                r = new BinaryOperation("*", r, CreateUnaryExpr(x, ref i));
             }
             else if (ChildNodeMatches(x, ref i, "/"))
             {
-                r = new BinaryOperator("/", r, CreateUnaryExpr(x, ref i));
+                r = new BinaryOperation("/", r, CreateUnaryExpr(x, ref i));
             }
             else if (ChildNodeMatches(x, ref i, "%"))
             {
-                r = new BinaryOperator("%", r, CreateUnaryExpr(x, ref i));
+                r = new BinaryOperation("%", r, CreateUnaryExpr(x, ref i));
             }
             return r;
         }
@@ -816,11 +816,11 @@ namespace HeronEngine
 
             if (ChildNodeMatches(x, ref i, "+"))
             {
-                r = new BinaryOperator("+", r, CreateMultExpr(x, ref i));
+                r = new BinaryOperation("+", r, CreateMultExpr(x, ref i));
             }
             else if (ChildNodeMatches(x, ref i, "-"))
             {
-                r = new BinaryOperator("-", r, CreateMultExpr(x, ref i));
+                r = new BinaryOperation("-", r, CreateMultExpr(x, ref i));
             }
             return r;
         }
@@ -831,19 +831,19 @@ namespace HeronEngine
 
             if (ChildNodeMatches(x, ref i, ">"))
             {
-                r = new BinaryOperator(">", r, CreateAddExpr(x, ref i));
+                r = new BinaryOperation(">", r, CreateAddExpr(x, ref i));
             }
             else if (ChildNodeMatches(x, ref i, "<"))
             {
-                r = new BinaryOperator("<", r, CreateAddExpr(x, ref i));
+                r = new BinaryOperation("<", r, CreateAddExpr(x, ref i));
             }
             else if (ChildNodeMatches(x, ref i, ">="))
             {
-                r = new BinaryOperator(">=", r, CreateAddExpr(x, ref i));
+                r = new BinaryOperation(">=", r, CreateAddExpr(x, ref i));
             }
             else if (ChildNodeMatches(x, ref i, "<="))
             {
-                r = new BinaryOperator("<=", r, CreateAddExpr(x, ref i));
+                r = new BinaryOperation("<=", r, CreateAddExpr(x, ref i));
             }
             return r;
         }
@@ -854,11 +854,11 @@ namespace HeronEngine
 
             if (ChildNodeMatches(x, ref i, "is"))
             {
-                r = new BinaryOperator("is", r, CreateRelExpr(x, ref i));
+                r = new BinaryOperation("is", r, CreateRelExpr(x, ref i));
             }
             else if (ChildNodeMatches(x, ref i, "as"))
             {
-                r = new BinaryOperator("as", r, CreateRelExpr(x, ref i));
+                r = new BinaryOperation("as", r, CreateRelExpr(x, ref i));
             }
             return r;
 
@@ -870,11 +870,11 @@ namespace HeronEngine
 
             if (ChildNodeMatches(x, ref i, "=="))
             {
-                r = new BinaryOperator("==", r, CreateTypeOpExpr(x, ref i));
+                r = new BinaryOperation("==", r, CreateTypeOpExpr(x, ref i));
             }
             else if (ChildNodeMatches(x, ref i, "!="))
             {
-                r = new BinaryOperator("!=", r, CreateTypeOpExpr(x, ref i));
+                r = new BinaryOperation("!=", r, CreateTypeOpExpr(x, ref i));
             }
             return r;
         }
@@ -883,7 +883,7 @@ namespace HeronEngine
         {
             Expression r = CreateEqExpr(x, ref i);
             if (ChildNodeMatches(x, ref i, "^^")) 
-                r = new BinaryOperator("^^", r, CreateEqExpr(x, ref i));
+                r = new BinaryOperation("^^", r, CreateEqExpr(x, ref i));
             return r;
         }
 
@@ -891,7 +891,7 @@ namespace HeronEngine
         {
             Expression r = CreateXOrExpr(x, ref i);
             if (ChildNodeMatches(x, ref i, "&&"))
-                r = new BinaryOperator("&&", r, CreateXOrExpr(x, ref i));
+                r = new BinaryOperation("&&", r, CreateXOrExpr(x, ref i));
             return r;
         }
 
@@ -899,7 +899,7 @@ namespace HeronEngine
         {
             Expression r = CreateAndExpr(x, ref i);
             if (ChildNodeMatches(x, ref i, "||"))
-                r = new BinaryOperator("||", r, CreateAndExpr(x, ref i));
+                r = new BinaryOperation("||", r, CreateAndExpr(x, ref i));
             return r;
         }
 
@@ -907,7 +907,7 @@ namespace HeronEngine
         {
             Expression r = CreateOrExpr(x, ref i);
             if (ChildNodeMatches(x, ref i, ".."))
-                r = new BinaryOperator("..", r, CreateOrExpr(x, ref i));
+                r = new BinaryOperation("..", r, CreateOrExpr(x, ref i));
             return r;
         }
 
@@ -957,23 +957,23 @@ namespace HeronEngine
                 case "+=":
                     if (++i >= x.GetNumChildren())
                         throw new Exception("illegal expression");
-                    return new Assignment(r, new BinaryOperator("+", r, CreateAnonFunExpr(x, ref i)));
+                    return new Assignment(r, new BinaryOperation("+", r, CreateAnonFunExpr(x, ref i)));
                 case "-=":
                     if (++i >= x.GetNumChildren())
                         throw new Exception("illegal expression");
-                    return new Assignment(r, new BinaryOperator("-", r, CreateAnonFunExpr(x, ref i)));
+                    return new Assignment(r, new BinaryOperation("-", r, CreateAnonFunExpr(x, ref i)));
                 case "*=":
                     if (++i >= x.GetNumChildren())
                         throw new Exception("illegal expression");
-                    return new Assignment(r, new BinaryOperator("*", r, CreateAnonFunExpr(x, ref i)));
+                    return new Assignment(r, new BinaryOperation("*", r, CreateAnonFunExpr(x, ref i)));
                 case "/=":
                     if (++i >= x.GetNumChildren())
                         throw new Exception("illegal expression");
-                    return new Assignment(r, new BinaryOperator("/", r, CreateAnonFunExpr(x, ref i)));
+                    return new Assignment(r, new BinaryOperation("/", r, CreateAnonFunExpr(x, ref i)));
                 case "%=":
                     if (++i >= x.GetNumChildren())
                         throw new Exception("illegal expression");
-                    return new Assignment(r, new BinaryOperator("%", r, CreateAnonFunExpr(x, ref i)));
+                    return new Assignment(r, new BinaryOperation("%", r, CreateAnonFunExpr(x, ref i)));
                 default:
                     // TODO: support other assignment operators.
                     return r;
