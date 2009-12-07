@@ -30,8 +30,6 @@ namespace HeronEngine
 
         public abstract HeronValue Eval(VM vm);
 
-        static protected List<Expression> noExpressions = new List<Expression>();
-
         public IEnumerable<Expression> GetSubExpressions()
         {
             foreach (FieldInfo fi in GetInstanceFields())

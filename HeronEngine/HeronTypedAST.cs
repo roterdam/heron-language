@@ -404,7 +404,7 @@ namespace HeronEngine
         {
             VariableDeclaration r = new VariableDeclaration(x);
             r.name = x.GetChild("name").ToString();
-            r.type = new UnresolvedType(GetTypeName(x, "Object"), currentModule);
+            r.type = new UnresolvedType(GetTypeName(x, "Any"), currentModule);
             AstNode tmp = x.GetChild("expr");
             if (tmp != null)
                 r.value = CreateExpr(tmp);
@@ -479,13 +479,14 @@ namespace HeronEngine
             if (x.GetNumChildren() == 3)
             {
                 r.name = x.GetChild(0).ToString();
+                r.type = new UnresolvedType("Any", currentModule);
                 r.collection = CreateExpr(x.GetChild(1));
                 r.body = CreateStatement(x.GetChild(2));
             }
             else if (x.GetNumChildren() == 4)
             {
                 r.name = x.GetChild(0).ToString();
-                r.type = new UnresolvedType(GetTypeName(x.GetChild(1), "Void"), currentModule);
+                r.type = new UnresolvedType(GetTypeName(x.GetChild(1), "Any"), currentModule);
                 r.collection = CreateExpr(x.GetChild(2));
                 r.body = CreateStatement(x.GetChild(3));
             }

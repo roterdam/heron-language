@@ -9,15 +9,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Reflection;
 
 namespace HeronEngine
 {
     public abstract class Statement : HeronValue
     {
-        static List<Statement> noStatements = new List<Statement>();
-        static List<Expression> noExpressions = new List<Expression>();
-        static List<string> noStrings = new List<string>();
-
         public Peg.AstNode node;
 
         public abstract void Eval(VM vm);
@@ -29,19 +26,43 @@ namespace HeronEngine
 
         public abstract string StatementType();
         
-        public virtual IEnumerable<Statement> GetSubStatements()
+        public IEnumerable<Statement> GetSubStatements()
         {
-            return noStatements;
+            foreach (FieldInfo fi in GetInstanceFields())
+            {
+                if (typeof(Statement).IsAssignableFrom(fi.FieldType))
+                {
+                    yield return fi.GetValue(fi) as Statement;
+                }
+                else if (fi.FieldType.Equals(typeof(List<Statement>)))
+                {
+                    List<Statement> sts = fi.GetValue(this) as List<Statement>;
+                    foreach (Statement st in sts)
+                        yield return st;
+                }
+            }
         }
 
-        public virtual IEnumerable<Expression> GetSubExpressions()
+        public IEnumerable<Expression> GetSubExpressions()
         {
-            return noExpressions;
+            foreach (FieldInfo fi in GetInstanceFields())
+            {
+                if (typeof(Expression).IsAssignableFrom(fi.FieldType))
+                {
+                    yield return fi.GetValue(fi) as Expression;
+                }
+                else if (fi.FieldType.Equals(typeof(List<Expression>)))
+                {
+                    List<Expression> xs = fi.GetValue(this) as List<Expression>;
+                    foreach (Expression x in xs)
+                        yield return x;
+                }
+            }
         }
 
         public virtual IEnumerable<string> GetLocallyDefinedNames()
         {
-            return noStrings;
+            yield break;
         }
 
         public IEnumerable<string> GetDefinedNames()
@@ -51,7 +72,7 @@ namespace HeronEngine
                     yield return name;
         }
 
-        public virtual IEnumerable<Statement> GetStatementTree()
+        public IEnumerable<Statement> GetStatementTree()
         {
             yield return this;
             foreach (Statement x in GetSubStatements())
@@ -74,19 +95,31 @@ namespace HeronEngine
                         yield return (x as Name).name;
         }
 
-        public virtual void Resolve()
-        {            
+        public void ResolveTypes()
+        {
+            foreach (FieldInfo fi in GetInstanceFields())
+            {
+                if (fi.FieldType.Equals(typeof(HeronType)))
+                {
+                    HeronType t = fi.GetValue(this) as HeronType;
+                    if (t == null)
+                        throw new Exception("The type field cannot be null, expected an UnresolvedType");
+                    UnresolvedType ut = t as UnresolvedType;
+                    if (ut != null)
+                        fi.SetValue(this, ut.Resolve());
+                }
+            }
+
+            foreach (Expression x in GetExpressionTree())
+                x.ResolveTypes();
         }
     }
 
     public class VariableDeclaration : Statement
     {
-        [HeronVisible]
-        public string name;
-        [HeronVisible]
-        public HeronType type;
-        [HeronVisible]
-        public Expression value;
+        [HeronVisible] public string name;
+        [HeronVisible] public HeronType type;
+        [HeronVisible] public Expression value;
 
         internal VariableDeclaration(Peg.AstNode node)
             : base(node)
@@ -112,12 +145,6 @@ namespace HeronEngine
             return "variable_declaration";
         }
 
-        public override IEnumerable<Expression> GetSubExpressions()
-        {
-            if (value != null)
-                yield return value;
-        }
-
         public override IEnumerable<string> GetLocallyDefinedNames()
         {
             yield return name;
@@ -127,17 +154,11 @@ namespace HeronEngine
         {
             return PrimitiveTypes.VariableDeclaration;
         }
-
-        public override void Resolve()
-        {
-            (type as UnresolvedType).Resolve();
-        }
     }
 
     public class DeleteStatement : Statement
     {
-        [HeronVisible]
-        public Expression expression;
+        [HeronVisible] public Expression expression;
 
         internal DeleteStatement(Peg.AstNode node)
             : base(node)
@@ -162,11 +183,6 @@ namespace HeronEngine
             return "delete_statement";
         }
 
-        public override IEnumerable<Expression> GetSubExpressions()
-        {            
-            yield return expression;
-        }
-
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.DeleteStatement;
@@ -175,8 +191,7 @@ namespace HeronEngine
 
     public class ExpressionStatement : Statement
     {
-        [HeronVisible]
-        public Expression expression;
+        [HeronVisible] public Expression expression;
 
         internal ExpressionStatement(Peg.AstNode node)
             : base(node)
@@ -204,11 +219,6 @@ namespace HeronEngine
             return "expression_statement";
         }
 
-        public override IEnumerable<Expression> GetSubExpressions()
-        {
-            yield return expression;
-        }
-
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.ExpressionStatement;
@@ -217,15 +227,10 @@ namespace HeronEngine
 
     public class ForEachStatement : Statement
     {
-        [HeronVisible]
-        public string name;
-        [HeronVisible]
-        public Expression collection;
-        [HeronVisible]
-        public Statement body;
-
-        [HeronVisible]
-        public HeronType type;
+        [HeronVisible] public string name;
+        [HeronVisible] public Expression collection;
+        [HeronVisible] public Statement body;
+        [HeronVisible] public HeronType type;
 
         internal ForEachStatement(Peg.AstNode node)
             : base(node)
@@ -258,16 +263,6 @@ namespace HeronEngine
             return "foreach_statement";
         }
 
-        public override IEnumerable<Statement> GetSubStatements()
-        {
-            yield return body;
-        }
-
-        public override IEnumerable<Expression> GetSubExpressions()
-        {
-            yield return collection;
-        }
-
         public override IEnumerable<string> GetLocallyDefinedNames()
         {
             yield return name;
@@ -277,25 +272,15 @@ namespace HeronEngine
         {
             return PrimitiveTypes.ForEachStatement;
         }
-
-        public void ResolveType()
-        {
-            (type as UnresolvedType).Resolve();
-        }
     }
 
     public class ForStatement : Statement
     {
-        [HeronVisible]
-        public string name;
-        [HeronVisible]
-        public Expression initial;
-        [HeronVisible]
-        public Expression condition;
-        [HeronVisible]
-        public Expression next;
-        [HeronVisible]
-        public Statement body;
+        [HeronVisible] public string name;
+        [HeronVisible] public Expression initial;
+        [HeronVisible] public Expression condition;
+        [HeronVisible] public Expression next;
+        [HeronVisible] public Statement body;
 
         internal ForStatement(Peg.AstNode node)
             : base(node)
@@ -333,18 +318,6 @@ namespace HeronEngine
             return "for_statement";
         }
 
-        public override IEnumerable<Statement> GetSubStatements()
-        {
-            yield return body;
-        }
-
-        public override IEnumerable<Expression> GetSubExpressions()
-        {
-            yield return initial;
-            yield return condition;
-            yield return next;
-        }
-
         public override IEnumerable<string> GetLocallyDefinedNames()
         {
             yield return name;
@@ -358,8 +331,7 @@ namespace HeronEngine
 
     public class CodeBlock : Statement
     {
-        [HeronVisible]
-        public List<Statement> statements = new List<Statement>();
+        [HeronVisible] public List<Statement> statements = new List<Statement>();
         
         internal CodeBlock(Peg.AstNode node)
             : base(node)
@@ -401,11 +373,6 @@ namespace HeronEngine
             return sb.ToString();
         }
 
-        public override IEnumerable<Statement> GetSubStatements()
-        {
-            return statements;
-        }
-
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.CodeBlock;
@@ -414,12 +381,9 @@ namespace HeronEngine
 
     public class IfStatement : Statement
     {
-        [HeronVisible]
-        public Expression condition;
-        [HeronVisible]
-        public Statement ontrue;
-        [HeronVisible]
-        public Statement onfalse;
+        [HeronVisible] public Expression condition;
+        [HeronVisible] public Statement ontrue;
+        [HeronVisible] public Statement onfalse;
 
         internal IfStatement(Peg.AstNode node)
             : base(node)
@@ -441,18 +405,6 @@ namespace HeronEngine
             return "if_statement";
         }
 
-        public override IEnumerable<Statement> GetSubStatements()
-        {
-            yield return ontrue;
-            if (onfalse != null)
-                yield return onfalse;
-        }
-
-        public override IEnumerable<Expression> GetSubExpressions()
-        {
-            yield return condition;
-        }
-
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.IfStatement;
@@ -461,10 +413,8 @@ namespace HeronEngine
 
     public class WhileStatement : Statement
     {
-        [HeronVisible]
-        public Expression condition;
-        [HeronVisible]
-        public Statement body;
+        [HeronVisible] public Expression condition;
+        [HeronVisible] public Statement body;
 
         internal WhileStatement(Peg.AstNode node)
             : base(node)
@@ -490,16 +440,6 @@ namespace HeronEngine
             return "while_statement";
         }
 
-        public override IEnumerable<Statement> GetSubStatements()
-        {
-            yield return body;
-        }
-
-        public override IEnumerable<Expression> GetSubExpressions()
-        {
-            yield return condition;
-        }
-
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.WhileStatement;
@@ -508,8 +448,7 @@ namespace HeronEngine
 
     public class ReturnStatement : Statement
     {
-        [HeronVisible]
-        public Expression expression;
+        [HeronVisible] public Expression expression;
 
         internal ReturnStatement(Peg.AstNode node)
             : base(node)
@@ -527,11 +466,6 @@ namespace HeronEngine
             return "return_statement";
         }
 
-        public override IEnumerable<Expression> GetSubExpressions()
-        {
-            yield return expression;
-        }
-
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.ReturnStatement;
@@ -540,12 +474,9 @@ namespace HeronEngine
 
     public class SwitchStatement : Statement
     {
-        [HeronVisible]
-        public Expression condition;
-        [HeronVisible]
-        public List<CaseStatement> cases;
-        [HeronVisible]
-        public CodeBlock ondefault;
+        [HeronVisible] public Expression condition;
+        [HeronVisible] public List<Statement> cases;
+        [HeronVisible] public Statement ondefault;
         
         internal SwitchStatement(Peg.AstNode node)
             : base(node)
@@ -575,20 +506,6 @@ namespace HeronEngine
             return "switch_statement";
         }
 
-        public override IEnumerable<Statement> GetSubStatements()
-        {
-            yield return this;
-            foreach (Statement st in cases)
-                yield return st;
-            if (ondefault != null)
-                yield return ondefault;
-        }
-
-        public override IEnumerable<Expression> GetSubExpressions()
-        {
-            yield return condition;
-        }
-
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.SwitchStatement;
@@ -597,10 +514,8 @@ namespace HeronEngine
 
     public class CaseStatement : Statement
     {
-        [HeronVisible]
-        public Expression condition;
-        [HeronVisible]
-        public CodeBlock statement;
+        [HeronVisible] public Expression condition;
+        [HeronVisible] public Statement statement;
 
         internal CaseStatement(Peg.AstNode node)
             : base(node)
@@ -615,11 +530,6 @@ namespace HeronEngine
         public override string StatementType()
         {
             return "switch_statement";
-        }
-
-        public override IEnumerable<Expression> GetSubExpressions()
-        {
-            yield return condition;
         }
 
         public override HeronType GetHeronType()

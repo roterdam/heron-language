@@ -113,7 +113,7 @@ namespace HeronEngine
 
             // Resolve the types of body
             foreach (Statement st in body.GetStatementTree())
-                st.Resolve();
+                st.ResolveTypes();
         }
 
         public override string ToString()
