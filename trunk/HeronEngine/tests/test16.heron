@@ -139,9 +139,100 @@
 				Write(fa.name);
 				OutputTypeDecl(fa.type);
 			}
-			Output(s : Statement)
-			{
 			
+			Output(x : VariableDeclaration)
+			{
+			}
+			Output(x : DeleteStatement)
+			{
+			}
+			Output(x : ExpressionStatement)
+			{
+			}
+			Output(x : ForEachStatement)
+			{
+			}
+			Output(x : ForStatement)
+			{
+			}
+			Output(x : CodeBlock)
+			{
+			}
+			Output(x : IfStatement)
+			{
+			}
+			Output(x : WhileStatement)
+			{
+			}
+			Output(x : ReturnStatement)
+			{
+			}
+			Output(x : SwitchStatement)
+			{
+			}
+			Output(x : CaseStatement)
+			{
+			}
+
+			Output(x : Assignment)
+			{
+			}
+			Output(x : ChooseField)
+			{
+			}
+			Output(x : ReadAt)
+			{
+			}
+			Output(x : NewExpr)
+			{
+			}
+			Output(x : NullExpr)
+			{
+			}
+			Output(x : IntLiteral)
+			{
+			}
+			Output(x : BoolLiteral)
+			{
+			}
+			Output(x : FloatLiteral)
+			{
+			}
+			Output(x : CharLiteral)
+			{
+			}
+			Output(x : StringLiteral)
+			{
+			}
+			Output(x : Name)
+			{
+			}
+			Output(x : FunCall)
+			{
+			}
+			Output(x : UnaryOperation)
+			{
+			}
+			Output(x : BinaryOperation)
+			{
+			}
+			Output(x : AnonFunExpr)
+			{
+			}
+			Output(x : PostIncExpr)
+			{
+			}
+			Output(x : SelectExpr)
+			{
+			}
+			Output(x : MapEachExpr)
+			{
+			}
+			Output(x : AccumulateExpr)
+			{
+			}
+			Output(x : TupleExpr)
+			{
 			}
 		}
 	}

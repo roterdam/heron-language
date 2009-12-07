@@ -130,6 +130,13 @@ namespace HeronEngine
         {
             return GetType().GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
         }
+
+        public IEnumerable<FieldInfo> GetTypedInstanceFields<T>()
+        {
+            foreach (FieldInfo fi in GetInstanceFields())
+                if (fi.FieldType.Equals(typeof(T)))
+                    yield return fi;
+        }
     }
 
     /// <summary>
