@@ -73,6 +73,10 @@ namespace HeronEngine
                     if (x is Name)
                         yield return (x as Name).name;
         }
+
+        public virtual void Resolve()
+        {            
+        }
     }
 
     public class VariableDeclaration : Statement
@@ -80,7 +84,7 @@ namespace HeronEngine
         [HeronVisible]
         public string name;
         [HeronVisible]
-        public string type;
+        public HeronType type;
         [HeronVisible]
         public Expression value;
 
@@ -121,7 +125,12 @@ namespace HeronEngine
 
         public override HeronType GetHeronType()
         {
-            return PrimitiveTypes.VariableDeclarationStatement;
+            return PrimitiveTypes.VariableDeclaration;
+        }
+
+        public override void Resolve()
+        {
+            (type as UnresolvedType).Resolve();
         }
     }
 
@@ -216,8 +225,7 @@ namespace HeronEngine
         public Statement body;
 
         [HeronVisible]
-        // TODO: make this a real Heron type
-        public string type;
+        public HeronType type;
 
         internal ForEachStatement(Peg.AstNode node)
             : base(node)
@@ -268,6 +276,11 @@ namespace HeronEngine
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.ForEachStatement;
+        }
+
+        public void ResolveType()
+        {
+            (type as UnresolvedType).Resolve();
         }
     }
 

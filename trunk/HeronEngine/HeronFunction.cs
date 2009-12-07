@@ -102,14 +102,18 @@ namespace HeronEngine
 
         internal void ResolveTypes()
         {
-            // Resolve the return type
+            // ResolveType the return type
             if (rettype is UnresolvedType)
                 rettype = (rettype as UnresolvedType).Resolve();
 
-            // Resolve the argument types
+            // ResolveType the argument types
             foreach (FormalArg arg in formals)
                 if (arg.type is UnresolvedType)
                     arg.type = (arg.type as UnresolvedType).Resolve();
+
+            // Resolve the types of body
+            foreach (Statement st in body.GetStatementTree())
+                st.Resolve();
         }
 
         public override string ToString()

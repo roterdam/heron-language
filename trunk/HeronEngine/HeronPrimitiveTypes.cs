@@ -38,14 +38,47 @@ namespace HeronEngine
         public static HeronType ExternalStaticMethodListType = new HeronType(null, typeof(DotNetStaticMethodGroup), "ExternalStaticMethodList");
         public static HeronType ExternalMethodListType = new HeronType(null, typeof(DotNetMethodGroup), "ExternalMethodList");
 
-        public static HeronType ProgramType = new HeronType(null, typeof(HeronProgram), "HeronProgram");
-        public static HeronType ModuleType = new HeronType(null, typeof(HeronModule), "HeronModule");
-        public static HeronType ClassType = new HeronType(null, typeof(HeronClass), "HeronClass");
-        public static HeronType InterfaceType = new HeronType(null, typeof(HeronInterface), "HeronInterface");
-        public static HeronType EnumType = new HeronType(null, typeof(HeronEnum), "HeronEnum");
-        public static HeronType FieldDefnType = new HeronType(null, typeof(FieldDefn), "FieldDefn");
-        public static HeronType FunctionDefnType = new HeronType(null, typeof(FunctionDefn), "FunctionDefn");
-        public static HeronType FormalArg = new HeronType(null, typeof(FormalArg), "FormalArg");
+        public static HeronType ProgramType = new HeronType(typeof(HeronProgram));
+        public static HeronType ModuleType = new HeronType(typeof(HeronModule));
+        public static HeronType ClassType = new HeronType(typeof(HeronClass));
+        public static HeronType InterfaceType = new HeronType(typeof(HeronInterface));
+        public static HeronType EnumType = new HeronType(typeof(HeronEnum));
+        public static HeronType FieldDefnType = new HeronType(typeof(FieldDefn));
+        public static HeronType FunctionDefnType = new HeronType(typeof(FunctionDefn));
+        public static HeronType FormalArg = new HeronType(typeof(FormalArg));
+
+        public static HeronType VariableDeclaration = new HeronType(typeof(VariableDeclaration));
+        public static HeronType DeleteStatement = new HeronType(typeof(DeleteStatement));
+        public static HeronType ExpressionStatement = new HeronType(typeof(ExpressionStatement));
+        public static HeronType ForEachStatement = new HeronType(typeof(ForEachStatement));
+        public static HeronType ForStatement = new HeronType(typeof(ForStatement));
+        public static HeronType CodeBlock = new HeronType(typeof(CodeBlock));
+        public static HeronType IfStatement = new HeronType(typeof(IfStatement));
+        public static HeronType WhileStatement = new HeronType(typeof(WhileStatement));
+        public static HeronType ReturnStatement = new HeronType(typeof(ReturnStatement));
+        public static HeronType SwitchStatement = new HeronType(typeof(SwitchStatement));
+        public static HeronType CaseStatement = new HeronType(typeof(CaseStatement));
+
+        public static HeronType Assignment = new HeronType(typeof(Assignment));
+        public static HeronType ChooseField = new HeronType(typeof(ChooseField));
+        public static HeronType ReadAt = new HeronType(typeof(ReadAt));
+        public static HeronType NewExpr = new HeronType(typeof(NewExpr));
+        public static HeronType NullExpr = new HeronType(typeof(NullExpr));
+        public static HeronType IntLiteral = new HeronType(typeof(IntLiteral));
+        public static HeronType BoolLiteral = new HeronType(typeof(BoolLiteral));
+        public static HeronType FloatLiteral = new HeronType(typeof(FloatLiteral));
+        public static HeronType CharLiteral = new HeronType(typeof(CharLiteral));
+        public static HeronType StringLiteral = new HeronType(typeof(StringLiteral));
+        public static HeronType Name = new HeronType(typeof(Name));
+        public static HeronType FunCall = new HeronType(typeof(FunCall));
+        public static HeronType UnaryOperation = new HeronType(typeof(UnaryOperation));
+        public static HeronType BinaryOperation = new HeronType(typeof(BinaryOperation));
+        public static HeronType AnonFunExpr = new HeronType(typeof(AnonFunExpr));
+        public static HeronType PostIncExpr = new HeronType(typeof(PostIncExpr));
+        public static HeronType SelectExpr = new HeronType(typeof(SelectExpr));
+        public static HeronType MapEachExpr = new HeronType(typeof(MapEachExpr));
+        public static HeronType AccumulateExpr = new HeronType(typeof(AccumulateExpr));
+        public static HeronType TupleExpr = new HeronType(typeof(TupleExpr));
 
         static Dictionary<string, HeronType> types = null;
 
