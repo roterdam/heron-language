@@ -102,7 +102,8 @@
 			{
 				Write("interface ");
 				WriteLine(i.name);
-				WriteLine("{ }");												
+				OutputSection("inherits", c.GetInheritedTypes());
+				OutputSection("methods", c.GetMethods());
 			}
 			Output(e : HeronEnum)
 			{
@@ -122,7 +123,7 @@
 			}
 			OutputTypeDecl(t : Type)
 			{
-				if (t.name != "Void")
+				if (t != null && t.name != "Void")
 					Write(" : " + t.name); 
 			}
 			Output(m : FunctionDefn)
@@ -138,101 +139,219 @@
 			{
 				Write(fa.name);
 				OutputTypeDecl(fa.type);
-			}
-			
+			}			
 			Output(x : VariableDeclaration)
 			{
+				Write("var ");
+				Write(x.name);
+				Write(" ");
+				OutputTypeDecl(x.type);
+				if (x.value != null)
+					Write(" = " + x.value.ToString());
+				WriteLine(";");
 			}
 			Output(x : DeleteStatement)
 			{
+				WriteLine("delete " + x.expression.ToString() + ";");
 			}
 			Output(x : ExpressionStatement)
 			{
+				WriteLine(x.expression.ToString() + ";");
 			}
 			Output(x : ForEachStatement)
 			{
+				Write("foreach (");
+				Write(x.name);
+				OutputTypeDecl(x.type);
+				Write(" in ");
+				Output(x.collection);
+				WriteLine(")");
+				Output(x.body);
 			}
 			Output(x : ForStatement)
 			{
+				Write("for (");
+				Write(x.name);
+				Write(" = ");
+				Output(x.initial);
+				Write("; ");
+				Output(x.condition);
+				Write("; ");
+				Output(x.next);
+				WriteLine(")");
+				Output(x.body);
 			}
 			Output(x : CodeBlock)
 			{
+				WriteLine("(");
+				foreach (s in x.statements)
+					Output(s);
+				WriteLine("}");
 			}
 			Output(x : IfStatement)
 			{
+				Write("if (");
+				Output(x.condition);
+				Write(")");
+				Output(x.ontrue);
+				if (x.onfalse != null)
+				{
+					WriteLine("else");
+					Output(x.onfalse);
+				}
 			}
 			Output(x : WhileStatement)
 			{
+				Write("while (");
+				Output(x.condition);
+				WriteLine(")");
+				Output(x.body);
 			}
 			Output(x : ReturnStatement)
 			{
+				Write("return ");
+				Output(x.expression);
+				WriteLine(";");
 			}
 			Output(x : SwitchStatement)
 			{
+				Write("switch (");
+				Output(x.condition);
+				WriteLine(")");
+				WriteLine("{");
+				foreach (x in cases)
+					Output(x);
+				if (x.ondefault != null)
+				{
+					WriteLine("default");
+					Output(x.ondefault);
+				}
+				WriteLine("}");
 			}
 			Output(x : CaseStatement)
 			{
+				WriteLine("case (" + x.condition + ")");
+				Output(x.statement);
 			}
-
 			Output(x : Assignment)
 			{
+				Output(x.lvalue);				
+				Write(" = ");
+				Output(x.rvalue);
 			}
 			Output(x : ChooseField)
 			{
+				Output(x.self);
+				Write(".");
+				Write(x.name);
 			}
 			Output(x : ReadAt)
 			{
+				Output(x.self);
+				Write("[");
+				Output(x.index);
+				Write("]");
 			}
 			Output(x : NewExpr)
 			{
+				Write("new ");
+				Output(x.type);
 			}
 			Output(x : NullExpr)
 			{
+				Write(x.ToString());
 			}
 			Output(x : IntLiteral)
 			{
+				Write(x.ToString());
 			}
 			Output(x : BoolLiteral)
 			{
+				Write(x.ToString());
 			}
 			Output(x : FloatLiteral)
 			{
+				Write(x.ToString());
 			}
 			Output(x : CharLiteral)
 			{
+				Write("\'" + x.ToString() + "\'");
 			}
 			Output(x : StringLiteral)
 			{
+				Write("\"" + x.ToString() + "\"");
 			}
 			Output(x : Name)
 			{
+				Write(x.ToString());
 			}
 			Output(x : FunCall)
 			{
+				Output(x.funexpr);
+				Write("(");
+				OutputDelimitedList(x.args, ", ");	
+				Write(")");
 			}
 			Output(x : UnaryOperation)
 			{
+				Write(x.operation);
+				Output(x.operand);
 			}
 			Output(x : BinaryOperation)
 			{
+				Output(x.operand1);
+				Write(x.operation);
+				Output(x.operand2);
 			}
 			Output(x : AnonFunExpr)
 			{
+				Write("function (");				
+				OutputDelimitedList(x.formals, ", ");
+				OutputTypeDecl(x.rettype);
+				WriteLine("");
+				Output(x.body);				
 			}
 			Output(x : PostIncExpr)
 			{
+				Output(x.expr);
+				Write("++");
 			}
 			Output(x : SelectExpr)
 			{
+				Write("select (");
+				Write(x.name);
+				Write(" from ");
+				Output(x.list);
+				Write(") ");
+				Output(x.predicate);
 			}
 			Output(x : MapEachExpr)
 			{
+				Write("mapeach (");
+				Write(x.name);
+				Write(" in ");
+				Output(x.list);
+				Write(") ");
+				Output(x.yield);
 			}
 			Output(x : AccumulateExpr)
 			{
+				Write("accumulate (");
+				Write(x.acc);
+				Write(" = ");
+				Output(x.init);
+				Write(" forall ");
+				Write(x.each);
+				Write(" in ");
+				Output(x.list);
+				WriteLine(")");
+				Output(x.expr);
 			}
 			Output(x : TupleExpr)
 			{
+				Write("[");
+				OutputDelimited(x.exprs, ", ");
+				Write("]");
 			}
 		}
 	}
