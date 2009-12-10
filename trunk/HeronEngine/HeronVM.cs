@@ -8,8 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Peg;
-using HeronTests;
 using System.Diagnostics;
 
 namespace HeronEngine
@@ -109,7 +107,8 @@ namespace HeronEngine
         #region evaluation functions
         public HeronValue EvalString(string s)
         {
-            Expression x = HeronTypedAST.ParseExpr(s);
+            Expression x = HeronTypedAST.ParseExpr(program, s);
+            x.ResolveAllTypes();
             return Eval(x); ;
         }
 
@@ -398,9 +397,18 @@ namespace HeronEngine
         /// Should only ever be called by the debugger.
         /// </summary>
         /// <returns></returns>
-        internal Environment GetEnvironment()
+        public Environment GetEnvironment()
         {
             return env;
+        }
+
+        /// <summary>
+        /// Returns the currently executing program.
+        /// </summary>
+        /// <returns></returns>
+        public HeronProgram GetProgram()
+        {
+            return program;
         }
     }
 }

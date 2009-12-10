@@ -24,6 +24,8 @@ namespace HeronEngine
         public static List<string> inputPath = new List<string>();
         public static List<string> libs = new List<string>();
         public static bool runUnitTests = false;
+        public static bool outputGrammar = false;
+        public static bool outputPrimitives = false;
 
         public static void LoadFromFile(string s)
         {
@@ -61,6 +63,12 @@ namespace HeronEngine
                 case "rununittests":
                     runUnitTests = ProcessBool(e);
                     break;
+                case "outputgrammar":
+                    outputGrammar = true;
+                    break;
+                case "outputprimitives":
+                    outputPrimitives = true;
+                    break;
             }
         }
 
@@ -68,7 +76,7 @@ namespace HeronEngine
         {
             string r = e.InnerXml;
             if (e.HasAttribute("relative") && e.GetAttribute("relative") == "true")
-                r = Util.Util.GetExeDir() + "\\" + r;
+                r = Util.GetExeDir() + "\\" + r;
             return r;
         }
 

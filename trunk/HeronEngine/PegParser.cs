@@ -8,9 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
-using Util;
 
-namespace Peg
+namespace HeronEngine
 {
     /// <summary>
     /// Used to identify where an error occured in an input string. 
@@ -212,7 +211,7 @@ namespace Peg
             return mTree;
         }
 
-        public AstNode Parse(Peg.Rule r)
+        public AstNode Parse(Rule r)
         {
             Trace.Assert(r != null);
 
@@ -226,7 +225,7 @@ namespace Peg
             return mTree;
         }
         
-        public static AstNode Parse(Peg.Rule r, string s)
+        public static AstNode Parse(Rule r, string s)
         {
             Trace.Assert(r != null);
 

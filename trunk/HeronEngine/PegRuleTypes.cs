@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 
-namespace Peg
+namespace HeronEngine
 {
     /// <summary>
     /// Used with RuleDelay to make cicrcular rule references
@@ -75,10 +75,10 @@ namespace Peg
         {
             get
             {
-                string defn = Defn;
+                String defn = Defn;
                 if (defn == null)
                     defn = "???";
-                return Name + " ::== " + defn;
+                return Name + " ::== " + defn.EscapeSpecials();
             }
         }
 
@@ -168,7 +168,7 @@ namespace Peg
         {
             get
             {
-                if (FirstChild != null) 
+                if (FirstChild == null) 
                     throw new Exception("Missing child node");
                 return FirstChild.ToString();
             }
@@ -389,7 +389,7 @@ namespace Peg
         {
             get
             {
-                if (FirstChild != null) 
+                if (FirstChild == null) 
                     throw new Exception("Missing child node");
                 return FirstChild.ToString() + "?";
             }

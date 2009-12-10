@@ -13,6 +13,25 @@ using System.Diagnostics;
 
 namespace HeronEngine
 {
+    public abstract class HeronUserType : HeronType
+    {
+        public HeronUserType(HeronModule m, Type t, string name)
+            : base(m, t, name)
+        {
+        }
+
+        [HeronVisible]
+        public abstract IEnumerable<FunctionDefn> GetAllMethods();
+
+        [HeronVisible]
+        public IEnumerable<FunctionDefn> GetMethods(string name)
+        {
+            foreach (FunctionDefn f in GetAllMethods())
+                if (f.name == name)
+                    yield return f;
+        }
+    }   
+
     /// <summary>
     /// Represents the definition of a member field of a Heron class. 
     /// Like "MethodInfo" in C#.
@@ -74,12 +93,17 @@ namespace HeronEngine
         {
             fi.SetValue(self, DotNetObject.Unmarshal(fi.FieldType, x));
         }
+
+        public override string ToString()
+        {
+            return fi.Name + " : " + fi.FieldType.ToString();
+        }
     }
 
     /// <summary>
     /// An instance of an interface type.
     /// </summary>
-    public class HeronInterface : HeronType
+    public class HeronInterface : HeronUserType
     {
         List<FunctionDefn> methods = new List<FunctionDefn>();
         List<HeronType> basetypes = new List<HeronType>();
@@ -109,6 +133,7 @@ namespace HeronEngine
             throw new Exception("Cannot instantiate an interface");
         }
 
+        [HeronVisible]
         public override IEnumerable<FunctionDefn> GetAllMethods()
         {
             foreach (FunctionDefn f in GetDeclaredMethods())
@@ -170,13 +195,18 @@ namespace HeronEngine
     /// <summary>
     /// An instance of an enum type.
     /// </summary>
-    public class HeronEnum : HeronType
+    public class HeronEnum : HeronUserType
     {
         List<String> values = new List<String>();
 
         public HeronEnum(HeronModule m, string name)
             : base(m, typeof(HeronEnum), name)
         {
+        }
+
+        public override IEnumerable<FunctionDefn> GetAllMethods()
+        {
+            yield break;
         }
 
         public override HeronValue Instantiate(VM vm, HeronValue[] args)
@@ -238,7 +268,7 @@ namespace HeronEngine
     /// <summary>
     /// An instance of a class type.
     /// </summary>
-    public class HeronClass : HeronType
+    public class HeronClass : HeronUserType
     {
         #region fields
         List<FunctionDefn> methods = new List<FunctionDefn>();
@@ -445,7 +475,7 @@ namespace HeronEngine
             foreach (FunctionDefn f in GetDeclaredMethods())
                 yield return f;
             if (baseclass != null)
-                foreach (FunctionDefn f in baseclass.GetAllMethods())
+                foreach (FunctionDefn f in (baseclass as HeronClass).GetAllMethods())
                     yield return f;
         }
 
@@ -460,7 +490,7 @@ namespace HeronEngine
         public IEnumerable<FunctionDefn> GetInheritedMethods()
         {
             if (baseclass != null)
-                foreach (FunctionDefn f in baseclass.GetAllMethods())
+                foreach (FunctionDefn f in (baseclass as HeronClass).GetAllMethods())
                     yield return f;
         }
 

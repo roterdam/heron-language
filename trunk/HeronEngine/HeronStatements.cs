@@ -15,11 +15,11 @@ namespace HeronEngine
 {
     public abstract class Statement : HeronValue
     {
-        public Peg.AstNode node;
+        public AstNode node;
 
         public abstract void Eval(VM vm);
 
-        internal Statement(Peg.AstNode node)
+        internal Statement(AstNode node)
         {
             this.node = node;
         }
@@ -114,8 +114,8 @@ namespace HeronEngine
                 }
             }
 
-            foreach (Expression x in GetExpressionTree())
-                x.ResolveTypes();
+            foreach (Expression x in GetSubExpressions())
+                x.ResolveAllTypes();
         }
     }
 
@@ -125,7 +125,7 @@ namespace HeronEngine
         [HeronVisible] public HeronType type;
         [HeronVisible] public Expression value;
 
-        internal VariableDeclaration(Peg.AstNode node)
+        internal VariableDeclaration(AstNode node)
             : base(node)
         {
         }
@@ -164,7 +164,7 @@ namespace HeronEngine
     {
         [HeronVisible] public Expression expression;
 
-        internal DeleteStatement(Peg.AstNode node)
+        internal DeleteStatement(AstNode node)
             : base(node)
         {
         }
@@ -197,7 +197,7 @@ namespace HeronEngine
     {
         [HeronVisible] public Expression expression;
 
-        internal ExpressionStatement(Peg.AstNode node)
+        internal ExpressionStatement(AstNode node)
             : base(node)
         {
         }
@@ -236,7 +236,7 @@ namespace HeronEngine
         [HeronVisible] public Statement body;
         [HeronVisible] public HeronType type;
 
-        internal ForEachStatement(Peg.AstNode node)
+        internal ForEachStatement(AstNode node)
             : base(node)
         {
         }
@@ -286,7 +286,7 @@ namespace HeronEngine
         [HeronVisible] public Expression next;
         [HeronVisible] public Statement body;
 
-        internal ForStatement(Peg.AstNode node)
+        internal ForStatement(AstNode node)
             : base(node)
         {
         }
@@ -337,7 +337,7 @@ namespace HeronEngine
     {
         [HeronVisible] public List<Statement> statements = new List<Statement>();
         
-        internal CodeBlock(Peg.AstNode node)
+        internal CodeBlock(AstNode node)
             : base(node)
         {
         }
@@ -389,7 +389,7 @@ namespace HeronEngine
         [HeronVisible] public Statement ontrue;
         [HeronVisible] public Statement onfalse;
 
-        internal IfStatement(Peg.AstNode node)
+        internal IfStatement(AstNode node)
             : base(node)
         {
         }
@@ -420,7 +420,7 @@ namespace HeronEngine
         [HeronVisible] public Expression condition;
         [HeronVisible] public Statement body;
 
-        internal WhileStatement(Peg.AstNode node)
+        internal WhileStatement(AstNode node)
             : base(node)
         {
         }
@@ -454,7 +454,7 @@ namespace HeronEngine
     {
         [HeronVisible] public Expression expression;
 
-        internal ReturnStatement(Peg.AstNode node)
+        internal ReturnStatement(AstNode node)
             : base(node)
         {
         }
@@ -482,7 +482,7 @@ namespace HeronEngine
         [HeronVisible] public List<Statement> cases;
         [HeronVisible] public Statement ondefault;
         
-        internal SwitchStatement(Peg.AstNode node)
+        internal SwitchStatement(AstNode node)
             : base(node)
         {
         }
@@ -521,7 +521,7 @@ namespace HeronEngine
         [HeronVisible] public Expression condition;
         [HeronVisible] public Statement statement;
 
-        internal CaseStatement(Peg.AstNode node)
+        internal CaseStatement(AstNode node)
             : base(node)
         {
         }

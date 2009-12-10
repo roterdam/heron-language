@@ -11,8 +11,6 @@ using System.Text;
 using System.Diagnostics;
 using System.Xml;
 
-using Peg;
-
 namespace HeronEngine
 {
     public class TypedASTException : Exception
@@ -1054,8 +1052,9 @@ namespace HeronEngine
         #endregion
 
         #region static public functions    
-        static public Expression ParseExpr(string s)
+        static public Expression ParseExpr(HeronProgram p, string s)
         {
+            currentModule = p.GetGlobal();
             AstNode node = ParserState.Parse(HeronGrammar.Expr, s);
             if (node == null)
                 return null;
@@ -1063,8 +1062,9 @@ namespace HeronEngine
             return r;
         }
 
-        static public Statement ParseStatement(string s)
+        static public Statement ParseStatement(HeronProgram p, string s)
         {
+            currentModule = p.GetGlobal();
             AstNode node = ParserState.Parse(HeronGrammar.Statement, s);
             if (node == null)
                 return null;

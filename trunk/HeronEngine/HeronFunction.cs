@@ -100,7 +100,7 @@ namespace HeronEngine
             return parent;
         }
 
-        internal void ResolveTypes()
+        public void ResolveTypes()
         {
             // ResolveType the return type
             if (rettype is UnresolvedType)

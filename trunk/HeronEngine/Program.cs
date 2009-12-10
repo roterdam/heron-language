@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-using Peg;
 
 namespace HeronEngine
 {
@@ -22,8 +21,8 @@ namespace HeronEngine
         {
             Console.WriteLine("HeronEngine.exe");
             Console.WriteLine("    by Christopher Diggins");
-            Console.WriteLine("    version 0.7.1");
-            Console.WriteLine("    December 2, 2009");
+            Console.WriteLine("    version 0.8");
+            Console.WriteLine("    December 10      , 2009");
             Console.WriteLine("");
             Console.WriteLine("An execution engine for the Heron language.");
             Console.WriteLine("This program tests the Heron language, but is");
@@ -38,13 +37,31 @@ namespace HeronEngine
         }
 
         /// <summary>
+        /// Write the grammar in human readable form to the file "grammar.txt" in the executable directory
+        /// </summary>
+        static public void OutputGrammar()
+        {
+            string s = Grammar.ToString(typeof(HeronGrammar));
+            File.WriteAllText(Util.GetExeDir() + "\\grammar.txt", s);
+        }
+
+        /// <summary>
+        /// Outputs all of the primitive types with their fields and methods.
+        /// </summary>
+        static public void OutputPrimitives()
+        {
+            string s = PrimitiveTypes.AsString();
+            File.WriteAllText(Util.GetExeDir() + "\\primitives.txt", s);
+        }
+
+        /// <summary>
         /// Loads, parses, and executes a file
         /// </summary>
         /// <param name="s"></param>
         static public void RunFile(string file)
         {
             VM vm = new VM();
-            string sFileContents = Util.Util.ReadFromFile(file);
+            string sFileContents = Util.ReadFromFile(file);
             try
             {
                 vm.EvalFile(sFileContents);
@@ -77,7 +94,7 @@ namespace HeronEngine
         /// <param name="args"></param>
         static public void LoadConfig()
         {
-            string configFile = Util.Util.GetExeDir() + "\\Config.xml";
+            string configFile = Util.GetExeDir() + "\\config.xml";
             if (File.Exists(configFile))
                 Config.LoadFromFile(configFile);
         }
@@ -97,8 +114,13 @@ namespace HeronEngine
             try
             {
                 LoadConfig();
-                HeronTests.HeronTests.MainTest();
-                RunFile(Util.Util.GetExeDir() + "\\" + args[0]);
+                if (Config.outputGrammar) 
+                    OutputGrammar();
+                if (Config.outputPrimitives) 
+                    OutputPrimitives();
+                if (Config.runUnitTests) 
+                    HeronTests.MainTest();
+                RunFile(Util.GetExeDir() + "\\" + args[0]);
                 Console.WriteLine("Press any key to exit ...");
                 Console.ReadKey();
             }

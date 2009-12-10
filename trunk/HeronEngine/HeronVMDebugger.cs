@@ -20,7 +20,7 @@ namespace HeronEngine
             statements.Add(st);
         }
 
-        public Peg.AstNode CurrentNode
+        public AstNode CurrentNode
         {
             get
             {

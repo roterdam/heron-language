@@ -11,7 +11,7 @@ using System.Text;
 using System.IO;
 using System.Reflection;
 
-namespace Util
+namespace HeronEngine
 {
     public static class Util
     {
@@ -47,10 +47,8 @@ namespace Util
                 return result;
             }
         }
-    }
 
-    public static class StringExtensions
-    {
+        #region string extensions
         public static string SafeSubstring(this string self, int begin, int count)
         {
             if (begin < 0)
@@ -74,6 +72,30 @@ namespace Util
             return self.Substring(begin, count);
         }
 
+        public static String EscapeSpecials(this String self)
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < self.Length; ++i)
+            {
+                switch (self[i])
+                {
+                    case '\n':
+                        sb.Append("\\n");
+                        break;
+                    case '\t':
+                        sb.Append("\\t");
+                        break;
+                    case '\r':
+                        sb.Append("\\r");
+                        break;
+                    default:
+                        sb.Append(self[i]);
+                        break;
+                }
+            }
+            return sb.ToString();
+        }
+
         public static void GetRowCol(this string self, int index, out int row, out int col)
         {
             row = 0;
@@ -92,7 +114,7 @@ namespace Util
         public static int IndexOfNthChar(this string s, char c, int n)
         {
             int cnt = 0;
-            for (int i=0; i < s.Length; ++i)
+            for (int i = 0; i < s.Length; ++i)
                 if (s[i] == c)
                     if (++cnt == n)
                         return i;
@@ -153,5 +175,6 @@ namespace Util
             int cnt = end - begin;
             return s.SafeSubstring(begin, cnt);
         }
+        #endregion
     }
 }
