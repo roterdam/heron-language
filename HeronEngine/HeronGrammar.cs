@@ -9,8 +9,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
 
-using Peg;
-
 namespace HeronEngine
 {
     public class HeronGrammar 

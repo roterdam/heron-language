@@ -54,6 +54,12 @@ namespace HeronEngine
                     yield return y;
         }
 
+        public void ResolveAllTypes()
+        {
+            foreach (Expression x in GetExpressionTree())
+                x.ResolveTypes();
+        }
+
         public void ResolveTypes()
         {
             foreach (FieldInfo fi in GetInstanceFields())

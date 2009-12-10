@@ -66,19 +66,6 @@ namespace HeronEngine
         }
 
         [HeronVisible]
-        public virtual IEnumerable<FunctionDefn> GetAllMethods()
-        {
-            return new List<FunctionDefn>();
-        }
-
-        public IEnumerable<FunctionDefn> GetMethods(string name)
-        {
-            foreach (FunctionDefn f in GetAllMethods())
-                if (f.name == name)
-                    yield return f;
-        }
-
-        [HeronVisible]
         public HeronModule GetModule()
         {
             return module;
@@ -133,6 +120,16 @@ namespace HeronEngine
         {
             ExposedField f = new ExposedField(fi);
             fields.Add(f.name, f);
+        }
+
+        public IEnumerable<ExposedField> GetExposedFields()
+        {
+            return fields.Values;
+        }
+
+        public IEnumerable<ExposedMethod> GetExposedMethods()
+        {
+            return functions.Values; 
         }
 
         public virtual HeronValue Instantiate(VM vm, HeronValue[] args)

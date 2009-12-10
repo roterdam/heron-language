@@ -10,11 +10,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 
-using HeronEngine;
-using Peg;
-using Util;
-
-namespace HeronTests
+namespace HeronEngine
 {
     public class HeronTests
     {
@@ -42,7 +38,7 @@ namespace HeronTests
             Console.WriteLine("testing expression: " + s);
             try
             {
-                Expression x = HeronTypedAST.ParseExpr(s);
+                Expression x = HeronTypedAST.ParseExpr(vm.GetProgram(), s);
                 if (x != null)
                 {
                     Console.WriteLine("test passed");
@@ -62,7 +58,7 @@ namespace HeronTests
             Console.WriteLine("testing statement: " + s);
             try
             {
-                Statement x = HeronTypedAST.ParseStatement(s);
+                Statement x = HeronTypedAST.ParseStatement(vm.GetProgram(), s);
                 if (x != null)
                     Console.WriteLine("test passed");
                 else
@@ -144,7 +140,7 @@ namespace HeronTests
 
         static void EvalListTests()
         {
-            TestCompareValues("[1, 2, 3].Length()", "3");
+            TestCompareValues("[1, 2, 3].Count()", "3");
             TestCompareValues("0..2", "0..2");
             TestCompareValues("[0, 1, 2]", "[0, 1, 2]");
             TestCompareValues("0..2", "[0, 1, 2]");
@@ -253,15 +249,12 @@ namespace HeronTests
 
         static public void MainTest()
         {
-            if (Config.runUnitTests)
-            {
-                PegTests();
-                PegStatementTests();
-                ExprParseTests();
-                EvalExprTests();
-                EvalPrimitiveMethodTests(); 
-                EvalListTests();
-            }
+            PegTests();
+            PegStatementTests();
+            ExprParseTests();
+            EvalExprTests();
+            EvalPrimitiveMethodTests(); 
+            EvalListTests();
         }
     }
 }

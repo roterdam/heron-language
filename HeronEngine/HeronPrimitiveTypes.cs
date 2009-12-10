@@ -100,5 +100,37 @@ namespace HeronEngine
 
             return types;
         }
+
+        static void AppendFields(StringBuilder sb, HeronType t)
+        {
+            sb.AppendLine("  fields");
+            sb.AppendLine("  {");
+            foreach (ExposedField f in t.GetExposedFields())
+                sb.AppendLine("    " + f.ToString() + ";");             
+            sb.AppendLine("  }");
+        }
+
+        static void AppendMethods(StringBuilder sb, HeronType t)
+        {
+            sb.AppendLine("  methods");
+            sb.AppendLine("  {");
+            foreach (ExposedMethod m in t.GetExposedMethods())
+                sb.AppendLine("    " + m.ToString() + ";");
+            sb.AppendLine("  }");
+        }
+
+        static public string AsString()
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (HeronType t in GetTypes().Values)
+            {
+                sb.AppendLine("primitive " + t.name);
+                sb.AppendLine("{");
+                AppendFields(sb, t);
+                AppendMethods(sb, t);
+                sb.AppendLine("}");
+            }
+            return sb.ToString();
+        }
     }
 }

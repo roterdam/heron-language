@@ -397,5 +397,21 @@ namespace HeronEngine
             }
             return DotNetObject.Marshal(method.Invoke(self, args));
         }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(method.Name + "(");
+            int n = 0;
+            foreach (ParameterInfo pi in method.GetParameters())
+            {
+                if (n++ > 0)
+                    sb.Append(", ");
+                sb.Append(pi.Name + " : " + pi.ParameterType);
+            }
+            sb.Append(") : ");
+            sb.Append(method.ReturnType.ToString());
+            return sb.ToString();
+        }
     }
 }

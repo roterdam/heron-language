@@ -10,7 +10,7 @@ using System.Text;
 using System.Diagnostics;
 using System.Reflection;
 
-namespace Peg
+namespace HeronEngine
 {
     /// <summary>
     /// A grammar is a set of rules which define a language. Grammar rules in the context 
@@ -87,15 +87,15 @@ namespace Peg
         /// </summary>
         /// <param name="grammarType"></param>
         /// <returns></returns>
-        public static string GetGrammarAsString(Type grammarType)
+        public static string ToString(Type grammarType)
         {
             StringBuilder sb = new StringBuilder();
-            foreach (FieldInfo fi in grammarType.GetFields(BindingFlags.Static))
+            foreach (FieldInfo fi in grammarType.GetFields(BindingFlags.Static | BindingFlags.Public))
             {
-                if (fi.FieldType.Equals(typeof(Rule)))
+                if (typeof(Rule).IsAssignableFrom(fi.FieldType))
                 {
                     Rule r = fi.GetValue(null) as Rule;
-                    sb.Append(r.FullDefn);
+                    sb.AppendLine(r.FullDefn);
                 }
             }
             return sb.ToString();
