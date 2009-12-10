@@ -78,7 +78,9 @@ namespace HeronEngine
             try
             {
                 debugging = true;
-                Console.WriteLine("You are in the debugger. Type '?' for instructions and 'x' to exit.");
+                Console.WriteLine("");
+                Console.WriteLine("You are in the debugger.");
+                Console.WriteLine("Type '?' for instructions and 'x' to exit.");
                 while (true)
                 {
                     string sInput = Console.ReadLine().Trim();

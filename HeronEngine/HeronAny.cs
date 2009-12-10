@@ -13,19 +13,21 @@ namespace HeronEngine
 {
     public class Any : HeronValue
     {
-        public HeronValue obj;
-        public HeronType type;
+        HeronValue obj;
+        HeronType type;
 
         public Any(HeronValue obj)
         {
-            this.obj = obj;
-            this.type = obj.GetHeronType();
-        }
-
-        public Any(HeronValue obj, HeronType type)
-        {
-            this.obj = obj;
-            this.type = type;
+            if (obj is Any)
+            {
+                this.obj = (obj as Any).obj;
+                this.type = (obj as Any).type;
+            }
+            else
+            {
+                this.obj = obj;
+                this.type = obj.GetHeronType();
+            }
         }
 
         public bool Is(HeronType t)
@@ -90,7 +92,11 @@ namespace HeronEngine
 
                 return obj;
             }
-            else 
+            else if (t.name == "Any")
+            {
+                return this;
+            }
+            else
             {
                 Type from = type.GetSystemType();
                 Type to = t.GetSystemType();
@@ -105,6 +111,11 @@ namespace HeronEngine
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.AnyType;
+        }
+
+        public HeronType GetHeldType()
+        {
+            return type;
         }
     }
 }

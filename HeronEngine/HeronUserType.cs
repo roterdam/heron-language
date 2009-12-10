@@ -97,7 +97,7 @@ namespace HeronEngine
                     basetypes[i] = (t as UnresolvedType).Resolve();
             }
 
-            foreach (FunctionDefn f in GetMethods())
+            foreach (FunctionDefn f in GetAllMethods())
                 f.ResolveTypes();
         }
         public void AddBaseInterface(HeronType t)
@@ -108,14 +108,36 @@ namespace HeronEngine
         {
             throw new Exception("Cannot instantiate an interface");
         }
-        public override IEnumerable<FunctionDefn> GetMethods()
+
+        public override IEnumerable<FunctionDefn> GetAllMethods()
         {
-            foreach (FunctionDefn f in methods)
+            foreach (FunctionDefn f in GetDeclaredMethods())
                 yield return f;
+            foreach (FunctionDefn f in GetInheritedMethods())
+                yield return f;
+        }
+
+        [HeronVisible]
+        public IEnumerable<HeronInterface> GetInheritedInterfaces()
+        {
             foreach (HeronInterface i in basetypes)
-                foreach (FunctionDefn f in i.GetMethods())
+                yield return i;
+        }
+
+        [HeronVisible]
+        public IEnumerable<FunctionDefn> GetDeclaredMethods()
+        {
+            return methods;
+        }
+
+        [HeronVisible]
+        public IEnumerable<FunctionDefn> GetInheritedMethods()
+        {
+            foreach (HeronInterface i in GetInheritedInterfaces())
+                foreach (FunctionDefn f in i.GetAllMethods())
                     yield return f;
         }
+
         // TODO: see if I can remove all "HasMethod" calls.
         public bool HasMethod(string name)
         {
@@ -252,13 +274,13 @@ namespace HeronEngine
             }
             foreach (FieldDefn f in GetFields())
                 f.ResolveTypes();
-            foreach (FunctionDefn f in GetMethods())
+            foreach (FunctionDefn f in GetAllMethods())
                 f.ResolveTypes();
         }
 
         public bool VerifyImplements(HeronInterface i)
         {
-            foreach (FunctionDefn f in i.GetMethods())
+            foreach (FunctionDefn f in i.GetAllMethods())
                 if (!HasFunction(f))
                     return false;
             return true;
@@ -285,12 +307,10 @@ namespace HeronEngine
         }
 
         [HeronVisible]
-        public List<HeronType> GetInheritedTypes()
+        public IEnumerable<HeronClass> GetInheritedClasses()
         {
-            List<HeronType> r = new List<HeronType>();
-            if (GetBaseClass() != null)
-                r.Add(GetBaseClass());
-            return r;
+            if (baseclass != null)
+                yield return baseclass as HeronClass;
         }
 
         [HeronVisible]
@@ -420,12 +440,27 @@ namespace HeronEngine
             return ctors;
         }
 
-        public override IEnumerable<FunctionDefn> GetMethods()
+        public override IEnumerable<FunctionDefn> GetAllMethods()
         {
-            foreach (FunctionDefn f in methods)
+            foreach (FunctionDefn f in GetDeclaredMethods())
                 yield return f;
             if (baseclass != null)
-                foreach (FunctionDefn f in baseclass.GetMethods())
+                foreach (FunctionDefn f in baseclass.GetAllMethods())
+                    yield return f;
+        }
+
+
+        [HeronVisible]
+        public IEnumerable<FunctionDefn> GetDeclaredMethods()
+        {
+            return methods;
+        }
+
+        [HeronVisible]
+        public IEnumerable<FunctionDefn> GetInheritedMethods()
+        {
+            if (baseclass != null)
+                foreach (FunctionDefn f in baseclass.GetAllMethods())
                     yield return f;
         }
 

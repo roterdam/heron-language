@@ -32,7 +32,9 @@ namespace HeronEngine
             {
                 if (typeof(Statement).IsAssignableFrom(fi.FieldType))
                 {
-                    yield return fi.GetValue(fi) as Statement;
+                    Object o = fi.GetValue(this);
+                    if (o != null)
+                        yield return o as Statement;
                 }
                 else if (fi.FieldType.Equals(typeof(List<Statement>)))
                 {
@@ -49,9 +51,11 @@ namespace HeronEngine
             {
                 if (typeof(Expression).IsAssignableFrom(fi.FieldType))
                 {
-                    yield return fi.GetValue(fi) as Expression;
+                    Object o = fi.GetValue(this);
+                    if (o != null) 
+                        yield return o as Expression;
                 }
-                else if (fi.FieldType.Equals(typeof(List<Expression>)))
+                else if (typeof(List<Expression>).IsAssignableFrom(fi.FieldType))
                 {
                     List<Expression> xs = fi.GetValue(this) as List<Expression>;
                     foreach (Expression x in xs)

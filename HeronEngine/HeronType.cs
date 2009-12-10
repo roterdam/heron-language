@@ -66,14 +66,14 @@ namespace HeronEngine
         }
 
         [HeronVisible]
-        public virtual IEnumerable<FunctionDefn> GetMethods()
+        public virtual IEnumerable<FunctionDefn> GetAllMethods()
         {
             return new List<FunctionDefn>();
         }
 
         public IEnumerable<FunctionDefn> GetMethods(string name)
         {
-            foreach (FunctionDefn f in GetMethods())
+            foreach (FunctionDefn f in GetAllMethods())
                 if (f.name == name)
                     yield return f;
         }

@@ -57,11 +57,17 @@ namespace HeronEngine
                 Console.WriteLine(e.context.line);
                 Console.WriteLine(e.context.ptr);
             }
+            catch (TypedASTException e)
+            {
+                Console.WriteLine("Error occured during typed parse tree construction in file " + file);
+                Console.WriteLine(e.Message);
+            }
             catch (Exception e)
             {
                 Console.WriteLine("Error occured when executing file " + file);
                 Console.WriteLine(e.Message);
-                HeronDebugger.Start(vm);
+                
+                // HeronDebugger.Start(vm);
             }
         }
         
