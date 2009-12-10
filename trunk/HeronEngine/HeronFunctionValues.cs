@@ -204,7 +204,12 @@ namespace HeronEngine
             {
                 // On each iteration, update the main list, to only contain the remaining items
                 list = new List<FunctionValue>(tmp);
-                HeronType argType = args[pos].GetHeronType();
+                HeronValue arg = args[pos];
+                HeronType argType;
+                if (arg is Any)
+                    argType = (arg as Any).GetHeldType();
+                else
+                    argType = arg.GetHeronType();
                 for (int i = 0; i < list.Count; ++i)
                 {
                     FunctionValue fo = list[i];

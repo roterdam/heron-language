@@ -23,19 +23,28 @@
 					Console.Write(indent);
 				} 
 				Console.Write(s);
+			}
+			WriteLine()
+			{
+				Write("");
+				atNewLine = true;
 			}			
 			WriteLine(s : String)
 			{
 				Write(s);
 				atNewLine = true;
 			}
-			BracesAround(f : Function)
+			Indent(f : Function)
 			{
-				WriteLine("{");
 				var old_indent = indent;
 				indent = indent + "  ";
 				f();
 				indent = old_indent;				
+			}
+			BracesAround(f : Function)
+			{
+				WriteLine("{");
+				Indent(f);
 				WriteLine("}");
 			}			
 		}			
@@ -54,6 +63,7 @@
 				base.Constructor();
 				foreach (m in program.GetModules())
 					Output(m);
+				WriteLine("");
 			}
 			OutputAll(xs : Seq)
 			{
@@ -81,7 +91,7 @@
 						OutputAll(xs);
 					});
 			}
-			OutputDelimited(xs : List, sDelim : String)
+			OutputList(xs : List, sDelim : String)
 			{
 				foreach (i in 0..xs.Count() - 1) {
 					if (i > 0)
@@ -93,17 +103,23 @@
 			{
 				Write("class ");				
 				WriteLine(c.name);
-				OutputSection("inherits", c.GetInheritedTypes());
-				OutputSection("implements", c.GetImplementedInterfaces());				
-				OutputSection("fields", c.GetFields());
-				OutputSection("methods", c.GetMethods());
+				BracesAround(function() 
+					{
+						OutputSection("inherits", c.GetInheritedClasses());
+						OutputSection("implements", c.GetImplementedInterfaces());				
+						OutputSection("fields", c.GetFields());
+						OutputSection("methods", c.GetDeclaredMethods());
+					});
 			}
 			Output(i : HeronInterface)
 			{
 				Write("interface ");
 				WriteLine(i.name);
-				OutputSection("inherits", c.GetInheritedTypes());
-				OutputSection("methods", c.GetMethods());
+				BracesAround(function()
+					{
+						OutputSection("inherits", i.GetInheritedInterfaces());
+						OutputSection("methods", i.GetDeclaredMethods());
+					});
 			}
 			Output(e : HeronEnum)
 			{
@@ -130,9 +146,10 @@
 			{
 				Write(m.name);
 				Write("(");
-				OutputDelimited(m.formals, ", ");
+				OutputList(m.formals, ", ");
 				Write(")");
 				OutputTypeDecl(m.rettype);
+				WriteLine();
 				Output(m.body);
 			}
 			Output(fa : FormalArg)
@@ -140,6 +157,13 @@
 				Write(fa.name);
 				OutputTypeDecl(fa.type);
 			}			
+			OutputIndentedStatement(x)
+			{
+				if (x is CodeBlock)
+					Output(x);
+				else
+					Indent(function() { Output(x); });
+			}
 			Output(x : VariableDeclaration)
 			{
 				Write("var ");
@@ -147,16 +171,22 @@
 				Write(" ");
 				OutputTypeDecl(x.type);
 				if (x.value != null)
-					Write(" = " + x.value.ToString());
+				{
+					Write(" = ");
+					Output(x.value);
+				}
 				WriteLine(";");
 			}
 			Output(x : DeleteStatement)
 			{
-				WriteLine("delete " + x.expression.ToString() + ";");
+				Write("delete ");
+				Output(x.expression);
+				WriteLine(";");
 			}
 			Output(x : ExpressionStatement)
 			{
-				WriteLine(x.expression.ToString() + ";");
+				Output(x.expression);
+				WriteLine(";");
 			}
 			Output(x : ForEachStatement)
 			{
@@ -166,7 +196,7 @@
 				Write(" in ");
 				Output(x.collection);
 				WriteLine(")");
-				Output(x.body);
+				OutputIndentedStatement(x.body);
 			}
 			Output(x : ForStatement)
 			{
@@ -179,25 +209,27 @@
 				Write("; ");
 				Output(x.next);
 				WriteLine(")");
-				Output(x.body);
+				OutputIndentedStatement(x.body);
 			}
 			Output(x : CodeBlock)
 			{
-				WriteLine("(");
-				foreach (s in x.statements)
-					Output(s);
-				WriteLine("}");
+				BracesAround(
+					function() {
+						foreach (s in x.statements)
+							Output(s);
+						}
+					);
 			}
 			Output(x : IfStatement)
 			{
 				Write("if (");
 				Output(x.condition);
-				Write(")");
-				Output(x.ontrue);
+				WriteLine(")");
+				OutputIndentedStatement(x.ontrue);
 				if (x.onfalse != null)
 				{
 					WriteLine("else");
-					Output(x.onfalse);
+					OutputIndentedStatement(x.onfalse);
 				}
 			}
 			Output(x : WhileStatement)
@@ -205,7 +237,7 @@
 				Write("while (");
 				Output(x.condition);
 				WriteLine(")");
-				Output(x.body);
+				OutputIndentedStatement(x.body);
 			}
 			Output(x : ReturnStatement)
 			{
@@ -230,8 +262,10 @@
 			}
 			Output(x : CaseStatement)
 			{
-				WriteLine("case (" + x.condition + ")");
-				Output(x.statement);
+				Write("case (");
+				Output(x.condition);
+				WriteLine(")");
+				OutputIndentedStatement(x.statement);
 			}
 			Output(x : Assignment)
 			{
@@ -275,11 +309,11 @@
 			}
 			Output(x : CharLiteral)
 			{
-				Write("\'" + x.ToString() + "\'");
+				Write(x.ToString());
 			}
 			Output(x : StringLiteral)
 			{
-				Write("\"" + x.ToString() + "\"");
+				Write(x.ToString());
 			}
 			Output(x : Name)
 			{
@@ -289,7 +323,7 @@
 			{
 				Output(x.funexpr);
 				Write("(");
-				OutputDelimitedList(x.args, ", ");	
+				OutputList(x.args, ", ");	
 				Write(")");
 			}
 			Output(x : UnaryOperation)
@@ -300,16 +334,18 @@
 			Output(x : BinaryOperation)
 			{
 				Output(x.operand1);
-				Write(x.operation);
+				Write(" " + x.operation + " ");
 				Output(x.operand2);
 			}
 			Output(x : AnonFunExpr)
 			{
 				Write("function (");				
-				OutputDelimitedList(x.formals, ", ");
+				OutputList(x.formals, ", ");
+				Write(") ");
 				OutputTypeDecl(x.rettype);
 				WriteLine("");
-				Output(x.body);				
+				Indent(function() { Output(x.body); });
+				
 			}
 			Output(x : PostIncExpr)
 			{
@@ -350,7 +386,7 @@
 			Output(x : TupleExpr)
 			{
 				Write("[");
-				OutputDelimited(x.exprs, ", ");
+				OutputList(x.exprs, ", ");
 				Write("]");
 			}
 		}

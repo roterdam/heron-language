@@ -64,9 +64,8 @@ namespace HeronEngine
                     if (t == null)
                         throw new Exception("The type field cannot be null, expected an UnresolvedType");
                     UnresolvedType ut = t as UnresolvedType;
-                    if (ut == null)
-                        throw new Exception("Expected an unresolved type not a " + t.name);
-                    fi.SetValue(this, ut.Resolve());
+                    if (ut != null)
+                        fi.SetValue(this, ut.Resolve());
                 }
             }
         }
@@ -234,8 +233,8 @@ namespace HeronEngine
     /// </summary>
     public class NewExpr : Expression
     {
-        [HeronVisible] HeronType type;
-        [HeronVisible] ExpressionList args;
+        [HeronVisible] public HeronType type;
+        [HeronVisible] public ExpressionList args;
 
         public NewExpr(HeronType type, ExpressionList args)
         {
@@ -296,6 +295,12 @@ namespace HeronEngine
         public override string ToString()
         {
             return val.ToString();
+        }
+
+        [HeronVisible]
+        public HeronValue GetValue()
+        {
+            return val;
         }
     }
 
@@ -361,6 +366,11 @@ namespace HeronEngine
         {
             return PrimitiveTypes.CharLiteral;
         }
+
+        public override string ToString()
+        {
+            return "'" + GetValue().ToString() + "'";
+        }
     }
 
     /// <summary>
@@ -376,6 +386,11 @@ namespace HeronEngine
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.StringLiteral;
+        }
+
+        public override string ToString()
+        {
+            return "\"" + base.ToString() + "\"";
         }
     }
 
@@ -705,8 +720,9 @@ namespace HeronEngine
     /// </summary>
     public class PostIncExpr : Expression
     {
-        [HeronVisible] Expression expr;
-        [HeronVisible] Assignment ass;
+        [HeronVisible] public Expression expr;
+        
+        public Assignment ass;
 
         public PostIncExpr(Expression x)
         {
@@ -774,9 +790,9 @@ namespace HeronEngine
     /// </summary>
     public class MapEachExpr : Expression
     {
-        [HeronVisible] string name;
-        [HeronVisible] Expression list;
-        [HeronVisible] Expression yield;
+        [HeronVisible] public string name;
+        [HeronVisible] public Expression list;
+        [HeronVisible] public Expression yield;
 
         public MapEachExpr(string name, Expression list, Expression yield)
         {
@@ -810,11 +826,11 @@ namespace HeronEngine
     /// </summary>
     public class AccumulateExpr : Expression
     {
-        [HeronVisible] string acc;
-        [HeronVisible] Expression init;
-        [HeronVisible] string each;
-        [HeronVisible] Expression list;
-        [HeronVisible] Expression expr;
+        [HeronVisible] public string acc;
+        [HeronVisible] public Expression init;
+        [HeronVisible] public string each;
+        [HeronVisible] public Expression list;
+        [HeronVisible] public Expression expr;
 
         public AccumulateExpr(string acc, Expression init, string each, Expression list, Expression expr)
         {
@@ -858,7 +874,7 @@ namespace HeronEngine
     /// </summary>
     public class TupleExpr : Expression
     {
-        [HeronVisible] ExpressionList exprs;
+        [HeronVisible] public ExpressionList exprs;
 
         public TupleExpr(ExpressionList xs)
         {
