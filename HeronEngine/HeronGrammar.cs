@@ -79,22 +79,22 @@ namespace HeronEngine
         #region expression rules
         public static Rule SpecialDelimiter = Token("forall");
         public static Rule SpecialName = Token(Store("specialname", CharSeq("null") | CharSeq("true") | CharSeq("false")));
-        public static Rule Name = Token(Store("name", Not(SpecialDelimiter) + (Symbol | Ident)));
-        public static Rule TypeArgs = Store("typeargs", (CharSeq("<") + NoFail(Delay(() => TypeExpr) + Token(">"))));
+        public static Rule Name = Store("name", Not(SpecialDelimiter) + (Symbol | Ident)) + WS;
+        public static Rule TypeArgs = Store("typeargs", (CharSeq("<") + NoFail(Delay("TypeExpr", () => TypeExpr) + Token(">"))));
         public static Rule TypeName = Store("name", (Ident + Star((Token(".") + NoFail(Ident)))));
 	    public static Rule TypeExpr = Store("type", (TypeName + Opt(TypeArgs) + WS));
 	    public static Rule TypeDecl = Token(":") + NoFail(TypeExpr);
         public static Rule Arg = Store("arg", Name + Opt(TypeDecl));
         public static Rule ArgList = Store("arglist", (Token("(") + CommaList(Arg) + NoFail(Token(")"))));
-        public static Rule DelayedStatement = Delay(() => Statement);
+        public static Rule DelayedStatement = Delay("Statement", () => Statement);
         public static Rule CodeBlock = Store("codeblock", BracedGroup(DelayedStatement));
         public static Rule AnonFxn = Store("anonfxn", Token("function") + NoFail(ArgList + Opt(TypeDecl) + CodeBlock));
-        public static Rule ParanthesizedExpr = Store("paranexpr", Paranthesized(Opt(Delay(() => Expr))));
-        public static Rule BracketedExpr = Store("bracketedexpr", Bracketed(Opt(Delay(() => Expr))));
+        public static Rule ParanthesizedExpr = Store("paranexpr", Paranthesized(Opt(Delay("Expr", () => Expr))));
+        public static Rule BracketedExpr = Store("bracketedexpr", Bracketed(Opt(Delay("Expr", () => Expr))));
         public static Rule NewExpr = Store("new", Token("new") + NoFail(TypeExpr + ParanthesizedExpr));
-        public static Rule SelectExpr = Store("select", Token("select") + NoFail(Token("(") + Name + Token("from") + Delay(() => Expr) + Token(")") + Delay(() => Expr)));
-        public static Rule AccumulateExpr = Store("accumulate", Token("accumulate") + NoFail(Token("(") + Name + Delay(() => Initializer) + Token("forall") + Name + Token("in") + Delay(() => Expr) + Token(")") + Delay(() => Expr)));
-        public static Rule MapEachExpr = Store("mapeach", Token("mapeach") + NoFail(Token("(") + Name + Token("in") + Delay(() => Expr) + Token(")") + NoFail(Delay(() => Expr))));
+        public static Rule SelectExpr = Store("select", Token("select") + NoFail(Token("(") + Name + Token("from") + Delay("Expr", () => Expr) + Token(")") + Delay("Expr", () => Expr)));
+        public static Rule AccumulateExpr = Store("accumulate", Token("accumulate") + NoFail(Token("(") + Name + Delay("Initializer", () => Initializer) + Token("forall") + Name + Token("in") + Delay("Expr", () => Expr) + Token(")") + Delay("Expr", () => Expr)));
+        public static Rule MapEachExpr = Store("mapeach", Token("mapeach") + NoFail(Token("(") + Name + Token("in") + Delay("Expr", () => Expr) + Token(")") + NoFail(Delay("Expr", () => Expr))));
         public static Rule BasicExpr = (NewExpr | MapEachExpr | SelectExpr | AccumulateExpr | AnonFxn | SpecialName | Name | Literal | ParanthesizedExpr | BracketedExpr);
         public static Rule Expr = Store("expr", Plus(BasicExpr));
         #endregion
@@ -143,7 +143,7 @@ namespace HeronEngine
         public static Rule Enum = Store("enum", Opt(Annotations) + Token("enum") + NoFail(Name + EnumValues));
         public static Rule ModuleElement = Class | Interface | Enum;
         public static Rule Module = Store("module", Token("module") + NoFail(Name + BracedGroup(ModuleElement)));
-        public static Rule ScriptElement = VarDecl |  Method;
+        public static Rule ScriptElement = VarDecl | Method;
         public static Rule Script = Store("script", Token("script") + NoFail(Name + Eos + Star(ScriptElement)));
         public static Rule File = (Module | Script) + EndOfInput;
         #endregion
