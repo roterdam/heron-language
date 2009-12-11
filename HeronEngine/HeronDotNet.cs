@@ -28,12 +28,12 @@ namespace HeronEngine
             this.iter = iter;
         }
 
-        public override bool MoveNext(VM vm)
+        public override bool MoveNext()
         {
             return iter.MoveNext();
         }
 
-        public override HeronValue GetValue(VM vm)
+        public override HeronValue GetValue()
         {
             return DotNetObject.Marshal(iter.Current);
         }

@@ -484,8 +484,10 @@ primitive Iterator
   }
   methods
   {
-    MoveNext(vm : HeronEngine.VM) : System.Boolean;
-    GetValue(vm : HeronEngine.VM) : HeronEngine.HeronValue;
+    MoveNext() : System.Boolean;
+    GetValue() : HeronEngine.HeronValue;
+    GetIterator() : HeronEngine.IteratorValue;
+    ToList() : HeronEngine.ListValue;
     ToString() : System.String;
   }
 }
@@ -499,6 +501,8 @@ primitive List
     Add(v : HeronEngine.HeronValue) : System.Void;
     Remove() : System.Void;
     Count() : HeronEngine.HeronValue;
+    GetIterator() : HeronEngine.IteratorValue;
+    ToList() : HeronEngine.ListValue;
     ToString() : System.String;
   }
 }
@@ -622,6 +626,8 @@ primitive Seq
   }
   methods
   {
+    ToList() : HeronEngine.ListValue;
+    GetIterator() : HeronEngine.IteratorValue;
     ToString() : System.String;
   }
 }
@@ -672,6 +678,8 @@ primitive Tree
     Add(v : HeronEngine.HeronValue) : System.Void;
     Remove() : System.Void;
     Count() : HeronEngine.HeronValue;
+    GetIterator() : HeronEngine.IteratorValue;
+    ToList() : HeronEngine.ListValue;
     ToString() : System.String;
   }
 }
