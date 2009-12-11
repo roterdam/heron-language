@@ -774,8 +774,8 @@ namespace HeronEngine
         public override HeronValue Eval(VM vm)
         {
             SeqValue seq = vm.EvalList(list); 
-            var r = new SelectEnumerator(vm, name, seq.GetIterator(vm), pred);
-            return r.ToList(vm);
+            var r = new SelectEnumerator(vm, name, seq.GetIterator(), pred);
+            return r.ToList();
         }
 
         public override string ToString()
@@ -810,8 +810,7 @@ namespace HeronEngine
         public override HeronValue Eval(VM vm)
         {
             SeqValue seq = vm.EvalList(list);
-            var result= new MapEachEnumerator(name, seq.GetIterator(vm), yield);
-            return result.ToList(vm);
+            return new MapEachEnumerator(vm, name, seq.GetIterator(), yield);
         }
 
         public override string ToString()

@@ -26,13 +26,13 @@ namespace HeronEngine
 
         #region iterator functions
         [HeronVisible]
-        public abstract bool MoveNext(VM vm);
+        public abstract bool MoveNext();
         [HeronVisible]
-        public abstract HeronValue GetValue(VM vm);
+        public abstract HeronValue GetValue();
         #endregion 
 
         #region sequence functions 
-        public override IteratorValue GetIterator(VM vm)
+        public override IteratorValue GetIterator()
         {
             return this;
         }
@@ -49,23 +49,25 @@ namespace HeronEngine
         string name;
         Expression pred;
         HeronValue current;
+        VM vm;
 
         public SelectEnumerator(VM vm, string name, IteratorValue iter, Expression pred)
         {
+            this.vm = vm;
             this.name = name;
             this.iter = iter;
             this.pred = pred;
         }
 
-        public override bool MoveNext(VM vm)
+        public override bool MoveNext()
         {
             using (vm.CreateScope())
             {
                 vm.AddVar(name, Null);
 
-                while (iter.MoveNext(vm))
+                while (iter.MoveNext())
                 {
-                    current = iter.GetValue(vm);
+                    current = iter.GetValue();
                     vm.SetVar(name, current);
                     HeronValue cond = vm.Eval(pred);
                     if (cond.ToBool())
@@ -77,7 +79,7 @@ namespace HeronEngine
             }
         }
 
-        public override HeronValue GetValue(VM vm)
+        public override HeronValue GetValue()
         {
             return current;
         }
@@ -102,7 +104,7 @@ namespace HeronEngine
             next = this.min;
         }
 
-        public override bool MoveNext(VM vm)
+        public override bool MoveNext()
         {
             if (next > max)
                 return false;
@@ -110,7 +112,7 @@ namespace HeronEngine
             return true;
         }
 
-        public override HeronValue GetValue(VM vm)
+        public override HeronValue GetValue()
         {
             return new IntValue(cur);
         }
@@ -135,24 +137,26 @@ namespace HeronEngine
         string name;
         IteratorValue iter;
         Expression yield;
+        VM vm;
 
-        public MapEachEnumerator(string name, IteratorValue iter, Expression yield)
+        public MapEachEnumerator(VM vm, string name, IteratorValue iter, Expression yield)
         {
+            this.vm = vm;
             this.name = name;
             this.iter = iter;
             this.yield = yield;
         }
 
-        public override bool MoveNext(VM vm)
+        public override bool MoveNext()
         {
-            return iter.MoveNext(vm);
+            return iter.MoveNext();
         }
 
-        public override HeronValue GetValue(VM vm)
+        public override HeronValue GetValue()
         {
             using (vm.CreateScope())
             {
-                vm.AddVar(name, iter.GetValue(vm));
+                vm.AddVar(name, iter.GetValue());
                 return vm.Eval(yield);
             }
         }
@@ -169,7 +173,7 @@ namespace HeronEngine
         IteratorValue iter;
 
         public HeronToEnumeratorAdapter(VM vm, SeqValue list)
-            : this(vm, list.GetIterator(vm))
+            : this(vm, list.GetIterator())
         {
         }
 
@@ -201,7 +205,7 @@ namespace HeronEngine
 
         public HeronValue Current
         {
-            get { return iter.GetValue(vm); }
+            get { return iter.GetValue(); }
         }
 
         public void Reset()
@@ -224,12 +228,12 @@ namespace HeronEngine
 
         object System.Collections.IEnumerator.Current
         {
-            get { return iter.GetValue(vm); }
+            get { return iter.GetValue(); }
         }
 
         public bool MoveNext()
         {
-            return iter.MoveNext(vm);
+            return iter.MoveNext();
         }
 
         #endregion
@@ -249,12 +253,12 @@ namespace HeronEngine
             this.iter = iter;
         }
 
-        public override bool MoveNext(VM vm)
+        public override bool MoveNext()
         {
             return iter.MoveNext();
         }
 
-        public override HeronValue GetValue(VM vm)
+        public override HeronValue GetValue()
         {
             return iter.Current;
         }
@@ -290,24 +294,25 @@ namespace HeronEngine
             }
         }
 
+
         public override bool EqualsValue(VM vm, HeronValue x)
         {
             if (!(x is SeqValue))
                 return false;
-            IteratorValue e1 = GetIterator(vm);
-            IteratorValue e2 = (x as SeqValue).GetIterator(vm);
-            bool b1 = e1.MoveNext(vm);
-            bool b2 = e2.MoveNext(vm);
+            IteratorValue e1 = GetIterator();
+            IteratorValue e2 = (x as SeqValue).GetIterator();
+            bool b1 = e1.MoveNext();
+            bool b2 = e2.MoveNext();
 
             // While both lists have data.
             while (b1 && b2)
             {
-                HeronValue v1 = e1.GetValue(vm);
-                HeronValue v2 = e2.GetValue(vm);
+                HeronValue v1 = e1.GetValue();
+                HeronValue v2 = e2.GetValue();
                 if (!v1.EqualsValue(vm, v2))
                     return false;
-                b1 = e1.MoveNext(vm);
-                b2 = e2.MoveNext(vm);                
+                b1 = e1.MoveNext();
+                b2 = e2.MoveNext();                
             }
 
             // If one of b1 or b2 is true, then we didn't get to the end of list
@@ -317,12 +322,14 @@ namespace HeronEngine
             return true;
         }
         
-        public virtual ListValue ToList(VM vm)
+        [HeronVisible]
+        public virtual ListValue ToList()
         {
-            return new ListValue(ToDotNetEnumerable(vm));
+            return new ListValue(GetIterator());
         }
 
-        public abstract IteratorValue GetIterator(VM vm);
+        [HeronVisible]
+        public abstract IteratorValue GetIterator();
     }
 
     /// <summary>
@@ -340,6 +347,14 @@ namespace HeronEngine
         public ListValue(IEnumerable<HeronValue> xs)
         {
             list.AddRange(xs);
+        }
+
+        public ListValue(IteratorValue val)
+        {
+            while (val.MoveNext())
+            {
+                list.Add(val.GetValue());
+            }
         }
 
         public ListValue(IList xs)
@@ -376,12 +391,12 @@ namespace HeronEngine
             return PrimitiveTypes.ListType;
         }
 
-        public override IteratorValue GetIterator(VM vm)
+        public override IteratorValue GetIterator()
         {
             return new EnumeratorToHeronAdapter(list.GetEnumerator());
         }
     
-        public override ListValue ToList(VM vm)
+        public override ListValue ToList()
         {
             return this;
         }
