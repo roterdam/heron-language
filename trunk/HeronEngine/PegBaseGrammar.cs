@@ -20,7 +20,7 @@ namespace HeronEngine
     public class Grammar
     {
         #region rule creating functions
-        public static Rule Delay(RuleDelegate r) { return new RecursiveRule(r); }
+        public static Rule Delay(string name, RuleDelegate r) { return new RecursiveRule(name, r); }
         public static Rule SingleChar(char c) { return new SingleCharRule(c); }
         public static Rule CharSeq(string s) { return new CharSeqRule(s); }
         public static Rule NotChar(char c) { return Not(SingleChar(c)) + AnyChar; }
@@ -72,7 +72,7 @@ namespace HeronEngine
         /// <param name="grammarType"></param>
         public static void AssignRuleNames(Type grammarType)
         {
-            foreach (FieldInfo fi in grammarType.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
+            foreach (FieldInfo fi in grammarType.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy ))
             {
                 if (fi.FieldType.Equals(typeof(Rule)))
                 {
@@ -89,8 +89,14 @@ namespace HeronEngine
         /// <returns></returns>
         public static string ToString(Type grammarType)
         {
+            SortedList<string, FieldInfo> fields = new SortedList<string,FieldInfo>();
+            foreach (FieldInfo fi in grammarType.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy))
+            {
+               fields.Add(fi.Name, fi);
+            }
+
             StringBuilder sb = new StringBuilder();
-            foreach (FieldInfo fi in grammarType.GetFields(BindingFlags.Static | BindingFlags.Public))
+            foreach (FieldInfo fi in fields.Values)
             {
                 if (typeof(Rule).IsAssignableFrom(fi.FieldType))
                 {

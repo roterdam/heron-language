@@ -47,19 +47,26 @@ namespace HeronEngine
         /// <returns></returns>
         public abstract bool Match(ParserState p);
 
+        public bool HasName
+        {
+            get
+            {
+                return name != null;
+            }
+        }
+
         public string Name
         {
             get
             {
-                if (name == null)
+                if (!HasName)
                     return "???";
                 else
                     return name;
             }
             set
             {
-                if (value != null)
-                    name = value;
+                name = value;
             }
         }
 
@@ -183,10 +190,12 @@ namespace HeronEngine
     public class RecursiveRule : Rule
     {
         RuleDelegate mDeleg;
+        string mName;
 
-        public RecursiveRule(RuleDelegate deleg)
+        public RecursiveRule(string name, RuleDelegate deleg)
         {
             Trace.Assert(deleg != null);
+            mName = name;
             mDeleg = deleg;
         }
 
@@ -199,7 +208,7 @@ namespace HeronEngine
         {
             get
             {
-                return "_recursive_";
+                return mName;
             }
         }
     }
@@ -234,7 +243,7 @@ namespace HeronEngine
             {
                 string r;
                 string name = FirstChild.Name;
-                if (name == "???")
+                if (!FirstChild.HasName)
                     name = FirstChild.Defn;
                 r = "expected " + name;
                 return r;
@@ -291,7 +300,7 @@ namespace HeronEngine
                 foreach (Rule r in Children)
                 {
                     if (n++ != 0) result.Append(" + ");
-                    if (r is SeqRule)
+                    if (r is SeqRule && !r.HasName)
                     {
                         result.Append((r as SeqRule).BasicDefn);
                     }
@@ -345,7 +354,7 @@ namespace HeronEngine
                 foreach (Rule r in Children)
                 {
                     if (n++ != 0) result.Append(" | ");
-                    if (r is ChoiceRule)
+                    if (r is ChoiceRule && !r.HasName)
                     {
                         result.Append((r as ChoiceRule).BasicDefn);
                     }

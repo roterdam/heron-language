@@ -80,7 +80,7 @@ namespace HeronEngine
         public static HeronType AccumulateExpr = new HeronType(typeof(AccumulateExpr));
         public static HeronType TupleExpr = new HeronType(typeof(TupleExpr));
 
-        static Dictionary<string, HeronType> types = null;
+        static SortedDictionary<string, HeronType> types = null;
 
         static void AddType(HeronType prim)
         {
@@ -88,11 +88,11 @@ namespace HeronEngine
             types.Add(prim.name, prim);
         }
 
-        static public Dictionary<string, HeronType> GetTypes()
+        static public SortedDictionary<string, HeronType> GetTypes()
         {
             if (types == null)
             {
-                types = new Dictionary<string, HeronType>();
+                types = new SortedDictionary<string, HeronType>();
                 foreach (FieldInfo fi in typeof(PrimitiveTypes).GetFields())
                     if (fi.FieldType.Equals(typeof(HeronType)) && fi.IsStatic)
                         AddType(fi.GetValue(null) as HeronType);
