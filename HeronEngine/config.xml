@@ -2,7 +2,7 @@
 <cfgxml>
   <version>
     <major>1</major>
-    <minor>0</minor>
+    <minor>1</minor>
   </version>
   <section name="main">
     <pathlist name="inputpath">

@@ -525,11 +525,11 @@ namespace HeronEngine
                 if (!(b is HeronType))
                     throw new Exception("The 'is' operator expects a type as a right hand argument");
 
-                Any any;
-                if (a is Any)
-                    any = a as Any; 
+                AnyValue any;
+                if (a is AnyValue)
+                    any = a as AnyValue; 
                 else
-                    any = new Any(a);
+                    any = new AnyValue(a);
 
                 return new BoolValue(any.Is(b as HeronType));                    
             }
@@ -538,11 +538,11 @@ namespace HeronEngine
                 if (!(b is HeronType))
                     throw new Exception("The 'as' operator expects a type as a right hand argument");
 
-                Any any;
-                if (a is Any)
-                    any = a as Any;
+                AnyValue any;
+                if (a is AnyValue)
+                    any = a as AnyValue;
                 else
-                    any = new Any(a);
+                    any = new AnyValue(a);
 
                 return any.As(b as HeronType);
             }

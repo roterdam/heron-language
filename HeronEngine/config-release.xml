@@ -2,12 +2,14 @@
 <cfgxml>
   <version>
     <major>1</major>
-    <minor>0</minor>
+    <minor>1</minor>
   </version>
   <section name="main">
     <pathlist name="inputpath">
-      <path relative="true">..\..\tests</path>
+      <path relative="true">tests</path>
     </pathlist>
-    <bool name="rununittests">true</bool>
+    <bool name="rununittests">false</bool>
+    <bool name="outputgrammar">false</bool>
+    <bool name="outputprimitives">false</bool>
   </section>
 </cfgxml>

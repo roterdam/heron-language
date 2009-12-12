@@ -1,60 +1,7 @@
-primitive AccumulateExpr
-{
-  fields
-  {
-    acc : System.String;
-    init : HeronEngine.Expression;
-    each : System.String;
-    list : HeronEngine.Expression;
-    expr : HeronEngine.Expression;
-  }
-  methods
-  {
-    ToString() : System.String;
-  }
-}
-primitive AnonFunExpr
-{
-  fields
-  {
-    formals : HeronEngine.FormalArgs;
-    body : HeronEngine.CodeBlock;
-    rettype : HeronEngine.HeronType;
-  }
-  methods
-  {
-    ToString() : System.String;
-  }
-}
 primitive Any
 {
   fields
   {
-  }
-  methods
-  {
-    ToString() : System.String;
-  }
-}
-primitive Assignment
-{
-  fields
-  {
-    lvalue : HeronEngine.Expression;
-    rvalue : HeronEngine.Expression;
-  }
-  methods
-  {
-    ToString() : System.String;
-  }
-}
-primitive BinaryOperation
-{
-  fields
-  {
-    operand1 : HeronEngine.Expression;
-    operand2 : HeronEngine.Expression;
-    operation : System.String;
   }
   methods
   {
@@ -72,33 +19,10 @@ primitive Bool
     AsString() : HeronEngine.HeronValue;
   }
 }
-primitive BoolLiteral
-{
-  fields
-  {
-  }
-  methods
-  {
-    ToString() : System.String;
-    GetValue() : HeronEngine.HeronValue;
-  }
-}
 primitive BoundMethod
 {
   fields
   {
-  }
-  methods
-  {
-    ToString() : System.String;
-  }
-}
-primitive CaseStatement
-{
-  fields
-  {
-    condition : HeronEngine.Expression;
-    statement : HeronEngine.Statement;
   }
   methods
   {
@@ -114,62 +38,6 @@ primitive Char
   {
     ToString() : System.String;
     AsString() : HeronEngine.HeronValue;
-  }
-}
-primitive CharLiteral
-{
-  fields
-  {
-  }
-  methods
-  {
-    ToString() : System.String;
-    GetValue() : HeronEngine.HeronValue;
-  }
-}
-primitive ChooseField
-{
-  fields
-  {
-    name : System.String;
-    self : HeronEngine.Expression;
-  }
-  methods
-  {
-    ToString() : System.String;
-  }
-}
-primitive CodeBlock
-{
-  fields
-  {
-    statements : System.Collections.Generic.List`1[HeronEngine.Statement];
-  }
-  methods
-  {
-    ToString() : System.String;
-  }
-}
-primitive DeleteStatement
-{
-  fields
-  {
-    expression : HeronEngine.Expression;
-  }
-  methods
-  {
-    ToString() : System.String;
-  }
-}
-primitive ExpressionStatement
-{
-  fields
-  {
-    expression : HeronEngine.Expression;
-  }
-  methods
-  {
-    ToString() : System.String;
   }
 }
 primitive ExternalMethod
@@ -202,18 +70,6 @@ primitive ExternalStaticMethodList
     ToString() : System.String;
   }
 }
-primitive FieldDefn
-{
-  fields
-  {
-    name : System.String;
-    type : HeronEngine.HeronType;
-  }
-  methods
-  {
-    ToString() : System.String;
-  }
-}
 primitive Float
 {
   fields
@@ -223,70 +79,6 @@ primitive Float
   {
     ToString() : System.String;
     AsString() : HeronEngine.HeronValue;
-  }
-}
-primitive FloatLiteral
-{
-  fields
-  {
-  }
-  methods
-  {
-    ToString() : System.String;
-    GetValue() : HeronEngine.HeronValue;
-  }
-}
-primitive ForEachStatement
-{
-  fields
-  {
-    name : System.String;
-    collection : HeronEngine.Expression;
-    body : HeronEngine.Statement;
-    type : HeronEngine.HeronType;
-  }
-  methods
-  {
-    ToString() : System.String;
-  }
-}
-primitive FormalArg
-{
-  fields
-  {
-    name : System.String;
-    type : HeronEngine.HeronType;
-  }
-  methods
-  {
-    ToString() : System.String;
-  }
-}
-primitive ForStatement
-{
-  fields
-  {
-    name : System.String;
-    initial : HeronEngine.Expression;
-    condition : HeronEngine.Expression;
-    next : HeronEngine.Expression;
-    body : HeronEngine.Statement;
-  }
-  methods
-  {
-    ToString() : System.String;
-  }
-}
-primitive FunCall
-{
-  fields
-  {
-    funexpr : HeronEngine.Expression;
-    args : HeronEngine.ExpressionList;
-  }
-  methods
-  {
-    ToString() : System.String;
   }
 }
 primitive Function
@@ -299,156 +91,10 @@ primitive Function
     ToString() : System.String;
   }
 }
-primitive FunctionDefn
-{
-  fields
-  {
-    name : System.String;
-    body : HeronEngine.Statement;
-    formals : HeronEngine.FormalArgs;
-    parent : HeronEngine.HeronType;
-    rettype : HeronEngine.HeronType;
-  }
-  methods
-  {
-    ToString() : System.String;
-    GetStatements() : System.Collections.Generic.IEnumerable`1[HeronEngine.Statement];
-  }
-}
 primitive FunctionList
 {
   fields
   {
-  }
-  methods
-  {
-    ToString() : System.String;
-  }
-}
-primitive HeronClass
-{
-  fields
-  {
-    name : System.String;
-  }
-  methods
-  {
-    GetInheritedClasses() : System.Collections.Generic.IEnumerable`1[HeronEngine.HeronClass];
-    GetImplementedInterfaces() : System.Collections.Generic.IEnumerable`1[HeronEngine.HeronType];
-    GetBaseClass() : HeronEngine.HeronClass;
-    AddInterface(i : HeronEngine.HeronType) : System.Void;
-    Implements(i : HeronEngine.HeronInterface) : System.Boolean;
-    InheritsFrom(c : HeronEngine.HeronClass) : System.Boolean;
-    GetFields() : System.Collections.Generic.IEnumerable`1[HeronEngine.FieldDefn];
-    AddMethod(x : HeronEngine.FunctionDefn) : System.Void;
-    AddField(x : HeronEngine.FieldDefn) : System.Void;
-    GetField(s : System.String) : HeronEngine.FieldDefn;
-    GetCtors() : HeronEngine.FunDefnListValue;
-    GetAllMethods() : System.Collections.Generic.IEnumerable`1[HeronEngine.FunctionDefn];
-    GetDeclaredMethods() : System.Collections.Generic.IEnumerable`1[HeronEngine.FunctionDefn];
-    GetInheritedMethods() : System.Collections.Generic.IEnumerable`1[HeronEngine.FunctionDefn];
-    GetMethods(name : System.String) : System.Collections.Generic.IEnumerable`1[HeronEngine.FunctionDefn];
-    GetModule() : HeronEngine.HeronModule;
-    GetMethod(name : System.String) : HeronEngine.ExposedMethod;
-    Equals(obj : System.Object) : System.Boolean;
-    GetHashCode() : System.Int32;
-    ToString() : System.String;
-    GetName() : HeronEngine.StringValue;
-  }
-}
-primitive HeronEnum
-{
-  fields
-  {
-    name : System.String;
-  }
-  methods
-  {
-    GetAllMethods() : System.Collections.Generic.IEnumerable`1[HeronEngine.FunctionDefn];
-    Equals(obj : System.Object) : System.Boolean;
-    GetHashCode() : System.Int32;
-    GetMethods(name : System.String) : System.Collections.Generic.IEnumerable`1[HeronEngine.FunctionDefn];
-    GetModule() : HeronEngine.HeronModule;
-    GetMethod(name : System.String) : HeronEngine.ExposedMethod;
-    GetField(name : System.String) : HeronEngine.FieldDefn;
-    ToString() : System.String;
-    GetName() : HeronEngine.StringValue;
-  }
-}
-primitive HeronInterface
-{
-  fields
-  {
-    name : System.String;
-  }
-  methods
-  {
-    GetAllMethods() : System.Collections.Generic.IEnumerable`1[HeronEngine.FunctionDefn];
-    GetInheritedInterfaces() : System.Collections.Generic.IEnumerable`1[HeronEngine.HeronInterface];
-    GetDeclaredMethods() : System.Collections.Generic.IEnumerable`1[HeronEngine.FunctionDefn];
-    GetInheritedMethods() : System.Collections.Generic.IEnumerable`1[HeronEngine.FunctionDefn];
-    GetMethods(name : System.String) : System.Collections.Generic.IEnumerable`1[HeronEngine.FunctionDefn];
-    GetModule() : HeronEngine.HeronModule;
-    GetMethod(name : System.String) : HeronEngine.ExposedMethod;
-    GetField(name : System.String) : HeronEngine.FieldDefn;
-    Equals(obj : System.Object) : System.Boolean;
-    GetHashCode() : System.Int32;
-    ToString() : System.String;
-    GetName() : HeronEngine.StringValue;
-  }
-}
-primitive HeronModule
-{
-  fields
-  {
-    name : System.String;
-  }
-  methods
-  {
-    GetProgram() : HeronEngine.HeronProgram;
-    GetGlobal() : HeronEngine.HeronModule;
-    GetMainClass() : HeronEngine.HeronClass;
-    GetMetaClass() : HeronEngine.HeronClass;
-    FindClass(s : System.String) : HeronEngine.HeronClass;
-    ContainsClass(s : System.String) : System.Boolean;
-    FindInterface(s : System.String) : HeronEngine.HeronInterface;
-    ContainsInterface(s : System.String) : System.Boolean;
-    ContainsEnum(s : System.String) : System.Boolean;
-    AddClass(x : HeronEngine.HeronClass) : System.Void;
-    AddInterface(x : HeronEngine.HeronInterface) : System.Void;
-    AddEnum(x : HeronEngine.HeronEnum) : System.Void;
-    GetTypes() : System.Collections.Generic.IEnumerable`1[HeronEngine.HeronType];
-    GetClasses() : System.Collections.Generic.IEnumerable`1[HeronEngine.HeronClass];
-    GetInterfaces() : System.Collections.Generic.IEnumerable`1[HeronEngine.HeronInterface];
-    GetEnums() : System.Collections.Generic.IEnumerable`1[HeronEngine.HeronEnum];
-    FindType(s : System.String) : HeronEngine.HeronType;
-    AddDotNetType(s : System.String, t : System.Type) : System.Void;
-    AddPrimitive(s : System.String, t : HeronEngine.HeronType) : System.Void;
-    ToString() : System.String;
-  }
-}
-primitive HeronProgram
-{
-  fields
-  {
-    name : System.String;
-  }
-  methods
-  {
-    LoadAssembly(s : System.String) : System.Void;
-    AddModule(m : HeronEngine.HeronModule) : System.Void;
-    GetGlobal() : HeronEngine.HeronModule;
-    GetModules() : System.Collections.Generic.IEnumerable`1[HeronEngine.HeronModule];
-    ToString() : System.String;
-  }
-}
-primitive IfStatement
-{
-  fields
-  {
-    condition : HeronEngine.Expression;
-    ontrue : HeronEngine.Statement;
-    onfalse : HeronEngine.Statement;
   }
   methods
   {
@@ -464,17 +110,6 @@ primitive Int
   {
     ToString() : System.String;
     AsString() : HeronEngine.HeronValue;
-  }
-}
-primitive IntLiteral
-{
-  fields
-  {
-  }
-  methods
-  {
-    ToString() : System.String;
-    GetValue() : HeronEngine.HeronValue;
   }
 }
 primitive Iterator
@@ -506,42 +141,6 @@ primitive List
     ToString() : System.String;
   }
 }
-primitive MapEachExpr
-{
-  fields
-  {
-    name : System.String;
-    list : HeronEngine.Expression;
-    yield : HeronEngine.Expression;
-  }
-  methods
-  {
-    ToString() : System.String;
-  }
-}
-primitive Name
-{
-  fields
-  {
-    name : System.String;
-  }
-  methods
-  {
-    ToString() : System.String;
-  }
-}
-primitive NewExpr
-{
-  fields
-  {
-    type : HeronEngine.HeronType;
-    args : HeronEngine.ExpressionList;
-  }
-  methods
-  {
-    ToString() : System.String;
-  }
-}
 primitive Null
 {
   fields
@@ -552,67 +151,10 @@ primitive Null
     ToString() : System.String;
   }
 }
-primitive NullExpr
-{
-  fields
-  {
-  }
-  methods
-  {
-    ToString() : System.String;
-  }
-}
-primitive PostIncExpr
-{
-  fields
-  {
-    expr : HeronEngine.Expression;
-  }
-  methods
-  {
-    ToString() : System.String;
-  }
-}
 primitive PrimitiveMethod
 {
   fields
   {
-  }
-  methods
-  {
-    ToString() : System.String;
-  }
-}
-primitive ReadAt
-{
-  fields
-  {
-    self : HeronEngine.Expression;
-    index : HeronEngine.Expression;
-  }
-  methods
-  {
-    ToString() : System.String;
-  }
-}
-primitive ReturnStatement
-{
-  fields
-  {
-    expression : HeronEngine.Expression;
-  }
-  methods
-  {
-    ToString() : System.String;
-  }
-}
-primitive SelectExpr
-{
-  fields
-  {
-    name : System.String;
-    list : HeronEngine.Expression;
-    pred : HeronEngine.Expression;
   }
   methods
   {
@@ -644,30 +186,6 @@ primitive String
     AsString() : HeronEngine.HeronValue;
   }
 }
-primitive StringLiteral
-{
-  fields
-  {
-  }
-  methods
-  {
-    ToString() : System.String;
-    GetValue() : HeronEngine.HeronValue;
-  }
-}
-primitive SwitchStatement
-{
-  fields
-  {
-    condition : HeronEngine.Expression;
-    cases : System.Collections.Generic.List`1[HeronEngine.Statement];
-    ondefault : HeronEngine.Statement;
-  }
-  methods
-  {
-    ToString() : System.String;
-  }
-}
 primitive Tree
 {
   fields
@@ -683,17 +201,6 @@ primitive Tree
     ToString() : System.String;
   }
 }
-primitive TupleExpr
-{
-  fields
-  {
-    exprs : HeronEngine.ExpressionList;
-  }
-  methods
-  {
-    ToString() : System.String;
-  }
-}
 primitive Type
 {
   fields
@@ -703,24 +210,12 @@ primitive Type
   methods
   {
     GetModule() : HeronEngine.HeronModule;
-    GetMethod(name : System.String) : HeronEngine.ExposedMethod;
+    GetMethod(name : System.String) : HeronEngine.ExposedMethodValue;
     GetField(name : System.String) : HeronEngine.FieldDefn;
     Equals(obj : System.Object) : System.Boolean;
     GetHashCode() : System.Int32;
     ToString() : System.String;
     GetName() : HeronEngine.StringValue;
-  }
-}
-primitive UnaryOperation
-{
-  fields
-  {
-    operand : HeronEngine.Expression;
-    operation : System.String;
-  }
-  methods
-  {
-    ToString() : System.String;
   }
 }
 primitive Undefined
@@ -733,35 +228,10 @@ primitive Undefined
     ToString() : System.String;
   }
 }
-primitive VariableDeclaration
-{
-  fields
-  {
-    name : System.String;
-    type : HeronEngine.HeronType;
-    value : HeronEngine.Expression;
-  }
-  methods
-  {
-    ToString() : System.String;
-  }
-}
 primitive Void
 {
   fields
   {
-  }
-  methods
-  {
-    ToString() : System.String;
-  }
-}
-primitive WhileStatement
-{
-  fields
-  {
-    condition : HeronEngine.Expression;
-    body : HeronEngine.Statement;
   }
   methods
   {

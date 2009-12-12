@@ -22,7 +22,7 @@ namespace HeronEngine
             Console.WriteLine("HeronEngine.exe");
             Console.WriteLine("    by Christopher Diggins");
             Console.WriteLine("    version 0.8");
-            Console.WriteLine("    December 10      , 2009");
+            Console.WriteLine("    December 12, 2009");
             Console.WriteLine("");
             Console.WriteLine("An execution engine for the Heron language.");
             Console.WriteLine("This program tests the Heron language, but is");
@@ -50,8 +50,10 @@ namespace HeronEngine
         /// </summary>
         static public void OutputPrimitives()
         {
-            string s = PrimitiveTypes.AsString();
+            string s = PrimitiveTypes.NonCodeModelTypesAsString();
             File.WriteAllText(Util.GetExeDir() + "\\primitives.txt", s);
+            s = PrimitiveTypes.CodeModelTypesAsString();
+            File.WriteAllText(Util.GetExeDir() + "\\codemodel.txt", s);
         }
 
         /// <summary>

@@ -356,11 +356,11 @@ namespace HeronEngine
     /// <summary>
     /// Exposes a method from a Heron primitive type to Heron
     /// </summary>
-    public class ExposedMethod : HeronValue
+    public class ExposedMethodValue : HeronValue
     {
         MethodInfo method;
 
-        public ExposedMethod(MethodInfo mi)
+        public ExposedMethodValue(MethodInfo mi)
         {
             method = mi;
         }
@@ -375,9 +375,9 @@ namespace HeronEngine
             return PrimitiveTypes.ExposedMethodType;
         }
 
-        public BoundMethod CreateBoundMethod(HeronValue self)
+        public BoundMethodValue CreateBoundMethod(HeronValue self)
         {
-            return new BoundMethod(self, this);
+            return new BoundMethodValue(self, this);
         }
 
         public HeronValue Invoke(VM vm, HeronValue self, HeronValue[] args)
