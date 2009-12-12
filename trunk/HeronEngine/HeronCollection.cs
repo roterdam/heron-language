@@ -13,7 +13,7 @@ using System.Text;
 namespace HeronEngine
 {
     /// <summary>
-    /// Represents an enumerator at run-time. Any enumerator is also an enumerable: it just 
+    /// Represents an enumerator at run-time. AnyValue enumerator is also an enumerable: it just 
     /// returns itself.
     /// </summary>
     public abstract class IteratorValue

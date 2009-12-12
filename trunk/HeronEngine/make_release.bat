@@ -12,5 +12,8 @@ copy *.resx Release\src
 copy *.sln Release\src
 copy license.txt Release\src
 copy readme.txt Release\src
+copy grammar.txt Release\
+copy primitives.txt Release\
+copy codemodel.txt Release\
 copy HeronEngine.exe Release\
-copy Config.xml Release\
+copy config-release.xml Release\config.xml

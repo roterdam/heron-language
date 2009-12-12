@@ -74,7 +74,7 @@ namespace HeronEngine
         public virtual HeronValue GetFieldOrMethod(string name)
         {
             HeronType t = GetHeronType();
-            ExposedMethod m = t.GetMethod(name); 
+            ExposedMethodValue m = t.GetMethod(name); 
             if (m != null)
                 return m.CreateBoundMethod(this);
             FieldDefn f = t.GetField(name);

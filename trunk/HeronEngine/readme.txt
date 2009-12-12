@@ -5,7 +5,7 @@ http://www.heron-language.com
 --------
 Overview
 --------
-This is the C# source code for an interpreter for the Heron language.
+This is an interpreter and C# source for the Heron language.
 
 -----
 Usage
@@ -17,6 +17,9 @@ Use the interpreter as follows:
 Alternatively you can use the exe as a library, or just the source code,
 to construct your own interpreters or compilers for Heron, or any other 
 language.
+
+If you have a file "config.xml" in your root directory, this can control
+some options of the interpreter. 
 
 ------------------------
 About the Heron language

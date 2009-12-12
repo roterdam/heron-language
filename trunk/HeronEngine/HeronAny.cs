@@ -11,17 +11,17 @@ using System.Text;
 
 namespace HeronEngine
 {
-    public class Any : HeronValue
+    public class AnyValue : HeronValue
     {
         HeronValue obj;
         HeronType type;
 
-        public Any(HeronValue obj)
+        public AnyValue(HeronValue obj)
         {
-            if (obj is Any)
+            if (obj is AnyValue)
             {
-                this.obj = (obj as Any).obj;
-                this.type = (obj as Any).type;
+                this.obj = (obj as AnyValue).obj;
+                this.type = (obj as AnyValue).type;
             }
             else
             {

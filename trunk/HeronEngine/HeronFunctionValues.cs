@@ -94,7 +94,7 @@ namespace HeronEngine
         {
             for (int i = 0; i < xs.Length; ++i)
             {
-                Any a = new Any(xs[i]);
+                AnyValue a = new AnyValue(xs[i]);
                 xs[i] = a.As(GetFormalType(i));
             }
         }
@@ -206,8 +206,8 @@ namespace HeronEngine
                 list = new List<FunctionValue>(tmp);
                 HeronValue arg = args[pos];
                 HeronType argType;
-                if (arg is Any)
-                    argType = (arg as Any).GetHeldType();
+                if (arg is AnyValue)
+                    argType = (arg as AnyValue).GetHeldType();
                 else
                     argType = arg.GetHeronType();
                 for (int i = 0; i < list.Count; ++i)
@@ -259,14 +259,14 @@ namespace HeronEngine
     /// <summary>
     /// Represents a member function that is bound to the "this" value.
     /// Just like a C# delegate. Note that when you get a method from a PrimitiveValue
-    /// you have to convert it to a BoundMethod.
+    /// you have to convert it to a BoundMethodValue.
     /// </summary>
-    public class BoundMethod : HeronValue
+    public class BoundMethodValue : HeronValue
     {
         HeronValue self;
-        ExposedMethod method;
+        ExposedMethodValue method;
 
-        public BoundMethod(HeronValue self, ExposedMethod method)
+        public BoundMethodValue(HeronValue self, ExposedMethodValue method)
         {
             this.self = self;
             this.method = method;
@@ -288,13 +288,13 @@ namespace HeronEngine
     /// Represents a member function value. Note that it can't be called (applied), until
     /// bound to a "this" value. This is done by creating a bound method. 
     /// </summary>
-    public abstract class ExposedMethod : HeronValue
+    public abstract class ExposedMethodValue : HeronValue
     {
         public abstract HeronValue Invoke(VM vm, HeronValue self, HeronValue[] args);
 
-        public BoundMethod CreateBoundMethod(HeronValue self)
+        public BoundMethodValue CreateBoundMethod(HeronValue self)
         {
-            return new BoundMethod(self, this);
+            return new BoundMethodValue(self, this);
         }
 
         public override HeronType GetHeronType()

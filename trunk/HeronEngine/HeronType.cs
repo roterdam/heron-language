@@ -23,7 +23,7 @@ namespace HeronEngine
 
         HeronModule module;
         Type type;
-        Dictionary<string, ExposedMethod> functions = new Dictionary<string, ExposedMethod>();
+        Dictionary<string, ExposedMethodValue> functions = new Dictionary<string, ExposedMethodValue>();
         Dictionary<string, ExposedField> fields = new Dictionary<string, ExposedField>();
 
         public HeronType(Type t)
@@ -112,7 +112,7 @@ namespace HeronEngine
 
         private void StoreExposedFunction(MethodInfo mi)
         {
-            ExposedMethod m = new ExposedMethod(mi);
+            ExposedMethodValue m = new ExposedMethodValue(mi);
             functions.Add(m.Name, m);
         }
 
@@ -127,7 +127,7 @@ namespace HeronEngine
             return fields.Values;
         }
 
-        public IEnumerable<ExposedMethod> GetExposedMethods()
+        public IEnumerable<ExposedMethodValue> GetExposedMethods()
         {
             return functions.Values; 
         }
@@ -146,7 +146,7 @@ namespace HeronEngine
 
         #region heron visible functions
         [HeronVisible]
-        public virtual ExposedMethod GetMethod(string name)
+        public virtual ExposedMethodValue GetMethod(string name)
         {
             if (!functions.ContainsKey(name))
                 return null;
@@ -218,6 +218,17 @@ namespace HeronEngine
             if (r.name != name)
                 throw new Exception("Internal error during type resolution of " + name);
             return r;
+        }
+    }
+
+    /// <summary>
+    /// Used to identify the type of values that are part of the code model
+    /// </summary>
+    public class HeronCodeModelType : HeronType
+    {
+        public HeronCodeModelType(Type t)
+            : base(t)
+        {
         }
     }
 }
