@@ -413,5 +413,10 @@ namespace HeronEngine
             sb.Append(method.ReturnType.ToString());
             return sb.ToString();
         }
+
+        public MethodInfo GetMethodInfo()
+        {
+            return method;
+        }
     }
 }

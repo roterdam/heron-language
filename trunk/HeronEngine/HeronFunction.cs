@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace HeronEngine
 {
@@ -85,6 +86,25 @@ namespace HeronEngine
                 FormalArg arg1 = formals[i];
                 FormalArg arg2 = f.formals[i];
                 if (arg1.type != arg2.type)
+                    return false;
+            }
+            return true;
+        }
+
+        public bool Matches(MethodInfo mi)
+        {
+            if (mi.Name != name)
+                return false;
+            int n = formals.Count;
+            if (mi.GetParameters().Length != n)
+                return false;
+            for (int i = 0; i < n; ++i)
+            {
+                FormalArg arg1 = formals[i];
+                ParameterInfo arg2 = mi.GetParameters()[i];
+
+                // TODO: find a better way to compare types
+                if (arg1.type.ToString() != arg2.ParameterType.Name)
                     return false;
             }
             return true;

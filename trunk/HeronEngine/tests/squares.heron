@@ -1,8 +1,8 @@
-script Factorial;
+script Sqyares;
 
 var max = 10;
 
-Fact(n : Int) : Int
+Square(n : Int) : Int
 {
 	return n * n;
 }
@@ -10,5 +10,5 @@ Fact(n : Int) : Int
 Main() 
 {
 	foreach (i in 0..max)
-		Console.WriteLine(Fact(i));
+		Console.WriteLine(Square(i));
 }

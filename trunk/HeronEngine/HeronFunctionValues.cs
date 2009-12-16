@@ -131,6 +131,11 @@ namespace HeronEngine
         {
             return PrimitiveTypes.FunctionType;
         }
+
+        public FunctionDefn GetDefn()
+        {
+            return fun;
+        }
     }
 
     /// <summary>
@@ -253,6 +258,11 @@ namespace HeronEngine
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.FunctionListType;
+        }
+
+        public List<FunctionDefn> GetDefns()
+        {
+            return functions;
         }
     }
 

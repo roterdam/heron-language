@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HeronAny.cs" />
+    <Compile Include="HeronDuckCasting.cs" />
     <Compile Include="HeronUserType.cs" />
     <Compile Include="HeronCollection.cs" />
     <Compile Include="HeronConfig.cs" />
