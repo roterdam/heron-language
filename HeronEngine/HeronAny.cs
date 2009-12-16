@@ -69,7 +69,10 @@ namespace HeronEngine
                 ClassInstance inst = obj as ClassInstance;
                 if (inst == null)
                     throw new Exception("Expected an instance of a class");
-                return inst.As(t);
+                HeronValue r = inst.As(t);
+
+                if (r == null && t is HeronInterface) 
+                    return new DuckValue(this, t as HeronInterface);
             }
             else if (type is HeronInterface)
             {
@@ -78,9 +81,14 @@ namespace HeronEngine
                     throw new Exception("Expected an instance of an interface");
                 HeronInterface i = type as HeronInterface;
 
-                if (t is HeronInterface) 
+                if (t is HeronInterface)
+                {
                     if (i.InheritsFrom(t as HeronInterface))
                         return new InterfaceInstance(ii.GetObject(), t as HeronInterface);
+
+                    // Try to coerce the type
+                    return new DuckValue(this, t as HeronInterface);
+                }
             }
             else if (type is DotNetClass)
             {
@@ -89,20 +97,21 @@ namespace HeronEngine
 
                 if (!t.Equals(type))
                     throw new Exception("Cannot convert from '" + type.name + "' to '" + t.name);
-
-                return obj;
             }
             else if (t.name == "Any")
             {
                 return this;
             }
-            else
+            else 
             {
                 Type from = type.GetSystemType();
                 Type to = t.GetSystemType();
 
                 if (from != null && to != null && to.IsAssignableFrom(from))
                     return obj;
+
+                if (t is HeronInterface)
+                    return new DuckValue(this, t as HeronInterface);
             }
 
             throw new Exception("Cannot convert from '" + type.name + "' to '" + t.name);

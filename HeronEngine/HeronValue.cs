@@ -137,6 +137,37 @@ namespace HeronEngine
                 if (fi.FieldType.Equals(typeof(T)))
                     yield return fi;
         }
+
+        public bool SupportsFunction(FunctionDefn f)
+        {
+            try
+            {
+                HeronValue v = GetFieldOrMethod(f.name);
+                if (v is ExposedMethodValue)
+                {
+                    var emv = v as ExposedMethodValue;
+                    return f.Matches(emv.GetMethodInfo());
+                }
+                else if (v is FunDefnListValue)
+                {
+                    var fdlv = v as FunDefnListValue;
+                    foreach (FunctionDefn fd in fdlv.GetDefns())
+                        if (fd.Matches(f))
+                            return true;
+                }
+                else
+                {
+                    // Unrecognized value type.
+                    return false;
+                }
+            }
+            catch 
+            {
+                return false;
+            }
+
+            return false;
+        }
     }
 
     /// <summary>
@@ -373,7 +404,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Used to cast the class instance to its base class.
+        /// Used to cast the class instance to its base class or an interface.
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
@@ -388,7 +419,7 @@ namespace HeronEngine
                     return this;
 
                 if (GetBase() == null)
-                    throw new Exception("Could not cast from '" + hclass.name + "' to '" + t.name + "'");
+                    return null;
 
                 return GetBase().As(t);
             }
@@ -398,11 +429,11 @@ namespace HeronEngine
                     return new InterfaceInstance(this, t as HeronInterface);
 
                 if (GetBase() == null)
-                    throw new Exception("Could not cast from '" + hclass.name + "' to '" + t.name + "'");
+                    return null;
 
                 return GetBase().As(t);
             }
-            throw new Exception("Could not cast from '" + hclass.name + "' to '" + t.name + "'");
+            return null;
         }
 
         [HeronVisible]
@@ -419,7 +450,6 @@ namespace HeronEngine
     /// </summary>
     public class InterfaceInstance : HeronValue
     {   
-        //  TODO: should this be an object or an instance? 
         public HeronValue obj;
         public HeronInterface hinterface;
 
@@ -440,16 +470,6 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Returns true if any methods are available that have the given name.
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        public bool HasMethod(string name)
-        {
-            return hinterface.HasMethod(name);
-        }
-
-        /// <summary>
         /// Returns all functions sharing the given name at once
         /// </summary>
         /// <param name="name"></param>
@@ -458,9 +478,10 @@ namespace HeronEngine
         {
             return new FunDefnListValue(obj, name, hinterface.GetMethods(name));
         }
+
         public override HeronValue GetFieldOrMethod(string name)
         {
-            if (!HasMethod(name))
+            if (!hinterface.HasMethod(name))
                 base.GetFieldOrMethod(name);
             return obj.GetFieldOrMethod(name);
         }
