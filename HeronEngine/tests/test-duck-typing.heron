@@ -1,0 +1,60 @@
+module DuckTyping
+{
+	interface IDuck
+	{
+		methods
+		{
+			Quack() : String;
+		}
+	}
+	
+	class Man
+	{
+		methods
+		{
+			Quack() : String
+			{
+				return "quack " + Shoot();
+			}
+			Shoot() : String
+			{
+				return "bang";
+			}
+		}
+	}
+	
+	class Duck
+	{
+		implements
+		{
+			IDuck;
+		}
+		methods
+		{
+			Quack() : String
+			{
+				return "quack";
+			}
+		}
+	}
+
+	class Main
+	{
+		methods 
+		{
+			DoWhatDucksDo(d : IDuck)
+			{
+				Console.WriteLine(d.Quack());
+			}
+			
+			Constructor()
+			{
+				var m = new Man();
+				var d = new Duck();
+				DoWhatDucksDo(d);
+				DoWhatDucksDo(m as IDuck);
+				// DoWhatDucksDo(m); // fails
+			}
+		}
+	}
+}

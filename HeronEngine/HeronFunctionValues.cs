@@ -94,8 +94,11 @@ namespace HeronEngine
         {
             for (int i = 0; i < xs.Length; ++i)
             {
-                AnyValue a = new AnyValue(xs[i]);
-                xs[i] = a.As(GetFormalType(i));
+                HeronType t = GetFormalType(i);
+                HeronValue newArg = xs[i].As(t);
+                if (newArg == null)
+                    throw new Exception("Failed to convert argument " + i + " from a " + xs[i].GetHeronType().name + " to a " + t.name);
+                xs[i] = newArg;
             }
         }
 
@@ -292,25 +295,4 @@ namespace HeronEngine
             return PrimitiveTypes.BoundMethodType;
         }
     }
-
-    /*
-    /// <summary>
-    /// Represents a member function value. Note that it can't be called (applied), until
-    /// bound to a "this" value. This is done by creating a bound method. 
-    /// </summary>
-    public abstract class ExposedMethodValue : HeronValue
-    {
-        public abstract HeronValue Invoke(VM vm, HeronValue self, HeronValue[] args);
-
-        public BoundMethodValue CreateBoundMethod(HeronValue self)
-        {
-            return new BoundMethodValue(self, this);
-        }
-
-        public override HeronType GetHeronType()
-        {
-            return PrimitiveTypes.MethodType;
-        }
-    }
-    */
 }

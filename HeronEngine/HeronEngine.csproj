@@ -107,6 +107,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="bugs.txt" />
     <Content Include="license.txt" />
     <Content Include="readme.txt" />
   </ItemGroup>
