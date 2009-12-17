@@ -21,8 +21,8 @@ namespace HeronEngine
         {
             Console.WriteLine("HeronEngine.exe");
             Console.WriteLine("    by Christopher Diggins");
-            Console.WriteLine("    version 0.8");
-            Console.WriteLine("    December 12, 2009");
+            Console.WriteLine("    version 0.8.1");
+            Console.WriteLine("    December 16, 2009");
             Console.WriteLine("");
             Console.WriteLine("An execution engine for the Heron language.");
             Console.WriteLine("This program tests the Heron language, but is");
@@ -110,6 +110,7 @@ namespace HeronEngine
             if (args.Length != 1) 
             {
                 Usage();
+                Console.WriteLine("Press any key to exit ...");
                 Console.ReadKey();
                 return;
             }
@@ -123,8 +124,6 @@ namespace HeronEngine
                 if (Config.runUnitTests) 
                     HeronTests.MainTest();
                 RunFile(Util.GetExeDir() + "\\" + args[0]);
-                Console.WriteLine("Press any key to exit ...");
-                Console.ReadKey();
             }
             catch (Exception e)
             {

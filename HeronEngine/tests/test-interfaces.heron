@@ -215,8 +215,8 @@
 					Console.WriteLine("FAILURE");						
 
 				if (a is IGetX) 
-					Console.WriteLine("SUCCESS"); else 
-					Console.WriteLine("FAILURE");						
+					Console.WriteLine("FAILURE"); else 
+					Console.WriteLine("SUCCESS");						
 			} 
 						
 			TestIPoint(a : IPoint) 

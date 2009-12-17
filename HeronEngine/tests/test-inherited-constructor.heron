@@ -1,4 +1,4 @@
-﻿module TestConstructor
+﻿module TestInheritedConstructor
 {
 	class OtherClass {	
 		methods {
