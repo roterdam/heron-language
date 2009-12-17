@@ -24,8 +24,6 @@ namespace HeronEngine
             this.node = node;
         }
 
-        public abstract string StatementType();
-        
         public IEnumerable<Statement> GetSubStatements()
         {
             foreach (FieldInfo fi in GetInstanceFields())
@@ -144,11 +142,6 @@ namespace HeronEngine
             return r;
         }
 
-        public override string StatementType()
-        {
-            return "variable_declaration";
-        }
-
         public override IEnumerable<string> GetLocallyDefinedNames()
         {
             yield return name;
@@ -182,11 +175,6 @@ namespace HeronEngine
             return "delete " + expression.ToString();
         }
 
-        public override string StatementType()
-        {
-            return "delete_statement";
-        }
-
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.DeleteStatement;
@@ -216,11 +204,6 @@ namespace HeronEngine
         public override string ToString()
         {
             return expression.ToString();
-        }
-
-        public override string StatementType()
-        {
-            return "expression_statement";
         }
 
         public override HeronType GetHeronType()
@@ -260,11 +243,6 @@ namespace HeronEngine
         {
             return "foreach (" + name + " in " + collection.ToString() + ")\n" 
                 + body.ToString();
-        }
-
-        public override string StatementType()
-        {
-            return "foreach_statement";
         }
 
         public override IEnumerable<string> GetLocallyDefinedNames()
@@ -317,11 +295,6 @@ namespace HeronEngine
                 + ")\n" + body.ToString();
         }
 
-        public override string StatementType()
-        {
-            return "for_statement";
-        }
-
         public override IEnumerable<string> GetLocallyDefinedNames()
         {
             yield return name;
@@ -358,11 +331,6 @@ namespace HeronEngine
                         return;
                 }
             }
-        }
-
-        public override string StatementType()
-        {
-            return "code_block";
         }
 
         public override string ToString()
@@ -404,11 +372,6 @@ namespace HeronEngine
                     vm.Eval(onfalse);
         }
 
-        public override string StatementType()
-        {
-            return "if_statement";
-        }
-
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.IfStatement;
@@ -439,11 +402,6 @@ namespace HeronEngine
             }
         }
 
-        public override string StatementType()
-        {
-            return "while_statement";
-        }
-
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.WhileStatement;
@@ -463,11 +421,6 @@ namespace HeronEngine
         {
             HeronValue result = vm.Eval(expression);
             vm.Return(result);
-        }
-
-        public override string StatementType()
-        {
-            return "return_statement";
         }
 
         public override HeronType GetHeronType()
@@ -505,11 +458,6 @@ namespace HeronEngine
             }
         }
 
-        public override string StatementType()
-        {
-            return "switch_statement";
-        }
-
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.SwitchStatement;
@@ -529,11 +477,6 @@ namespace HeronEngine
         public override void Eval(VM vm)
         {
             vm.Eval(statement);
-        }
-
-        public override string StatementType()
-        {
-            return "switch_statement";
         }
 
         public override HeronType GetHeronType()
