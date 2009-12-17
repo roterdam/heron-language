@@ -1,0 +1,4 @@
+﻿Buglist
+=======
+- when a function return Void, a null value is quietly returned in the interpreter.
+- the action of invoking methods or fields on objects of type "Any" is poorly defined.

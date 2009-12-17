@@ -80,7 +80,7 @@ namespace HeronEngine
             FieldDefn f = t.GetField(name);
             if (f != null)
                 return f.GetValue(this);
-            throw new Exception("Could not find field or method : " + name);
+            return null;
         }
 
         /// <summary>
@@ -140,33 +140,37 @@ namespace HeronEngine
 
         public bool SupportsFunction(FunctionDefn f)
         {
-            try
-            {
-                HeronValue v = GetFieldOrMethod(f.name);
-                if (v is ExposedMethodValue)
-                {
-                    var emv = v as ExposedMethodValue;
-                    return f.Matches(emv.GetMethodInfo());
-                }
-                else if (v is FunDefnListValue)
-                {
-                    var fdlv = v as FunDefnListValue;
-                    foreach (FunctionDefn fd in fdlv.GetDefns())
-                        if (fd.Matches(f))
-                            return true;
-                }
-                else
-                {
-                    // Unrecognized value type.
-                    return false;
-                }
-            }
-            catch 
-            {
+            HeronValue v = GetFieldOrMethod(f.name);
+            if (v == null)
                 return false;
+
+            if (v is ExposedMethodValue)
+            {
+                var emv = v as ExposedMethodValue;
+                return f.Matches(emv.GetMethodInfo());
+            }
+            else if (v is FunDefnListValue)
+            {
+                var fdlv = v as FunDefnListValue;
+                foreach (FunctionDefn fd in fdlv.GetDefns())
+                    if (fd.Matches(f))
+                        return true;
             }
 
+            // Unrecognized value type.
             return false;
+        }
+
+        public virtual HeronValue As(HeronType t)
+        {
+            if (t.Equals(GetHeronType()))
+                return this;
+            return null;
+        }
+
+        public virtual bool Is(HeronType t)
+        {
+            return t.Equals(GetHeronType());
         }
     }
 
@@ -408,7 +412,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        public HeronValue As(HeronType t)
+        public override HeronValue As(HeronType t)
         {
             if (t is HeronClass)
             {
@@ -500,7 +504,17 @@ namespace HeronEngine
         {
             return obj;
         }
-   }
+
+        public override HeronValue As(HeronType t)
+        {
+            HeronInterface i = t as HeronInterface;
+            if (i == null)
+                return null;
+            if (i.InheritsFrom(hinterface))
+                return obj;
+            return null;
+        }
+    }
 
     /// <summary>
     /// An instance of an enumerable value.

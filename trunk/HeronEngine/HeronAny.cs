@@ -30,36 +30,7 @@ namespace HeronEngine
             }
         }
 
-        public bool Is(HeronType t)
-        {
-            if (type.name == t.name)
-                return true;
-
-            if (type is HeronClass)
-            {
-                HeronClass c = type as HeronClass;
-
-                if (t is HeronClass)
-                {
-                    return c.InheritsFrom(t as HeronClass);
-                }
-                else if (t is HeronInterface)
-                {
-                    return c.Implements(t as HeronInterface);
-                }
-            }
-            else if (type is HeronInterface)
-            {
-                HeronInterface i = type as HeronInterface;
-                
-                if (t is HeronInterface)
-                    return i.InheritsFrom(t as HeronInterface);
-            }
-
-            return false;
-        }
-
-        public HeronValue As(HeronType t)
+        public override HeronValue As(HeronType t)
         {
             if (type.name == t.name)
                 return obj;
@@ -69,34 +40,22 @@ namespace HeronEngine
                 ClassInstance inst = obj as ClassInstance;
                 if (inst == null)
                     throw new Exception("Expected an instance of a class");
-                HeronValue r = inst.As(t);
-
-                if (r == null && t is HeronInterface) 
-                    return new DuckValue(this, t as HeronInterface);
+                return inst.As(t);
             }
             else if (type is HeronInterface)
             {
                 InterfaceInstance ii = obj as InterfaceInstance;
                 if (ii == null)
                     throw new Exception("Expected an instance of an interface");
-                HeronInterface i = type as HeronInterface;
-
-                if (t is HeronInterface)
-                {
-                    if (i.InheritsFrom(t as HeronInterface))
-                        return new InterfaceInstance(ii.GetObject(), t as HeronInterface);
-
-                    // Try to coerce the type
-                    return new DuckValue(this, t as HeronInterface);
-                }
+                return ii.As(t);
             }
             else if (type is DotNetClass)
             {
                 if (!(t is DotNetClass))
                     throw new Exception("External objects can only be cast to the type 'DotNetClass'");
 
-                if (!t.Equals(type))
-                    throw new Exception("Cannot convert from '" + type.name + "' to '" + t.name);
+                if (t.Equals(type))
+                    return obj;
             }
             else if (t.name == "Any")
             {
@@ -109,12 +68,9 @@ namespace HeronEngine
 
                 if (from != null && to != null && to.IsAssignableFrom(from))
                     return obj;
-
-                if (t is HeronInterface)
-                    return new DuckValue(this, t as HeronInterface);
             }
 
-            throw new Exception("Cannot convert from '" + type.name + "' to '" + t.name);
+            return null;
         }
 
         public override HeronType GetHeronType()

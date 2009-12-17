@@ -8,7 +8,7 @@
     <pathlist name="inputpath">
       <path relative="true">tests</path>
     </pathlist>
-    <bool name="rununittests">true</bool>
+    <bool name="rununittests">false</bool>
     <bool name="outputgrammar">true</bool>
     <bool name="outputprimitives">true</bool>
   </section>

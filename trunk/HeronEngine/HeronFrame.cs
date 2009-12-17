@@ -75,11 +75,9 @@ namespace HeronEngine
 
             if (self != null)
             {
-                if (self.HasField(s))
-                    return self.GetFieldOrMethod(s);
-
-                if (self.HasMethod(s))
-                    return self.GetMethods(s);
+                HeronValue r = self.GetFieldOrMethod(s);
+                if (r != null)
+                    return r;
             }
 
             if (module != null)
@@ -104,6 +102,7 @@ namespace HeronEngine
             return null;
         }
 
+        // TODO: evalute for removal.  
         public HeronValue LookupField(string s)
         {
             if (self == null)

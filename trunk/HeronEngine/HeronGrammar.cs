@@ -125,7 +125,8 @@ namespace HeronEngine
         public static Rule Field = Store("field", Name + Opt(TypeDecl) + Eos);
         public static Rule FunDecl = Store("fundecl", Name + ArgList + Opt(TypeDecl));
         public static Rule EOSOrCodeBlock = Eos | CodeBlock;
-        public static Rule Method = Store("method", FunDecl + NoFail(EOSOrCodeBlock));
+        public static Rule EmptyMethod = Store("method", FunDecl + NoFail(Eos));
+        public static Rule Method = Store("method", FunDecl + NoFail(CodeBlock));
         public static Rule Annotation = Store("annotation", Ident + Opt(Initializer));
         public static Rule Annotations = Store("annotations", Token("[") + NoFail(CommaList(Annotation) + Token("]")));
         public static Rule TypeExprList = Token("{") + Star(TypeExpr + NoFail(Eos)) + NoFail(Token("}"));
@@ -133,11 +134,12 @@ namespace HeronEngine
         public static Rule Inherits = Store("inherits", Token("inherits") + NoFail(BracedGroup(TypeExpr + NoFail(Eos))));
         public static Rule Fields = Store("fields", Token("fields") + NoFail(BracedGroup(Field)));
         public static Rule Methods = Store("methods", Token("methods") + NoFail(BracedGroup(Method)));
+        public static Rule EmptyMethods = Store("methods", Token("methods") + NoFail(BracedGroup(EmptyMethod)));
         public static Rule Import = Store("import", Name + NoFail(Eos));
         public static Rule Imports = Store("imports", Token("imports") + NoFail(BracedGroup(Import)));
         public static Rule ClassBody = NoFail(Token("{") + Opt(Inherits) + Opt(Implements) + Opt(Fields) + Opt(Methods) + Token("}"));
         public static Rule Class = Store("class", Opt(Annotations) + Token("class") + NoFail(Name) + ClassBody);
-        public static Rule Interface = Store("interface", Opt(Annotations) + Token("interface") + NoFail(Name + Token("{") + Opt(Inherits) + Opt(Methods) + Token("}")));
+        public static Rule Interface = Store("interface", Opt(Annotations) + Token("interface") + NoFail(Name + Token("{") + Opt(Inherits) + Opt(EmptyMethods) + Token("}")));
         public static Rule EnumValue = Name + Eos;
         public static Rule EnumValues = Store("values", BracedGroup(EnumValue));
         public static Rule Enum = Store("enum", Opt(Annotations) + Token("enum") + NoFail(Name + EnumValues));

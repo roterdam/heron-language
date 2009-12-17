@@ -24,6 +24,8 @@ DelayedStatement ::== Statement
 DeleteStatement ::== (<delete> + WS + Expr! + <;>! + WS!)
 Digit ::== [0..9]
 ElseStatement ::== (<else> + WS + DelayedStatement!)
+EmptyMethod ::== (FunDecl + <;>! + WS!)
+EmptyMethods ::== (<methods> + WS + <{>! + WS! + EmptyMethod*! + <}>!! + WS!!)
 EmptyStatement ::== Eos
 EndOfInput ::== _eof_
 Enum ::== (Annotations? + <enum> + WS + (SpecialDelimiter^ + (Symbol | Ident))! + WS! + EnumValues!)
@@ -57,13 +59,13 @@ Imports ::== (<imports> + WS + <{>! + WS! + Import*! + <}>!! + WS!!)
 Inherits ::== (<inherits> + WS + <{>! + WS! + (TypeExpr + <;>! + WS!)*! + <}>!! + WS!!)
 Initializer ::== (<=> + WS + Expr!)
 IntegerLiteral ::== ([-]? + Digit+)
-Interface ::== (Annotations? + <interface> + WS + (SpecialDelimiter^ + (Symbol | Ident))! + WS! + <{>! + WS! + Inherits?! + Methods?! + <}>! + WS!)
+Interface ::== (Annotations? + <interface> + WS + (SpecialDelimiter^ + (Symbol | Ident))! + WS! + <{>! + WS! + Inherits?! + EmptyMethods?! + <}>! + WS!)
 Letter ::== (LowerCaseLetter | UpperCaseLetter)
 LineComment ::== (<//> + UntilEndOfLine)
 Literal ::== ((StringLiteral | CharLiteral | NumLiteral) + WS)
 LowerCaseLetter ::== [a..z]
 MapEachExpr ::== (<mapeach> + WS + <(>! + WS! + (SpecialDelimiter^ + (Symbol | Ident))! + WS! + <in>! + WS! + Expr! + <)>! + WS! + Expr!!)
-Method ::== (FunDecl + EOSOrCodeBlock!)
+Method ::== (FunDecl + CodeBlock!)
 Methods ::== (<methods> + WS + <{>! + WS! + Method*! + <}>!! + WS!!)
 Module ::== (<module> + WS + (SpecialDelimiter^ + (Symbol | Ident))! + WS! + <{>! + WS! + ModuleElement*! + <}>!! + WS!!)
 ModuleElement ::== (Class | Interface | Enum)

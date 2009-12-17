@@ -131,9 +131,7 @@ namespace HeronEngine
             if (mis.Length != 0)
                 return new DotNetMethodGroup(this, name);
 
-            // No static field or method found.
-            // TODO: could eventually support property.
-            throw new Exception("Could not find field, or static method " + name);
+            return null;
         }
 
 
@@ -279,9 +277,7 @@ namespace HeronEngine
             if (mis.Length != 0)
                 return new DotNetStaticMethodGroup(this, name);
 
-            // No static field or method found.
-            // TODO: could eventually support property.
-            throw new Exception("Could not find static field, or static method " + name + " in object " + this.name);
+            return null;
         }
 
         public override bool Equals(object obj)

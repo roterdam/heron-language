@@ -188,7 +188,10 @@ namespace HeronEngine
             HeronValue x = self.Eval(vm);
             if (x == null)
                 throw new Exception("Cannot select field '" + name + "' from a null object: " + self.ToString());
-            return x.GetFieldOrMethod(name);
+            HeronValue r = x.GetFieldOrMethod(name);
+            if (r == null)
+                throw new Exception("Could not resolve name " + name + " on expression " + self.ToBool());
+            return r;
         }
 
         public override string ToString()
@@ -538,13 +541,16 @@ namespace HeronEngine
                 if (!(b is HeronType))
                     throw new Exception("The 'as' operator expects a type as a right hand argument");
 
-                AnyValue any;
-                if (a is AnyValue)
-                    any = a as AnyValue;
-                else
-                    any = new AnyValue(a);
-
-                return any.As(b as HeronType);
+                HeronType t = b as HeronType;
+                HeronValue r = a.As(t);
+                if (r != null)
+                    return r;
+                if (t is HeronInterface)
+                {
+                    DuckValue dv = new DuckValue(a, t as HeronInterface);
+                    return dv;
+                }
+                throw new Exception("Failed to convert " + a.GetHeronType().name + " to a " + t.name);
             }
             else if (a is NullValue)
             {
