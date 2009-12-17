@@ -170,7 +170,7 @@ namespace HeronEngine
 
         public virtual bool Is(HeronType t)
         {
-            return t.Equals(GetHeronType());
+            return As(t) != null;
         }
     }
 
@@ -510,7 +510,7 @@ namespace HeronEngine
             HeronInterface i = t as HeronInterface;
             if (i == null)
                 return null;
-            if (i.InheritsFrom(hinterface))
+            if (hinterface.InheritsFrom(i))
                 return obj;
             return null;
         }

@@ -515,7 +515,7 @@ namespace HeronEngine
         // TODO: improve efficiency. This is a pretty terrible operation
         public override HeronValue Eval(VM vm)
         {
-             HeronValue a = operand1.Eval(vm);
+            HeronValue a = operand1.Eval(vm);
             HeronValue b = operand2.Eval(vm);
 
             if (a == null)
@@ -528,13 +528,7 @@ namespace HeronEngine
                 if (!(b is HeronType))
                     throw new Exception("The 'is' operator expects a type as a right hand argument");
 
-                AnyValue any;
-                if (a is AnyValue)
-                    any = a as AnyValue; 
-                else
-                    any = new AnyValue(a);
-
-                return new BoolValue(any.Is(b as HeronType));                    
+                return new BoolValue(a.Is(b as HeronType));                    
             }
             else if (operation == "as")
             {

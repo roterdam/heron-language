@@ -16,4 +16,5 @@ copy grammar.txt Release\
 copy primitives.txt Release\
 copy codemodel.txt Release\
 copy HeronEngine.exe Release\
+copy run_tests.bat Release\
 copy config-release.xml Release\config.xml
