@@ -1,4 +1,4 @@
-﻿module FunctionCallTest
+﻿module TestFunctionCall
 {
 	class Main {
 		methods {

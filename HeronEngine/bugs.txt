@@ -2,3 +2,24 @@
 =======
 - when a function return Void, a null value is quietly returned in the interpreter.
 - the action of invoking methods or fields on objects of type "Any" is poorly defined.
+- when outputting compound expressions precedence may not be taken care of 
+- I need to prevent passing and returning of "null", unless the type is explicitly optional.
+- There are missing some basic interfaces. Heron should know what the ISequence, IIterator, and IList interfaces are
+
+Features
+========
+- There could be an "IsEmpty()" method on sequences if we changed the iterator model slightly.
+- I would like to explore implementing persistent structures in Heron
+
+Research Directions
+===================
+- What are the formal semantics of Heron? 
+- What can we prove about Heron? 
+- What is the type system of Heron?
+- Can we perform any rigorous transformations of Heron code? 
+- Is there a smaller subset of Heron which is functionally equivalent.
+	- What can we say about this version of Heron? 
+- How can we represent second and higher order functions on a stack-model?
+- What is the mapping of Heron to/from UML?
+- How can we make Heron safe for concurrency?
+- Does the lack of virtual functions offer a degree of safety?

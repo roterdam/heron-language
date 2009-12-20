@@ -1,4 +1,4 @@
-﻿module TestInterfacesAndInheritance
+﻿module TestInterfaces
 {
 	interface IPoint {
 		methods {
