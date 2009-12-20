@@ -54,18 +54,6 @@ namespace HeronEngine
             RegisterDotNetType(typeof(Console), "Console");
             RegisterDotNetType(typeof(Math), "Math");
 
-            /*
-            RegisterDotNetType(typeof(VariableDeclaration));
-            RegisterDotNetType(typeof(DeleteStatement));
-            RegisterDotNetType(typeof(ExpressionStatement));
-            RegisterDotNetType(typeof(ForEachStatement));
-            RegisterDotNetType(typeof(ForStatement));
-            RegisterDotNetType(typeof(CodeBlock));
-            RegisterDotNetType(typeof(IfStatement));
-            RegisterDotNetType(typeof(WhileStatement));
-            RegisterDotNetType(typeof(ReturnStatement));
-            */
-
             // Load other libraries specified in the configuration file
             foreach (string lib in Config.libs)
                 LoadAssembly(lib);

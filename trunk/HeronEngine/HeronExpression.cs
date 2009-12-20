@@ -190,7 +190,7 @@ namespace HeronEngine
                 throw new Exception("Cannot select field '" + name + "' from a null object: " + self.ToString());
             HeronValue r = x.GetFieldOrMethod(name);
             if (r == null)
-                throw new Exception("Could not resolve name " + name + " on expression " + self.ToBool());
+                throw new Exception("Could not resolve name " + name + " on expression " + self.ToString());
             return r;
         }
 

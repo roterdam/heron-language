@@ -498,6 +498,16 @@ namespace HeronEngine
         {
             return PrimitiveTypes.ClassType;
         }
+
+        public override HeronValue GetFieldOrMethod(string name)
+        {
+            List<FunctionDefn> fs = new List<FunctionDefn>(GetMethods(name));
+
+            // Look for static functions to return
+            if (fs.Count != 0)
+                return new FunDefnListValue(Null, name, fs);
+            return base.GetFieldOrMethod(name);
+        }
         #endregion
     }
 }

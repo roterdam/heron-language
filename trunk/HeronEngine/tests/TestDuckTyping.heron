@@ -1,4 +1,4 @@
-module DuckTyping
+module TestDuckTyping
 {
 	interface IDuck
 	{
