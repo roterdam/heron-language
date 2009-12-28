@@ -5,6 +5,9 @@ using System.Text;
 
 namespace HeronEngine
 {
+    /// <summary>
+    /// NOT CURRENTLY USED!
+    /// </summary>
     public class TreeNodeValue : HeronValue 
     {
         List<TreeNodeValue> nodes = new List<TreeNodeValue>();

@@ -35,23 +35,34 @@ namespace HeronEngine
         public HeronType type = null;
 
         /// <summary>
-        /// The module containing the type
+        /// The moduleDef containing the type
         /// </summary>
-        public HeronModule module = null;
+        public ModuleDefn moduleDef = null;
+
+        /// <summary>
+        /// The module instance containing the "self" type.
+        /// </summary>
+        public ModuleInstance moduleInstance = null;
 
         /// <summary>
         /// A list of scopes, which are effectivelyh name value pairs
         /// </summary>
         private Stack<Scope> scopes = new Stack<Scope>();
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="f"></param>
+        /// <param name="self"></param>
         public Frame(FunctionDefn f, ClassInstance self)
         {
             this.function = f;
             this.self = self;
+            this.moduleInstance = self.GetModuleInstance();
             if (function != null)
-                type = function.GetParentType();
+                type = function.GetContainingType();
             if (type != null)
-                module = type.GetModule();
+                moduleDef = type.GetModule();
             AddScope(new Scope());
         }
 
@@ -65,32 +76,72 @@ namespace HeronEngine
             scopes.Pop();
         }
 
-        public HeronValue LookupName(string s, out bool bFound)
+        public HeronValue LookupName(string s)
         {
-            bFound = true;
-
+            // Look in the scopes starting with the innermost 
+            // and moving to the outermost.
+            // The outermost scope contains the arguments
             foreach (Scope tbl in scopes)
                 if (tbl.ContainsKey(s))
                     return tbl[s];
 
+            // Nothing found in the local vars, 
+            // So we look in the "this" pointer (called "self")
+            // Note that "self" may be a class instance, or a moduleDef
+            // instance
             if (self != null)
             {
                 HeronValue r = self.GetFieldOrMethod(s);
                 if (r != null)
                     return r;
+            
+                // Nothing found in the "this" pointer. So 
+                // we look if it has an enclosing module instance pointer.
+                // And use that 
+                ModuleInstance mi = self.GetModuleInstance();
+                if (mi != null)
+                {
+                    r = mi.GetFieldOrMethod(s);
+                    if (r != null)
+                        return r;
+
+                    // Look in the methods of all the linked modules. 
+                    List<HeronValue> candidates = new List<HeronValue>();
+                    foreach (ModuleInstance mi2 in mi.GetImportedModuleInstances())
+                    {
+                        HeronValue tmp = mi2.GetMethods(s);
+                        if (tmp != null)
+                            candidates.Add(tmp);
+                    }
+                    if (candidates.Count > 1)
+                        throw new Exception("Ambiguous function match. Multiple modules have methods named: " + s);
+                    if (candidates.Count == 1)
+                        return candidates[0];
+                }
             }
 
-            if (module != null)
+            // Look to see if the name is a type in the current module definition.
+            if (moduleDef != null)
             {
-                HeronType t = module.FindType(s);
+                HeronType t = moduleDef.FindType(s);
                 if (t != null)
                     return t;
-                t = module.GetGlobal().FindType(s);
-                if (t != null)
-                    return t;
+
+                // Look to see if the name is a type in one of the imported module definitions.
+                List<HeronType> candidates = new List<HeronType>();
+                foreach (ModuleDefn defn in moduleDef.GetImportedModuleDefns())
+                {
+                    t = defn.FindType(s);
+                    if (t != null)
+                        candidates.Add(t);
+                }
+
+                if (candidates.Count > 1)
+                    throw new Exception("Ambiguous name resolution. Multiple modules contain a type named " + s);
+                if (candidates.Count == 1)
+                    return candidates[1];
             }
 
-            bFound = false;
             return null;
         }
 
@@ -159,8 +210,8 @@ namespace HeronEngine
             else
                 sb.Append("null");
             sb.Append(", class = ");
-            if (self != null && self.hclass != null)
-                sb.Append(self.hclass.name);
+            if (self != null)
+                sb.Append(self.GetClassName());
             else
                 sb.Append("null");
             sb.AppendLine("]");
@@ -178,15 +229,15 @@ namespace HeronEngine
             get
             {
                 string r = "";
-                if (module == null)
+                if (moduleDef == null)
                     r += "unknown_module : ";
                 else
-                    r += module.name + " : ";
+                    r += moduleDef.name + " : ";
 
                 if (self == null)
                     r += "unknown_class : ";
                 else
-                    r += self.hclass.name + " : ";
+                    r += self.GetClassName() + " : ";
                 if (function == null)
                     r += "unknown_function";
                 else

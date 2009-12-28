@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System.Text;
 using System.Diagnostics;
 
@@ -62,38 +63,76 @@ namespace HeronEngine
         }
         #endregion helper classes
 
+        #region fields
         /// <summary>
-        /// Lexical environment: names and keys
+        /// The current result value
         /// </summary>
-        Environment env;
+        private HeronValue result;
 
         /// <summary>
-        /// Currently executing program
+        /// A list of call stack frames (also called activation records)
         /// </summary>
-        HeronProgram program;
+        private Stack<Frame> frames = new Stack<Frame>();
+
+        /// <summary>
+        /// Currently executing program. It contains global names.
+        /// </summary>
+        private HeronProgram program;
 
         /// <summary>
         /// A flag that is set to true when a return statement occurs. 
         /// </summary>
         bool bReturning = false;
+        #endregion
+
+        #region properties
+        /// <summary>
+        /// Returns the moduleDef definition associated with the current frame.
+        /// </summary>
+        /// <returns></returns>
+        public ModuleDefn CurrentModuleDef
+        {
+            get
+            {
+                Frame f = CurrentFrame;
+                ModuleDefn m = f.moduleDef;
+                return m;
+            }
+        }
 
         /// <summary>
-        /// Used for debugging the execution of the VM
+        /// Returns the global moduleDef definition
         /// </summary>
-        HeronVMDebugger debugger;
+        public ModuleDefn GlobalModuleDef
+        {
+            get
+            {
+                if (program == null)
+                    return null;
+                return program.GetGlobal();
+            }
+        }
 
+        /// <summary>
+        /// Returns the currently executing program.
+        /// </summary>
+        /// <returns></returns>
+        public HeronProgram Program
+        {
+            get
+            {
+                return program;
+            }
+        }
+        #endregion
+
+        #region construction, initialization, and finalization
         /// <summary>
         /// Constructor
         /// </summary>
         public VM()
         {
-            program = new HeronProgram("_untitled_");
-            env = new Environment(program);
-            debugger = new HeronVMDebugger(env);
-
-            // Load the global types
-            foreach (HeronType t in program.GetGlobal().GetTypes())
-                AddVar(t.name, t);
+            InitializeVM();
         }
 
         /// <summary>
@@ -101,48 +140,91 @@ namespace HeronEngine
         /// </summary>
         public void InitializeEnvironment()
         {
-            env.Clear();
+            frames.Clear();
+            result = null;
+            PushNewFrame(null, null);
+            PushScope();
         }
+
+        public void InitializeVM()
+        {
+            program = new HeronProgram("_program_");
+
+            // Load the global types
+            foreach (HeronType t in program.GetGlobal().GetTypes())
+                AddVar(t.name, t);
+        }
+        #endregion
 
         #region evaluation functions
         public HeronValue EvalString(string s)
         {
-            Expression x = HeronTypedAST.ParseExpr(program, s);
+            Expression x = HeronCodeModel.ParseExpr(program, s);
             x.ResolveAllTypes();
             return Eval(x); ;
         }
 
-        public void EvalFile(string sFileContents)
+        public ModuleDefn LoadModule(string sFile)
         {
-            HeronModule m = HeronTypedAST.ParseFile(program, sFileContents);
+            string sFileContents = File.ReadAllText(sFile);
+            ModuleDefn m = HeronCodeModel.ParseFile(program, sFileContents);
+            program.AddModule(m);
+            return m;
+        }
+
+        public string FindModulePath(string sModule)
+        {
+            foreach (String sPath in Config.inputPath)
+            {
+                string sFile = sPath + @"/" + sModule;
+                if (File.Exists(sFile))
+                    return sFile;
+            }
+            throw new Exception("Could not find module : " + sModule);
+        }
+
+        public void EvalFile(string sFile)
+        {
+            InitializeVM();
+
+            ModuleDefn m = LoadModule(sFile);
+
+            List<string> modules = new List<string>(program.GetUnloadedDependentModules());
+            while (modules.Count > 0)
+            {
+                foreach (string s in modules)
+                {
+                    string sPath = FindModulePath(s);
+                    LoadModule(sFile);
+                }
+
+                modules = new List<string>(program.GetUnloadedDependentModules());
+            }
             RunModule(m);
         }
 
-        public void RunMeta(HeronModule m)
+        public void RunMeta(ModuleInstance m)
         {
-            HeronClass meta = m.GetMetaClass();
-            if (meta != null)
-            {
-                // Start the parparse 
-                HeronValue o = DotNetObject.Marshal(m.GetProgram());
-                meta.Instantiate(this, new HeronValue[] { o });
-            }
+            HeronValue f = m.GetFieldOrMethod("Meta");
+            if (f == null)
+                return;
+            f.Apply(this, new HeronValue[] { });
         }
 
-        public void RunMain(HeronModule m)
+        public void RunMain(ModuleInstance m)
         {
-            HeronClass main = m.GetMainClass();
-            if (main != null)
-            {
-                main.Instantiate(this);
-            }
+            HeronValue f = m.GetFieldOrMethod("Main");
+            if (f == null)
+                throw new Exception("Could not find a 'Main' method to run");
+            f.Apply(this, new HeronValue[] { });
         }
 
-        public void RunModule(HeronModule m)
+        public void RunModule(ModuleDefn m)
         {
             InitializeEnvironment();
-            RunMeta(m);
-            RunMain(m);            
+            ModuleInstance mi = m.Instantiate(this, new HeronValue[] { }, null) as ModuleInstance;
+            RunMeta(mi);
+            RunMain(mi);            
         }
 
         /// <summary>
@@ -187,43 +269,47 @@ namespace HeronEngine
         /// <returns></returns>
         public void Eval(Statement statement)
         {
-            debugger.AddStatement(statement);
             statement.Eval(this);
         }
         #endregion
         
         #region scope and frame management
         /// <summary>
-        /// Get the currently executing frame
+        /// Gets the current activation record.
         /// </summary>
         /// <returns></returns>
-        public Frame GetCurrentFrame()
+        public Frame CurrentFrame
         {
-            return env.GetCurrentFrame();
+            get
+            {               
+                return frames.Peek();
+            }
         }
 
         /// <summary>
-        /// Used by DisposableScope to create a lexical scope in which names can live
+        /// Creates a new lexical scope. Roughly corresponds to an open brace ('{') in many languages.
         /// </summary>
-        private void PushScope()
+        public void PushScope()
         {
-            env.PushScope();
+            PushScope(new Scope());
         }
 
         /// <summary>
-        /// Adds a name-value group.
+        /// Creates a new scope, with a predefined set of variable names. Useful for function arguments
+        /// or class fields.
         /// </summary>
-        private void PushScope(Scope scope)
+        /// <param name="scope"></param>
+        public void PushScope(Scope scope)
         {
-            env.PushScope(scope);
+            frames.Peek().AddScope(scope);
         }
 
         /// <summary>
-        /// Removes the top-most lexical scope.
+        /// Removes the current scope. Correspond roughly to a closing brace ('}').
         /// </summary>
-        private void PopScope()
+        public void PopScope()
         {
-            env.PopScope();
+            frames.Peek().PopScope();
         }
 
         /// <summary>
@@ -259,22 +345,22 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Used by DisposableFrame to creates a new stack frame (activation record), containing a functions arguments 
+        /// Called when a new function execution starts.
         /// </summary>
-        /// <param name="fun"></param>
-        /// <param name="classInstance"></param>
-        private void PushNewFrame(FunctionDefn fun, ClassInstance classInstance)
+        /// <param name="f"></param>
+        /// <param name="self"></param>
+        public void PushNewFrame(FunctionDefn f, ClassInstance self)
         {
-            env.PushNewFrame(fun, classInstance);
+            frames.Push(new Frame(f, self));
         }
 
         /// <summary>
-        /// Used by DisposableFrame to Removes the current stack frame (activation record)
+        /// Inidcates the current activation record is finished.
         /// </summary>
-        private void PopFrame()
+        public void PopFrame()
         {
-            env.PopFrame();
-            bReturning = false;
+            // Reset the returning flag, to indicate that the returning operation is completed. 
+            frames.Pop();
         }
 
         /// <summary>
@@ -290,6 +376,7 @@ namespace HeronEngine
         }
         #endregion
 
+        #region control flow
         /// <summary>
         /// This is used by loops over statements to check whether a return statement, a break 
         /// statement, or a throw statement was called. Currently only return statements are supported.
@@ -309,38 +396,71 @@ namespace HeronEngine
         {
             Trace.Assert(!bReturning, "internal error, returning flag was not reset");
             bReturning = true;
-            env.SetResult(ret);
+            result = ret;
         }
+
+        /// <summary>
+        /// Returns the return result, and sets it to null.
+        /// </summary>
+        /// <returns></returns>
+        public HeronValue GetAndResetResult()
+        {
+            HeronValue r = result;
+            result = null;
+            return r;
+        }
+        #endregion
 
         #region variables, fields, and name management
         /// <summary>
-        /// Sets the value of a field in the environement
+        /// Assigns a value a variable name in the current environment.
+        /// The name must already exist
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="val"></param>
-        public void SetVar(string name, HeronValue val)
+        /// <param name="s"></param>
+        /// <param name="o"></param>
+        public void SetVar(string s, HeronValue o)
         {
-            env.SetVar(name, val);
+            Trace.Assert(o != null);
+            foreach (Frame f in frames)
+                if (f.SetVar(s, o))
+                    return;
+            throw new Exception("Could not find variable " + s);
         }
 
         /// <summary>
-        /// Checks for existence of variable in environment 
+        /// Returns true if the name is that of a variable in the local scope
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
         public bool HasVar(string name)
         {
-            return env.HasVar(name);
+            if (frames.Count == 0)
+                return false;
+            return frames.Peek().HasVar(name);
         }
 
         /// <summary>
-        /// Checks for existence of field in the current class instance.
+        /// Returns true if the name is a field in the current object scope.
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
         public bool HasField(string name)
         {
-            return env.HasField(name);
+            if (frames.Count == 0)
+                return false;
+            return frames.Peek().HasField(name);
+        }
+
+        /// <summary>
+        /// Looks up a name as a field in the current object.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public HeronValue LookupField(string name)
+        {
+            if (frames.Count == 0)
+                return null;
+            return frames.Peek().LookupField(name);
         }
 
         /// <summary>
@@ -348,29 +468,57 @@ namespace HeronEngine
         /// </summary>
         /// <param name="name"></param>
         /// <param name="val"></param>
-        public void SetField(string name, HeronValue val)
+        public void SetField(string s, HeronValue o)
         {
-            env.SetField(name, val);
+            Assure(o != null, "Null cannot be passed a value");
+            if (frames.Count == 0)
+                throw new Exception("No stack frames");
+            Frame f = frames.Peek();
+            if (f.self == null)
+                throw new Exception("Not called from within a class");
+            f.self.SetField(s, o);
         }
 
         /// <summary>
-        /// Looks up the value associated with a given name
+        /// Looks up the value or type associated with the name.
+        /// Looks in each scope in the currenst stack frame until a match is found.
+        /// If no match is found then the various moduleDef scopes are searched.
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="s"></param>
         /// <returns></returns>
-        public HeronValue LookupName(string name)
+        public HeronValue LookupName(string s)
         {
-            return env.LookupName(name);
+            if (frames.Count != 0)
+            {
+                HeronValue r = frames.Peek().LookupName(s);
+                if (r != null)
+                    return r;
+            }
+            if (CurrentModuleDef != null)
+            {
+                foreach (HeronType t in CurrentModuleDef.GetTypes())
+                    if (t.name == s)
+                        return t;
+            }
+            if (GlobalModuleDef != null)
+            {
+                foreach (HeronType t in GlobalModuleDef.GetTypes())
+                    if (t.name == s)
+                        return t;
+            }
+
+            throw new Exception("Could not find '" + s + "' in the environment");
         }
 
         /// <summary>
-        /// Add a variable.
+        /// Creates a new variable name in the current scope.
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="initVal"></param>
-        public void AddVar(string name, HeronValue initVal)
+        /// <param name="s"></param>
+        /// <param name="o"></param>
+        public void AddVar(string s, HeronValue o)
         {
-            env.AddVar(name, initVal);
+            Assure(o != null, "Null is not an acceptable value");
+            frames.Peek().AddVar(s, o);
         }
         
         /// <summary>
@@ -384,31 +532,65 @@ namespace HeronEngine
         }        
         #endregion 
 
+        #region utility functions
         /// <summary>
-        /// Gets the value set by the last executed return statement
+        /// Throw an exception if condition is not true. However, not an assertion. 
+        /// This is used to check for exceptional run-time condition.
         /// </summary>
-        /// <returns></returns>
-        public HeronValue GetLastResult()
+        /// <param name="b"></param>
+        /// <param name="s"></param>
+        private void Assure(bool b, string s)
         {
-            return env.GetLastResult();
+            if (!b)
+                throw new Exception("error occured: " + s);
         }
 
         /// <summary>
-        /// Should only ever be called by the debugger.
+        /// Returns a textual representation of the environment. 
+        /// Used primarily for debugging
         /// </summary>
         /// <returns></returns>
-        public Environment GetEnvironment()
+        public override string ToString()
         {
-            return env;
+            StringBuilder sb = new StringBuilder();
+            foreach (Frame f in frames)
+                sb.Append(f.ToString());
+            return sb.ToString();
+        }
+        #endregion 
+
+        /// <summary>
+        /// Returns all frames, useful for creating a call stack 
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<Frame> GetFrames()
+        {
+            return frames;
         }
 
         /// <summary>
-        /// Returns the currently executing program.
+        /// Convenience function for invoking a method on an object
         /// </summary>
+        /// <param name="self"></param>
+        /// <param name="s"></param>
+        /// <param name="args"></param>
         /// <returns></returns>
-        public HeronProgram GetProgram()
+        public HeronValue Invoke(HeronValue self, string s, HeronValue[] args)
         {
-            return program;
+            HeronValue f = self.GetFieldOrMethod(s);
+            HeronValue r = f.Apply(this, new HeronValue[] { });
+            return r;
+        }
+
+        /// <summary>
+        /// Convenience function for invoking methods without arguments
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        public HeronValue Invoke(HeronValue self, string s)
+        {
+            return Invoke(self, s, new HeronValue[] { });
         }
     }
 }

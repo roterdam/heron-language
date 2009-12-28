@@ -17,22 +17,18 @@ namespace HeronEngine
 
         public static void PrintCallStack(VM vm)
         {
-            Environment env = vm.GetEnvironment();
-            foreach (Frame f in env.GetFrames())
-            {
+            foreach (Frame f in vm.GetFrames())
                 Console.WriteLine(f.SimpleDescription);
-            }
         }
 
         public static void PrintCurrentFrame(VM vm)
         {
-            Frame f = vm.GetCurrentFrame();
-            PrintFrame(f);
+            PrintFrame(vm.CurrentFrame);
         }
 
         public static void PrintAllFrames(VM vm)
         {
-            foreach (Frame f in vm.GetEnvironment().GetFrames())
+            foreach (Frame f in vm.GetFrames())
                 PrintFrame(f);
         }
 

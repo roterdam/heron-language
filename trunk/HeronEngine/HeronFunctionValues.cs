@@ -127,7 +127,7 @@ namespace HeronEngine
             }
 
             // Gets last result and resets it
-            return vm.GetLastResult();
+            return vm.GetAndResetResult();
         }
 
         public override HeronType GetHeronType()

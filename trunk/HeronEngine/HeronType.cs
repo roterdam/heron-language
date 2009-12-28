@@ -14,14 +14,14 @@ using System.Diagnostics;
 namespace HeronEngine
 {
     /// <summary>
-    /// See also: HeronClass. Note types are also values in Heron. 
+    /// See also: ClassDefn. Note types are also values in Heron. 
     /// </summary>
     public class HeronType : HeronValue 
     {
         [HeronVisible]
         public string name = "anonymous_type";
 
-        HeronModule module;
+        ModuleDefn module;
         Type type;
         Dictionary<string, ExposedMethodValue> functions = new Dictionary<string, ExposedMethodValue>();
         Dictionary<string, ExposedField> fields = new Dictionary<string, ExposedField>();
@@ -31,23 +31,13 @@ namespace HeronEngine
         {
         }
 
-        public HeronType(HeronModule m, Type t, string name)
+        public HeronType(ModuleDefn m, Type t, string name)
         {
             module = m;
             type = t;
             Trace.Assert(t != null);
             this.name = name;
             StoreExposedFunctionsAndFields();
-        }
-
-        /// <summary>
-        /// Creates an instance of the type, without arguments. 
-        /// </summary>
-        /// <param name="vm"></param>
-        /// <returns></returns>
-        public HeronValue Instantiate(VM vm)
-        {
-            return Instantiate(vm, new HeronValue[] { });
         }
 
         /// <summary>
@@ -66,7 +56,7 @@ namespace HeronEngine
         }
 
         [HeronVisible]
-        public HeronModule GetModule()
+        public ModuleDefn GetModule()
         {
             return module;
         }
@@ -76,7 +66,7 @@ namespace HeronEngine
             return type;
         }
 
-        public void SetModule(HeronModule m)
+        public void SetModule(ModuleDefn m)
         {
             module = m;
         }
@@ -132,7 +122,15 @@ namespace HeronEngine
             return functions.Values; 
         }
 
-        public virtual HeronValue Instantiate(VM vm, HeronValue[] args)
+        /// <summary>
+        /// This is overriden in the variou user types. Only classes and primitives
+        /// can be instantiated (not enums or interfaces).
+        /// </summary>
+        /// <param name="vm"></param>
+        /// <param name="args"></param>
+        /// <param name="m"></param>
+        /// <returns></returns>
+        public virtual HeronValue Instantiate(VM vm, HeronValue[] args, ModuleInstance m)
         {
             if (args.Length != 0)
                 throw new Exception("arguments not supported when instantiating primitive type " + name);
@@ -182,9 +180,9 @@ namespace HeronEngine
         }
 
         [HeronVisible]
-        public StringValue GetName()
+        public string GetName()
         {
-            return new StringValue(name);
+            return name;
         }
         #endregion
     }
@@ -198,12 +196,12 @@ namespace HeronEngine
     /// </summary>
     public class UnresolvedType : HeronType
     {
-        public UnresolvedType(string name, HeronModule m)
+        public UnresolvedType(string name, ModuleDefn m)
             : base(m, typeof(UnresolvedType), name)
         {
         }
 
-        public override HeronValue Instantiate(VM vm, HeronValue[] args)
+        public override HeronValue Instantiate(VM vm, HeronValue[] args, ModuleInstance m)
         {
             throw new Exception("Type '" + name + "' was not resolved.");
         }

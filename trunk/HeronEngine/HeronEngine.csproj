@@ -62,7 +62,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HeronAny.cs" />
+    <Compile Include="HeronClass.cs" />
     <Compile Include="HeronDuckCasting.cs" />
+    <Compile Include="HeronEnum.cs" />
+    <Compile Include="HeronInterface.cs" />
     <Compile Include="HeronUserType.cs" />
     <Compile Include="HeronCollection.cs" />
     <Compile Include="HeronConfig.cs" />
@@ -71,11 +74,9 @@
     <Compile Include="HeronFrame.cs" />
     <Compile Include="HeronFunctionValues.cs" />
     <Compile Include="HeronModule.cs" />
-    <Compile Include="HeronASTValue.cs" />
     <Compile Include="HeronScope.cs" />
-    <Compile Include="HeronPrimitiveValue.cs" />
     <Compile Include="HeronTree.cs" />
-    <Compile Include="HeronTypedAST.cs" />
+    <Compile Include="HeronCodeModel.cs" />
     <Compile Include="HeronExpression.cs" />
     <Compile Include="HeronFunction.cs" />
     <Compile Include="HeronGrammar.cs" />
@@ -85,13 +86,10 @@
     <Compile Include="HeronStatements.cs" />
     <Compile Include="HeronVM.cs" />
     <Compile Include="HeronValue.cs" />
-    <Compile Include="HeronEnvironment.cs" />
     <Compile Include="HeronTests.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="HeronType.cs" />
-    <Compile Include="HeronVMDebugger.cs" />
-    <Compile Include="HeronXml.cs" />
     <Compile Include="PegRuleTypes.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="PegAst.cs" />
@@ -154,6 +152,7 @@
     <None Include="tests\TestForLoop.heron" />
     <None Include="tests\TestFunctionCall.heron" />
     <None Include="tests\TestIf.heron" />
+    <None Include="tests\TestImport.heron" />
     <None Include="tests\TestInheritance.heron" />
     <None Include="tests\TestInheritedConstructors.heron" />
     <None Include="tests\TestInterfaces.heron" />
