@@ -1,0 +1,15 @@
+module TestImport
+{
+	imports
+	{
+		HelloWorld;
+	}
+	
+	methods
+	{		
+		Main()
+		{
+			new Main() from HelloWorld;
+		}
+	}	
+}
