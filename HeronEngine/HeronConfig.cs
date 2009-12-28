@@ -29,6 +29,9 @@ namespace HeronEngine
 
         public static void LoadFromFile(string s)
         {
+            inputPath.Add(Util.GetExeDir());
+            inputPath.Add(Util.GetExeDir() + @"/lib");
+
             XmlDocument doc = new XmlDocument();
             doc.Load(s);
             XmlElement root = doc.DocumentElement;

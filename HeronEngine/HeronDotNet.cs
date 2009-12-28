@@ -239,17 +239,17 @@ namespace HeronEngine
     /// </summary>
     public class DotNetClass : HeronType
     {
-        public DotNetClass(HeronModule m, string name, Type type)
+        public DotNetClass(ModuleDefn m, string name, Type type)
             : base(m, type, name)
         {
         }
 
-        public DotNetClass(HeronModule m, Type type)
+        public DotNetClass(ModuleDefn m, Type type)
             : base(m, type, type.Name)
         {
         }
 
-        public override HeronValue Instantiate(VM vm, HeronValue[] args)
+        public override HeronValue Instantiate(VM vm, HeronValue[] args, ModuleInstance m)
         {
             Object[] objs = HeronDotNet.ObjectsToDotNetArray(args);
             Object o = GetSystemType().InvokeMember(null, BindingFlags.Instance | BindingFlags.Public 

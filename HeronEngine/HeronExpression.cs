@@ -244,17 +244,36 @@ namespace HeronEngine
     {
         [HeronVisible] public HeronType type;
         [HeronVisible] public ExpressionList args;
+        [HeronVisible] public Expression modexpr;
 
-        public NewExpr(HeronType type, ExpressionList args)
+        public NewExpr(HeronType type, ExpressionList args, Expression modexpr)
         {
             this.type = type;
             this.args = args;
+            this.modexpr = modexpr;
         }
 
         public override HeronValue Eval(VM vm)
         {
             HeronValue[] argvals = args.Eval(vm);
-            return type.Instantiate(vm, argvals);
+            
+            if (modexpr == null)
+            {
+                // TODO: 
+                // Figure out which moduleDef we currently are in.
+                // figure out which moduleDef instance makes the most sense for this type.
+                // Remember, each type belong 
+                throw new NotImplementedException();
+                // return type.Instantiate(vm, argvals, moduleDef);
+            }
+            else
+            {
+                HeronValue v = vm.Eval(modexpr);
+                if (!(v is ModuleInstance))
+                    throw new Exception("Expected a module, from " + modexpr.ToString() + " instead got value of type " + v.GetHeronType().ToString());
+                ModuleInstance module = v as ModuleInstance;
+                return type.Instantiate(vm, argvals, module);
+            }
         }
 
         public override HeronType GetHeronType()
@@ -539,9 +558,9 @@ namespace HeronEngine
                 HeronValue r = a.As(t);
                 if (r != null)
                     return r;
-                if (t is HeronInterface)
+                if (t is InterfaceDefn && a is ClassInstance)
                 {
-                    DuckValue dv = new DuckValue(a, t as HeronInterface);
+                    DuckValue dv = new DuckValue(a as ClassInstance, t as InterfaceDefn);
                     return dv;
                 }
                 throw new Exception("Failed to convert " + a.GetHeronType().name + " to a " + t.name);

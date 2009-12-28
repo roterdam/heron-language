@@ -1,0 +1,33 @@
+module TestModule2
+{
+  imports {
+    TestModule1 as m1;
+    TestModule1 as m2;
+    Console;
+  } 
+  methods 
+  {
+    Constructor() {
+       // Construct the module instances
+       // Order is specified. 
+       // We could even do conditional module instantiation.
+       m1 = new TestModule1(0);
+       m2 = new TestModule1(1);
+       Console = new Console();
+    }
+    Main() {
+       // Construct two different instances of class C, 
+       // Both have the same type "TestModule1.C", but are associated 
+       // with different instances of the module TestModule1
+       // This affects the static data  
+       C c1 = new C() from m1;
+       C c2 = new C() from m2;
+
+       Console.WriteLine(c1.Get()); // 0
+       Console.WriteLine(c2.Get()); // 1
+       c2.Set(42);
+       Console.WriteLine(c1.Get()); // 0
+       Console.WriteLine(c2.Get()); // 42
+    }
+  }
+}

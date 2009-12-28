@@ -38,7 +38,7 @@ namespace HeronEngine
             Console.WriteLine("testing expression: " + s);
             try
             {
-                Expression x = HeronTypedAST.ParseExpr(vm.GetProgram(), s);
+                Expression x = HeronCodeModel.ParseExpr(vm.Program, s);
                 if (x != null)
                 {
                     Console.WriteLine("test passed");
@@ -58,7 +58,7 @@ namespace HeronEngine
             Console.WriteLine("testing statement: " + s);
             try
             {
-                Statement x = HeronTypedAST.ParseStatement(vm.GetProgram(), s);
+                Statement x = HeronCodeModel.ParseStatement(vm.Program, s);
                 if (x != null)
                     Console.WriteLine("test passed");
                 else

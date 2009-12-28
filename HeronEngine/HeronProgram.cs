@@ -18,8 +18,9 @@ namespace HeronEngine
     /// </summary>
     public class HeronProgram : HeronValue
     {
-        private List<HeronModule> modules = new List<HeronModule>();
-        private HeronModule global;
+        private List<ModuleDefn> modules = new List<ModuleDefn>();
+        private Dictionary<string, ModuleDefn> dependencies = new Dictionary<string, ModuleDefn>();
+        private ModuleDefn global;
 
         [HeronVisible]
         public string name;
@@ -27,14 +28,13 @@ namespace HeronEngine
         public HeronProgram(string name)
         {
             this.name = name;
-            global = new HeronModule(this, "_global_");
+            global = new ModuleDefn(this, "_global_");
             RegisterPrimitives();
         }
         public void RegisterDotNetType(Type t, string name)
         {
             global.AddDotNetType(name, t);
         }
-
         public void RegisterDotNetType(Type t)
         {
             global.AddDotNetType(t.Name, t);
@@ -92,20 +92,84 @@ namespace HeronEngine
             foreach (Type t in a.GetExportedTypes())
                 RegisterDotNetType(t);
         }
+
+        /// <summary>
+        /// Adds the module, and tracks dependencies on other modules.
+        /// </summary>
+        /// <param name="m">The new module being loaded, must not already be loaded</param>
         [HeronVisible]
-        public void AddModule(HeronModule m)
+        public void AddModule(ModuleDefn m)
         {
+            SatisfyOpenDependencies(m);
+            AddNewDependencies(m);
             modules.Add(m);
         }
+
+        /// <summary>
+        /// Closes open dendencies
+        /// </summary>
+        /// <param name="m"></param>
+        public void SatisfyOpenDependencies(ModuleDefn m)
+        {
+            if (dependencies.ContainsKey(m.name))
+            {
+                if (dependencies[m.name] != null)
+                {
+                    throw new Exception(m.name + " is already parsed and loaded");
+                }
+                else
+                {
+                    dependencies[m.name] = m;
+                }
+            }
+            else
+            {
+                dependencies.Add(m.name, m);
+            }
+        }
+
+        /// <summary>
+        /// Adds new dependencies, based on imported modules
+        /// </summary>
+        /// <param name="m"></param>
+        public void AddNewDependencies(ModuleDefn m)
+        {
+            foreach (ModuleDefn def in m.GetImportedModuleDefns())
+            {
+                if (!dependencies.ContainsKey(def.name))
+                {
+                    dependencies.Add(def.name, def);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns a list of names of modules that need to be imported
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<string> GetUnloadedDependentModules()
+        {
+            foreach (string s in dependencies.Keys)
+                if (dependencies[s] == null)
+                    yield return s;
+        }
+
         [HeronVisible]
-        public HeronModule GetGlobal()
+        public ModuleDefn GetGlobal()
         {
             return global;
         }
+
         [HeronVisible]
-        public IEnumerable<HeronModule> GetModules()
+        public IEnumerable<ModuleDefn> GetModules()
         {
             return modules;
+        }
+        
+        [HeronVisible]
+        public ModuleDefn GetModule(string s)
+        {
+            return dependencies[s];
         }
         #endregion
     }

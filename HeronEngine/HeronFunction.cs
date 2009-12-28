@@ -115,7 +115,7 @@ namespace HeronEngine
             return PrimitiveTypes.FunctionDefnType;
         }
 
-        public HeronType GetParentType()
+        public HeronType GetContainingType()
         {
             return parent;
         }

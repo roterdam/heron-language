@@ -237,17 +237,19 @@ namespace HeronEngine
 
     /// <summary>
     /// An instance of a Heron class. A HeronObject is more general in that it includes 
-    /// primitive objects and .NET objects which are not part of the HeronClass 
+    /// primitive objects and .NET objects which are not part of the ClassDefn 
     /// hierarchy.
     /// </summary>
     public class ClassInstance : HeronValue
     {
-        public HeronClass hclass;
-        public Scope fields = new Scope();
+        ClassDefn cls;
+        ModuleInstance module;
+        Scope fields = new Scope();
         
-        public ClassInstance(HeronClass c)
+        public ClassInstance(ClassDefn c, ModuleInstance m)
         {
-            hclass = c;
+            cls = c;
+            module = m;
         }
 
         public override bool Equals(object obj)
@@ -265,9 +267,9 @@ namespace HeronEngine
         /// It is the caller's reponsibility to remove the scope. 
         /// </summary>
         /// <param name="env"></param>
-        public void PushFieldsAsScope(Environment env)
+        public void PushFieldsAsScope(VM vm)
         {
-            env.PushScope(fields);
+            vm.PushScope(fields);
         }
 
         /// <summary>
@@ -342,7 +344,7 @@ namespace HeronEngine
         /// <returns></returns>
         public bool HasMethod(string name)
         {
-            return hclass.HasMethod(name);
+            return cls.HasMethod(name);
         }
 
         /// <summary>
@@ -352,7 +354,7 @@ namespace HeronEngine
         /// <returns></returns>
         public FunDefnListValue GetMethods(string name)
         {
-            return new FunDefnListValue(this, name, hclass.GetMethods(name));
+            return new FunDefnListValue(this, name, cls.GetMethods(name));
         }
 
         /// <summary>
@@ -384,12 +386,12 @@ namespace HeronEngine
 
         public override string ToString()
         {
-            return "{" + hclass.name + "}";
+            return "{" + cls.name + "}";
         }
 
         public override HeronType GetHeronType()
         {
-            return hclass;
+            return cls;
         }
 
         /// <summary>
@@ -414,10 +416,10 @@ namespace HeronEngine
         /// <returns></returns>
         public override HeronValue As(HeronType t)
         {
-            if (t is HeronClass)
+            if (t is ClassDefn)
             {
-                HeronClass c1 = hclass;
-                HeronClass c2 = t as HeronClass;
+                ClassDefn c1 = cls;
+                ClassDefn c2 = t as ClassDefn;
 
                 if (c2.name == c1.name)
                     return this;
@@ -427,10 +429,10 @@ namespace HeronEngine
 
                 return GetBase().As(t);
             }
-            else if (t is HeronInterface)
+            else if (t is InterfaceDefn)
             {
-                if (hclass.Implements(t as HeronInterface))
-                    return new InterfaceInstance(this, t as HeronInterface);
+                if (cls.Implements(t as InterfaceDefn))
+                    return new InterfaceInstance(this, t as InterfaceDefn);
 
                 if (GetBase() == null)
                     return null;
@@ -441,23 +443,28 @@ namespace HeronEngine
         }
 
         [HeronVisible]
-        HeronValue GetTypeName()
+        public string GetClassName()
         {
-            return hclass.GetName();
+            return cls == null ? "_null_" : cls.GetName();
+        }
+
+        public ModuleInstance GetModuleInstance()
+        {
+            return module;
         }
     }
 
     /// <summary>
     /// An instance of a Heron class. A HeronObject is more general in that it includes 
-    /// primitive objects and .NET objects which are not part of the HeronClass 
+    /// primitive objects and .NET objects which are not part of the ClassDefn 
     /// hierarchy.
     /// </summary>
     public class InterfaceInstance : HeronValue
     {   
-        public HeronValue obj;
-        public HeronInterface hinterface;
+        public ClassInstance obj;
+        public InterfaceDefn hinterface;
 
-        public InterfaceInstance(HeronValue obj, HeronInterface i)
+        public InterfaceInstance(ClassInstance obj, InterfaceDefn i)
         {
             this.obj = obj;
             hinterface = i;
@@ -500,19 +507,24 @@ namespace HeronEngine
             return hinterface;
         }
 
-        public HeronValue GetObject()
+        public ClassInstance GetObject()
         {
             return obj;
         }
 
         public override HeronValue As(HeronType t)
         {
-            HeronInterface i = t as HeronInterface;
+            InterfaceDefn i = t as InterfaceDefn;
             if (i == null)
                 return null;
             if (hinterface.InheritsFrom(i))
                 return obj;
             return null;
+        }
+
+        public ModuleInstance GetModuleInstance()
+        {
+            return obj.GetModuleInstance();
         }
     }
 
@@ -521,10 +533,10 @@ namespace HeronEngine
     /// </summary>
     public class EnumInstance : HeronValue
     {
-        HeronEnum henum;
+        EnumDefn henum;
         string name;
 
-        public EnumInstance(HeronEnum e, string s)
+        public EnumInstance(EnumDefn e, string s)
         {
             henum = e;
             name = s;
@@ -547,6 +559,337 @@ namespace HeronEngine
         {
             return name.GetHashCode() + henum.GetHashCode();
         }
-    }    
+    }
+
+    /// <summary>
+    /// A moduleDef instance can contain fields and methods just like a class
+    /// </summary>
+    public class ModuleInstance : ClassInstance
+    {
+        Dictionary<string, ModuleInstance> importedModules = new Dictionary<string, ModuleInstance>();
+ 
+        public ModuleInstance(ModuleDefn m, ModuleInstance i)
+            : base(m, i)
+        {
+            if (i != null)
+                throw new Exception("A module does not belong to a module");
+
+            if (m == null)
+                throw new Exception("Missing module");
+        }
+
+        public ModuleDefn GetModuleDefn()
+        {
+            ModuleDefn m = GetHeronType() as ModuleDefn;
+            if (m == null)
+                throw new Exception("Missing module");
+            return m;
+        }
+
+        public ModuleInstance LookupImportedModuleInstance(string s)
+        {
+            if (!importedModules.ContainsKey(s))
+                return null;
+            return importedModules[s];
+        }
+
+        public IEnumerable<ModuleInstance> GetImportedModuleInstances()
+        {
+            return importedModules.Values;
+        }
+
+        public override HeronValue GetFieldOrMethod(string name)
+        {
+ 	        HeronValue r = base.GetFieldOrMethod(name);
+            if (r != null)
+                return r;
+            return LookupImportedModuleInstance(name);
+        }
+    }
+
+    public abstract class PrimitiveTemplate<T> : HeronValue
+    {
+        T val;
+
+        public PrimitiveTemplate(T x)
+        {
+            val = x;
+        }
+
+        public override string ToString()
+        {
+            return val.ToString();
+        }
+
+        public override object ToSystemObject()
+        {
+            return val;
+        }
+
+        public T GetValue()
+        {
+            return val;
+        }
+
+        [HeronVisible]
+        public HeronValue AsString()
+        {
+            return new StringValue(val.ToString());
+        }
+    }
+
+    public class IntValue : PrimitiveTemplate<int>
+    {
+        public IntValue(int x)
+            : base(x)
+        {
+        }
+
+        public IntValue()
+            : base(0)
+        {
+        }
+
+        public override HeronValue InvokeUnaryOperator(VM vm, string s)
+        {
+            switch (s)
+            {
+                case "-": return new IntValue(-GetValue());
+                case "~": return new IntValue(~GetValue());
+                default:
+                    throw new Exception("Unary operation: '" + s + "' not supported by integers");
+            }
+        }
+
+        public override HeronValue InvokeBinaryOperator(VM vm, string s, HeronValue x)
+        {
+            if (!(x is IntValue))
+                throw new Exception("binary operation not supported on differently typed objects");
+
+            int arg = (x as IntValue).GetValue();
+            switch (s)
+            {
+                case "+": return new IntValue(GetValue() + arg);
+                case "-": return new IntValue(GetValue() - arg);
+                case "*": return new IntValue(GetValue() * arg);
+                case "/": return new IntValue(GetValue() / arg);
+                case "%": return new IntValue(GetValue() % arg);
+                case "==": return new BoolValue(GetValue() == arg);
+                case "!=": return new BoolValue(GetValue() != arg);
+                case "<": return new BoolValue(GetValue() < arg);
+                case ">": return new BoolValue(GetValue() > arg);
+                case "<=": return new BoolValue(GetValue() <= arg);
+                case ">=": return new BoolValue(GetValue() >= arg);
+                case "..": return new RangeEnumerator(this, x as IntValue);
+                default:
+                    throw new Exception("Binary operation: '" + s + "' not supported by integers");
+            }
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.IntType;
+        }
+    }
+
+    public class CharValue : PrimitiveTemplate<char>
+    {
+        public CharValue(char x)
+            : base(x)
+        {
+        }
+
+        public CharValue()
+            : base('\0')
+        {
+        }
+
+        public override HeronValue InvokeUnaryOperator(VM vm, string s)
+        {
+            switch (s)
+            {
+                default:
+                    throw new Exception("Unary operation: '" + s + "' not supported by chars");
+            }
+        }
+
+        public override HeronValue InvokeBinaryOperator(VM vm, string s, HeronValue x)
+        {
+            char arg = (x as CharValue).GetValue();
+            switch (s)
+            {
+                case "==": return new BoolValue(GetValue() == arg);
+                case "!=": return new BoolValue(GetValue() != arg);
+                default:
+                    throw new Exception("Binary operation: '" + s + "' not supported by chars");
+            }
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.CharType;
+        }
+    }
+
+    public class FloatValue : PrimitiveTemplate<float>
+    {
+        public FloatValue(float x)
+            : base(x)
+        {
+        }
+
+        public FloatValue()
+            : base(0.0f)
+        {
+        }
+
+        public override HeronValue InvokeUnaryOperator(VM vm, string s)
+        {
+            switch (s)
+            {
+                case "-": return new FloatValue(-GetValue());
+                default:
+                    throw new Exception("Unary operation: '" + s + "' not supported by floats");
+            }
+        }
+
+        public override HeronValue InvokeBinaryOperator(VM vm, string s, HeronValue x)
+        {
+            if (!(x is FloatValue))
+                throw new Exception("binary operation not supported on differently typed objects");
+            float arg = (x as FloatValue).GetValue();
+            switch (s)
+            {
+                case "+": return new FloatValue(GetValue() + arg);
+                case "-": return new FloatValue(GetValue() - arg);
+                case "*": return new FloatValue(GetValue() * arg);
+                case "/": return new FloatValue(GetValue() / arg);
+                case "%": return new FloatValue(GetValue() % arg);
+                case "==": return new BoolValue(GetValue() == arg);
+                case "!=": return new BoolValue(GetValue() != arg);
+                case "<": return new BoolValue(GetValue() < arg);
+                case ">": return new BoolValue(GetValue() > arg);
+                case "<=": return new BoolValue(GetValue() <= arg);
+                case ">=": return new BoolValue(GetValue() >= arg);
+                default:
+                    throw new Exception("Binary operation: '" + s + "' not supported by floats");
+            }
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.FloatType;
+        }
+    }
+
+    public class BoolValue : PrimitiveTemplate<bool>
+    {
+        public BoolValue(bool x)
+            : base(x)
+        {
+        }
+
+        public BoolValue()
+            : base(false)
+        {
+        }
+
+        public override HeronValue InvokeUnaryOperator(VM vm, string s)
+        {
+            switch (s)
+            {
+                case "!": return new BoolValue(!GetValue());
+                default:
+                    throw new Exception("Unary operation: '" + s + "' not supported by booleans");
+            }
+        }
+
+        public override HeronValue InvokeBinaryOperator(VM vm, string s, HeronValue x)
+        {
+            if (!(x is BoolValue))
+                throw new Exception("binary operation not supported on differently typed objects");
+            bool arg = (x as BoolValue).GetValue();
+            switch (s)
+            {
+                case "==": return new BoolValue(GetValue() == arg);
+                case "!=": return new BoolValue(GetValue() != arg);
+                case "&&": return new BoolValue(GetValue() && arg);
+                case "||": return new BoolValue(GetValue() || arg);
+                case "^^": return new BoolValue(GetValue() ^ arg);
+                default:
+                    throw new Exception("Binary operation: '" + s + "' not supported by booleans");
+            }
+        }
+
+        public override bool ToBool()
+        {
+            return GetValue();
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.BoolType;
+        }
+
+        public override string ToString()
+        {
+            return GetValue() ? "true" : "false";
+        }
+    }
+
+    public class StringValue : PrimitiveTemplate<string>
+    {
+        public StringValue(string x)
+            : base(x)
+        {
+        }
+
+        public StringValue()
+            : base("")
+        {
+        }
+
+        public override HeronValue InvokeUnaryOperator(VM vm, string s)
+        {
+            switch (s)
+            {
+                default:
+                    throw new Exception("Unary operation: '" + s + "' not supported by strings");
+            }
+        }
+
+        public override HeronValue InvokeBinaryOperator(VM vm, string s, HeronValue x)
+        {
+            if (!(x is StringValue))
+                throw new Exception("binary operation not supported on differently typed objects");
+            StringValue so = x as StringValue;
+            string arg = (x as StringValue).GetValue();
+            switch (s)
+            {
+                case "+": return new StringValue(GetValue() + arg);
+                case "==": return new BoolValue(GetValue() == so.GetValue());
+                case "!=": return new BoolValue(GetValue() != so.GetValue());
+                default:
+                    throw new Exception("Binary operation: '" + s + "' not supported by strings");
+            }
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.StringType;
+        }
+
+        [HeronVisible]
+        public HeronValue Length()
+        {
+            return new IntValue(GetValue().Length);
+        }
+
+        [HeronVisible]
+        public HeronValue GetChar(IntValue index)
+        {
+            return new CharValue(GetValue()[index.GetValue()]);
+        }
+    }
 }
 

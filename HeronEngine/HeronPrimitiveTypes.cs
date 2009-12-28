@@ -52,10 +52,10 @@ namespace HeronEngine
 
         // Code model types
         public static HeronCodeModelType ProgramType = new HeronCodeModelType(typeof(HeronProgram));
-        public static HeronCodeModelType ModuleType = new HeronCodeModelType(typeof(HeronModule));
-        public static HeronCodeModelType ClassType = new HeronCodeModelType(typeof(HeronClass));
-        public static HeronCodeModelType InterfaceType = new HeronCodeModelType(typeof(HeronInterface));
-        public static HeronCodeModelType EnumType = new HeronCodeModelType(typeof(HeronEnum));
+        public static HeronCodeModelType ModuleType = new HeronCodeModelType(typeof(ModuleDefn));
+        public static HeronCodeModelType ClassType = new HeronCodeModelType(typeof(ClassDefn));
+        public static HeronCodeModelType InterfaceType = new HeronCodeModelType(typeof(InterfaceDefn));
+        public static HeronCodeModelType EnumType = new HeronCodeModelType(typeof(EnumDefn));
         public static HeronCodeModelType FieldDefnType = new HeronCodeModelType(typeof(FieldDefn));
         public static HeronCodeModelType FunctionDefnType = new HeronCodeModelType(typeof(FunctionDefn));
         public static HeronCodeModelType FormalArg = new HeronCodeModelType(typeof(FormalArg));

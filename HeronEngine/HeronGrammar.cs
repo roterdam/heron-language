@@ -38,6 +38,11 @@ namespace HeronEngine
             return Opt((r + Star(Token(",") + NoFail(r))));
         }
 
+        public static Rule SemiColonList(Rule r)
+        {
+            return Opt((r + Star(Token(";") + NoFail(r))));
+        }
+
         public static Rule Paranthesized(Rule r)
         {
             return (Token("(") + NoFail(r + Token(")")));
@@ -76,14 +81,19 @@ namespace HeronEngine
         public static Rule Literal = (StringLiteral | CharLiteral | NumLiteral) + WS;
         #endregion
 
+        #region type expression rules
+        public static Rule TypeArgs = Store("typeargs", (CharSeq("<") + NoFail(Delay("TypeExpr", () => TypeExpr) + Token(">"))));
+        public static Rule TypeName = Store("name", (Ident + Star((Token(".") + NoFail(Ident)))));
+        public static Rule Nullable = Store("nullable", CharSeq("?"));
+        public static Rule TypeExpr = Store("type", (TypeName + Opt(TypeArgs) + Opt(Nullable) + WS));
+        public static Rule TypeDecl = Token(":") + NoFail(TypeExpr);
+        public static Rule TypeExprList = Token("{") + Star(TypeExpr + NoFail(Eos)) + NoFail(Token("}"));
+        #endregion 
+
         #region expression rules
         public static Rule SpecialDelimiter = Token("forall");
         public static Rule SpecialName = Token(Store("specialname", CharSeq("null") | CharSeq("true") | CharSeq("false")));
         public static Rule Name = Store("name", Not(SpecialDelimiter) + (Symbol | Ident)) + WS;
-        public static Rule TypeArgs = Store("typeargs", (CharSeq("<") + NoFail(Delay("TypeExpr", () => TypeExpr) + Token(">"))));
-        public static Rule TypeName = Store("name", (Ident + Star((Token(".") + NoFail(Ident)))));
-	    public static Rule TypeExpr = Store("type", (TypeName + Opt(TypeArgs) + WS));
-	    public static Rule TypeDecl = Token(":") + NoFail(TypeExpr);
         public static Rule Arg = Store("arg", Name + Opt(TypeDecl));
         public static Rule ArgList = Store("arglist", (Token("(") + CommaList(Arg) + NoFail(Token(")"))));
         public static Rule DelayedStatement = Delay("Statement", () => Statement);
@@ -91,7 +101,7 @@ namespace HeronEngine
         public static Rule AnonFxn = Store("anonfxn", Token("function") + NoFail(ArgList + Opt(TypeDecl) + CodeBlock));
         public static Rule ParanthesizedExpr = Store("paranexpr", Paranthesized(Opt(Delay("Expr", () => Expr))));
         public static Rule BracketedExpr = Store("bracketedexpr", Bracketed(Opt(Delay("Expr", () => Expr))));
-        public static Rule NewExpr = Store("new", Token("new") + NoFail(TypeExpr + ParanthesizedExpr));
+        public static Rule NewExpr = Store("new", Token("new") + NoFail(TypeExpr + ParanthesizedExpr) + Opt(Token("from") + Expr));
         public static Rule SelectExpr = Store("select", Token("select") + NoFail(Token("(") + Name + Token("from") + Delay("Expr", () => Expr) + Token(")") + Delay("Expr", () => Expr)));
         public static Rule AccumulateExpr = Store("accumulate", Token("accumulate") + NoFail(Token("(") + Name + Delay("Initializer", () => Initializer) + Token("forall") + Name + Token("in") + Delay("Expr", () => Expr) + Token(")") + Delay("Expr", () => Expr)));
         public static Rule MapEachExpr = Store("mapeach", Token("mapeach") + NoFail(Token("(") + Name + Token("in") + Delay("Expr", () => Expr) + Token(")") + NoFail(Delay("Expr", () => Expr))));
@@ -121,21 +131,23 @@ namespace HeronEngine
 	    public static Rule Statement = (CodeBlock | VarDecl | IfStatement | SwitchStatement | ForEachStatement | ForStatement | WhileStatement | ReturnStatement | DeleteStatement | ExprStatement | EmptyStatement);
         #endregion
 
+        #region meta-information rules
+        public static Rule Annotation = Store("annotation", Expr);
+        public static Rule Annotations = Store("annotations", Token("[") + NoFail(CommaList(Annotation) + Token("]")));
+        #endregion structural rules
+
         #region structural rules
         public static Rule Field = Store("field", Name + Opt(TypeDecl) + Eos);
         public static Rule FunDecl = Store("fundecl", Name + ArgList + Opt(TypeDecl));
         public static Rule EOSOrCodeBlock = Eos | CodeBlock;
         public static Rule EmptyMethod = Store("method", FunDecl + NoFail(Eos));
         public static Rule Method = Store("method", FunDecl + NoFail(CodeBlock));
-        public static Rule Annotation = Store("annotation", Ident + Opt(Initializer));
-        public static Rule Annotations = Store("annotations", Token("[") + NoFail(CommaList(Annotation) + Token("]")));
-        public static Rule TypeExprList = Token("{") + Star(TypeExpr + NoFail(Eos)) + NoFail(Token("}"));
         public static Rule Implements = Store("implements", Token("implements") + NoFail(TypeExprList));
         public static Rule Inherits = Store("inherits", Token("inherits") + NoFail(BracedGroup(TypeExpr + NoFail(Eos))));
         public static Rule Fields = Store("fields", Token("fields") + NoFail(BracedGroup(Field)));
         public static Rule Methods = Store("methods", Token("methods") + NoFail(BracedGroup(Method)));
         public static Rule EmptyMethods = Store("methods", Token("methods") + NoFail(BracedGroup(EmptyMethod)));
-        public static Rule Import = Store("import", Name + NoFail(Eos));
+        public static Rule Import = Store("import", Name + Opt(Token("as") + Name) + NoFail(Eos));
         public static Rule Imports = Store("imports", Token("imports") + NoFail(BracedGroup(Import)));
         public static Rule ClassBody = NoFail(Token("{") + Opt(Inherits) + Opt(Implements) + Opt(Fields) + Opt(Methods) + Token("}"));
         public static Rule Class = Store("class", Opt(Annotations) + Token("class") + NoFail(Name) + ClassBody);
@@ -143,8 +155,9 @@ namespace HeronEngine
         public static Rule EnumValue = Name + Eos;
         public static Rule EnumValues = Store("values", BracedGroup(EnumValue));
         public static Rule Enum = Store("enum", Opt(Annotations) + Token("enum") + NoFail(Name + EnumValues));
-        public static Rule ModuleElement = Class | Interface | Enum;
-        public static Rule Module = Store("module", Token("module") + NoFail(Name + BracedGroup(ModuleElement)));
+        public static Rule TypeDefinition = Class | Interface | Enum;
+        public static Rule ModuleBody = Store("modulebody", NoFail(Token("{") + Opt(Imports) + Opt(Fields) + Opt(Methods) + Token("}")));
+        public static Rule Module = Store("module", Opt(Annotations) + Token("module") + NoFail(Name) + ModuleBody + Star(TypeDefinition));
         public static Rule ScriptElement = VarDecl | Method;
         public static Rule Script = Store("script", Token("script") + NoFail(Name + Eos + Star(ScriptElement)));
         public static Rule File = (Module | Script) + EndOfInput;

@@ -1,0 +1,20 @@
+module TestModule1 
+{
+  fields {
+    // State associated with particular module instances.
+    x : int 
+  }
+  methods {
+    // A module initializer
+    Constructor(n : Int) {
+      x = n;
+    }
+  }
+}
+
+class C {
+	methods {
+		Get() : Int { return M.x; }
+		Set(n : Int) { M.x = n; }
+	} 
+}

@@ -35,14 +35,14 @@ namespace HeronEngine
             if (type.name == t.name)
                 return obj;
 
-            if (type is HeronClass)
+            if (type is ClassDefn)
             {
                 ClassInstance inst = obj as ClassInstance;
                 if (inst == null)
                     throw new Exception("Expected an instance of a class");
                 return inst.As(t);
             }
-            else if (type is HeronInterface)
+            else if (type is InterfaceDefn)
             {
                 InterfaceInstance ii = obj as InterfaceInstance;
                 if (ii == null)
