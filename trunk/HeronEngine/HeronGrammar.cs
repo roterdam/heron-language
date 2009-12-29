@@ -79,6 +79,7 @@ namespace HeronEngine
         public static Rule BinaryLiteral = CharSeq("0b") + NoFail(BinaryValue);
         public static Rule NumLiteral = HexLiteral | BinaryLiteral | FloatLiteral | IntegerLiteral;
         public static Rule Literal = (StringLiteral | CharLiteral | NumLiteral) + WS;
+        public static Rule Eos = Token(";");
         #endregion
 
         #region type expression rules
@@ -91,6 +92,7 @@ namespace HeronEngine
         #endregion 
 
         #region expression rules
+        public static Rule NestedExpr = Delay("Expr", () => Expr);
         public static Rule SpecialDelimiter = Token("forall");
         public static Rule SpecialName = Token(Store("specialname", CharSeq("null") | CharSeq("true") | CharSeq("false")));
         public static Rule Name = Store("name", Not(SpecialDelimiter) + (Symbol | Ident)) + WS;
@@ -101,16 +103,15 @@ namespace HeronEngine
         public static Rule AnonFxn = Store("anonfxn", Token("function") + NoFail(ArgList + Opt(TypeDecl) + CodeBlock));
         public static Rule ParanthesizedExpr = Store("paranexpr", Paranthesized(Opt(Delay("Expr", () => Expr))));
         public static Rule BracketedExpr = Store("bracketedexpr", Bracketed(Opt(Delay("Expr", () => Expr))));
-        public static Rule NewExpr = Store("new", Token("new") + NoFail(TypeExpr + ParanthesizedExpr) + Opt(Token("from") + Expr));
-        public static Rule SelectExpr = Store("select", Token("select") + NoFail(Token("(") + Name + Token("from") + Delay("Expr", () => Expr) + Token(")") + Delay("Expr", () => Expr)));
-        public static Rule AccumulateExpr = Store("accumulate", Token("accumulate") + NoFail(Token("(") + Name + Delay("Initializer", () => Initializer) + Token("forall") + Name + Token("in") + Delay("Expr", () => Expr) + Token(")") + Delay("Expr", () => Expr)));
-        public static Rule MapEachExpr = Store("mapeach", Token("mapeach") + NoFail(Token("(") + Name + Token("in") + Delay("Expr", () => Expr) + Token(")") + NoFail(Delay("Expr", () => Expr))));
+        public static Rule NewExpr = Store("new", Token("new") + NoFail(TypeExpr + ParanthesizedExpr) + Opt(Token("from") + NestedExpr));
+        public static Rule SelectExpr = Store("select", Token("select") + NoFail(Token("(") + Name + Token("from") + NestedExpr + Token(")") + NestedExpr));
+        public static Rule AccumulateExpr = Store("accumulate", Token("accumulate") + NoFail(Token("(") + Name + Delay("Initializer", () => Initializer) + Token("forall") + Name + Token("in") +NestedExpr + Token(")") +NestedExpr));
+        public static Rule MapEachExpr = Store("mapeach", Token("mapeach") + NoFail(Token("(") + Name + Token("in") + NestedExpr + Token(")") + NoFail(Delay("Expr", () => Expr))));
         public static Rule BasicExpr = (NewExpr | MapEachExpr | SelectExpr | AccumulateExpr | AnonFxn | SpecialName | Name | Literal | ParanthesizedExpr | BracketedExpr);
         public static Rule Expr = Store("expr", Plus(BasicExpr));
         #endregion
 
         #region statement related rules
-        public static Rule Eos = Token(";");
         public static Rule Initializer = (Token("=") + NoFail(Expr));
         public static Rule DeleteStatement = Store("delete", Token("delete") + NoFail(Expr + Eos));
         public static Rule VarDecl = Store("vardecl", Token("var") + NoFail(Name + Opt(TypeDecl) + Opt(Initializer) + Eos));
@@ -156,7 +157,7 @@ namespace HeronEngine
         public static Rule EnumValues = Store("values", BracedGroup(EnumValue));
         public static Rule Enum = Store("enum", Opt(Annotations) + Token("enum") + NoFail(Name + EnumValues));
         public static Rule TypeDefinition = Class | Interface | Enum;
-        public static Rule ModuleBody = Store("modulebody", NoFail(Token("{") + Opt(Imports) + Opt(Fields) + Opt(Methods) + Token("}")));
+        public static Rule ModuleBody = Store("modulebody", NoFail(Token("{") + Opt(Imports) + Opt(Inherits) + Opt(Fields) + Opt(Methods) + Token("}")));
         public static Rule Module = Store("module", Opt(Annotations) + Token("module") + NoFail(Name) + ModuleBody + Star(TypeDefinition));
         public static Rule ScriptElement = VarDecl | Method;
         public static Rule Script = Store("script", Token("script") + NoFail(Name + Eos + Star(ScriptElement)));

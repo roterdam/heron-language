@@ -69,7 +69,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="self"></param>
         /// <param name="env"></param>
-        /// <param name="args"></param>
+        /// <param name="funcs"></param>
         /// <returns></returns>
         public HeronValue Invoke(HeronValue self, VM vm, HeronValue[] args)
         {

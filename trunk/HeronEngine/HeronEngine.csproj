@@ -158,6 +158,7 @@
     <None Include="tests\TestInheritance.heron" />
     <None Include="tests\TestInheritedConstructors.heron" />
     <None Include="tests\TestInterfaces.heron" />
+    <None Include="tests\TestModuleInheritance.heron" />
     <None Include="tests\TestOutput.heron" />
     <None Include="tests\TestRandom.heron" />
     <None Include="tests\TestReturn.heron" />

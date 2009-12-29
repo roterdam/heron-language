@@ -95,5 +95,17 @@ namespace HeronEngine
         {
             return PrimitiveTypes.InterfaceType;
         }
+
+        public override int GetHierarchyDepth()
+        {
+            int r = 1;
+            foreach (HeronType t in basetypes)
+            {
+                int tmp = t.GetHierarchyDepth() + 1;
+                if (tmp > r)
+                    r = tmp;
+            }
+            return r;
+        }
     }
 }

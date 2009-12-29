@@ -92,7 +92,7 @@ namespace HeronEngine
         /// <summary>
         /// Load the config file if specified in the command-line argument list
         /// </summary>
-        /// <param name="args"></param>
+        /// <param name="funcs"></param>
         static public void LoadConfig()
         {
             string configFile = Util.GetExeDir() + "\\config.xml";
@@ -103,7 +103,7 @@ namespace HeronEngine
         /// <summary>
         /// Entry point for the application. 
         /// </summary>
-        /// <param name="args"></param>
+        /// <param name="funcs"></param>
         static public void Main(string[] args)
         {
             if (args.Length != 1) 

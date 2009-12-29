@@ -96,7 +96,7 @@ namespace HeronEngine
         }
 
         [HeronVisible]
-        public void AddInterface(HeronType i)
+        public void AddImplementedInterface(HeronType i)
         {
             if (i == null)
                 throw new Exception("Cannot add 'null' as an interface");
@@ -108,7 +108,7 @@ namespace HeronEngine
             i.AddField("this", i);
 
             foreach (FieldDefn field in fields)
-                i.AddField(field.name, null);
+                i.AddField(field.name, HeronValue.Null);
 
             if (GetBaseClass() != null)
             {
@@ -257,6 +257,24 @@ namespace HeronEngine
             if (fs.Count != 0)
                 return new FunDefnListValue(Null, name, fs);
             return base.GetFieldOrMethod(name);
+        }
+
+        public bool HasBaseClass()
+        {
+            return baseclass != null;
+        }
+
+        public string GetInheritedClassName()
+        {
+            return baseclass.name;
+        }
+
+        public override int GetHierarchyDepth()
+        {
+            if (HasBaseClass())
+                return 1 + GetBaseClass().GetHierarchyDepth();
+            else
+                return 1;
         }
         #endregion
     }

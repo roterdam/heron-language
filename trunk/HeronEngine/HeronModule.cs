@@ -26,6 +26,7 @@ namespace HeronEngine
         {
             program = prog;
             this.name = name;
+            types.Add(name, this);
         }
 
         public override HeronType GetHeronType()
@@ -140,6 +141,21 @@ namespace HeronEngine
         [HeronVisible]
         public HeronType FindType(string s)
         {
+            HeronType r = FindTypeLocally(s);
+            if (r != null)
+                return r;
+            foreach (ModuleDefn def in GetImportedModuleDefns())
+            {
+                r = def.FindTypeLocally(s);
+                if (r != null)
+                    return r;
+            }
+            return null;
+        }
+
+        [HeronVisible]
+        public HeronType FindTypeLocally(string s)
+        {
             if (types.ContainsKey(s))
                 return types[s];
             return null;
@@ -169,10 +185,13 @@ namespace HeronEngine
         }
         #endregion
 
+
         public override HeronValue Instantiate(VM vm, HeronValue[] args, ModuleInstance m)
         {
             ModuleInstance r = new ModuleInstance(this, m);
             AddFields(r, m);
+            foreach (string s in importedAliases.Keys)
+                r.AddField(s, HeronValue.Null);
             CallConstructor(vm, args, m, r);
             return r;
         }
@@ -187,11 +206,40 @@ namespace HeronEngine
             return importedModules;
         }
 
-        public void AddImport(string sModName, string sModAlias)
+        public void AddImport(string sModAlias, string sModName)
         {
             importedAliases.Add(sModAlias, sModName);
-            if (!importedAliases.ContainsValue(sModName))
+            if (!importedModules.Contains(sModName))
                 importedModules.Add(sModName);
+        }
+
+        public bool IsImportedModule(string sModName)
+        {
+            return GetImportedModuleDefn(sModName) != null;
+        }
+
+        public ModuleDefn GetImportedModuleDefn(string sModName)
+        {
+            foreach (ModuleDefn def in GetImportedModuleDefns())
+                if (def.name == sModName)
+                    return def;
+            return null;
+        }
+
+        public new void ResolveTypes()
+        {
+            if (HasBaseClass())
+            {
+                string s = GetInheritedClassName();
+                ModuleDefn baseModule = program.GetModule(s);
+                SetBaseClass(baseModule);
+            }
+
+            foreach (InterfaceDefn i in GetInterfaces())
+                i.ResolveTypes();
+            foreach (ClassDefn c in GetClasses())
+                c.ResolveTypes();
+            base.ResolveTypes();
         }
     }
 }

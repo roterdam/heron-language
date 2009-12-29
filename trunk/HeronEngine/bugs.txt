@@ -12,6 +12,7 @@ Features
 - I would like to explore implementing persistent structures in Heron
 - I really want hash-tables.
 - Annotations is getting bumped to 1.1
+- I may want modules (and maybe classes to) to have multiple base classes
 
 Research Directions
 ===================

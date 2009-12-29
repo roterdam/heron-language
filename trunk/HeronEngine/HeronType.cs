@@ -127,7 +127,7 @@ namespace HeronEngine
         /// can be instantiated (not enums or interfaces).
         /// </summary>
         /// <param name="vm"></param>
-        /// <param name="args"></param>
+        /// <param name="funcs"></param>
         /// <param name="m"></param>
         /// <returns></returns>
         public virtual HeronValue Instantiate(VM vm, HeronValue[] args, ModuleInstance m)
@@ -185,6 +185,11 @@ namespace HeronEngine
             return name;
         }
         #endregion
+
+        public virtual int GetHierarchyDepth()
+        {
+            return 1;
+        }
     }
 
     /// <summary>
