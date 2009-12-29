@@ -172,14 +172,29 @@ namespace HeronEngine
             return m;
         }
 
-        public string FindModulePath(string sModule)
+        public bool FindModulePathInDir(string sModule, string sDir, out string sResult)
         {
+            foreach (string sExt in Config.extensions)
+            {
+                sResult = sDir + "//" + sModule + sExt;
+                if (File.Exists(sResult)) return true;
+            }
+            sResult = "";
+            return false;
+        }
+
+        public string FindModulePath(string sModule, string sCurrentPath)
+        {
+            string sResult;
+            if (FindModulePathInDir(sModule, sCurrentPath, out sResult))
+                return sResult;
+
             foreach (String sPath in Config.inputPath)
             {
-                string sFile = sPath + @"/" + sModule;
-                if (File.Exists(sFile))
-                    return sFile;
+                if (FindModulePathInDir(sModule, sPath, out sResult))
+                    return sResult;
             }
+
             throw new Exception("Could not find module : " + sModule);
         }
 
@@ -194,7 +209,7 @@ namespace HeronEngine
             {
                 foreach (string s in modules)
                 {
-                    string sPath = FindModulePath(s);
+                    string sPath = FindModulePath(s, Path.GetDirectoryName(sFile));
                     LoadModule(sFile);
                 }
 

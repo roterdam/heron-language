@@ -706,6 +706,7 @@ namespace HeronEngine
         [HeronVisible] public FormalArgs formals;
         [HeronVisible] public CodeBlock body;
         [HeronVisible] public HeronType rettype;
+        [HeronVisible] public bool nullable;
 
         private FunctionDefn function;
 

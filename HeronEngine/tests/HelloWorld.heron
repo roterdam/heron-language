@@ -1,13 +1,14 @@
 ﻿module HelloWorld
 {
-	class Main
+	methods
 	{
-		methods
+		Constructor()
 		{
-			Constructor()
-			{
-				Console.WriteLine("Hello World");
-			}
+		}
+		
+		Main()			
+		{
+			Console.WriteLine("Hello World");
 		}
 	}
 }

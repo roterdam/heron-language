@@ -22,6 +22,8 @@ namespace HeronEngine
         public string name;
         [HeronVisible]
         public HeronType type = PrimitiveTypes.AnyType;
+        [HeronVisible]
+        public bool nullable = false;
 
         public override HeronType GetHeronType()
         {
@@ -53,6 +55,8 @@ namespace HeronEngine
         public HeronType parent;
         [HeronVisible]
         public HeronType rettype;
+        [HeronVisible]
+        public bool nullable;
 
         public FunctionDefn(HeronType parent)
         {

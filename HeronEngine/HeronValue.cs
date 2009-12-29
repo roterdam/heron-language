@@ -29,7 +29,6 @@ namespace HeronEngine
     {
         public static VoidValue Void = new VoidValue();
         public static NullValue Null = new NullValue();
-        public static UndefinedValue Undefined = new UndefinedValue();
 
         public HeronValue()
         {            
@@ -174,6 +173,7 @@ namespace HeronEngine
         }
     }
 
+    #region special values
     /// <summary>
     /// Used to represent void types, which are non-value returned from a function.
     /// </summary>
@@ -218,23 +218,9 @@ namespace HeronEngine
             }
         }
     }
+    #endregion
 
-    /// <summary>
-    /// Not currently used 
-    /// </summary>
-    public class UndefinedValue : HeronValue
-    {
-        public override string ToString()
-        {
-            return "undefined";
-        }
-
-        public override HeronType GetHeronType()
-        {
-            return PrimitiveTypes.UndefinedType;
-        }
-    }
-
+    #region user defined type value
     /// <summary>
     /// An instance of a Heron class. A HeronObject is more general in that it includes 
     /// primitive objects and .NET objects which are not part of the ClassDefn 
@@ -606,7 +592,9 @@ namespace HeronEngine
             return LookupImportedModuleInstance(name);
         }
     }
+    #endregion
 
+    #region primitive values
     public abstract class PrimitiveTemplate<T> : HeronValue
     {
         T val;
@@ -891,5 +879,6 @@ namespace HeronEngine
             return new CharValue(GetValue()[index.GetValue()]);
         }
     }
+    #endregion
 }
 

@@ -159,22 +159,32 @@ namespace HeronEngine
         /// <returns></returns>
         public override HeronValue Instantiate(VM vm, HeronValue[] args, ModuleInstance m)
         {
-            // TODO: this needs to be optimized
             ClassInstance r = new ClassInstance(this, m);
             AddFields(r, m);
-            // This is a last minute computation of the constructor list
+            CallConstructor(vm, args, m, r);
+            return r;
+        }
+
+        protected void CallConstructor(VM vm, HeronValue[] args, ModuleInstance m, ClassInstance r)
+        {
             List<FunctionDefn> ctorlist = new List<FunctionDefn>(GetMethods("Constructor"));
+
             if (ctorlist == null)
-                return r;
+                return;
             ctors = new FunDefnListValue(r, "Constructor", ctorlist);
             if (ctors.Count == 0)
-                return r;
+            {
+                if (args.Length > 0)
+                    throw new Exception("No constructors have been defined and default constructor accepts no arguments");
+                else
+                    return;
+            }
 
             FunctionValue o = ctors.Resolve(vm, args);
             if (o == null)
-                return r; // No matching constructor
+                throw new Exception("No matching constructor could be found");
+
             o.Apply(vm, args);
-            return r;
         }
 
         [HeronVisible]

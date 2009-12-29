@@ -45,6 +45,8 @@ namespace HeronEngine
         public string name;
         [HeronVisible]
         public HeronType type = PrimitiveTypes.AnyType;
+        [HeronVisible]
+        public bool nullable = false;
 
         public void ResolveTypes()
         {
