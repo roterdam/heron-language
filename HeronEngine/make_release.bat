@@ -1,4 +1,5 @@
 mkdir Release
+mkdir Release\lib
 mkdir Release\tests
 mkdir Release\src
 mkdir Release\src\Properties
@@ -6,6 +7,8 @@ mkdir Release\src\Tests
 del Release\*.* /Q /S
 copy tests\*.* Release\tests
 copy tests\*.* Release\src\tests
+copy lib\*.* Release\lib
+copy lib\*.* Release\src\lib
 copy Properties\*.cs Release\src\Properties
 copy *.cs Release\src
 copy Properties\*.cs Release\src

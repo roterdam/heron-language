@@ -50,8 +50,10 @@ namespace HeronEngine
         {
             yield return this;
             foreach (Expression x in GetSubExpressions())
-                foreach (Expression y in x.GetExpressionTree())
-                    yield return y;
+                if (x != null)
+                    foreach (Expression y in x.GetExpressionTree())
+                        if (y != null)
+                            yield return y;
         }
 
         public void ResolveAllTypes()
@@ -259,12 +261,7 @@ namespace HeronEngine
             
             if (modexpr == null)
             {
-                // TODO: 
-                // Figure out which moduleDef we currently are in.
-                // figure out which moduleDef instance makes the most sense for this type.
-                // Remember, each type belong 
-                throw new NotImplementedException();
-                // return type.Instantiate(vm, argvals, moduleDef);
+                return type.Instantiate(vm, argvals, null);
             }
             else
             {

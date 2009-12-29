@@ -161,10 +161,10 @@ namespace HeronEngine
             }
         }
 
-        public FunDefnListValue(HeronValue self, string name, IEnumerable<FunctionDefn> args)
+        public FunDefnListValue(HeronValue self, string name, IEnumerable<FunctionDefn> funcs)
         {
             this.self = self;
-            foreach (FunctionDefn f in args)
+            foreach (FunctionDefn f in funcs)
                 functions.Add(f);
             this.name = name;
             foreach (FunctionDefn f in functions)
@@ -176,7 +176,7 @@ namespace HeronEngine
         /// This is a very primitive resolution function that only looks at the number of arguments 
         /// provided. A more sophisticated function would look at the types.
         /// </summary>
-        /// <param name="args"></param>
+        /// <param name="funcs"></param>
         /// <returns></returns>
         public FunctionValue Resolve(VM vm, HeronValue[] args)
         {
@@ -201,7 +201,7 @@ namespace HeronEngine
         /// in this list is the best match.
         /// </summary>
         /// <param name="list"></param>
-        /// <param name="args"></param>
+        /// <param name="funcs"></param>
         /// <returns></returns>
         public FunctionValue FindBestMatch(List<FunctionValue> list, HeronValue[] args)
         {
@@ -234,7 +234,31 @@ namespace HeronEngine
             }
 
             Trace.Assert(tmp.Count > 1);
-            throw new Exception("Could not resolve function, several matched perfectly");
+            
+            // There are multiple functions
+            // Choose the function which is the most derived type.
+            // This is a pretty awful hack to make up for a bad design. 
+            int n = 0;
+            FunctionValue best = null;
+            foreach (FunctionValue fv in list)
+            {
+                int depth = fv.GetDefn().parent.GetHierarchyDepth();
+                if (depth > n)
+                {
+                    n = depth;
+                    best = fv;
+                }
+                else if (depth == n)
+                {
+                    // Ambiguous match at this depth.
+                    best = null;
+                }
+            }
+
+            if (best == null)
+                throw new Exception("Ambiguous function match");
+
+            return best;
         }
 
         public override HeronValue Apply(VM vm, HeronValue[] args)

@@ -58,7 +58,7 @@ namespace HeronEngine
         /// Treats this value as a function and calls it.
         /// </summary>
         /// <param name="vm"></param>
-        /// <param name="args"></param>
+        /// <param name="funcs"></param>
         /// <returns></returns>
         public virtual HeronValue Apply(VM vm, HeronValue[] args)
         {
@@ -552,8 +552,6 @@ namespace HeronEngine
     /// </summary>
     public class ModuleInstance : ClassInstance
     {
-        Dictionary<string, ModuleInstance> importedModules = new Dictionary<string, ModuleInstance>();
- 
         public ModuleInstance(ModuleDefn m, ModuleInstance i)
             : base(m, i)
         {
@@ -570,26 +568,6 @@ namespace HeronEngine
             if (m == null)
                 throw new Exception("Missing module");
             return m;
-        }
-
-        public ModuleInstance LookupImportedModuleInstance(string s)
-        {
-            if (!importedModules.ContainsKey(s))
-                return null;
-            return importedModules[s];
-        }
-
-        public IEnumerable<ModuleInstance> GetImportedModuleInstances()
-        {
-            return importedModules.Values;
-        }
-
-        public override HeronValue GetFieldOrMethod(string name)
-        {
- 	        HeronValue r = base.GetFieldOrMethod(name);
-            if (r != null)
-                return r;
-            return LookupImportedModuleInstance(name);
         }
     }
     #endregion

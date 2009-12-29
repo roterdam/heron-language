@@ -58,7 +58,7 @@ namespace HeronEngine
         {
             this.function = f;
             this.self = self;
-            this.moduleInstance = self.GetModuleInstance();
+            this.moduleInstance = self == null ? null : self.GetModuleInstance();
             if (function != null)
                 type = function.GetContainingType();
             if (type != null)
@@ -104,19 +104,6 @@ namespace HeronEngine
                     r = mi.GetFieldOrMethod(s);
                     if (r != null)
                         return r;
-
-                    // Look in the methods of all the linked modules. 
-                    List<HeronValue> candidates = new List<HeronValue>();
-                    foreach (ModuleInstance mi2 in mi.GetImportedModuleInstances())
-                    {
-                        HeronValue tmp = mi2.GetMethods(s);
-                        if (tmp != null)
-                            candidates.Add(tmp);
-                    }
-                    if (candidates.Count > 1)
-                        throw new Exception("Ambiguous function match. Multiple modules have methods named: " + s);
-                    if (candidates.Count == 1)
-                        return candidates[0];
                 }
             }
 
@@ -145,24 +132,32 @@ namespace HeronEngine
             return null;
         }
 
-        public HeronValue LookupVar(string s)
+        public HeronValue GetVar(string s)
         {
             foreach (Scope tbl in scopes)
                 if (tbl.ContainsKey(s))
                     return tbl[s];
-            return null;
+            throw new Exception("No field named '" + s + "' could be found");
         }
 
-        // TODO: evalute for removal.  
-        public HeronValue LookupField(string s)
+        public HeronValue GetField(string s)
         {
-            if (self == null)
-                return null;
+            if (self != null && self.HasField(s))
+                return self.GetField(s);
+            else if (moduleInstance != null && moduleInstance.HasField(s))
+                return moduleInstance.GetField(s);
+            else
+                throw new Exception("No field named '" + s + "' could be found");
+        }
 
-            if (self.HasField(s))
-                return self.GetFieldOrMethod(s);
-
-            return null;
+        public void SetField(string s, HeronValue v)
+        {
+            if (self != null && self.HasField(s))
+                self.SetField(s, v);
+            else if (moduleInstance != null && moduleInstance.HasField(s))
+                moduleInstance.SetField(s, v);
+            else
+                throw new Exception("No field named '" + s + "' could be found");
         }
 
         public bool HasVar(string s)
@@ -195,9 +190,11 @@ namespace HeronEngine
 
         public bool HasField(string s)
         {
-            if (self == null)
-                return false;
-            return self.HasField(s);
+            if (self != null && self.HasField(s))
+                return true;
+            if (moduleInstance != null && moduleInstance.HasField(s))
+                return true;
+            return false;
         }
 
         public override string ToString()

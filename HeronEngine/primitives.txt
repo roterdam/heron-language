@@ -209,23 +209,13 @@ primitive Type
   }
   methods
   {
-    GetModule() : HeronEngine.HeronModule;
+    GetModule() : HeronEngine.ModuleDefn;
     GetMethod(name : System.String) : HeronEngine.ExposedMethodValue;
     GetField(name : System.String) : HeronEngine.FieldDefn;
     Equals(obj : System.Object) : System.Boolean;
     GetHashCode() : System.Int32;
     ToString() : System.String;
-    GetName() : HeronEngine.StringValue;
-  }
-}
-primitive Undefined
-{
-  fields
-  {
-  }
-  methods
-  {
-    ToString() : System.String;
+    GetName() : System.String;
   }
 }
 primitive Void

@@ -134,12 +134,19 @@ namespace HeronEngine
         /// <param name="m"></param>
         public void AddNewDependencies(ModuleDefn m)
         {
-            foreach (ModuleDefn def in m.GetImportedModuleDefns())
+            foreach (string s in m.GetImportedModuleNames())
             {
-                if (!dependencies.ContainsKey(def.name))
+                if (!dependencies.ContainsKey(s))
                 {
-                    dependencies.Add(def.name, def);
+                    dependencies.Add(s, null);
                 }
+            }
+
+            // There may also be an imported class
+            if (m.HasBaseClass())
+            {
+                string s = m.GetInheritedClassName();
+                dependencies.Add(s, null);
             }
         }
 

@@ -1,0 +1,14 @@
+module TestModuleInheritance
+{
+	inherits
+	{
+		HelloWorld;
+	}	
+	methods
+	{				
+		Main()
+		{
+			base.Main();
+		}
+	}	
+}

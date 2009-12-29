@@ -57,13 +57,8 @@ namespace HeronEngine
         }
 
         #region construct parsing functions
-        static public ModuleDefn CreateModule(HeronProgram p, AstNode x)
+        static private void CreateModuleDefn(HeronProgram p, ModuleDefn m, AstNode x)
         {
-            AstNode nameNode = x.GetChild(0);
-            ModuleDefn r = new ModuleDefn(p, nameNode.ToString());
-
-            AstNode bodyNode = x.GetChild(1);
-
             AstNode imports = x.GetChild("imports");
             if (imports != null)
             {
@@ -73,8 +68,22 @@ namespace HeronEngine
                     string modAlias = modDefName;
                     if (import.GetChild(1) != null)
                         modAlias = import.GetChild(1).ToString();
-                    r.AddImport(modDefName, modAlias);
+                    m.AddImport(modAlias, modDefName);
                 }
+            }
+
+            AstNode inherits = x.GetChild("inherits");
+            if (inherits != null)
+            {
+                if (inherits.GetNumChildren() != 1)
+                    throw new Exception("A module can only inherit from exactly one other module");
+                AstNode type = inherits.GetChild(0);
+                if (type.Label != "typeexpr")
+                    throw new Exception("Can only inherit type expressions");
+                string s = GetTypeName(type, null);
+                if (s == null)
+                    throw new Exception("Could not get the inherited type name");
+                m.SetBaseClass(new UnresolvedType(s, m));
             }
 
             AstNode methods = x.GetChild("methods");
@@ -82,18 +91,26 @@ namespace HeronEngine
             {
                 foreach (AstNode node in methods.Children)
                 {
-                    FunctionDefn f = CreateFunction(node, r);
-                    r.AddMethod(f);
+                    FunctionDefn f = CreateFunction(node, m);
+                    m.AddMethod(f);
                 }
             }
 
             AstNode fields = x.GetChild("fields");
             if (fields != null)
                 foreach (AstNode node in fields.Children)
-                    r.AddField(CreateField(node));
+                    m.AddField(CreateField(node));
 
-                   
+        }
+
+        static public ModuleDefn CreateModule(HeronProgram p, AstNode x)
+        {
+            AstNode nameNode = x.GetChild(0);
+            ModuleDefn r = new ModuleDefn(p, nameNode.ToString());
+
             currentModule = r; // Sets the current module
+            AstNode bodyNode = x.GetChild(1);
+            CreateModuleDefn(p, r, bodyNode);
 
             // Now store all of the types
             for (int i=2; i < x.GetNumChildren(); ++i) {
@@ -114,7 +131,6 @@ namespace HeronEngine
                 }
             }
 
-            FinishModule(r, x);
             return r;
         }
 
@@ -204,7 +220,6 @@ namespace HeronEngine
                 main.body = cb;
             }
 
-            FinishModule(r, x);
             return r;
         }
 
@@ -227,17 +242,6 @@ namespace HeronEngine
             if (name == null)
                 throw new Exception("Could not find name node");
             return name.ToString();
-        }
-
-        static public void FinishModule(ModuleDefn m, AstNode x)
-        {
-            Trace.Assert(m.name == GetNameNode(x), "The Module and AstNode are not the same");
-            foreach (InterfaceDefn i in m.GetInterfaces())
-                i.ResolveTypes();
-            foreach (ClassDefn c in m.GetClasses())
-                c.ResolveTypes();
-            foreach (ClassDefn c in m.GetClasses())
-                c.VerifyInterfaces();
         }
 
         static public ClassDefn CreateClass(ModuleDefn m, AstNode x)
@@ -269,7 +273,7 @@ namespace HeronEngine
                     string s = GetTypeName(node, null);
                     if (s == null)
                         throw new Exception("Could not get the inherited type name");
-                    r.AddInterface(new UnresolvedType(s, m));
+                    r.AddImplementedInterface(new UnresolvedType(s, m));
                 }
             }
 
@@ -355,6 +359,9 @@ namespace HeronEngine
 
         static public string GetTypeName(AstNode x, string def)
         {
+            if (x == null)
+                return def;
+
             if (x.Label == "typeexpr")
                 return TypeToTypeName(x);
 
@@ -371,6 +378,8 @@ namespace HeronEngine
 
         static public bool IsNullable(AstNode x)
         {
+            if (x == null)
+                return false;
             Trace.Assert(x.Label == "typedecl");
             return x.GetChild("nullable") != null; 
         }

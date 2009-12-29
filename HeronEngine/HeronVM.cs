@@ -135,20 +135,17 @@ namespace HeronEngine
             InitializeVM();
         }
 
-        /// <summary>
-        /// Clears all scopes, frames, and symbols in the environment
-        /// </summary>
-        public void InitializeEnvironment()
-        {
-            frames.Clear();
-            result = null;
-            PushNewFrame(null, null);
-            PushScope();
-        }
-
         public void InitializeVM()
         {
             program = new HeronProgram("_program_");
+
+            // Clear all the frames
+            frames.Clear();
+            result = null;
+
+            // Push an empty first frame and scope
+            PushNewFrame(null, null);
+            PushScope();
 
             // Load the global types
             foreach (HeronType t in program.GetGlobal().GetTypes())
@@ -198,23 +195,38 @@ namespace HeronEngine
             throw new Exception("Could not find module : " + sModule);
         }
 
-        public void EvalFile(string sFile)
+        private void LoadDependentModules(string sFile)
         {
-            InitializeVM();
-
-            ModuleDefn m = LoadModule(sFile);
-
+            // Load any dependent modules 
             List<string> modules = new List<string>(program.GetUnloadedDependentModules());
             while (modules.Count > 0)
             {
                 foreach (string s in modules)
                 {
                     string sPath = FindModulePath(s, Path.GetDirectoryName(sFile));
-                    LoadModule(sFile);
+                    LoadModule(sPath);
                 }
 
                 modules = new List<string>(program.GetUnloadedDependentModules());
             }
+        }
+
+        public void ResolveModules()
+        {
+            foreach (ModuleDefn md in program.GetModules())
+            {
+                md.ResolveTypes();
+                foreach (ClassDefn c in md.GetClasses())
+                    c.VerifyInterfaces();
+            }
+        }
+
+        public void EvalFile(string sFile)
+        {
+            InitializeVM();
+            ModuleDefn m = LoadModule(sFile);
+            LoadDependentModules(sFile);
+            ResolveModules();
             RunModule(m);
         }
 
@@ -236,7 +248,6 @@ namespace HeronEngine
 
         public void RunModule(ModuleDefn m)
         {
-            InitializeEnvironment();
             ModuleInstance mi = m.Instantiate(this, new HeronValue[] { }, null) as ModuleInstance;
             RunMeta(mi);
             RunMain(mi);            
@@ -436,10 +447,7 @@ namespace HeronEngine
         public void SetVar(string s, HeronValue o)
         {
             Trace.Assert(o != null);
-            foreach (Frame f in frames)
-                if (f.SetVar(s, o))
-                    return;
-            throw new Exception("Could not find variable " + s);
+            frames.Peek().SetVar(s, o);
         }
 
         /// <summary>
@@ -449,8 +457,6 @@ namespace HeronEngine
         /// <returns></returns>
         public bool HasVar(string name)
         {
-            if (frames.Count == 0)
-                return false;
             return frames.Peek().HasVar(name);
         }
 
@@ -461,8 +467,6 @@ namespace HeronEngine
         /// <returns></returns>
         public bool HasField(string name)
         {
-            if (frames.Count == 0)
-                return false;
             return frames.Peek().HasField(name);
         }
 
@@ -471,11 +475,9 @@ namespace HeronEngine
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public HeronValue LookupField(string name)
+        public HeronValue GetField(string name)
         {
-            if (frames.Count == 0)
-                return null;
-            return frames.Peek().LookupField(name);
+            return frames.Peek().GetField(name);
         }
 
         /// <summary>
@@ -485,13 +487,8 @@ namespace HeronEngine
         /// <param name="val"></param>
         public void SetField(string s, HeronValue o)
         {
-            Assure(o != null, "Null cannot be passed a value");
-            if (frames.Count == 0)
-                throw new Exception("No stack frames");
-            Frame f = frames.Peek();
-            if (f.self == null)
-                throw new Exception("Not called from within a class");
-            f.self.SetField(s, o);
+            Trace.Assert(o != null);
+            frames.Peek().SetField(s, o);
         }
 
         /// <summary>
@@ -503,24 +500,19 @@ namespace HeronEngine
         /// <returns></returns>
         public HeronValue LookupName(string s)
         {
-            if (frames.Count != 0)
-            {
-                HeronValue r = frames.Peek().LookupName(s);
-                if (r != null)
-                    return r;
-            }
+            HeronValue r = frames.Peek().LookupName(s);
+            if (r != null)
+                return r;
+
             if (CurrentModuleDef != null)
-            {
                 foreach (HeronType t in CurrentModuleDef.GetTypes())
                     if (t.name == s)
                         return t;
-            }
+
             if (GlobalModuleDef != null)
-            {
                 foreach (HeronType t in GlobalModuleDef.GetTypes())
                     if (t.name == s)
                         return t;
-            }
 
             throw new Exception("Could not find '" + s + "' in the environment");
         }
@@ -588,7 +580,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="self"></param>
         /// <param name="s"></param>
-        /// <param name="args"></param>
+        /// <param name="funcs"></param>
         /// <returns></returns>
         public HeronValue Invoke(HeronValue self, string s, HeronValue[] args)
         {

@@ -10,6 +10,10 @@ module TestImport
 		Constructor()
 		{
 			hw = new HelloWorld();
+		}
+		
+		Main()
+		{
 			hw.Main();
 		}
 	}	
