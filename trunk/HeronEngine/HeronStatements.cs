@@ -218,6 +218,7 @@ namespace HeronEngine
         [HeronVisible] public Expression collection;
         [HeronVisible] public Statement body;
         [HeronVisible] public HeronType type;
+        [HeronVisible] public bool nullable;
 
         internal ForEachStatement(AstNode node)
             : base(node)

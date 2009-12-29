@@ -171,7 +171,10 @@ namespace HeronEngine
 
         public override HeronValue Instantiate(VM vm, HeronValue[] args, ModuleInstance m)
         {
-            return new ModuleInstance(this, null);
+            ModuleInstance r = new ModuleInstance(this, m);
+            AddFields(r, m);
+            CallConstructor(vm, args, m, r);
+            return r;
         }
 
         public IEnumerable<string> GetImportedModuleAliases()

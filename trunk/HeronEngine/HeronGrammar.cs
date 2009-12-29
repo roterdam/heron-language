@@ -85,8 +85,8 @@ namespace HeronEngine
         public static Rule TypeArgs = Store("typeargs", (CharSeq("<") + NoFail(Delay("TypeExpr", () => TypeExpr) + Token(">"))));
         public static Rule TypeName = Store("name", (Ident + Star((Token(".") + NoFail(Ident)))));
         public static Rule Nullable = Store("nullable", CharSeq("?"));
-        public static Rule TypeExpr = Store("type", (TypeName + Opt(TypeArgs) + Opt(Nullable) + WS));
-        public static Rule TypeDecl = Token(":") + NoFail(TypeExpr);
+        public static Rule TypeExpr = Store("typeexpr", (TypeName + Opt(TypeArgs)));
+        public static Rule TypeDecl = Store("typedecl", (Token(":") + NoFail(TypeExpr) + Opt(Nullable)));
         public static Rule TypeExprList = Token("{") + Star(TypeExpr + NoFail(Eos)) + NoFail(Token("}"));
         #endregion 
 

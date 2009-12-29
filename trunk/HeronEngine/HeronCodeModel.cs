@@ -251,7 +251,7 @@ namespace HeronEngine
                 if (inherits.GetNumChildren() != 1)
                     throw new Exception("A class can only inherit from exactly one other class");
                 AstNode type = inherits.GetChild(0);
-                if (type.Label != "type")
+                if (type.Label != "typeexpr")
                     throw new Exception("Can only inherit type expressions");
                 string s = GetTypeName(type, null);
                 if (s == null)
@@ -264,7 +264,7 @@ namespace HeronEngine
             {
                 foreach (AstNode node in implements.Children)
                 {
-                    if (node.Label != "type")
+                    if (node.Label != "typeexpr")
                         throw new Exception("Can only implement type expression");
                     string s = GetTypeName(node, null);
                     if (s == null)
@@ -355,14 +355,24 @@ namespace HeronEngine
 
         static public string GetTypeName(AstNode x, string def)
         {
-            if (x.Label == "type")
+            if (x.Label == "typeexpr")
                 return TypeToTypeName(x);
 
-            AstNode type = x.GetChild("type");
+            AstNode typedecl = x.GetChild("typedecl");
+            if (typedecl != null)
+                x = typedecl;
+
+            AstNode type = x.GetChild("typeexpr");
             if (type != null)
                 return TypeToTypeName(type);
 
             return def;
+        }
+
+        static public bool IsNullable(AstNode x)
+        {
+            Trace.Assert(x.Label == "typedecl");
+            return x.GetChild("nullable") != null; 
         }
 
         static public FieldDefn CreateField(AstNode x)
@@ -370,6 +380,7 @@ namespace HeronEngine
             FieldDefn r = new FieldDefn();
             r.name = x.GetChild("name").ToString();
             r.type = new UnresolvedType(GetTypeName(x, "Any"), currentModule);
+            r.nullable = IsNullable(x);
             return r;
         }
 
@@ -378,6 +389,7 @@ namespace HeronEngine
             FormalArg r = new FormalArg();
             r.name = x.GetChild("name").ToString();
             r.type = new UnresolvedType(GetTypeName(x, "Any"), currentModule);
+            r.nullable = IsNullable(x);
             return r;            
         }
 
@@ -396,7 +408,9 @@ namespace HeronEngine
             AstNode fundecl = x.GetChild("fundecl");            
             r.name = fundecl.GetChild("name").ToString();
             r.formals = CreateFormalArgs(fundecl.GetChild("arglist"));
-            r.rettype = new UnresolvedType(GetTypeName(x, "Void"), currentModule);
+            AstNode rt = x.GetChild("typedecl");
+            r.rettype = new UnresolvedType(GetTypeName(rt, "Void"), currentModule);
+            r.nullable = IsNullable(rt);
             AstNode codeblock = x.GetChild("codeblock");
             r.body = CreateCodeBlock(codeblock);
             return r;
@@ -519,8 +533,10 @@ namespace HeronEngine
         static public ForEachStatement CreateForEachStatement(AstNode x)
         {
             ForEachStatement r = new ForEachStatement(x);
+            
             if (x.GetNumChildren() == 3)
             {
+                // This is a foreach without a type declaration
                 r.name = x.GetChild(0).ToString();
                 r.type = new UnresolvedType("Any", currentModule);
                 r.collection = CreateExpr(x.GetChild(1));
@@ -528,8 +544,10 @@ namespace HeronEngine
             }
             else if (x.GetNumChildren() == 4)
             {
+                // This is a foreach with a type declaration
                 r.name = x.GetChild(0).ToString();
                 r.type = new UnresolvedType(GetTypeName(x.GetChild(1), "Any"), currentModule);
+                r.nullable = IsNullable(x.GetChild(1));
                 r.collection = CreateExpr(x.GetChild(2));
                 r.body = CreateStatement(x.GetChild(3));
             }
@@ -636,7 +654,7 @@ namespace HeronEngine
         {
             Assure(x, x.GetNumChildren() >= 2, "new operator must be followed by type expression and arguments in paranthesis");
             AstNode type = x.GetChild(0);
-            Assure(x, type.Label == "type", "new operator is missing type expression");
+            Assure(x, type.Label == "typeexpr", "new operator is missing type expression");
             AstNode args = x.GetChild(1);
             Assure(args, args.Label == "paranexpr", "new operator is missing argument list");
             
@@ -986,6 +1004,7 @@ namespace HeronEngine
                 AnonFunExpr r = new AnonFunExpr();
                 r.formals = CreateFormalArgs(child.GetChild("arglist"));
                 r.rettype = new UnresolvedType(GetTypeName(child, "Void"), currentModule);
+                r.nullable = (child.GetChild("typedecl") != null && child.GetChild("typedecl").GetChild("nullable") != null);
                 r.body = CreateCodeBlock(child.GetChild("codeblock"));
                 return r;
             }

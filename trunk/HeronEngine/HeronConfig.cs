@@ -23,6 +23,7 @@ namespace HeronEngine
     {
         public static List<string> inputPath = new List<string>();
         public static List<string> libs = new List<string>();
+        public static List<string> extensions = new List<string>();
         public static bool runUnitTests = false;
         public static bool outputGrammar = false;
         public static bool outputPrimitives = false;
@@ -31,7 +32,7 @@ namespace HeronEngine
         {
             inputPath.Add(Util.GetExeDir());
             inputPath.Add(Util.GetExeDir() + @"/lib");
-
+            extensions.Add(".heron");
             XmlDocument doc = new XmlDocument();
             doc.Load(s);
             XmlElement root = doc.DocumentElement;
@@ -71,6 +72,9 @@ namespace HeronEngine
                     break;
                 case "outputprimitives":
                     outputPrimitives = true;
+                    break;
+                case "extensions":
+                    extensions = ProcessStringList(e);
                     break;
             }
         }

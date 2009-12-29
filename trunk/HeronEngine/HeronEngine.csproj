@@ -138,6 +138,8 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <None Include="lib\TestModule1.heron" />
+    <None Include="lib\TestModule2.heron" />
     <None Include="tests\Factorial.heron" />
     <None Include="tests\Fibonacci.heron" />
     <None Include="tests\HelloWorld.heron" />

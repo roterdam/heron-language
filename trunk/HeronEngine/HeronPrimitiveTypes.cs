@@ -17,7 +17,6 @@ namespace HeronEngine
     {
         // The specials
         public static HeronType VoidType = new HeronType(null, typeof(VoidValue), "Void");
-        public static HeronType UndefinedType = new HeronType(null, typeof(UndefinedValue), "Undefined");
         public static HeronType NullType = new HeronType(null, typeof(NullValue), "Null");
 
         // Usual suspects 
