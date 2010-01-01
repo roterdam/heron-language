@@ -1,427 +1,437 @@
 ﻿module PrettyPrinting
 {
-	class PrettyPrinter 
+	methods
 	{
-		fields
+		Meta(p : Program)
 		{
-			indent : String;
-			atNewLine : Bool;
+			new PrettyPrinter(p);
 		}
-		methods
-		{		
-			Constructor()
-			{
-				indent = new String();
-				atNewLine = false;
-			}
-			Write(s : String)
-			{
-				if (atNewLine)
-				{
-					atNewLine = false;
-					Console.WriteLine();
-					Console.Write(indent);
-				} 
-				Console.Write(s);
-			}
-			WriteLine()
-			{
-				Write("");
-				atNewLine = true;
-			}			
-			WriteLine(s : String)
-			{
-				Write(s);
-				atNewLine = true;
-			}
-			Indent(f : Function)
-			{
-				var old_indent = indent;
-				indent = indent + "  ";
-				f();
-				indent = old_indent;				
-			}
-			BracesAround(f : Function)
-			{
-				WriteLine("{");
-				Indent(f);
-				WriteLine("}");
-			}			
-		}			
-	}
-	
-	class Meta 
-	{
-		inherits 
+		Main()
 		{
-			PrettyPrinter;
-		}
-		methods
-		{					
-			Constructor(program : HeronProgram)
-			{
-				base.Constructor();
-				foreach (m in program.GetModules())
-					Output(m);
-				WriteLine("");
-			}
-			OutputAll(xs : Seq)
-			{
-				foreach (x in xs)
-					Output(x);
-			}						
-			Output(m : HeronModule)
-			{
-				Write("module ");
-				WriteLine(m.name);
-				BracesAround(
-					function() 
-					{
-						OutputAll(m.GetClasses());
-						OutputAll(m.GetInterfaces());
-						OutputAll(m.GetEnums());
-					}
-				);	
-			}
-			OutputSection(name : String, xs : Seq)
-			{
-				WriteLine(name);
-				BracesAround(
-					function() {
-						OutputAll(xs);
-					});
-			}
-			OutputList(xs : List, sDelim : String)
-			{
-				foreach (i in 0..xs.Count() - 1) {
-					if (i > 0)
-						Write(sDelim);
-					Output(xs[i]);
-				}
-			}
-			Output(c : HeronClass)
-			{
-				Write("class ");				
-				WriteLine(c.name);
-				BracesAround(function() 
-					{
-						OutputSection("inherits", c.GetInheritedClasses());
-						OutputSection("implements", c.GetImplementedInterfaces());				
-						OutputSection("fields", c.GetFields());
-						OutputSection("methods", c.GetDeclaredMethods());
-					});
-			}
-			Output(i : HeronInterface)
-			{
-				Write("interface ");
-				WriteLine(i.name);
-				BracesAround(function()
-					{
-						OutputSection("inherits", i.GetInheritedInterfaces());
-						OutputSection("methods", i.GetDeclaredMethods());
-					});
-			}
-			Output(e : HeronEnum)
-			{
-				Write("enum ");
-				WriteLine(e.name);
-				WriteLine("{ }");
-			}
-			Output(f : FieldDefn)
-			{
-				Write(f.name);
-				OutputTypeDecl(f.type);
-				WriteLine(";");			
-			}
-			Output(t : Type)
-			{
-				Write(t.ToString());
-			}
-			OutputTypeDecl(t : Type)
-			{
-				if (t != null && t.name != "Void")
-					Write(" : " + t.name); 
-			}
-			Output(m : FunctionDefn)
-			{
-				Write(m.name);
-				Write("(");
-				OutputList(m.formals, ", ");
-				Write(")");
-				OutputTypeDecl(m.rettype);
-				WriteLine();
-				Output(m.body);
-			}
-			Output(fa : FormalArg)
-			{
-				Write(fa.name);
-				OutputTypeDecl(fa.type);
-			}			
-			OutputIndentedStatement(x)
-			{
-				if (x is CodeBlock)
-					Output(x);
-				else
-					Indent(function() { Output(x); });
-			}
-			Output(x : VariableDeclaration)
-			{
-				Write("var ");
-				Write(x.name);
-				Write(" ");
-				OutputTypeDecl(x.type);
-				if (x.value != null)
-				{
-					Write(" = ");
-					Output(x.value);
-				}
-				WriteLine(";");
-			}
-			Output(x : DeleteStatement)
-			{
-				Write("delete ");
-				Output(x.expression);
-				WriteLine(";");
-			}
-			Output(x : ExpressionStatement)
-			{
-				Output(x.expression);
-				WriteLine(";");
-			}
-			Output(x : ForEachStatement)
-			{
-				Write("foreach (");
-				Write(x.name);
-				OutputTypeDecl(x.type);
-				Write(" in ");
-				Output(x.collection);
-				WriteLine(")");
-				OutputIndentedStatement(x.body);
-			}
-			Output(x : ForStatement)
-			{
-				Write("for (");
-				Write(x.name);
-				Write(" = ");
-				Output(x.initial);
-				Write("; ");
-				Output(x.condition);
-				Write("; ");
-				Output(x.next);
-				WriteLine(")");
-				OutputIndentedStatement(x.body);
-			}
-			Output(x : CodeBlock)
-			{
-				BracesAround(
-					function() {
-						foreach (s in x.statements)
-							Output(s);
-						}
-					);
-			}
-			Output(x : IfStatement)
-			{
-				Write("if (");
-				Output(x.condition);
-				WriteLine(")");
-				OutputIndentedStatement(x.ontrue);
-				if (x.onfalse != null)
-				{
-					WriteLine("else");
-					OutputIndentedStatement(x.onfalse);
-				}
-			}
-			Output(x : WhileStatement)
-			{
-				Write("while (");
-				Output(x.condition);
-				WriteLine(")");
-				OutputIndentedStatement(x.body);
-			}
-			Output(x : ReturnStatement)
-			{
-				Write("return ");
-				Output(x.expression);
-				WriteLine(";");
-			}
-			Output(x : SwitchStatement)
-			{
-				Write("switch (");
-				Output(x.condition);
-				WriteLine(")");
-				WriteLine("{");
-				foreach (x in cases)
-					Output(x);
-				if (x.ondefault != null)
-				{
-					WriteLine("default");
-					Output(x.ondefault);
-				}
-				WriteLine("}");
-			}
-			Output(x : CaseStatement)
-			{
-				Write("case (");
-				Output(x.condition);
-				WriteLine(")");
-				OutputIndentedStatement(x.statement);
-			}
-			Output(x : Assignment)
-			{
-				Output(x.lvalue);				
-				Write(" = ");
-				Output(x.rvalue);
-			}
-			Output(x : ChooseField)
-			{
-				Output(x.self);
-				Write(".");
-				Write(x.name);
-			}
-			Output(x : ReadAt)
-			{
-				Output(x.self);
-				Write("[");
-				Output(x.index);
-				Write("]");
-			}
-			Output(x : NewExpr)
-			{
-				Write("new ");
-				Output(x.type);
-			}
-			Output(x : NullExpr)
-			{
-				Write(x.ToString());
-			}
-			Output(x : IntLiteral)
-			{
-				Write(x.ToString());
-			}
-			Output(x : BoolLiteral)
-			{
-				Write(x.ToString());
-			}
-			Output(x : FloatLiteral)
-			{
-				Write(x.ToString());
-			}
-			Output(x : CharLiteral)
-			{
-				Write(x.ToString());
-			}
-			Output(x : StringLiteral)
-			{
-				Write(x.ToString());
-			}
-			Output(x : Name)
-			{
-				Write(x.ToString());
-			}
-			Output(x : FunCall)
-			{
-				Output(x.funexpr);
-				Write("(");
-				OutputList(x.args, ", ");	
-				Write(")");
-			}
-			Output(x : UnaryOperation)
-			{
-				Write(x.operation);
-				Output(x.operand);
-			}
-			Output(x : BinaryOperation)
-			{
-				Output(x.operand1);
-				Write(" " + x.operation + " ");
-				Output(x.operand2);
-			}
-			Output(x : AnonFunExpr)
-			{
-				Write("function (");				
-				OutputList(x.formals, ", ");
-				Write(") ");
-				OutputTypeDecl(x.rettype);
-				WriteLine("");
-				Indent(function() { Output(x.body); });
-				
-			}
-			Output(x : PostIncExpr)
-			{
-				Output(x.expr);
-				Write("++");
-			}
-			Output(x : SelectExpr)
-			{
-				Write("select (");
-				Write(x.name);
-				Write(" from ");
-				Output(x.list);
-				Write(") ");
-				Output(x.predicate);
-			}
-			Output(x : MapEachExpr)
-			{
-				Write("mapeach (");
-				Write(x.name);
-				Write(" in ");
-				Output(x.list);
-				Write(") ");
-				Output(x.yield);
-			}
-			Output(x : AccumulateExpr)
-			{
-				Write("accumulate (");
-				Write(x.acc);
-				Write(" = ");
-				Output(x.init);
-				Write(" forall ");
-				Write(x.each);
-				Write(" in ");
-				Output(x.list);
-				WriteLine(")");
-				Output(x.expr);
-			}
-			Output(x : TupleExpr)
-			{
-				Write("[");
-				OutputList(x.exprs, ", ");
-				Write("]");
-			}
 		}
 	}
-	
-	enum TestEnum
-	{
-		EnumValue1;
-		EnumValue2;
-	}
-	
-	interface TestInterface
-	{
-		methods 
-		{
-			F();
-			G(x : Int, y : Int) : Int;
-		}
-	}
-	
-	class TestClass
-	{
-		fields
-		{
-			x : Int;
-			y : Int;
-		}
-		methods
-		{
-			F(a : Int) : Int
-			{
-				x = a;
-				return y;
-			}
-		}
-	}		
 }
 
+class PrettyPrinterBase
+{
+	fields
+	{
+		indent : String;
+		atNewLine : Bool;
+	}
+	methods
+	{		
+		Constructor()
+		{
+			indent = new String();
+			atNewLine = false;
+		}
+		Write(s : String)
+		{
+			if (atNewLine)
+			{
+				atNewLine = false;
+				Console.WriteLine();
+				Console.Write(indent);
+			} 
+			Console.Write(s);
+		}
+		WriteLine()
+		{
+			Write("");
+			atNewLine = true;
+		}			
+		WriteLine(s : String)
+		{
+			Write(s);
+			atNewLine = true;
+		}
+		Indent(f : Function)
+		{
+			var old_indent = indent;
+			indent = indent + "  ";
+			f();
+			indent = old_indent;				
+		}
+		BracesAround(f : Function)
+		{
+			WriteLine("{");
+			Indent(f);
+			WriteLine("}");
+		}			
+	}			
+}
+
+class PrettyPrinter
+{
+	inherits 
+	{
+		PrettyPrinterBase;
+	}
+	methods
+	{					
+		Constructor(program : HeronProgram)
+		{
+			base.Constructor();
+			foreach (m in program.GetModules())
+				Output(m);
+			WriteLine("");
+		}
+		OutputAll(xs : Seq)
+		{
+			foreach (x in xs)
+				Output(x);
+		}						
+		Output(m : HeronModule)
+		{
+			Write("module ");
+			WriteLine(m.name);
+			BracesAround(
+				function() 
+				{
+					OutputAll(m.GetClasses());
+					OutputAll(m.GetInterfaces());
+					OutputAll(m.GetEnums());
+				}
+			);	
+		}
+		OutputSection(name : String, xs : Seq)
+		{
+			WriteLine(name);
+			BracesAround(
+				function() {
+					OutputAll(xs);
+				});
+		}
+		OutputList(xs : List, sDelim : String)
+		{
+			foreach (i in 0..xs.Count() - 1) {
+				if (i > 0)
+					Write(sDelim);
+				Output(xs[i]);
+			}
+		}
+		Output(c : HeronClass)
+		{
+			Write("class ");				
+			WriteLine(c.name);
+			BracesAround(function() 
+				{
+					OutputSection("inherits", c.GetInheritedClasses());
+					OutputSection("implements", c.GetImplementedInterfaces());				
+					OutputSection("fields", c.GetFields());
+					OutputSection("methods", c.GetDeclaredMethods());
+				});
+		}
+		Output(i : HeronInterface)
+		{
+			Write("interface ");
+			WriteLine(i.name);
+			BracesAround(function()
+				{
+					OutputSection("inherits", i.GetInheritedInterfaces());
+					OutputSection("methods", i.GetDeclaredMethods());
+				});
+		}
+		Output(e : HeronEnum)
+		{
+			Write("enum ");
+			WriteLine(e.name);
+			WriteLine("{ }");
+		}
+		Output(f : FieldDefn)
+		{
+			Write(f.name);
+			OutputTypeDecl(f.type);
+			WriteLine(";");			
+		}
+		Output(t : Type)
+		{
+			Write(t.ToString());
+		}
+		OutputTypeDecl(t : Type)
+		{
+			if (t != null && t.name != "Void")
+				Write(" : " + t.name); 
+		}
+		Output(m : FunctionDefn)
+		{
+			Write(m.name);
+			Write("(");
+			OutputList(m.formals, ", ");
+			Write(")");
+			OutputTypeDecl(m.rettype);
+			WriteLine();
+			Output(m.body);
+		}
+		Output(fa : FormalArg)
+		{
+			Write(fa.name);
+			OutputTypeDecl(fa.type);
+		}			
+		OutputIndentedStatement(x)
+		{
+			if (x is CodeBlock)
+				Output(x);
+			else
+				Indent(function() { Output(x); });
+		}
+		Output(x : VariableDeclaration)
+		{
+			Write("var ");
+			Write(x.name);
+			Write(" ");
+			OutputTypeDecl(x.type);
+			if (x.value != null)
+			{
+				Write(" = ");
+				Output(x.value);
+			}
+			WriteLine(";");
+		}
+		Output(x : DeleteStatement)
+		{
+			Write("delete ");
+			Output(x.expression);
+			WriteLine(";");
+		}
+		Output(x : ExpressionStatement)
+		{
+			Output(x.expression);
+			WriteLine(";");
+		}
+		Output(x : ForEachStatement)
+		{
+			Write("foreach (");
+			Write(x.name);
+			OutputTypeDecl(x.type);
+			Write(" in ");
+			Output(x.collection);
+			WriteLine(")");
+			OutputIndentedStatement(x.body);
+		}
+		Output(x : ForStatement)
+		{
+			Write("for (");
+			Write(x.name);
+			Write(" = ");
+			Output(x.initial);
+			Write("; ");
+			Output(x.condition);
+			Write("; ");
+			Output(x.next);
+			WriteLine(")");
+			OutputIndentedStatement(x.body);
+		}
+		Output(x : CodeBlock)
+		{
+			BracesAround(
+				function() {
+					foreach (s in x.statements)
+						Output(s);
+					}
+				);
+		}
+		Output(x : IfStatement)
+		{
+			Write("if (");
+			Output(x.condition);
+			WriteLine(")");
+			OutputIndentedStatement(x.ontrue);
+			if (x.onfalse != null)
+			{
+				WriteLine("else");
+				OutputIndentedStatement(x.onfalse);
+			}
+		}
+		Output(x : WhileStatement)
+		{
+			Write("while (");
+			Output(x.condition);
+			WriteLine(")");
+			OutputIndentedStatement(x.body);
+		}
+		Output(x : ReturnStatement)
+		{
+			Write("return ");
+			Output(x.expression);
+			WriteLine(";");
+		}
+		Output(x : SwitchStatement)
+		{
+			Write("switch (");
+			Output(x.condition);
+			WriteLine(")");
+			WriteLine("{");
+			foreach (x in cases)
+				Output(x);
+			if (x.ondefault != null)
+			{
+				WriteLine("default");
+				Output(x.ondefault);
+			}
+			WriteLine("}");
+		}
+		Output(x : CaseStatement)
+		{
+			Write("case (");
+			Output(x.condition);
+			WriteLine(")");
+			OutputIndentedStatement(x.statement);
+		}
+		Output(x : Assignment)
+		{
+			Output(x.lvalue);				
+			Write(" = ");
+			Output(x.rvalue);
+		}
+		Output(x : ChooseField)
+		{
+			Output(x.self);
+			Write(".");
+			Write(x.name);
+		}
+		Output(x : ReadAt)
+		{
+			Output(x.self);
+			Write("[");
+			Output(x.index);
+			Write("]");
+		}
+		Output(x : NewExpr)
+		{
+			Write("new ");
+			Output(x.type);
+		}
+		Output(x : NullExpr)
+		{
+			Write(x.ToString());
+		}
+		Output(x : IntLiteral)
+		{
+			Write(x.ToString());
+		}
+		Output(x : BoolLiteral)
+		{
+			Write(x.ToString());
+		}
+		Output(x : FloatLiteral)
+		{
+			Write(x.ToString());
+		}
+		Output(x : CharLiteral)
+		{
+			Write(x.ToString());
+		}
+		Output(x : StringLiteral)
+		{
+			Write(x.ToString());
+		}
+		Output(x : Name)
+		{
+			Write(x.ToString());
+		}
+		Output(x : FunCall)
+		{
+			Output(x.funexpr);
+			Write("(");
+			OutputList(x.args, ", ");	
+			Write(")");
+		}
+		Output(x : UnaryOperation)
+		{
+			Write(x.operation);
+			Output(x.operand);
+		}
+		Output(x : BinaryOperation)
+		{
+			Output(x.operand1);
+			Write(" " + x.operation + " ");
+			Output(x.operand2);
+		}
+		Output(x : AnonFunExpr)
+		{
+			Write("function (");				
+			OutputList(x.formals, ", ");
+			Write(") ");
+			OutputTypeDecl(x.rettype);
+			WriteLine("");
+			Indent(function() { Output(x.body); });
+			
+		}
+		Output(x : PostIncExpr)
+		{
+			Output(x.expr);
+			Write("++");
+		}
+		Output(x : SelectExpr)
+		{
+			Write("select (");
+			Write(x.name);
+			Write(" from ");
+			Output(x.list);
+			Write(") ");
+			Output(x.predicate);
+		}
+		Output(x : MapEachExpr)
+		{
+			Write("mapeach (");
+			Write(x.name);
+			Write(" in ");
+			Output(x.list);
+			Write(") ");
+			Output(x.yield);
+		}
+		Output(x : AccumulateExpr)
+		{
+			Write("accumulate (");
+			Write(x.acc);
+			Write(" = ");
+			Output(x.init);
+			Write(" forall ");
+			Write(x.each);
+			Write(" in ");
+			Output(x.list);
+			WriteLine(")");
+			Output(x.expr);
+		}
+		Output(x : TupleExpr)
+		{
+			Write("[");
+			OutputList(x.exprs, ", ");
+			Write("]");
+		}
+	}
+}
+
+enum TestEnum
+{
+	EnumValue1;
+	EnumValue2;
+}
+
+interface TestInterface
+{
+	methods 
+	{
+		F();
+		G(x : Int, y : Int) : Int;
+	}
+}
+
+class TestClass
+{
+	fields
+	{
+		x : Int;
+		y : Int;
+	}
+	methods
+	{
+		F(a : Int) : Int
+		{
+			x = a;
+			return y;
+		}
+	}
+}		

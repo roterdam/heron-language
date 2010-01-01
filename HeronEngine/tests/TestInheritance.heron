@@ -1,5 +1,14 @@
 ﻿module TestInheritance
 {
+	methods
+	{
+		Main()
+		{
+			new DerivedClass();
+		}
+	}
+}
+
 	class BaseClass
 	{
 		fields
@@ -42,7 +51,7 @@
 		}			
 	}
 	
-	class Meta 
+	class DerivedClass
 	{
 		inherits 
 		{
@@ -50,7 +59,7 @@
 		}
 		methods
 		{					
-			Constructor(program : HeronProgram)
+			Constructor()
 			{
 				base.Constructor();
 				Console.WriteLine("8. In constructor of main class");

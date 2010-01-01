@@ -16,6 +16,7 @@ namespace HeronEngine
         HeronType baseclass = null;
         List<HeronType> interfaces = new List<HeronType>();
         FunDefnListValue ctors;
+        FunctionDefn autoCtor;
         #endregion
 
         #region internal function
@@ -23,19 +24,20 @@ namespace HeronEngine
         public ClassDefn(ModuleDefn m, string name)
             : base(m, typeof(ClassDefn), name)
         {
+            autoCtor = new FunctionDefn(this);
         }
 
-        public void ResolveTypes()
+        public void ResolveTypes(ModuleDefn m)
         {
             if (baseclass != null)
                 if (baseclass is UnresolvedType)
-                    baseclass = (baseclass as UnresolvedType).Resolve();
+                    baseclass = (baseclass as UnresolvedType).Resolve(m);
             for (int i = 0; i < interfaces.Count; ++i)
             {
                 HeronType t = interfaces[i];
                 if (t is UnresolvedType)
                 {
-                    HeronType ht = (t as UnresolvedType).Resolve();
+                    HeronType ht = (t as UnresolvedType).Resolve(m);
                     InterfaceDefn hi = ht as InterfaceDefn;
                     if (hi == null)
                         throw new Exception(ht.name + " is not an interface");
@@ -43,9 +45,9 @@ namespace HeronEngine
                 }
             }
             foreach (FieldDefn f in GetFields())
-                f.ResolveTypes();
+                f.ResolveTypes(m);
             foreach (FunctionDefn f in GetAllMethods())
-                f.ResolveTypes();
+                f.ResolveTypes(m);
         }
 
         public bool VerifyImplements(InterfaceDefn i)
@@ -275,6 +277,11 @@ namespace HeronEngine
                 return 1 + GetBaseClass().GetHierarchyDepth();
             else
                 return 1;
+        }
+
+        public FunctionDefn GetAutoContructor()
+        {
+            return autoCtor;
         }
         #endregion
     }

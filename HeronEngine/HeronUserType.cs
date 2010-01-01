@@ -48,10 +48,10 @@ namespace HeronEngine
         [HeronVisible]
         public bool nullable = false;
 
-        public void ResolveTypes()
+        public void ResolveTypes(ModuleDefn m)
         {
             if (type is UnresolvedType)
-                type = (type as UnresolvedType).Resolve();
+                type = (type as UnresolvedType).Resolve(m);
         }
 
         public virtual HeronValue GetValue(HeronValue self)

@@ -1,14 +1,12 @@
 ﻿module TestFunctionCall
 {
-	class Main {
-		methods {
-			TestFunctionCall() {
-				Console.WriteLine("Hello World");
-			}
-			
-			Constructor() {
-				TestFunctionCall();
-			}
+	methods {
+		TestFunctionCall() {
+			Console.WriteLine("Hello World");
+		}
+		
+		Main() {
+			TestFunctionCall();
 		}
 	}
 }

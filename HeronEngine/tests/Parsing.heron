@@ -1,327 +1,312 @@
 module Parsing
 {	
-	interface IParserState
+	fields 
 	{
-		GetCurrent() : Char;
-		MoveNext();
-		GetPos() : Int;
-		SetPos(n : Int);
-		AtEnd() : Bool;
+		lowerCaseLetter = new CharRangeRule('a','z');
+		upperCaseLetter = new CharRangeRule('A','Z');
+		letter = new ChoiceRule([lowerCaseLetter, upperCaseLetter]);
+		number = new CharRangeRule('0', '9');
+		identFirstChar = new ChoiceRule([letter, new SingleCharRule('_')]);
+		identNextChar = new ChoiceRule([identFirstChar, number]);
+		whiteSpace = new CharSetRule(" \t\r\n");
+		nonWhiteSpace = AnyCharExcept(); 				
 	}
-	
-	class ParserState
+	methods
 	{
-		implements 
+		AnyCharExcept(r : IRule)
 		{
-			IParserState;
+			return new SeqRule(new NotRule(r), new AnyCharRule());
 		}
-		fields
+		MatchRuleFrom(s : String, n : Int, r : IRule) : String
 		{
-			text : String;
-			pos : Int;
-		}
-		methods
+		} 	
+		Tokenize(s : String, delim : IRule) : Seq
 		{
-			Constructor(text : String, pos : Int)
-			{
-				this.text = text;
-				this.pos = pos;
-			}				
-			GetCurrent() : Char
-			{
-				return text.GetChar(pos);
-			}
-			MoveNext()
-			{
-				pos++;
-			}
-			GetPos() : Int
-			{
-				return pos;
-			}
-			SetPos(n : Int)
-			{
-				pos = n;
-			}
-			AtEnd() : Bool
-			{
-				return pos >= text.Length();
-			}			
+			
 		}
+		Test(s : String)
+		{
+			
+		}			
 	}
-	
-	interface IRule
-	{
-		methods
-		{
-			Match(p : IParserState) : Bool;
-		}
-	}	
-	
-	class MultiRuleOp
-	{
-		fields
-		{
-			rules : List;
-		}
-		methods
-		{
-			Constructor(xs : Seq)
-			{
-				rules = xs.ToList();
-			}			
-			Constructor()
-			{
-				rules = new List();
-			}				
-			GetRules() : List
-			{
-				return rules;
-			}
-		}
-	}
-	
-	class SingleRuleOp
-	{
-		fields
-		{
-			rule : IRule;
-		}
-		methods
-		{
-			Constructor(r : IRule)
-			{
-				rule = r;
-			}
-			GetRule() : IRule
-			{
-				return rule;
-			}
-		}
-	}
-	
-	class SeqRule
-	{
-		inherits
-		{
-			MultiRuleOp;
-		}
-		implements 
-		{
-			IRule;
-		}
-		methods		
-		{
-			Match(p : IParserState) : Bool
-			{
-				var pos = p.GetPos();
-				foreach (r : IRule in GetRules())
-					if (!r.Match(p))
-					{
-						p.SetPos(pos);
-						return false;
-					}
-				return true;						
-			}
-		}
-	}
+}
 
-	class ChoiceRule
+interface IParserState
+{
+	GetCurrent() : Char;
+	MoveNext();
+	GetPos() : Int;
+	SetPos(n : Int);
+	AtEnd() : Bool;
+}
+	
+class ParserState
+{
+	implements 
 	{
-		inherits
+		IParserState;
+	}
+	fields
+	{
+		text : String;
+		pos : Int;
+	}
+	methods
+	{
+		Constructor(text : String, pos : Int)
 		{
-			MultiRuleOp;
+			this.text = text;
+			this.pos = pos;
+		}				
+		GetCurrent() : Char
+		{
+			return text.GetChar(pos);
 		}
-		implements 
+		MoveNext()
 		{
-			IRule;
+			pos++;
 		}
-		methods		
+		GetPos() : Int
 		{
-			Match(p : IParserState) : Bool
-			{
-				foreach (r : IRule in GetRules())
-					if (r.Match(p))
-						return true;
-				return false;						
-			}
+			return pos;
+		}
+		SetPos(n : Int)
+		{
+			pos = n;
+		}
+		AtEnd() : Bool
+		{
+			return pos >= text.Length();
+		}			
+	}
+}
+
+interface IRule
+{
+	methods
+	{
+		Match(p : IParserState) : Bool;
+	}
+}	
+
+class MultiRuleOp
+{
+	fields
+	{
+		rules : List;
+	}
+	methods
+	{
+		Constructor(xs : Seq)
+		{
+			rules = xs.ToList();
+		}			
+		Constructor()
+		{
+			rules = new List();
+		}				
+		GetRules() : List
+		{
+			return rules;
 		}
 	}
-	
-	class NotRule
+}
+
+class SingleRuleOp
+{
+	fields
 	{
-		inherits 
+		rule : IRule;
+	}
+	methods
+	{
+		Constructor(r : IRule)
 		{
-			SingleRuleOp;
+			rule = r;
 		}
-		implements
+		GetRule() : IRule
 		{
-			IRule;
+			return rule;
 		}
-		methods
+	}
+}
+
+class SeqRule
+{
+	inherits
+	{
+		MultiRuleOp;
+	}
+	implements 
+	{
+		IRule;
+	}
+	methods		
+	{
+		Match(p : IParserState) : Bool
 		{
-			Match(p : IParserState) : Bool
-			{
-				var nPos = p.GetPos();
-				if (!GetRule().Match(p))
+			var pos = p.GetPos();
+			foreach (r : IRule in GetRules())
+				if (!r.Match(p))
+				{
+					p.SetPos(pos);
+					return false;
+				}
+			return true;						
+		}
+	}
+}
+
+class ChoiceRule
+{
+	inherits
+	{
+		MultiRuleOp;
+	}
+	implements 
+	{
+		IRule;
+	}
+	methods		
+	{
+		Match(p : IParserState) : Bool
+		{
+			foreach (r : IRule in GetRules())
+				if (r.Match(p))
 					return true;
-				p.SetPos(nPos);
-				return false;
-			}
+			return false;						
 		}
 	}
-	
-	class CharSetRule
+}
+
+class NotRule
+{
+	inherits 
 	{
-		implements 
-		{
-			IRule;
-		}
-		fields
-		{
-			chars : String;
-		}
-		methods
-		{
-			Constructor(s : String)
-			{
-				chars = s;
-			}
-			Match(p : ParserState) : Bool
-			{
-				if (p.AtEnd())
-					return false;
-				foreach (c : Char in chars)
-					if (c == p.GetCurrent()) 
-					{
-						p.MoveNext();
-						return true;
-					}
-				return false;
-			}
-		}
+		SingleRuleOp;
 	}
-		
-	class CharRule
+	implements
 	{
-		implements 
-		{
-			IRule;
-		}
-		fields
-		{
-			char;
-		}
-		methods
-		{
-			Constructor(c : Char)
-			{
-				char = c;
-			}
-			Match(p : ParserState) : Bool
-			{
-				if (p.AtEnd())
-					return false;
-				if (p.GetCurrent() != c)
-					return false;
-				p.MoveNext();
-				return true;			
-			}
-		}
+		IRule;
 	}
-	
-	class CharRangeRule
+	methods
 	{
-		implements 
+		Match(p : IParserState) : Bool
 		{
-			IRule;
-		}
-		fields
-		{
-			first : Char;
-			last : Char;
-		}
-		methods
-		{
-			Constructor(first : Char, last : Char)
-			{
-				this.first = first;
-				this.last = last;				
-			}
-				
-			Match(p : IParserState) : Bool
-			{
-				if (p.AtEnd())
-					return false;
-				if (p.GetCurrent() < first)
-					return false;
-				if (p.GetCurrent() > last)
-					return false;
+			var nPos = p.GetPos();
+			if (!GetRule().Match(p))
 				return true;
-			}
+			p.SetPos(nPos);
+			return false;
 		}
 	}
+}
+
+class CharSetRule
+{
+	implements 
+	{
+		IRule;
+	}
+	fields
+	{
+		chars : String;
+	}
+	methods
+	{
+		Constructor(s : String)
+		{
+			chars = s;
+		}
+		Match(p : ParserState) : Bool
+		{
+			if (p.AtEnd())
+				return false;
+			foreach (c : Char in chars)
+				if (c == p.GetCurrent()) 
+				{
+					p.MoveNext();
+					return true;
+				}
+			return false;
+		}
+	}
+}
 	
-	class AnyCharRule
+class CharRule
+{
+	implements 
 	{
-		implements
+		IRule;
+	}
+	fields
+	{
+		char;
+	}
+	methods
+	{
+		Constructor(c : Char)
 		{
-			IRule;
+			char = c;
 		}
-		methods
-		{				
-			Match(p : IParserState) : Bool
-			{
-				if (p.AtEnd())
-					return false;
-				p.MoveNext();
-				return true;
-			}						
+		Match(p : ParserState) : Bool
+		{
+			if (p.AtEnd())
+				return false;
+			if (p.GetCurrent() != c)
+				return false;
+			p.MoveNext();
+			return true;			
 		}
 	}
-		
-	class Main
+}
+
+class CharRangeRule
+{
+	implements 
 	{
-		fields 
+		IRule;
+	}
+	fields
+	{
+		first : Char;
+		last : Char;
+	}
+	methods
+	{
+		Constructor(first : Char, last : Char)
 		{
-			lowerCaseLetter : IRule;
-			upperCaseLetter : IRule;
-			letter : IRule;
-			number : IRule;				
-			ident : IRule;
-			identFirstChar : IRule;
-			identNextChar : IRule;
-			whiteSpace : IRule;
-			nonWhiteSpace : IRule;
+			this.first = first;
+			this.last = last;				
 		}
-		methods
+			
+		Match(p : IParserState) : Bool
 		{
-			Constructor()
-			{
-				lowerCaseLetter = new CharRangeRule('a','z');
-				upperCaseLetter = new CharRangeRule('A','Z');
-				letter = new ChoiceRule([lowerCaseLetter, upperCaseLetter]);
-				number = new CharRangeRule('0', '9');
-				identFirstChar = new ChoiceRule([letter, new SingleCharRule('_')]);
-				identNextChar = new ChoiceRule([identFirstChar, number]);
-				whiteSpace = new CharSetRule(" \t\r\n");
-				nonWhiteSpace = AnyCharExcept(); 				
-			}
-			AnyCharExcept(r : IRule)
-			{
-				return new SeqRule(new NotRule(r), new AnyCharRule());
-			}
-			MatchRuleFrom(s : String, n : Int, r : IRule) : String
-			{
-			} 	
-			Tokenize(s : String, delim : IRule) : Seq
-			{
-				
-			}
-			Test(s : String)
-			{
-				
-			}			
+			if (p.AtEnd())
+				return false;
+			if (p.GetCurrent() < first)
+				return false;
+			if (p.GetCurrent() > last)
+				return false;
+			return true;
 		}
+	}
+}
+
+class AnyCharRule
+{
+	implements
+	{
+		IRule;
+	}
+	methods
+	{				
+		Match(p : IParserState) : Bool
+		{
+			if (p.AtEnd())
+				return false;
+			p.MoveNext();
+			return true;
+		}						
 	}
 }

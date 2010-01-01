@@ -3,7 +3,6 @@ module TestModule2
   imports {
     TestModule1 as m1;
     TestModule1 as m2;
-    Console;
   } 
   methods 
   {
@@ -13,7 +12,6 @@ module TestModule2
        // We could even do conditional module instantiation.
        m1 = new TestModule1(0);
        m2 = new TestModule1(1);
-       Console = new Console();
     }
     Main() {
        // Construct two different instances of class C, 

@@ -201,8 +201,8 @@ namespace HeronEngine
     /// </summary>
     public class UnresolvedType : HeronType
     {
-        public UnresolvedType(string name, ModuleDefn m)
-            : base(m, typeof(UnresolvedType), name)
+        public UnresolvedType(string name)
+            : base(null, typeof(UnresolvedType), name)
         {
         }
 
@@ -211,11 +211,11 @@ namespace HeronEngine
             throw new Exception("Type '" + name + "' was not resolved.");
         }
 
-        public HeronType Resolve()
+        public HeronType Resolve(ModuleDefn m)
         {
-            HeronType r = GetModule().FindType(name);
+            HeronType r = m.FindType(name);
             if (r == null)
-                r = GetModule().GetGlobal().FindType(name);
+                r = m.GetGlobal().FindType(name);
             if (r == null)
                 throw new Exception("Could not resolve type " + name);
             if (r.name != name)

@@ -75,7 +75,7 @@ namespace HeronEngine
                 Console.WriteLine(e.context.line);
                 Console.WriteLine(e.context.ptr);
             }
-            catch (HeronCodeModel.CodeModelException e)
+            catch (HeronCodeModelBuilder.CodeModelException e)
             {
                 Console.WriteLine("Error occured during typed parse tree construction in file " + file);
                 Console.WriteLine(e.Message);

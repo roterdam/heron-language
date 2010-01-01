@@ -17,17 +17,17 @@ namespace HeronEngine
             : base(m, typeof(InterfaceDefn), name)
         {
         }
-        public void ResolveTypes()
+        public void ResolveTypes(ModuleDefn m)
         {
             for (int i = 0; i < basetypes.Count; ++i)
             {
                 HeronType t = basetypes[i];
                 if (t is UnresolvedType)
-                    basetypes[i] = (t as UnresolvedType).Resolve();
+                    basetypes[i] = (t as UnresolvedType).Resolve(m);
             }
 
             foreach (FunctionDefn f in GetAllMethods())
-                f.ResolveTypes();
+                f.ResolveTypes(m);
         }
         public void AddBaseInterface(HeronType t)
         {

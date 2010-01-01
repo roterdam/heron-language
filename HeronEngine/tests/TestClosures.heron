@@ -6,7 +6,7 @@
 	}
 	methods
 	{		
-		Constructor()
+		Main()
 		{
 			mTestInt = 2;
 			Console.Write("Expect 1 : ");

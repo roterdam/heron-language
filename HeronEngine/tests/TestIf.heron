@@ -1,18 +1,16 @@
 ﻿module TestIf
 {
-	class Main {
-		methods {
-			Constructor() {
-				var i = 0;
-				while (i < 10) {
-					if (i % 2 == 0) {
-						Console.Write("Hello ");
-					}
-					else {
-						Console.WriteLine("World");
-					}
-					i += 1;
+	methods {
+		Main() {
+			var i = 0;
+			while (i < 10) {
+				if (i % 2 == 0) {
+					Console.Write("Hello ");
 				}
+				else {
+					Console.WriteLine("World");
+				}
+				i += 1;
 			}
 		}
 	}

@@ -156,15 +156,15 @@ namespace HeronEngine
         #region evaluation functions
         public HeronValue EvalString(string s)
         {
-            Expression x = HeronCodeModel.ParseExpr(program, s);
-            x.ResolveAllTypes();
+            Expression x = HeronCodeModelBuilder.ParseExpr(program, s);
+            x.ResolveAllTypes(program.GetGlobal());
             return Eval(x); ;
         }
 
         public ModuleDefn LoadModule(string sFile)
         {
             string sFileContents = File.ReadAllText(sFile);
-            ModuleDefn m = HeronCodeModel.ParseFile(program, sFileContents);
+            ModuleDefn m = HeronCodeModelBuilder.ParseFile(program, sFileContents);
             program.AddModule(m);
             return m;
         }
@@ -433,6 +433,7 @@ namespace HeronEngine
         {
             HeronValue r = result;
             result = null;
+            bReturning = false;
             return r;
         }
         #endregion

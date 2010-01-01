@@ -86,7 +86,7 @@ namespace HeronEngine
         public static Rule TypeArgs = Store("typeargs", (CharSeq("<") + NoFail(Delay("TypeExpr", () => TypeExpr) + Token(">"))));
         public static Rule TypeName = Store("name", (Ident + Star((Token(".") + NoFail(Ident)))));
         public static Rule Nullable = Store("nullable", CharSeq("?"));
-        public static Rule TypeExpr = Store("typeexpr", (TypeName + Opt(TypeArgs)));
+        public static Rule TypeExpr = Store("typeexpr", (TypeName + WS + Opt(TypeArgs)));
         public static Rule TypeDecl = Store("typedecl", (Token(":") + NoFail(TypeExpr) + Opt(Nullable)));
         public static Rule TypeExprList = Token("{") + Star(TypeExpr + NoFail(Eos)) + NoFail(Token("}"));
         #endregion 
@@ -138,7 +138,7 @@ namespace HeronEngine
         #endregion structural rules
 
         #region structural rules
-        public static Rule Field = Store("field", Name + Opt(TypeDecl) + Eos);
+        public static Rule Field = Store("field", Name + Opt(TypeDecl) + Opt(Initializer) + Eos);
         public static Rule FunDecl = Store("fundecl", Name + ArgList + Opt(TypeDecl));
         public static Rule EOSOrCodeBlock = Eos | CodeBlock;
         public static Rule EmptyMethod = Store("method", FunDecl + NoFail(Eos));
@@ -148,7 +148,7 @@ namespace HeronEngine
         public static Rule Fields = Store("fields", Token("fields") + NoFail(BracedGroup(Field)));
         public static Rule Methods = Store("methods", Token("methods") + NoFail(BracedGroup(Method)));
         public static Rule EmptyMethods = Store("methods", Token("methods") + NoFail(BracedGroup(EmptyMethod)));
-        public static Rule Import = Store("import", Name + Opt(Token("as") + Name) + NoFail(Eos));
+        public static Rule Import = Store("import", Name + Token(":") + Name + Opt(Initializer) + NoFail(Eos));
         public static Rule Imports = Store("imports", Token("imports") + NoFail(BracedGroup(Import)));
         public static Rule ClassBody = NoFail(Token("{") + Opt(Inherits) + Opt(Implements) + Opt(Fields) + Opt(Methods) + Token("}"));
         public static Rule Class = Store("class", Opt(Annotations) + Token("class") + NoFail(Name) + ClassBody);
@@ -159,9 +159,7 @@ namespace HeronEngine
         public static Rule TypeDefinition = Class | Interface | Enum;
         public static Rule ModuleBody = Store("modulebody", NoFail(Token("{") + Opt(Imports) + Opt(Inherits) + Opt(Fields) + Opt(Methods) + Token("}")));
         public static Rule Module = Store("module", Opt(Annotations) + Token("module") + NoFail(Name) + ModuleBody + Star(TypeDefinition));
-        public static Rule ScriptElement = VarDecl | Method;
-        public static Rule Script = Store("script", Token("script") + NoFail(Name + Eos + Star(ScriptElement)));
-        public static Rule File = (Module | Script) + EndOfInput;
+        public static Rule File = Module + EndOfInput;
         #endregion
 
         static HeronGrammar()

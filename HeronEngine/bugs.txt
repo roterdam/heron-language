@@ -5,6 +5,13 @@
 - when outputting compound expressions precedence may not be taken care of 
 - I need to prevent passing and returning of "null", unless the type is explicitly optional.
 - There are missing some basic interfaces. Heron should know what the ISequence, IIterator, and IList interfaces are
+- The types should not be resolved before interpretation. That is a mistake. 
+	- They should be resolved completely dynamically.
+	- Either I (a) remove all of the "resolve types".
+	- Or (b) allow "unresolved types". 
+	- This is a lot of recoding of stuff. However, the problem with leaving it in is that:
+		(a) When creating code dynamically, the types have to be resolved statically.
+		This is going to be a lot of work. However, it really should be done.  
 
 Features
 ========

@@ -124,20 +124,20 @@ namespace HeronEngine
             return parent;
         }
 
-        public void ResolveTypes()
+        public void ResolveTypes(ModuleDefn m)
         {
             // ResolveType the return type
             if (rettype is UnresolvedType)
-                rettype = (rettype as UnresolvedType).Resolve();
+                rettype = (rettype as UnresolvedType).Resolve(m);
 
             // ResolveType the argument types
             foreach (FormalArg arg in formals)
                 if (arg.type is UnresolvedType)
-                    arg.type = (arg.type as UnresolvedType).Resolve();
+                    arg.type = (arg.type as UnresolvedType).Resolve(m);
 
             // Resolve the types of body
             foreach (Statement st in body.GetStatementTree())
-                st.ResolveTypes();
+                st.ResolveTypes(m);
         }
 
         public override string ToString()

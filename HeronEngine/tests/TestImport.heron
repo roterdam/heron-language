@@ -2,9 +2,9 @@ module TestImport
 {
 	imports
 	{
-		HelloWorld as hw;
+		hw : HelloWorld;
 	}
-	
+
 	methods
 	{		
 		Constructor()
