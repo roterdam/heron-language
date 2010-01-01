@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.IO;
 
 namespace HeronEngine
@@ -51,8 +52,13 @@ namespace HeronEngine
             foreach (string s in prims.Keys)
                 global.AddPrimitive(s, prims[s]);
 
-            RegisterDotNetType(typeof(Console), "Console");
-            RegisterDotNetType(typeof(Math), "Math");
+            RegisterDotNetType(typeof(Console));
+            RegisterDotNetType(typeof(Math));
+            RegisterDotNetType(typeof(File));
+            RegisterDotNetType(typeof(Directory));
+            RegisterDotNetType(typeof(Regex));
+            
+            
 
             // Load other libraries specified in the configuration file
             foreach (string lib in Config.libs)
@@ -89,6 +95,11 @@ namespace HeronEngine
             }
             if (a == null)
                 throw new Exception("Could not find assembly " + s);
+            LoadAssembly(a);
+        }
+
+        public void LoadAssembly(Assembly a)
+        {
             foreach (Type t in a.GetExportedTypes())
                 RegisterDotNetType(t);
         }

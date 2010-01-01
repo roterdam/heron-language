@@ -1,60 +1,58 @@
 module TestDuckTyping
 {
-	interface IDuck
+	methods 
 	{
-		methods
+		DoWhatDucksDo(d : IDuck)
 		{
-			Quack() : String;
+			Console.WriteLine(d.Quack());
 		}
-	}
-	
-	class Man
-	{
-		methods
+		
+		Main()
 		{
-			Quack() : String
-			{
-				return "quack " + Shoot();
-			}
-			Shoot() : String
-			{
-				return "bang";
-			}
-		}
-	}
-	
-	class Duck
-	{
-		implements
-		{
-			IDuck;
-		}
-		methods
-		{
-			Quack() : String
-			{
-				return "quack";
-			}
-		}
-	}
-
-	class Main
-	{
-		methods 
-		{
-			DoWhatDucksDo(d : IDuck)
-			{
-				Console.WriteLine(d.Quack());
-			}
-			
-			Constructor()
-			{
-				var m = new Man();
-				var d = new Duck();
-				DoWhatDucksDo(d);
-				DoWhatDucksDo(m as IDuck);
-				// DoWhatDucksDo(m); // fails
-			}
+			var m = new Man();
+			var d = new Duck();
+			DoWhatDucksDo(d);
+			DoWhatDucksDo(m as IDuck);
+			// DoWhatDucksDo(m); // fails
 		}
 	}
 }
+
+interface IDuck
+{
+	methods
+	{
+		Quack() : String;
+	}
+}
+
+class Man
+{
+	methods
+	{
+		Quack() : String
+		{
+			return "quack " + Shoot();
+		}
+		Shoot() : String
+		{
+			return "bang";
+		}
+	}
+}
+
+class Duck
+{
+	implements
+	{
+		IDuck;
+	}
+	methods
+	{
+		Quack() : String
+		{
+			return "quack";
+		}
+	}
+}
+

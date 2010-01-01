@@ -1,11 +1,9 @@
 ﻿module TestForLoop
-{
-	class Main {
-		methods {
-			Constructor() {
-				for (i = 0; i < 5; i++)
-					Console.WriteLine("Hello world");
-			}
+{		
+	methods {
+		Main() {
+			for (i = 0; i < 5; i++)
+				Console.WriteLine("Hello world");
 		}
 	}
 }

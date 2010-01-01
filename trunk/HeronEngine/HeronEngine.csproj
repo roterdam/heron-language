@@ -76,7 +76,7 @@
     <Compile Include="HeronModule.cs" />
     <Compile Include="HeronScope.cs" />
     <Compile Include="HeronTree.cs" />
-    <Compile Include="HeronCodeModel.cs" />
+    <Compile Include="HeronCodeModelBuilder.cs" />
     <Compile Include="HeronExpression.cs" />
     <Compile Include="HeronFunction.cs" />
     <Compile Include="HeronGrammar.cs" />

@@ -1,17 +1,23 @@
-script Factorial;
-
-var max = 10;
-
-Factorial(n : Int) : Int
+module Factorial
 {
-	if (n <= 1)
-		return 1;
-	else 
-		return n * Factorial(n - 1);
-}
+	fields
+	{
+		max = 10;
+	}
+	methods
+	{
+		Fact(n : Int) : Int
+		{
+			if (n <= 1)
+				return 1;
+			else 
+				return n * Fact(n - 1);
+		}
 
-Main() 
-{
-	foreach (i in 0..max)
-		Console.WriteLine(Factorial(i));
+		Main() 
+		{
+			foreach (i in 0..max)
+				Console.WriteLine(Fact(i));
+		}
+	}
 }

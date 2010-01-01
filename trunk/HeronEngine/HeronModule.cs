@@ -226,7 +226,7 @@ namespace HeronEngine
             return null;
         }
 
-        public new void ResolveTypes()
+        public void ResolveTypes()
         {
             if (HasBaseClass())
             {
@@ -236,10 +236,10 @@ namespace HeronEngine
             }
 
             foreach (InterfaceDefn i in GetInterfaces())
-                i.ResolveTypes();
+                i.ResolveTypes(this);
             foreach (ClassDefn c in GetClasses())
-                c.ResolveTypes();
-            base.ResolveTypes();
+                c.ResolveTypes(this);
+            base.ResolveTypes(this);
         }
     }
 }

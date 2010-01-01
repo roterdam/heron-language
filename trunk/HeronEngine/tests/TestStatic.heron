@@ -1,25 +1,22 @@
 ﻿module TestStatic
 {
-	class Static
-	{
-		methods
+	methods
+	{		
+		Main()
 		{
-			Test(x : Int)
-			{
-				Console.WriteLine(x.ToString());
-			}
-		}
-	}
-	
-	class Main 
-	{
-		methods
-		{		
-			Constructor()
-			{
-				Static.Test(42);
-			}
+			Static.Test(42);
 		}
 	}
 }
+}
 
+class Static
+{
+	methods
+	{
+		Test(x : Int)
+		{
+			Console.WriteLine(x.ToString());
+		}
+	}
+}

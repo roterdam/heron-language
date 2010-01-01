@@ -1,18 +1,30 @@
 ﻿module TestInheritedConstructor
 {
-	class OtherClass {	
-		methods {
-			Constructor() {
-				Console.WriteLine("Hello World");
-			}
+	methods
+	{
+		Main()
+		{
+			new SomeClass();
 		}
 	}
-	
-	class Main {
-		methods {
-			Constructor() {
-				var x = new OtherClass();
-			}
+}
+
+class OtherClass {	
+	methods {
+		Constructor() {
+			Console.WriteLine("Hello World");
 		}
 	}
+}
+
+class SomeClass {
+	inherits {
+		OtherClass;
+	}
+	methods {
+		Constructor() {
+			base.Constructor();
+		}
+	}
+}
 }

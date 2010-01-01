@@ -97,7 +97,7 @@ namespace HeronEngine
                         yield return (x as Name).name;
         }
 
-        public void ResolveTypes()
+        public void ResolveTypes(ModuleDefn m)
         {
             foreach (FieldInfo fi in GetInstanceFields())
             {
@@ -108,12 +108,12 @@ namespace HeronEngine
                         throw new Exception("The type field cannot be null, expected an UnresolvedType");
                     UnresolvedType ut = t as UnresolvedType;
                     if (ut != null)
-                        fi.SetValue(this, ut.Resolve());
+                        fi.SetValue(this, ut.Resolve(m));
                 }
             }
 
             foreach (Expression x in GetSubExpressions())
-                x.ResolveAllTypes();
+                x.ResolveAllTypes(m);
         }
     }
 

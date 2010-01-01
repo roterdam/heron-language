@@ -1,14 +1,20 @@
-script Squares;
-
-var max = 10;
-
-Square(n : Int) : Int
+module Squares
 {
-	return n * n;
-}
+	fields
+	{
+		max = 10;
+	}
+	methods
+	{
+		Square(n : Int) : Int
+		{
+			return n * n;
+		}
 
-Main() 
-{
-	foreach (i in 0..max)
-		Console.WriteLine(Square(i));
+		Main() 
+		{
+			foreach (i in 0..max)
+				Console.WriteLine(Square(i));
+		}
+	}
 }
