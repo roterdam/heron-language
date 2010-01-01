@@ -45,22 +45,22 @@ namespace HeronEngine
     /// </summary>
     public class FunctionDefn : HeronValue
     {
-        [HeronVisible]
-        public string name = "_anonymous_";
-        [HeronVisible]
-        public Statement body;
-        [HeronVisible]
-        public FormalArgs formals;
-        [HeronVisible]
-        public HeronType parent;
-        [HeronVisible]
-        public HeronType rettype;
-        [HeronVisible]
-        public bool nullable;
+        [HeronVisible] public string name = "_anonymous_";
+        [HeronVisible] public CodeBlock body = new CodeBlock();
+        [HeronVisible] public FormalArgs formals = new FormalArgs();
+        [HeronVisible] public HeronType parent = null;
+        [HeronVisible] public HeronType rettype = new UnresolvedType("Void");
+        [HeronVisible] public bool nullable = false;
 
         public FunctionDefn(HeronType parent)
         {
             this.parent = parent;
+        }
+
+        public FunctionDefn(HeronType parent, string name)
+        {
+            this.parent = parent;
+            this.name = name;
         }
 
         /// <summary>

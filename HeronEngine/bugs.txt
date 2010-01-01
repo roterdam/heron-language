@@ -20,6 +20,9 @@ Features
 - I really want hash-tables.
 - Annotations is getting bumped to 1.1
 - I may want modules (and maybe classes to) to have multiple base classes
+- I want a check that the file name and module name match.
+- Better error catching and reporting.
+- Somehow make localization easy in Heron. (Resource strings?!)
 
 Research Directions
 ===================

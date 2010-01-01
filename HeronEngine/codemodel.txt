@@ -265,7 +265,7 @@ primitive FunctionDefn
   fields
   {
     name : System.String;
-    body : HeronEngine.Statement;
+    body : HeronEngine.CodeBlock;
     formals : HeronEngine.FormalArgs;
     parent : HeronEngine.HeronType;
     rettype : HeronEngine.HeronType;

@@ -1,0 +1,46 @@
+module TestAutoCtor
+{
+	fields
+	{
+		a : Int = 42;
+		b = 42;
+		c : Int;
+		d;
+	}
+	methods
+	{
+		Main()
+		{
+			c = 42;
+			d = 42;
+			Console.WriteLine("42 expected, " + a.ToString());
+			Console.WriteLine("42 expected, " + b.ToString());
+			Console.WriteLine("42 expected, " + c.ToString());
+			Console.WriteLine("42 expected, " + d.ToString());
+			new TestClass();
+		}
+	}
+}
+
+class TestClass
+{
+	fields
+	{
+		a : Int = 42;
+		b = 42;
+		c : Int;
+		d;
+	}
+	methods
+	{
+		Constructor()
+		{
+			c = 42;
+			d = 42;
+			Console.WriteLine("42 expected, " + a.ToString());
+			Console.WriteLine("42 expected, " + b.ToString());
+			Console.WriteLine("42 expected, " + c.ToString());
+			Console.WriteLine("42 expected, " + d.ToString());
+		}
+	}
+}

@@ -107,7 +107,7 @@ namespace HeronEngine
         /// <summary>
         /// Adds the module, and tracks dependencies on other modules.
         /// </summary>
-        /// <param name="m">The new module being loaded, must not already be loaded</param>
+        /// <param name="mi">The new module being loaded, must not already be loaded</param>
         [HeronVisible]
         public void AddModule(ModuleDefn m)
         {
@@ -119,7 +119,7 @@ namespace HeronEngine
         /// <summary>
         /// Closes open dendencies
         /// </summary>
-        /// <param name="m"></param>
+        /// <param name="mi"></param>
         public void SatisfyOpenDependencies(ModuleDefn m)
         {
             if (dependencies.ContainsKey(m.name))
@@ -142,7 +142,7 @@ namespace HeronEngine
         /// <summary>
         /// Adds new dependencies, based on imported modules
         /// </summary>
-        /// <param name="m"></param>
+        /// <param name="mi"></param>
         public void AddNewDependencies(ModuleDefn m)
         {
             foreach (string s in m.GetImportedModuleNames())

@@ -147,6 +147,7 @@
     <None Include="tests\PrettyPrinting.heron" />
     <None Include="tests\Sieve.heron" />
     <None Include="tests\Squares.heron" />
+    <None Include="tests\TestAutoCtor.heron" />
     <None Include="tests\TestClosures.heron" />
     <None Include="tests\TestConstructor.heron" />
     <None Include="tests\TestDuckTyping.heron" />

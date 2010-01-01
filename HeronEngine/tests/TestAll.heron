@@ -1,0 +1,30 @@
+module TestAll
+{
+	imports
+	{
+		Factorial = new Factorial();
+		Fibonacci = new Fibnonacci();
+		HelloWorld = new HelloWorld();
+		PrettyPrinting = new PrettyPrinting();
+		Sieve = new Sieve();
+		Squares = new Squares();
+		TestClosures = new TestClosures();
+		TestConstructor = new TestCosntructor();
+		TestDuckTyping = new TestDuckTyping();
+		TestField = new TestField();
+		TestForLoop = new TestForLoop();
+		TestFunctionCall = new TestFunctionCall();
+		TestIf = new TestIf();
+		TestImport = new TestImport();
+		TestInheritance = new TestInheritance();
+		TestInheritedConstructors = new TestInheritedConstructors();
+		TestInterfaces = new TestInterfaces();
+		TestModuleInterfaces = new TestModuleInterfaces();
+		TestOutput = new TestOutput();
+		TestRandom = new TestRandom();
+		TestReturn = new TestReturn();
+		TestStatic = new TestStatic();
+		TestViewport = new TestViewport();
+		TestWhile = new TestWhile();
+	}
+}

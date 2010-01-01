@@ -139,7 +139,7 @@ namespace HeronEngine
     /// Even though one could automatically associate each production rule with
     /// an AST node it is very cumbersome and inefficient to create and parse. 
     /// In otherwords the grammar tree is not expected to correspond directly to 
-    /// the syntax tree since much of the grammar is noise (e.r. whitespace).
+    /// the syntax tree since much of the grammar is noise (e.ci. whitespace).
     /// </summary>
     public class AstNodeRule : Rule
     {
@@ -184,7 +184,7 @@ namespace HeronEngine
 
     /// <summary>
     /// This rule is neccessary allows you to make recursive references in the grammar.
-    /// If you don't use this rule in a cyclical rule reference (e.r. A ::= B C, B ::== A D)
+    /// If you don't use this rule in a cyclical rule reference (e.ci. A ::= B C, B ::== A D)
     /// then you will end up with an infinite loop during grammar generation.
     /// </summary>
     public class RecursiveRule : Rule
