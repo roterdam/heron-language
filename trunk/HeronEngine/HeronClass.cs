@@ -24,7 +24,7 @@ namespace HeronEngine
         public ClassDefn(ModuleDefn m, string name)
             : base(m, typeof(ClassDefn), name)
         {
-            autoCtor = new FunctionDefn(this);
+            autoCtor = new FunctionDefn(this, "_Contructor_");
         }
 
         public void ResolveTypes(ModuleDefn m)
@@ -167,13 +167,16 @@ namespace HeronEngine
             return r;
         }
 
-        protected void CallConstructor(VM vm, HeronValue[] args, ModuleInstance m, ClassInstance r)
+        protected void CallConstructor(VM vm, HeronValue[] args, ModuleInstance mi, ClassInstance ci)
         {
+            // First we are going to invoke the auto-constructor
+            GetAutoContructor().Invoke(ci, vm, new HeronValue[] { });
+
             List<FunctionDefn> ctorlist = new List<FunctionDefn>(GetMethods("Constructor"));
 
             if (ctorlist == null)
                 return;
-            ctors = new FunDefnListValue(r, "Constructor", ctorlist);
+            ctors = new FunDefnListValue(ci, "Constructor", ctorlist);
             if (ctors.Count == 0)
             {
                 if (args.Length > 0)

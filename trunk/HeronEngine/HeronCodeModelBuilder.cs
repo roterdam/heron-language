@@ -66,18 +66,36 @@ namespace HeronEngine
         #region construct parsing functions
         private void CreateModuleDefn(ModuleDefn m, AstNode x)
         {
+            Dictionary<string, Expression> initializers = new Dictionary<string, Expression>();
             AstNode imports = x.GetChild("imports");
             if (imports != null)
             {
                 foreach (AstNode import in imports.Children)
                 {
                     string modDefName = import.GetChild(0).ToString();
-                    string modAlias = modDefName;
-                    if (import.GetChild(1) != null)
+                    // By default the alias of a module is its own name
+                    string modAlias = import.GetChild(1).ToString();
+                    // look for a defined alias "eg. MyModule as M"
+                    if (import.GetNumChildren() > 1 && import.GetChild(1).Label == "name")                     
                         modAlias = import.GetChild(1).ToString();
                     m.AddImport(modAlias, modDefName);
+
+                    // Look for a module initialization expression
+                    if (import.HasChild("expr"))
+                    {
+                        initializers.Add(modAlias, CreateExpr(import.GetChild("expr")));
+                    }
                 }
             }
+
+            // Note: this has to always happen before we ProcessFields.
+            foreach (string s in initializers.Keys)
+            {
+                Assignment ass = new Assignment(new Name(s), initializers[s]);
+                ExpressionStatement st = new ExpressionStatement(ass);
+                m.GetAutoContructor().body.statements.Add(st);
+            }
+
 
             AstNode inherits = x.GetChild("inherits");
             if (inherits != null)
@@ -212,11 +230,11 @@ namespace HeronEngine
                 }
             }
 
-            foreach (string s in initializers)
+            foreach (string s in initializers.Keys)
             {
-                CodeBlock cb = defn.GetAutoContructor().body as CodeBlock;
-                // TODO: create expression for assignment. 
-                // cb.statements.Add(+ 
+                Assignment ass = new Assignment(new Name(s), initializers[s]);
+                ExpressionStatement st = new ExpressionStatement(ass);
+                defn.GetAutoContructor().body.statements.Add(st);                
             }
         }
 
@@ -313,7 +331,7 @@ namespace HeronEngine
             FieldDefn r = new FieldDefn();
             r.name = x.GetChild("name").ToString();
             r.type = new UnresolvedType(GetTypeName(x, "Any"));
-            r.nullable = IsNullable(x);
+            r.nullable = IsNullable(x.GetChild("typedecl"));
             return r;
         }
 

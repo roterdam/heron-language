@@ -128,7 +128,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="vm"></param>
         /// <param name="funcs"></param>
-        /// <param name="m"></param>
+        /// <param name="mi"></param>
         /// <returns></returns>
         public virtual HeronValue Instantiate(VM vm, HeronValue[] args, ModuleInstance m)
         {

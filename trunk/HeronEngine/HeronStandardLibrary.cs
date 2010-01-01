@@ -46,7 +46,7 @@ namespace HeronStandardLibrary
     /// Wraps a form with a canvas, that is used for drawing.
     /// What is special is that the form is on a separate thread, allowing drawing commands 
     /// to be invoked asynchronously, but still allowing the programmers to interact with 
-    /// the user via other mechanisms (e.r. the command-line).
+    /// the user via other mechanisms (e.ci. the command-line).
     /// </summary>
     public class Viewport
     {

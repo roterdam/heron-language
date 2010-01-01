@@ -124,6 +124,11 @@ namespace HeronEngine
                     return node;
             return null;
         }
+        
+        public bool HasChild(string s)
+        {
+            return GetChild(s) != null;
+        }
 
         public string CurrentLine
         {

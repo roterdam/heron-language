@@ -1,0 +1,36 @@
+// This is a word counter for Heron.
+// http://blogs.sourceallies.com/2009/12/word-counts-example-in-ruby-and-scala/
+// http://fsharpnews.blogspot.com/2009/12/zach-cox-word-count-challenge.html
+// http://www.bestinclass.dk/index.php/2009/12/clojure-vs-ruby-scala-transient-newsgroups/
+// 
+// Used on data set taken from:
+// http://kdd.ics.uci.edu/databases/20newsgroups/20newsgroups.data.html
+module DirectoryWordCount
+{
+	fields
+	{
+		words : Dictionary;
+	}
+	methods
+	{
+		Constructor()
+		{
+			io = new SimpleIO();
+			fs = new SimpleFileSystem();
+			words = new Dictionary;
+		}
+		Main()
+		{
+			var path = "C:\\dev\\heron\\HeronEngine\\testdata\\20_newsgroups.tar";
+			foreach (f in Directory.GetFiles(path, "*", SearchOption.AllDirectories)
+				ProcessFile(f);
+		}
+		ProcessFile(f : String)
+		{
+			Console.WriteLine("Processing file " + f);
+			var contents = File.ReadAllText(f);			
+			regex.Split(contents, "\\w+");
+						
+		}
+	}
+}
