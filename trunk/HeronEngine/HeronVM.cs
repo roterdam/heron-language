@@ -77,7 +77,7 @@ namespace HeronEngine
         /// <summary>
         /// Currently executing program. It contains global names.
         /// </summary>
-        private HeronProgram program;
+        private ProgramDefn program;
 
         /// <summary>
         /// A flag that is set to true when a return statement occurs. 
@@ -117,7 +117,7 @@ namespace HeronEngine
         /// Returns the currently executing program.
         /// </summary>
         /// <returns></returns>
-        public HeronProgram Program
+        public ProgramDefn Program
         {
             get
             {
@@ -137,7 +137,7 @@ namespace HeronEngine
 
         public void InitializeVM()
         {
-            program = new HeronProgram("_program_");
+            program = new ProgramDefn("_program_");
 
             // Clear all the frames
             frames.Clear();
@@ -161,11 +161,17 @@ namespace HeronEngine
             return Eval(x); ;
         }
 
-        public ModuleDefn LoadModule(string sFile)
+        public ModuleDefn LoadModule(string sFileName)
         {
-            string sFileContents = File.ReadAllText(sFile);
-            ModuleDefn m = HeronCodeModelBuilder.ParseFile(program, sFileContents);
+            ModuleDefn m = HeronCodeModelBuilder.ParseFile(program, sFileName);
             program.AddModule(m);
+            string sFileNameAsModuleName = sFileName.Replace('/', '.').Replace('\\', '.');
+            sFileNameAsModuleName = Path.GetFileNameWithoutExtension(sFileNameAsModuleName);
+            int n = sFileNameAsModuleName.IndexOf(m.name);
+            if (n + m.name.Length != sFileNameAsModuleName.Length)
+            {
+                throw new Exception("The module name '" + m.name + "' does not correspond to the file name '" + sFileName + "'");
+            }
             return m;
         }
 
@@ -173,7 +179,7 @@ namespace HeronEngine
         {
             foreach (string sExt in Config.extensions)
             {
-                sResult = sDir + "//" + sModule + sExt;
+                sResult = sDir + "\\" + sModule + sExt;
                 if (File.Exists(sResult)) return true;
             }
             sResult = "";

@@ -21,7 +21,8 @@ namespace HeronEngine
         [HeronVisible]
         public string name = "anonymous_type";
 
-        ModuleDefn module;
+        protected ModuleDefn module;
+        
         Type type;
         Dictionary<string, ExposedMethodValue> functions = new Dictionary<string, ExposedMethodValue>();
         Dictionary<string, ExposedField> fields = new Dictionary<string, ExposedField>();

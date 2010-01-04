@@ -277,22 +277,6 @@ primitive FunctionDefn
     GetStatements() : System.Collections.Generic.IEnumerable`1[HeronEngine.Statement];
   }
 }
-primitive HeronProgram
-{
-  fields
-  {
-    name : System.String;
-  }
-  methods
-  {
-    LoadAssembly(s : System.String) : System.Void;
-    AddModule(m : HeronEngine.ModuleDefn) : System.Void;
-    GetGlobal() : HeronEngine.ModuleDefn;
-    GetModules() : System.Collections.Generic.IEnumerable`1[HeronEngine.ModuleDefn];
-    GetModule(s : System.String) : HeronEngine.ModuleDefn;
-    ToString() : System.String;
-  }
-}
 primitive IfStatement
 {
   fields
@@ -360,7 +344,7 @@ primitive ModuleDefn
   }
   methods
   {
-    GetProgram() : HeronEngine.HeronProgram;
+    GetProgram() : HeronEngine.ProgramDefn;
     GetGlobal() : HeronEngine.ModuleDefn;
     FindClass(s : System.String) : HeronEngine.ClassDefn;
     ContainsClass(s : System.String) : System.Boolean;
@@ -444,6 +428,22 @@ primitive PostIncExpr
   }
   methods
   {
+    ToString() : System.String;
+  }
+}
+primitive ProgramDefn
+{
+  fields
+  {
+    name : System.String;
+  }
+  methods
+  {
+    LoadAssembly(s : System.String) : System.Void;
+    AddModule(m : HeronEngine.ModuleDefn) : System.Void;
+    GetGlobal() : HeronEngine.ModuleDefn;
+    GetModules() : System.Collections.Generic.IEnumerable`1[HeronEngine.ModuleDefn];
+    GetModule(s : System.String) : HeronEngine.ModuleDefn;
     ToString() : System.String;
   }
 }

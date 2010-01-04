@@ -227,6 +227,7 @@ namespace HeronEngine
 
         public override IEnumerable<FunctionDefn> GetAllMethods()
         {
+            yield return autoCtor;
             foreach (FunctionDefn f in GetDeclaredMethods())
                 yield return f;
             if (baseclass != null)

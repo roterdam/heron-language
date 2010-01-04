@@ -1,4 +1,4 @@
-﻿module TestInheritedConstructor
+﻿module TestInheritedConstructors
 {
 	methods
 	{
@@ -26,5 +26,4 @@ class SomeClass {
 			base.Constructor();
 		}
 	}
-}
 }

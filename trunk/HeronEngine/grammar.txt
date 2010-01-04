@@ -39,7 +39,7 @@ Expr ::== BasicExpr+
 ExprStatement ::== (Expr + Eos)
 Field ::== (Name + TypeDecl? + Initializer? + Eos)
 Fields ::== (<fields> + WS + <{>! + WS! + Field*! + <}>!! + WS!!)
-File ::== (Module + EndOfInput)
+File ::== (Module + EndOfInput!)
 FloatLiteral ::== ([-]? + Digit+ + [.] + Digit+)
 ForEachParams ::== (<(>! + WS! + (SpecialDelimiter^ + (Symbol | Ident))! + WS! + TypeDecl?! + <in>! + WS! + Expr! + <)>! + WS!)
 ForEachStatement ::== (<foreach> + WS + <(>!! + WS!! + (SpecialDelimiter^ + (Symbol | Ident))!! + WS!! + TypeDecl?!! + <in>!! + WS!! + Expr!! + <)>!! + WS!! + DelayedStatement!)

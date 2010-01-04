@@ -22,7 +22,7 @@ namespace HeronEngine
             Console.WriteLine("HeronEngine.exe");
             Console.WriteLine("    by Christopher Diggins");
             Console.WriteLine("    version 0.9");
-            Console.WriteLine("    December 31st, 2009");
+            Console.WriteLine("    January 3rd, 2010");
             Console.WriteLine("");
             Console.WriteLine("An execution engine for the Heron language.");
             Console.WriteLine("This program tests the Heron language, but is");
@@ -63,30 +63,7 @@ namespace HeronEngine
         static public void RunFile(string file)
         {
             VM vm = new VM();
-            try
-            {
-                vm.EvalFile(file);
-            }
-            catch (ParsingException e)
-            {
-                Console.WriteLine("Parsing exception occured in file " + file);
-                Console.WriteLine("at character " + e.context.col + " of line " + e.context.row);
-                Console.WriteLine(e.context.msg);
-                Console.WriteLine(e.context.line);
-                Console.WriteLine(e.context.ptr);
-            }
-            catch (HeronCodeModelBuilder.CodeModelException e)
-            {
-                Console.WriteLine("Error occured during typed parse tree construction in file " + file);
-                Console.WriteLine(e.Message);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Error occured when executing file " + file);
-                Console.WriteLine(e.Message);
-                
-                // HeronDebugger.Start(vm);
-            }
+            vm.EvalFile(file);
         }
         
         /// <summary>
@@ -127,8 +104,6 @@ namespace HeronEngine
             catch (Exception e)
             {
                 Console.WriteLine("Error occured: " + e.Message);
-                Console.WriteLine();
-                Usage();
             }
         }
     }

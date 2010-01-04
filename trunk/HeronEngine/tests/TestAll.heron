@@ -3,13 +3,13 @@ module TestAll
 	imports
 	{
 		Factorial = new Factorial();
-		Fibonacci = new Fibnonacci();
+		Fibonacci = new Fibonacci();
 		HelloWorld = new HelloWorld();
 		PrettyPrinting = new PrettyPrinting();
 		Sieve = new Sieve();
 		Squares = new Squares();
 		TestClosures = new TestClosures();
-		TestConstructor = new TestCosntructor();
+		TestConstructor = new TestConstructor();
 		TestDuckTyping = new TestDuckTyping();
 		TestField = new TestField();
 		TestForLoop = new TestForLoop();
@@ -19,12 +19,40 @@ module TestAll
 		TestInheritance = new TestInheritance();
 		TestInheritedConstructors = new TestInheritedConstructors();
 		TestInterfaces = new TestInterfaces();
-		TestModuleInterfaces = new TestModuleInterfaces();
+		TestModuleInheritance = new TestModuleInheritance();
 		TestOutput = new TestOutput();
 		TestRandom = new TestRandom();
 		TestReturn = new TestReturn();
 		TestStatic = new TestStatic();
-		TestViewport = new TestViewport();
 		TestWhile = new TestWhile();
+	}
+	methods
+	{
+		Main()
+		{
+			Factorial.Main();
+			Fibonacci.Main();
+			HelloWorld.Main();
+			PrettyPrinting.Main();
+			Sieve.Main();
+			Squares.Main();
+			TestClosures.Main();
+			TestConstructor.Main();
+			TestDuckTyping.Main();
+			TestField.Main();
+			TestForLoop.Main();
+			TestFunctionCall.Main();
+			TestIf.Main();
+			TestImport.Main();
+			TestInheritance.Main();
+			TestInheritedConstructors.Main();
+			TestInterfaces.Main();
+			TestModuleInheritance.Main();
+			TestOutput.Main();
+			TestRandom.Main();
+			TestReturn.Main();
+			TestStatic.Main();
+			TestWhile.Main();
+		}
 	}
 }

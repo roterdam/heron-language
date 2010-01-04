@@ -25,14 +25,9 @@ namespace HeronEngine
         public FunctionDefn function = null;
 
         /// <summary>
-        /// The 'this' pointer if applicable 
+        /// A pointer to the module instance or the class instance
         /// </summary>
         public ClassInstance self = null;
-
-        /// <summary>
-        /// The type which contains the function
-        /// </summary>
-        public HeronType type = null;
 
         /// <summary>
         /// The moduleDef containing the type
@@ -41,6 +36,8 @@ namespace HeronEngine
 
         /// <summary>
         /// The module instance containing the "self" type.
+        /// Note that if the self type is a module instance,
+        /// then this value will be null.
         /// </summary>
         public ModuleInstance moduleInstance = null;
 
@@ -58,11 +55,10 @@ namespace HeronEngine
         {
             this.function = f;
             this.self = self;
-            this.moduleInstance = self == null ? null : self.GetModuleInstance();
-            if (function != null)
-                type = function.GetContainingType();
-            if (type != null)
-                moduleDef = type.GetModule();
+            if (self != null)
+                moduleInstance = self.GetModuleInstance();
+            if (self != null)
+                moduleDef = self.GetHeronType().GetModule();
             AddScope(new Scope());
         }
 
