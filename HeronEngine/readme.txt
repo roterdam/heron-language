@@ -18,8 +18,8 @@ Alternatively you can use the exe as a library, or just the source code,
 to construct your own interpreters or compilers for Heron, or any other 
 language.
 
-If you have a file "config.xml" in your root directory, this can control
-some options of the interpreter. 
+If you have a file "config.xml" in your root directory, this can be used 
+to control additional options of the interpreter. 
 
 ------------------------
 About the Heron language
@@ -29,14 +29,11 @@ is designed to be used both for large software development projects
 and small scripting tasks.
 
 It is an object-oriented language influenced heavily by C++, C#,
-and Java. Other influential languages include Scala, Pascal, 
-and ActionScript. 
+and Java. Other influential languages include Scala, Pascal, JavScript,
+ActionScript, Eiffel. 
 
-The language grammar is officially defined programmatically in the 
-file HeronGrammar.cs as a parsing expression grammar (PEG). 
-
-For more information on Heron see the test files in the 
-tests folder and the unit tests contained in the file HeronTests.cs.
+The language syntax is officially defined programmatically in the 
+file grammar.txt as a parsing expression grammar (PEG). 
 
 ---------------------
 About the Interpreter
