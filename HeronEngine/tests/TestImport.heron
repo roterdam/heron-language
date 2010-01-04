@@ -2,16 +2,11 @@ module TestImport
 {
 	imports
 	{
-		hw : HelloWorld;
+		HelloWorld as hw = new HelloWorld();
 	}
 
 	methods
 	{		
-		Constructor()
-		{
-			hw = new HelloWorld();
-		}
-		
 		Main()
 		{
 			hw.Main();

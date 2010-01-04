@@ -2,7 +2,7 @@
 {
 	methods
 	{
-		Meta(p : Program)
+		Meta(p : ProgramDefn)
 		{
 			new PrettyPrinter(p);
 		}
@@ -70,7 +70,7 @@ class PrettyPrinter
 	}
 	methods
 	{					
-		Constructor(program : HeronProgram)
+		Constructor(program : ProgramDefn)
 		{
 			base.Constructor();
 			foreach (m in program.GetModules())
@@ -82,7 +82,7 @@ class PrettyPrinter
 			foreach (x in xs)
 				Output(x);
 		}						
-		Output(m : HeronModule)
+		Output(m : ModuleDefn)
 		{
 			Write("module ");
 			WriteLine(m.name);
@@ -111,7 +111,7 @@ class PrettyPrinter
 				Output(xs[i]);
 			}
 		}
-		Output(c : HeronClass)
+		Output(c : ClassDefn)
 		{
 			Write("class ");				
 			WriteLine(c.name);
@@ -123,7 +123,7 @@ class PrettyPrinter
 					OutputSection("methods", c.GetDeclaredMethods());
 				});
 		}
-		Output(i : HeronInterface)
+		Output(i : InterfaceDefn)
 		{
 			Write("interface ");
 			WriteLine(i.name);
@@ -133,7 +133,7 @@ class PrettyPrinter
 					OutputSection("methods", i.GetDeclaredMethods());
 				});
 		}
-		Output(e : HeronEnum)
+		Output(e : EnumDefn)
 		{
 			Write("enum ");
 			WriteLine(e.name);

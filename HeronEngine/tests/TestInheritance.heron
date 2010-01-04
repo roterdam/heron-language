@@ -9,74 +9,73 @@
 	}
 }
 
-	class BaseClass
+class BaseClass
+{
+	fields
 	{
-		fields
-		{
-			fieldA : String;
-		}
-		methods
-		{		
-			Constructor()
-			{
-				Console.WriteLine("1. In constructor of base class");
-				Console.WriteLine("2. Testing a var");
-				var a = "test passed";
-				Console.WriteLine(a);
-				Console.WriteLine("3. Testing a field");				
-				fieldA = a;
-				Console.WriteLine(fieldA);
-				Console.WriteLine("4. Testing a field again");
-				fieldA = a;
-				Console.WriteLine(fieldA);
-				LocalWriteLine("5. Testing a local function");
-				LocalWriteLine(a);
-				LocalWriteLine("6. Testing a local function again");
-				LocalWriteLine(fieldA);
-				LocalWriteLine("7. Testing a local function with access to local field");
-				WriteField();
-				fieldA = "test failed";
-			}
-			LocalWriteLine(s : String)
-			{
-				if (s == null)
-					Console.WriteLine("???");
-				else
-					Console.WriteLine(s);
-			}
-			WriteField()
-			{
-				LocalWriteLine(fieldA);
-			}
-		}			
+		fieldA : String;
 	}
-	
-	class DerivedClass
-	{
-		inherits 
+	methods
+	{		
+		Constructor()
 		{
-			BaseClass;
+			Console.WriteLine("1. In constructor of base class");
+			Console.WriteLine("2. Testing a var");
+			var a = "test passed";
+			Console.WriteLine(a);
+			Console.WriteLine("3. Testing a field");				
+			fieldA = a;
+			Console.WriteLine(fieldA);
+			Console.WriteLine("4. Testing a field again");
+			fieldA = a;
+			Console.WriteLine(fieldA);
+			LocalWriteLine("5. Testing a local function");
+			LocalWriteLine(a);
+			LocalWriteLine("6. Testing a local function again");
+			LocalWriteLine(fieldA);
+			LocalWriteLine("7. Testing a local function with access to local field");
+			WriteField();
+			fieldA = "test failed";
 		}
-		methods
-		{					
-			Constructor()
-			{
-				base.Constructor();
-				Console.WriteLine("8. In constructor of main class");
-				Console.WriteLine("9. Testing a var");
-				var a = "test passed";
-				Console.WriteLine(a);
-				Console.WriteLine("10. Negative testing an inherited field (expect test failed)");
-				Console.WriteLine(fieldA);				
-				Console.WriteLine("11. Testing assignment of an inherited field");				
-				fieldA = a;
-				Console.WriteLine(fieldA);
-				LocalWriteLine("12. Testing an inherited function");
-				LocalWriteLine(a);
-				LocalWriteLine("13. Testing an inherited function");
-				WriteField();
-			}						
+		LocalWriteLine(s : String)
+		{
+			if (s == null)
+				Console.WriteLine("???");
+			else
+				Console.WriteLine(s);
 		}
+		WriteField()
+		{
+			LocalWriteLine(fieldA);
+		}
+	}			
+}
+
+class DerivedClass
+{
+	inherits 
+	{
+		BaseClass;
+	}
+	methods
+	{					
+		Constructor()
+		{
+			base.Constructor();
+			Console.WriteLine("8. In constructor of main class");
+			Console.WriteLine("9. Testing a var");
+			var a = "test passed";
+			Console.WriteLine(a);
+			Console.WriteLine("10. Negative testing an inherited field (expect test failed)");
+			Console.WriteLine(fieldA);				
+			Console.WriteLine("11. Testing assignment of an inherited field");				
+			fieldA = a;
+			Console.WriteLine(fieldA);
+			LocalWriteLine("12. Testing an inherited function");
+			LocalWriteLine(a);
+			LocalWriteLine("13. Testing an inherited function");
+			WriteField();
+		}						
 	}
 }
 

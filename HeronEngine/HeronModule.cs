@@ -19,13 +19,14 @@ namespace HeronEngine
         Dictionary<string, HeronType> types = new Dictionary<string, HeronType>();
         Dictionary<string, string> importedAliases = new Dictionary<string, string>();
         List<string> importedModules = new List<string>();
-        HeronProgram program;
+        ProgramDefn program;
 
-        public ModuleDefn(HeronProgram prog, string name)
+        public ModuleDefn(ProgramDefn prog, string name)
             : base(null, name)
         {
             program = prog;
             this.name = name;
+            this.module = this;
             types.Add(name, this);
         }
 
@@ -36,7 +37,7 @@ namespace HeronEngine
 
         #region heron visible functions
         [HeronVisible]
-        public HeronProgram GetProgram()
+        public ProgramDefn GetProgram()
         {
             return program;
         }
@@ -184,7 +185,6 @@ namespace HeronEngine
                 yield return program.GetModule(s);
         }
         #endregion
-
 
         public override HeronValue Instantiate(VM vm, HeronValue[] args, ModuleInstance m)
         {

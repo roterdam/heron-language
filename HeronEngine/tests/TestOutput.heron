@@ -1,4 +1,4 @@
-﻿module OutputTest
+﻿module TestOutput
 {
 	methods {
 		Main() {

@@ -31,7 +31,7 @@ namespace HeronEngine
         public static void LoadFromFile(string s)
         {
             inputPath.Add(Util.GetExeDir());
-            inputPath.Add(Util.GetExeDir() + @"/lib");
+            inputPath.Add(Util.GetExeDir() + "\\lib");
             extensions.Add(".heron");
             XmlDocument doc = new XmlDocument();
             doc.Load(s);

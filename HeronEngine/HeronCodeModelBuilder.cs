@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 using System.Diagnostics;
 using System.Xml;
 
@@ -42,9 +43,9 @@ namespace HeronEngine
             }
         }
 
-        HeronProgram p;
+        ProgramDefn p;
 
-        public HeronCodeModelBuilder(HeronProgram program)
+        public HeronCodeModelBuilder(ProgramDefn program)
         {
             p = program;
         }
@@ -74,7 +75,7 @@ namespace HeronEngine
                 {
                     string modDefName = import.GetChild(0).ToString();
                     // By default the alias of a module is its own name
-                    string modAlias = import.GetChild(1).ToString();
+                    string modAlias = modDefName;
                     // look for a defined alias "eg. MyModule as M"
                     if (import.GetNumChildren() > 1 && import.GetChild(1).Label == "name")                     
                         modAlias = import.GetChild(1).ToString();
@@ -1054,7 +1055,7 @@ namespace HeronEngine
         #endregion
 
         #region public functions    
-        static public Expression ParseExpr(HeronProgram p, string s)
+        static public Expression ParseExpr(ProgramDefn p, string s)
         {
             AstNode node = ParserState.Parse(HeronGrammar.Expr, s);
             if (node == null)
@@ -1063,7 +1064,7 @@ namespace HeronEngine
             return r;
         }
 
-        static public Statement ParseStatement(HeronProgram p, string s)
+        static public Statement ParseStatement(ProgramDefn p, string s)
         {
             AstNode node = ParserState.Parse(HeronGrammar.Statement, s);
             if (node == null)
@@ -1072,7 +1073,7 @@ namespace HeronEngine
             return r;
         }
 
-        static public ModuleDefn ParseModule(HeronProgram p, string s)
+        static public ModuleDefn ParseModule(ProgramDefn p, string s)
         {
             AstNode node = ParserState.Parse(HeronGrammar.Module, s);
             if (node == null)
@@ -1081,27 +1082,41 @@ namespace HeronEngine
             return r;
         }
 
-        static public ModuleDefn ParseFile(HeronProgram p, string s)
+        static public ModuleDefn ParseFile(ProgramDefn p, string sFileName)
         {
-            AstNode node = ParserState.Parse(HeronGrammar.File, s);
+            AstNode node;
+            string sFileContents = File.ReadAllText(sFileName);
+            try
+            {
+                node = ParserState.Parse(HeronGrammar.File, sFileContents);
+            }
+            catch (ParsingException e)
+            {
+                Console.WriteLine("Parsing exception occured in file " + sFileName);
+                Console.WriteLine("at character " + e.context.col + " of line " + e.context.row);
+                Console.WriteLine(e.context.msg);
+                Console.WriteLine(e.context.line);
+                Console.WriteLine(e.context.ptr);
+                throw;
+            }
+
             if (node == null)
-                return null;
+            {
+                Console.WriteLine("Ill-formed Heron file " + sFileName);
+                throw new Exception();
+            }
 
             try
             {
                 ModuleDefn r = (new HeronCodeModelBuilder(p)).CreateModule(node);
                 return r;
             }
-            catch (CodeModelException)
-            {
-                // Rethrow.
-                throw;
-            }
             catch (Exception e)
             {
-                // Convert generic exceptions into TypedASTExceptions
-                throw new CodeModelException(e);
-            }                        
+                Console.WriteLine("Error occured during construction of code model in file " + sFileName);
+                Console.WriteLine(e.Message);
+                throw;
+            }
         }
 
         static public ClassDefn ParseClass(ModuleDefn m, string s)

@@ -159,7 +159,7 @@ namespace HeronEngine
         public static Rule TypeDefinition = Class | Interface | Enum;
         public static Rule ModuleBody = Store("modulebody", NoFail(Token("{") + Opt(Imports) + Opt(Inherits) + Opt(Fields) + Opt(Methods) + Token("}")));
         public static Rule Module = Store("module", Opt(Annotations) + Token("module") + NoFail(Name) + ModuleBody + Star(TypeDefinition));
-        public static Rule File = Module + EndOfInput;
+        public static Rule File = Module + NoFail(EndOfInput);
         #endregion
 
         static HeronGrammar()

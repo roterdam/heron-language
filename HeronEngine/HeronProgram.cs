@@ -17,7 +17,7 @@ namespace HeronEngine
     /// <summary>
     /// Represents an executable Heron program.
     /// </summary>
-    public class HeronProgram : HeronValue
+    public class ProgramDefn : HeronValue
     {
         private List<ModuleDefn> modules = new List<ModuleDefn>();
         private Dictionary<string, ModuleDefn> dependencies = new Dictionary<string, ModuleDefn>();
@@ -26,7 +26,7 @@ namespace HeronEngine
         [HeronVisible]
         public string name;
 
-        public HeronProgram(string name)
+        public ProgramDefn(string name)
         {
             this.name = name;
             global = new ModuleDefn(this, "_global_");
@@ -80,7 +80,7 @@ namespace HeronEngine
             Assembly a = null;
             foreach (String tmp in Config.inputPath)
             {
-                string path = tmp + "//" + s;
+                string path = tmp + "\\" + s;
                 if (File.Exists(path))
                 {
                     a = Assembly.LoadFrom(path);
@@ -148,16 +148,15 @@ namespace HeronEngine
             foreach (string s in m.GetImportedModuleNames())
             {
                 if (!dependencies.ContainsKey(s))
-                {
                     dependencies.Add(s, null);
-                }
             }
 
             // There may also be an imported class
             if (m.HasBaseClass())
             {
                 string s = m.GetInheritedClassName();
-                dependencies.Add(s, null);
+                if (!dependencies.ContainsKey(s))
+                    dependencies.Add(s, null);
             }
         }
 

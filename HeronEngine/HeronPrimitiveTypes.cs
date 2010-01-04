@@ -50,7 +50,7 @@ namespace HeronEngine
         public static HeronType ExternalMethodListType = new HeronType(null, typeof(DotNetMethodGroup), "ExternalMethodList");
 
         // Code model types
-        public static HeronCodeModelType ProgramType = new HeronCodeModelType(typeof(HeronProgram));
+        public static HeronCodeModelType ProgramType = new HeronCodeModelType(typeof(ProgramDefn));
         public static HeronCodeModelType ModuleType = new HeronCodeModelType(typeof(ModuleDefn));
         public static HeronCodeModelType ClassType = new HeronCodeModelType(typeof(ClassDefn));
         public static HeronCodeModelType InterfaceType = new HeronCodeModelType(typeof(InterfaceDefn));
