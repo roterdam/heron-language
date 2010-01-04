@@ -1,9 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <cfgxml>
-  <version>
-    <major>1</major>
-    <minor>1</minor>
-  </version>
   <section name="main">
     <pathlist name="inputpath">
       <path relative="true">tests</path>
