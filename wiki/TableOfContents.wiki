@@ -1,4 +1,4 @@
-#summary A table of contents for the Wiki-documentation
+#summary A table of contents for the Heron documentation on the Wiki
 #labels Phase-Design,Featured
 
 = Table of Contents =
