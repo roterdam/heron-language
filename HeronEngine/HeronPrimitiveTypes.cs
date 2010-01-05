@@ -15,6 +15,10 @@ namespace HeronEngine
 {
     static class PrimitiveTypes
     {
+        // The VM is only available when in the REPL.
+        // This is not an official feature of Heron.
+        public static HeronType VMType = new HeronType(null, typeof(VM), "VM");        
+
         // The specials
         public static HeronType VoidType = new HeronType(null, typeof(VoidValue), "Void");
         public static HeronType NullType = new HeronType(null, typeof(NullValue), "Null");
@@ -32,7 +36,7 @@ namespace HeronEngine
         public static HeronType ListType = new HeronType(null, typeof(ListValue), "List");
 
         // Not currently supported
-        public static HeronType TreeType = new HeronType(null, typeof(ListValue), "Tree");
+        public static HeronType TreeType = new HeronType(null, typeof(ListValue), "__Tree");
 
         // Misc types
         public static HeronType TypeType = new HeronType(null, typeof(HeronType), "Type");

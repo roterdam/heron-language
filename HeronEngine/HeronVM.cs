@@ -14,9 +14,10 @@ using System.Diagnostics;
 namespace HeronEngine
 {
     /// <summary>
-    /// This represents the current state of the Heron virtual machine. 
+    /// This is the core class of Heron. Often we think of a VM as being a byte-code
+    /// machine, but in the case of the HeronEngine, it evaluates the code model directly.
     /// </summary>
-    public class VM
+    public class VM : HeronValue
     {
         #region helper classes
         /// <summary>
@@ -451,6 +452,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="s"></param>
         /// <param name="o"></param>
+        [HeronVisible]
         public void SetVar(string s, HeronValue o)
         {
             Trace.Assert(o != null);
@@ -462,6 +464,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
+        [HeronVisible]
         public bool HasVar(string name)
         {
             return frames.Peek().HasVar(name);
@@ -492,7 +495,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="name"></param>
         /// <param name="val"></param>
-        public void SetField(string s, HeronValue o)
+        public new void SetField(string s, HeronValue o)
         {
             Trace.Assert(o != null);
             frames.Peek().SetField(s, o);
@@ -505,6 +508,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="s"></param>
         /// <returns></returns>
+        [HeronVisible]
         public HeronValue LookupName(string s)
         {
             HeronValue r = frames.Peek().LookupName(s);
@@ -529,6 +533,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="s"></param>
         /// <param name="o"></param>
+        [HeronVisible]
         public void AddVar(string s, HeronValue o)
         {
             Assure(o != null, "Null is not an acceptable value");
@@ -605,6 +610,11 @@ namespace HeronEngine
         public HeronValue Invoke(HeronValue self, string s)
         {
             return Invoke(self, s, new HeronValue[] { });
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.VMType;
         }
     }
 }

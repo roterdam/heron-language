@@ -24,10 +24,6 @@ namespace HeronEngine
             Console.WriteLine("    version 0.9");
             Console.WriteLine("    January 4th, 2010");
             Console.WriteLine("");
-            Console.WriteLine("An execution engine for the Heron language.");
-            Console.WriteLine("This program tests the Heron language, but is");
-            Console.WriteLine("intended to be used as a class library.");
-            Console.WriteLine("");
             Console.WriteLine("Usage: ");
             Console.WriteLine("  HeronEngine.exe inputfile.heron ");
             Console.WriteLine("");
@@ -86,7 +82,11 @@ namespace HeronEngine
             if (args.Length != 1) 
             {
                 Usage();
-                Console.WriteLine("Press any key to exit ...");
+                /*
+                REPL repl = new REPL();
+                repl.Run();
+                 */
+                Console.WriteLine("Press any key to continue ...");
                 Console.ReadKey();
                 return;
             }
