@@ -2,6 +2,7 @@ mkdir Release
 mkdir Release\lib
 mkdir Release\tests
 mkdir Release\src
+mkdir Release\src\lib
 mkdir Release\src\Properties
 mkdir Release\src\Tests
 del Release\*.* /Q /S
