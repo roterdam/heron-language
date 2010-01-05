@@ -98,7 +98,7 @@ namespace HeronEngine
                         OutputPrimitives();
                     if (Config.runUnitTests)
                         HeronTests.MainTest();
-                    RunFile(Util.GetExeDir() + "\\" + args[0]);
+                    RunFile(args[0]);
                 }
                 catch (Exception e)
                 {
