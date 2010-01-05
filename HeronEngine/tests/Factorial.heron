@@ -1,0 +1,23 @@
+module Factorial
+{
+	fields
+	{
+		max = 10;
+	}
+	methods
+	{
+		Fact(n : Int) : Int
+		{
+			if (n <= 1)
+				return 1;
+			else 
+				return n * Fact(n - 1);
+		}
+
+		Main() 
+		{
+			foreach (i in 0..max)
+				Console.WriteLine(Fact(i));
+		}
+	}
+}
