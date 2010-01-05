@@ -66,6 +66,7 @@
     <Compile Include="HeronDuckCasting.cs" />
     <Compile Include="HeronEnum.cs" />
     <Compile Include="HeronInterface.cs" />
+    <Compile Include="HeronREPL.cs" />
     <Compile Include="HeronUserType.cs" />
     <Compile Include="HeronCollection.cs" />
     <Compile Include="HeronConfig.cs" />
