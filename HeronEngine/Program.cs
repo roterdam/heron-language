@@ -22,7 +22,7 @@ namespace HeronEngine
             Console.WriteLine("HeronEngine.exe");
             Console.WriteLine("    by Christopher Diggins");
             Console.WriteLine("    version 0.9");
-            Console.WriteLine("    January 4th, 2010");
+            Console.WriteLine("    January 5th, 2010");
             Console.WriteLine("");
             Console.WriteLine("Usage: ");
             Console.WriteLine("  HeronEngine.exe inputfile.heron ");
@@ -79,32 +79,36 @@ namespace HeronEngine
         /// <param name="funcs"></param>
         static public void Main(string[] args)
         {
-            if (args.Length != 1) 
+            if (args.Length != 1)
             {
                 Usage();
                 /*
                 REPL repl = new REPL();
                 repl.Run();
                  */
-                Console.WriteLine("Press any key to continue ...");
-                Console.ReadKey();
-                return;
             }
-            try
+            else
             {
-                LoadConfig();
-                if (Config.outputGrammar) 
-                    OutputGrammar();
-                if (Config.outputPrimitives) 
-                    OutputPrimitives();
-                if (Config.runUnitTests) 
-                    HeronTests.MainTest();
-                RunFile(Util.GetExeDir() + "\\" + args[0]);
+                try
+                {
+                    LoadConfig();
+                    if (Config.outputGrammar)
+                        OutputGrammar();
+                    if (Config.outputPrimitives)
+                        OutputPrimitives();
+                    if (Config.runUnitTests)
+                        HeronTests.MainTest();
+                    RunFile(Util.GetExeDir() + "\\" + args[0]);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error occured: " + e.Message);
+                }
             }
-            catch (Exception e)
-            {
-                Console.WriteLine("Error occured: " + e.Message);
-            }
+
+            Console.WriteLine();
+            Console.Write("Press any key to continue ...");
+            Console.ReadKey();
         }
     }
 }
