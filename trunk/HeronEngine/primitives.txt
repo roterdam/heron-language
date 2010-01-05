@@ -1,3 +1,18 @@
+primitive __Tree
+{
+  fields
+  {
+  }
+  methods
+  {
+    Add(v : HeronEngine.HeronValue) : System.Void;
+    Remove() : System.Void;
+    Count() : HeronEngine.HeronValue;
+    GetIterator() : HeronEngine.IteratorValue;
+    ToList() : HeronEngine.ListValue;
+    ToString() : System.String;
+  }
+}
 primitive Any
 {
   fields
@@ -186,21 +201,6 @@ primitive String
     AsString() : HeronEngine.HeronValue;
   }
 }
-primitive Tree
-{
-  fields
-  {
-  }
-  methods
-  {
-    Add(v : HeronEngine.HeronValue) : System.Void;
-    Remove() : System.Void;
-    Count() : HeronEngine.HeronValue;
-    GetIterator() : HeronEngine.IteratorValue;
-    ToList() : HeronEngine.ListValue;
-    ToString() : System.String;
-  }
-}
 primitive Type
 {
   fields
@@ -216,6 +216,20 @@ primitive Type
     GetHashCode() : System.Int32;
     ToString() : System.String;
     GetName() : System.String;
+  }
+}
+primitive VM
+{
+  fields
+  {
+  }
+  methods
+  {
+    SetVar(s : System.String, o : HeronEngine.HeronValue) : System.Void;
+    HasVar(name : System.String) : System.Boolean;
+    LookupName(s : System.String) : HeronEngine.HeronValue;
+    AddVar(s : System.String, o : HeronEngine.HeronValue) : System.Void;
+    ToString() : System.String;
   }
 }
 primitive Void
