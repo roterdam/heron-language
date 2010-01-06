@@ -3,46 +3,80 @@
 
 = Modules =
 
-A Heron module is a container of type definitions. A module may have also  
+A Heron module is a container of type definitions that can contains variables and methods that are accessible from the scope of class instances in the module. A file can contain only one module. Every program consists of at least one module. 
 
-A file can contain only one module. Every program consists of at least one module. A Heron script maps to a module.  
+Unlike modules in other languages, module are not singletons and their member data is not include the global scope.  
 
+Modules can inherit from another module, and can import other modules. 
+ 
 A module has the following layout:
 
 {{{
 module MyModule
 {
   inherits
-  {
-  }
+  { }
   imports
-  {
-  } 
+  { } 
   fields 
-  {
-  }
+  { }
   methods
-  {
-  }
+  { }
 }
 
 class SomeClass 
-{
-}
+{ }
 
 interface SomeInterface
-{
-}
+{ }
 
 enum SomeEnum
-{
+{ }
+}}}
+
+== Module Aliases ==
+
+When a module is imported it can be assigned an alias as follows:
+
+{{{
+import {
+  HelloWorld as hw;
 }
 }}}
 
-= Implementation Details =
+== Module Imports and Module Instantiation ==
 
-The implementation of modules can be found in the file HeronModule.cs.  
+When a module imports another module it must instantiate the other module before it can use it. This is done using the `new` operator. Module constructors are any functions with the reserved name `Constructor` and can accept arguments.
 
-= To do =
+Modules can be instantiated at the import location:
 
-The module design is not complete yet. The details of how to handle exports and imports still have to be done. 
+{{{
+import {
+  HelloWorld as hw = new HelloWorld();
+}
+}}}
+
+In which case the order of initialization is that same as the order in which the imports declarations occur.
+
+Or it can be done in the constructor. 
+
+{{{
+methods {
+  Constructor() {
+    hw = new HelloWorld();
+  }
+}
+}}}
+
+== Class Instantiation and Modules ==
+
+When a class is instantiated from another module a special syntax is required:
+
+{{{
+module MyModule
+{
+  import 
+  {
+    OtherModule as 
+  }
+}}} 
