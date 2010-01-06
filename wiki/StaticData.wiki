@@ -1,6 +1,6 @@
 #summary Static data in Heron.
 
-= Static Data and Module Variables =
+= Static Data =
 
 In Heron there is no static data, instead module variables are used. Each class instance is associated with a particular module instance. All class instances associated with a particular module instance have access to the same data.
 
