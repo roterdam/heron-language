@@ -27,11 +27,7 @@ module MyModule
 class SomeClass 
 { }
 
-interface SomeInterface
-{ }
-
-enum SomeEnum
-{ }
+// Type declarations ... 
 }}}
 
 == Module Aliases ==
