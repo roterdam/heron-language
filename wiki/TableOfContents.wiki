@@ -22,17 +22,17 @@ These are the different Wiki topics related to the Heron documentation.
   # [UpcastingAndDowncasting Type casting]
   # [FirstClassFunctions First class functions] 
   # [Closures]
-
-== Top Level Constructs ==
-
-  # [FileLayout File layout]
-  # [Modules Modules]
   
 == User Defined Types ==
  
+  # [Modules Modules]
   # [Classes Classes]
   # [Interfaces Interfaces]
   # [Enums Enums]
+
+== Advanced Topics ==
+
+  # [StaticData Static data in Heron]
 
 == Planned Features ==
 
