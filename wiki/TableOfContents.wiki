@@ -5,11 +5,6 @@
 
 These are the different Wiki topics related to the Heron documentation.
 
-== Design Principles and Philosphy ==
-
-  # [HeronDesignGoals Design goals]
-  # [ZenOfHeron Zen of Heron (guiding principles)]
-
 == Quick Start ==
 
   # [HelloWorld Hello world] - and other basic programs
@@ -29,6 +24,11 @@ These are the different Wiki topics related to the Heron documentation.
   # [Interfaces Interfaces]
   # [Enums Enums]
   # [Modules Modules]
+
+== Design Principles and Philosphy ==
+
+  # [HeronDesignGoals Design goals]
+  # [ZenOfHeron Zen of Heron (guiding principles)]
 
 == Planned Features ==
 
