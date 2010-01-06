@@ -15,7 +15,7 @@ module HelloWorld
 }
 }}}
 
-= Fibonacci =
+= Squares =
 
 {{{
 module Squares
