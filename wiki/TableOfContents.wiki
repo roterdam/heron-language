@@ -25,14 +25,10 @@ These are the different Wiki topics related to the Heron documentation.
   
 == User Defined Types ==
  
-  # [Modules Modules]
   # [Classes Classes]
   # [Interfaces Interfaces]
   # [Enums Enums]
-
-== Advanced Topics ==
-
-  # [StaticData Static data in Heron]
+  # [Modules Modules]
 
 == Planned Features ==
 
