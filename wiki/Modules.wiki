@@ -70,13 +70,20 @@ methods {
 
 == Class Instantiation and Modules ==
 
-When a class is instantiated from another module a special syntax is required:
+When a class is instantiated from another module a special form of the `new` operator is required:
 
 {{{
-module MyModule
+module MyModule 
 {
-  import 
-  {
-    OtherModule as 
+  import {
+    OtherModule = new OtherModule(); 
+  }
+  fields {
+    oc : OtherClass;
+  }
+  methods {
+    Constructor() {
+      oc = new OtherClass() from OtherModule; 
+    }
   }
 }}} 
