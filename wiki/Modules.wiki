@@ -87,3 +87,11 @@ module MyModule
     }
   }
 }}} 
+
+== Static Data and Module Variables ==
+
+In Heron there is no static or global data, instead module variables serve this purpose. Each class instance is associated with a particular module instance. All class instances associated with a particular module instance have access to the same data.
+
+Module variables have similar semantics to global state, but the difference is that a module can be instantiated multiple times.    
+
+This is an idea which was inspired by [http://gbracha.blogspot.com/2008/02/cutting-out-static.html this post by Gilad Bracha] the author of the [http://newspeaklanguage.org/ Newspeak] language.
