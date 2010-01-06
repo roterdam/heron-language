@@ -3,25 +3,40 @@
 
 = Modules =
 
-A module is a named package of type definitions. It may contains classes, interfaces, and enums. A file can contain only one module. Every program consists of at least one module. A Heron script maps to a module.  
+A Heron module is a container of type definitions. A module may have also  
+
+A file can contain only one module. Every program consists of at least one module. A Heron script maps to a module.  
 
 A module has the following layout:
 
 {{{
 module MyModule
 {
-  class SomeClass 
+  inherits
   {
   }
- 
-  interface SomeInterface
+  imports
+  {
+  } 
+  fields 
   {
   }
-  
-  enum SomeEnum
+  methods
   {
   }
-} 
+}
+
+class SomeClass 
+{
+}
+
+interface SomeInterface
+{
+}
+
+enum SomeEnum
+{
+}
 }}}
 
 = Implementation Details =
