@@ -12,7 +12,7 @@ These are the different Wiki topics related to the Heron documentation.
 
 == Quick Start ==
 
-  # [HelloWorld Hello world and other simple programs]
+  # [HelloWorld Hello world] 
 
 == Basic Topics ==
 
