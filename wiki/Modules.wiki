@@ -32,13 +32,15 @@ class SomeClass
 
 == Module Aliases ==
 
-When a module is imported it can be assigned an alias as follows:
+A module alias is a name that is assigned to a particular module instance. Similar to a module or class field. When a module is imported it can be assigned an alias as follows:
 
 {{{
 import {
   HelloWorld as hw;
 }
 }}}
+
+If no alias is provided, then the module name is used as the alias. 
 
 == Module Imports and Module Instantiation ==
 
@@ -69,25 +71,15 @@ methods {
 When a class is instantiated from another module a special form of the `new` operator is required:
 
 {{{
-module MyModule 
-{
-  import {
-    OtherModule = new OtherModule(); 
-  }
-  fields {
-    oc : OtherClass;
-  }
-  methods {
-    Constructor() {
-      oc = new OtherClass() from OtherModule; 
-    }
-  }
+Constructor() {
+  oc = new OtherClass() from OtherModule; 
+}
 }}} 
 
 == Static Data and Module Variables ==
 
 In Heron there is no static or global data, instead module variables serve this purpose. Each class instance is associated with a particular module instance. All class instances associated with a particular module instance have access to the same data.
 
-Module variables have similar semantics to global state, but the difference is that a module can be instantiated multiple times.    
+Module variables have similar semantics to global functions and variables in other languages, but the difference is that a module can be instantiated multiple times.    
 
 This is an idea which was inspired by [http://gbracha.blogspot.com/2008/02/cutting-out-static.html this post by Gilad Bracha] the author of the [http://newspeaklanguage.org/ Newspeak] language.
