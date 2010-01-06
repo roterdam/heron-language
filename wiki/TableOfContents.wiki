@@ -26,7 +26,6 @@ These are the different Wiki topics related to the Heron documentation.
 == Top Level Constructs ==
 
   # [FileLayout File layout]
-  # [Scripts Scripts] 
   # [Modules Modules]
   
 == User Defined Types ==
