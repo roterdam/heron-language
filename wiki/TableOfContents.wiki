@@ -10,6 +10,10 @@ These are the different Wiki topics related to the Heron documentation.
   # [HeronDesignGoals Design goals]
   # [ZenOfHeron Zen of Heron (guiding principles)]
 
+== Quick Start ==
+
+  # [HelloWorld Hello world and other simple programs]
+
 == Basic Topics ==
 
   # [Primitives Primitives] - built-in primitive types
