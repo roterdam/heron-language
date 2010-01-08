@@ -19,7 +19,7 @@ module HelloWorld
 
 In this case we are lazily relying on the fact that the Heron interpreter imports some libraries from .NET. As the standard libraries are developed, a proper IO module will be added.  
 
-= Sieve of Erastothenes =
+= Sieve of Eratosthenes =
 
 This program prints out the prime numbers up to 100. It demonstrates ranges and the select operator.    
 
