@@ -2,6 +2,8 @@
 
 = Hello World =
 
+The obligatory _Hello world_ program, which prints the string "Hello World" to the console. 
+  
 {{{
 module HelloWorld 
 {
@@ -15,25 +17,29 @@ module HelloWorld
 }
 }}}
 
-= Squares =
+In this case we are lazily relying on the fact that the Heron interpreter imports some libraries from .NET. As the standard libraries are developed, a proper IO module will be added.  
+
+= Sieve of Erastothenes =
+
+This program prints out the prime numbers up to 100. It demonstrates ranges and the select operator.    
 
 {{{
-module Squares
+module Sieve
 {
-  fields
+  fields 
   {
     max = 10;
   }
-  methods
+  methods 
   {
-    Square(n : Int) : Int
-    {
-      return n * n;
-    }
     Main() 
     {
-      foreach (i in 0..max)
-        Console.WriteLine(Square(i));
+      var primes = 0..(max * max);
+	foreach (i in 2..max)
+	  primes = select (j from primes) 
+            j % i != 0;		
+	foreach (i in primes)
+	  Console.WriteLine(i);
     }
   }
 }
