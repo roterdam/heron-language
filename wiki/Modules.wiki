@@ -24,11 +24,35 @@ module MyModule
   { }
 }
 
+// Type declarations
+// All types that follow a module instance in a file, belong
+// to that module
+
 class SomeClass 
 { }
-
-// Type declarations ... 
 }}}
+
+== Accessing Module Data ==
+
+Every class instance is associated with a single module instance. A class instance can access its module's fields, without requiring qualification as so:
+
+{{{
+module MyModule {
+  fields {
+    x : int = 42; 
+  }
+}
+
+class SomeClass { 
+  functions {
+    GetX() : Int { 
+      return x;
+    }
+  }
+}
+}}}
+
+This means that every class instance has a hidden module instance pointer. 
 
 == Module Aliases ==
 
@@ -83,3 +107,28 @@ In Heron there is no static or global data, instead module variables serve this 
 Module variables have similar semantics to global functions and variables in other languages, but the difference is that a module can be instantiated multiple times.    
 
 This is an idea which was inspired by [http://gbracha.blogspot.com/2008/02/cutting-out-static.html this post by Gilad Bracha] the author of the [http://newspeaklanguage.org/ Newspeak] language.
+
+== How Classes Differ from Modules ==
+
+Modules bear a resemblance to classes: they can be instantiated, they have fields and member functions. However there are some differences:
+
+  * Only modules can contain classes, interfaces, and enums 
+  * Every class instance is associated with a module instance
+  * A class instance can access the fields and methods of the module with which it is associated without needing to qualify them. 
+  * Modules allows names from other module instances to be imported 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
