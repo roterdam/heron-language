@@ -117,8 +117,19 @@ Modules bear a resemblance to classes: they can be instantiated, they have field
   * A class instance can access the fields and methods of the module with which it is associated without needing to qualify them. 
   * Modules allows names from other module instances to be imported 
 
+== How Modules are Loaded ==
 
+Modules are loaded using a module searching mechanism determined by the implementation. In the current implementation, the Config.xml file accepts an "inputpath" element which contains a sequence of "path" elements to be search in order. In addition the Heron implementation will first search in the exe folder, and a sub-folder of the the exe folder named "lib". For more information see the implementation file HeronConfig.cs.
+   
+== FAQ ==
 
+  Q: Since a module can be instantiated multiple times, is there an easy way to say   "instantiate module HelloWorld, except if it is already instantiated in another module in which case reuse the existing instance"?
+
+  A: No. That would create a coupling between modules, that could lead to unpredictable results. The module system is designed to eliminate implicit coupling and improve software stability. 
+
+  Q: Why does "Every program consists of at least one module"?
+
+  A: A program by definition is a single module, and all of the modules inherited and imported by that module directly or indirectly. There is no "program" entity.    
 
 
 
