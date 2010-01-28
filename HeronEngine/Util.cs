@@ -9,12 +9,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Reflection;
 
 namespace HeronEngine
 {
     public static class Util
     {
+        public static Regex reWSpace = new Regex(@"\s+", RegexOptions.Singleline | RegexOptions.Compiled);
+
+        public static string RemoveInternalWSpace(this string self)
+        {
+            return reWSpace.Replace(self, "");
+        }
+
+        public static string CompressWSpace(this string self)
+        {
+            return reWSpace.Replace(self.Trim(), " ");
+        }
+
+        public static bool IsValidIdentifier(this string self)
+        {
+            Regex re = new Regex(@"\w(\w|\d)*", RegexOptions.Compiled);
+            Match m = re.Match(self);
+            return m.Success && m.Length == self.Length;
+        }
+
         public static string IndentLines(string s, string indent)
         {
             return s.Replace("\n", "\n" + indent);

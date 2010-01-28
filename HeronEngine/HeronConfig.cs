@@ -27,12 +27,18 @@ namespace HeronEngine
         public static bool runUnitTests = false;
         public static bool outputGrammar = false;
         public static bool outputPrimitives = false;
+        public static int maxListPrintableSize = 5;
+        public static int maxThreads = 2;
 
-        public static void LoadFromFile(string s)
+        static Config()
         {
             inputPath.Add(Util.GetExeDir());
             inputPath.Add(Util.GetExeDir() + "\\lib");
             extensions.Add(".heron");
+        }
+
+        public static void LoadFromFile(string s)
+        {
             XmlDocument doc = new XmlDocument();
             doc.Load(s);
             XmlElement root = doc.DocumentElement;
@@ -59,7 +65,7 @@ namespace HeronEngine
             switch (e.GetAttribute("name"))
             {
                 case "inputpath":
-                    inputPath = ProcessPathList(e);
+                    inputPath.AddRange(ProcessPathList(e));
                     break;
                 case "libs":
                     libs = ProcessStringList(e);

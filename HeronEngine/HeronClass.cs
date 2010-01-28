@@ -40,15 +40,13 @@ namespace HeronEngine
                     baseclass = (baseclass as UnresolvedType).Resolve(m);
             for (int i = 0; i < interfaces.Count; ++i)
             {
-                HeronType t = interfaces[i];
-                if (t is UnresolvedType)
-                {
-                    HeronType ht = (t as UnresolvedType).Resolve(m);
-                    InterfaceDefn hi = ht as InterfaceDefn;
-                    if (hi == null)
-                        throw new Exception(ht.name + " is not an interface");
-                    interfaces[i] = hi;
-                }
+                HeronType t = interfaces[i].Resolve(m);
+                if (t == null)
+                    throw new Exception(interfaces[i].name + " could not be resolved");
+                InterfaceDefn hi = t as InterfaceDefn;
+                if (hi == null)
+                    throw new Exception(t.name + " is not an interface");
+                interfaces[i] = hi;
             }
             foreach (FieldDefn f in GetFields())
                 f.ResolveTypes(m);

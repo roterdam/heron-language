@@ -26,7 +26,7 @@ namespace HeronEngine
         public static Rule NotChar(char c) { return Not(SingleChar(c)) + AnyChar; }
         public static Rule CharSet(string s) { return new CharSetRule(s); }
         public static Rule CharRange(char first, char last) { return new CharRangeRule(first, last); }
-        public static Rule Store(string name, Rule x) { return new AstNodeRule(name, x); }        
+        public static Rule Store(string name, Rule x) { return new ParseNodeRule(name, x); }        
         public static Rule Opt(Rule x) { return new OptRule(x); }
         public static Rule Star(Rule x) { return new StarRule(x); }
         public static Rule Plus(Rule x) { return new PlusRule(x); }

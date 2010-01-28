@@ -1,0 +1,73 @@
+module TestTables
+{
+    inherits
+    {
+        Heron.Windows.Console;
+    }
+    methods
+    {
+        Main()
+        {
+            var t1 = table(a, b) 
+            {
+                1, "one";
+                2, "two";
+                3, "three";
+            };
+            var t2 = table(a:String, b:Int, c:String) 
+            {
+                "one", 1, "un";
+                "two", 2, "deux";
+                "three", 3, "trois";
+            };
+            WriteLine(t1[1].a.ToString());
+            WriteLine(t1[2].a.ToString());
+            WriteLine(t1[3].a.ToString());
+            WriteLine(t1[1].b);
+            WriteLine(t1[2].b);
+            WriteLine(t1[3].b);
+            WriteLine(t1[1].ToString());
+            WriteLine(t1[2].ToString());
+            WriteLine(t1[3].ToString());
+            foreach (r in t1)
+                WriteLine(r.b);
+            foreach (r in t2)
+                WriteLine(r.ToString());
+
+            WriteLine("Expect un, deux, trois");
+            WriteLine(t2["one"].c);
+            WriteLine(t2["two"].c);
+            WriteLine(t2["three"].c);
+
+            if (t2.HasKey("three"))
+                WriteLine("pass");
+            else
+                WriteLine("fail");
+                
+            if (t2.HasKey("four"))
+                WriteLine("fail");
+            else
+                WriteLine("pass");
+                
+            var tuple = ["four", 4, "quatre"];
+            t2.Add(tuple);
+            
+            WriteLine("Expect 'quatre'");
+            WriteLine(t2["four"].c);            
+            
+            var rec2 = record(a:String, b:Int, c:String)
+            { "five", 5, "cinq" };
+    
+            t2.Add(rec2);
+            WriteLine("Expect 'cinq'");
+            WriteLine(t2["five"].c);            
+            
+            var rec = record(b:Int, c:String, a:String)
+            { 6, "six", "six" };
+    
+            t2.Add(rec);
+            WriteLine("Expect 'six'");
+            WriteLine(t2["six"].c);            
+        }
+    }
+}

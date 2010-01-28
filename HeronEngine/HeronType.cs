@@ -185,11 +185,31 @@ namespace HeronEngine
         {
             return name;
         }
+
+        /* TODO: either finish or remove
+        [HeronVisible]
+        public bool CanCastTo(HeronType t)
+        {
+            if (t == this)
+                return true;
+            else if (t == PrimitiveTypes.AnyType)
+                return true;
+            else if (t == PrimitiveTypes.SeqType)
+                return this == PrimitiveTypes.ListType
+                    || this == PrimitiveTypes.RecordType
+                    || this == PrimitiveTypes.TableType;
+            else if (t == 
+        }*/
         #endregion
 
         public virtual int GetHierarchyDepth()
         {
             return 1;
+        }
+
+        public virtual HeronType Resolve(ModuleDefn m)
+        {
+            return this;
         }
     }
 
@@ -212,7 +232,7 @@ namespace HeronEngine
             throw new Exception("Type '" + name + "' was not resolved.");
         }
 
-        public HeronType Resolve(ModuleDefn m)
+        public override HeronType Resolve(ModuleDefn m)
         {
             HeronType r = m.FindType(name);
             if (r == null)

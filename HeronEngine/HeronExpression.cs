@@ -62,7 +62,7 @@ namespace HeronEngine
                 x.ResolveTypes(m);
         }
 
-        public void ResolveTypes(ModuleDefn m)
+        public virtual void ResolveTypes(ModuleDefn m)
         {
             foreach (FieldInfo fi in GetInstanceFields())
             {
@@ -70,7 +70,7 @@ namespace HeronEngine
                 {
                     HeronType t = fi.GetValue(this) as HeronType;
                     if (t == null)
-                        throw new Exception("The type field cannot be null, expected an UnresolvedType");
+                        throw new Exception("The type field cannot be null");
                     UnresolvedType ut = t as UnresolvedType;
                     if (ut != null)
                         fi.SetValue(this, ut.Resolve(m));
@@ -698,7 +698,7 @@ namespace HeronEngine
     /// if it has free variables. A free variable is a variable that is not local
     /// to the function and that is not an argument.
     /// </summary>
-    public class AnonFunExpr : Expression
+    public class FunExpr : Expression
     {       
         [HeronVisible] public FormalArgs formals;
         [HeronVisible] public CodeBlock body;
@@ -706,6 +706,13 @@ namespace HeronEngine
         [HeronVisible] public bool nullable;
 
         private FunctionDefn function;
+
+        public override void ResolveTypes(ModuleDefn m)
+        {
+            formals.ResolveTypes(m);
+            body.ResolveTypes(m);
+            rettype = rettype.Resolve(m);
+        }
 
         public override HeronValue Eval(VM vm)
         {
@@ -892,6 +899,105 @@ namespace HeronEngine
     }
 
     /// <summary>
+    /// Represents an expression that involves the reduce operator.
+    /// This transforms a list of N items into a list of 0 items by 
+    /// applying a binary function to item in the list consecutively.
+    /// </summary>
+    public class ReduceExpr : Expression
+    {
+        [HeronVisible]
+        public string a;
+        [HeronVisible]
+        public string b;
+        [HeronVisible]
+        public Expression list;
+        [HeronVisible]
+        public Expression expr;
+
+        public ReduceExpr(string a, string b, Expression list, Expression expr)
+        {
+            this.a = a;
+            this.b = b;
+            this.list = list;
+            this.expr = expr;
+        }
+
+        public override HeronValue Eval(VM vm)
+        {
+            SeqValue seq = vm.EvalList(list);
+            List<HeronValue> r = new List<HeronValue>(seq.ToDotNetEnumerable(vm));
+
+            using (vm.CreateScope())
+            {
+                vm.AddVar(a, HeronValue.Null);
+                vm.AddVar(b, HeronValue.Null);
+
+                return Eval_MultiThreaded(vm, r);
+            }
+        }
+
+        public HeronValue Eval_SingleThreaded(VM vm, List<HeronValue> r)
+        {
+            while (r.Count > 1)
+            {
+                List<HeronValue> r2 = new List<HeronValue>(r.Count / 2 + r.Count % 2);
+                for (int i = 0; i < r.Count - 1; i += 2)
+                {
+                    vm.SetVar(a, r[i]);
+                    vm.SetVar(b, r[i + 1]);
+                    r2[i / 2] = vm.Eval(expr);
+                }
+                r = r2;
+            }
+
+            return new ListValue(r as System.Collections.Generic.IEnumerable<HeronValue>);
+        }
+
+        public HeronValue Eval_MultiThreaded(VM vm, List<HeronValue> r)
+        {
+            VM vm2 = vm.Clone();
+
+            HeronValue[] r1 = r.ToArray();
+            while (r1.Count() > 1)
+            {
+                HeronValue[] r2 = new HeronValue[r1.Count() - 1 / 2];
+                Procedure p1 = () =>
+                {
+                    for (int i = 0; i < r1.Count() - 1; i += 4)
+                    {
+                        vm.SetVar(a, r1[i]);
+                        vm.SetVar(b, r1[i + 1]);
+                        r2[i / 2] = vm.Eval(expr);
+                    }
+                };
+                Procedure p2 = () =>
+                {                   
+                    for (int i = 2; i < r1.Count() - 1; i += 4)
+                    {
+                        vm2.SetVar(a, r1[i]);
+                        vm2.SetVar(b, r1[i + 1]);
+                        r2[i / 2] = vm2.Eval(expr);
+                    }
+                };
+                HeronEngineThreadPool.SplitWork(p1, p2);
+                r1 = r2;
+            }
+
+            return new ListValue(r1 as System.Collections.Generic.IEnumerable<HeronValue>);
+        }
+
+        public override string ToString()
+        {
+            return "reduce (" + a + ", " + b + " in " + list.ToString() + ") " + expr.ToString();
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.ReduceExpr;
+        }
+    }
+
+    /// <summary>
     /// Represents a literal list expression, such as [1, 'q', "hello"]
     /// </summary>
     public class TupleExpr : Expression
@@ -909,6 +1015,114 @@ namespace HeronEngine
             foreach (Expression expr in exprs)
                 list.Add(vm.Eval(expr));
             return list;
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.TupleExpr;
+        }
+    }
+
+    /// <summary>
+    /// Represents a literal table expression, such as 
+    ///   table(a:Int, s:String) { 1, "one"; 2, "two"; }
+    /// </summary>
+    public class TableExpr : Expression
+    {
+        [HeronVisible] public List<ExpressionList> rows = new List<ExpressionList>();
+        [HeronVisible] public FormalArgs fielddefs; 
+
+        public TableExpr()
+        {
+        }
+
+        public override void ResolveTypes(ModuleDefn m)
+        {
+            foreach (ExpressionList row in rows)
+                foreach (Expression field in row)
+                    field.ResolveTypes(m);
+            fielddefs.ResolveTypes(m);
+        }
+
+        private RecordLayout ComputeRecordLayout()
+        {
+            List<string> names = new List<string>();
+            List<HeronType> types = new List<HeronType>();
+            foreach (FormalArg arg in fielddefs)
+            {
+                names.Add(arg.name);
+                types.Add(arg.type);
+            }
+            return new RecordLayout(names, types);
+        }
+
+        public void AddRow(ExpressionList row)
+        {
+            if (row.Count != fielddefs.Count)
+                throw new Exception("The row has the incorrect number of fields, " + row.Count.ToString() + " expected " + fielddefs.Count.ToString());
+            rows.Add(row);
+        }
+
+        public override HeronValue Eval(VM vm)
+        {
+            RecordLayout layout = ComputeRecordLayout();
+            TableValue r = new TableValue(layout);
+            foreach (ExpressionList row in rows)
+            {
+                List<HeronValue> vals = new List<HeronValue>();
+                for (int i=0; i < row.Count; ++i)
+                    vals.Add(vm.Eval(row[i]));
+                RecordValue rv = new RecordValue(layout, vals);
+                r.Add(rv);
+            }
+            return r;
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.TupleExpr;
+        }
+    }
+
+    /// <summary>
+    /// Represents a literal record expression, such as 
+    ///   record(a:Int, s:String) { 1, "one" }
+    /// </summary>
+    public class RecordExpr : Expression
+    {
+        [HeronVisible] public ExpressionList fields;
+        [HeronVisible] public FormalArgs fielddefs;
+
+        public RecordExpr()
+        {
+        }
+
+        public override void ResolveTypes(ModuleDefn m)
+        {
+            foreach (Expression field in fields)
+                field.ResolveTypes(m);
+            fielddefs.ResolveTypes(m);
+        }
+
+        private RecordLayout ComputeRecordLayout()
+        {
+            List<string> names = new List<string>();
+            List<HeronType> types = new List<HeronType>();
+            foreach (FormalArg arg in fielddefs)
+            {
+                names.Add(arg.name);
+                types.Add(arg.type);
+            }
+            return new RecordLayout(names, types);
+        }
+
+        public override HeronValue Eval(VM vm)
+        {
+            RecordLayout layout = ComputeRecordLayout();
+            List<HeronValue> vals = new List<HeronValue>();
+            for (int i = 0; i < fields.Count; ++i)
+                vals.Add(vm.Eval(fields[i]));
+            return new RecordValue(layout, vals);            
         }
 
         public override HeronType GetHeronType()

@@ -32,6 +32,8 @@ primitive Bool
   {
     ToString() : System.String;
     AsString() : HeronEngine.HeronValue;
+    GetHashCode() : System.Int32;
+    Equals(obj : System.Object) : System.Boolean;
   }
 }
 primitive BoundMethod
@@ -53,6 +55,8 @@ primitive Char
   {
     ToString() : System.String;
     AsString() : HeronEngine.HeronValue;
+    GetHashCode() : System.Int32;
+    Equals(obj : System.Object) : System.Boolean;
   }
 }
 primitive ExternalMethod
@@ -94,6 +98,8 @@ primitive Float
   {
     ToString() : System.String;
     AsString() : HeronEngine.HeronValue;
+    GetHashCode() : System.Int32;
+    Equals(obj : System.Object) : System.Boolean;
   }
 }
 primitive Function
@@ -125,6 +131,8 @@ primitive Int
   {
     ToString() : System.String;
     AsString() : HeronEngine.HeronValue;
+    GetHashCode() : System.Int32;
+    Equals(obj : System.Object) : System.Boolean;
   }
 }
 primitive Iterator
@@ -176,6 +184,21 @@ primitive PrimitiveMethod
     ToString() : System.String;
   }
 }
+primitive Record
+{
+  fields
+  {
+  }
+  methods
+  {
+    GetHeronType() : HeronEngine.HeronType;
+    GetIterator() : HeronEngine.IteratorValue;
+    HasKey(s : System.String) : System.Boolean;
+    GetFieldIndex(s : System.String) : System.Int32;
+    ToString() : System.String;
+    ToList() : HeronEngine.ListValue;
+  }
+}
 primitive Seq
 {
   fields
@@ -199,6 +222,24 @@ primitive String
     GetChar(index : HeronEngine.IntValue) : HeronEngine.HeronValue;
     ToString() : System.String;
     AsString() : HeronEngine.HeronValue;
+    GetHashCode() : System.Int32;
+    Equals(obj : System.Object) : System.Boolean;
+  }
+}
+primitive Table
+{
+  fields
+  {
+  }
+  methods
+  {
+    GetHeronType() : HeronEngine.HeronType;
+    GetIterator() : HeronEngine.IteratorValue;
+    Add(record : HeronEngine.HeronValue) : System.Void;
+    Remove(index : HeronEngine.HeronValue) : System.Void;
+    HasKey(index : HeronEngine.HeronValue) : System.Boolean;
+    ToList() : HeronEngine.ListValue;
+    ToString() : System.String;
   }
 }
 primitive Type

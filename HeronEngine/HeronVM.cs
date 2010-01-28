@@ -136,6 +136,24 @@ namespace HeronEngine
             InitializeVM();
         }
 
+        /// <summary>
+        /// Creates a copy of the VM
+        /// </summary>
+        /// <returns></returns>
+        public VM Clone()
+        {
+            VM r = new VM();
+            r.bReturning = bReturning;
+            r.result = result;
+            r.program = program;
+            r.frames = new Stack<Frame>();
+            foreach (Frame f in frames)
+                r.frames.Push(f.Clone());
+            // This stack is reversed so we have to fix it
+            r.frames = new Stack<Frame>(r.frames);
+            return r;
+        }
+
         public void InitializeVM()
         {
             program = new ProgramDefn("_program_");
@@ -149,8 +167,8 @@ namespace HeronEngine
             PushScope();
 
             // Load the global types
-            foreach (HeronType t in program.GetGlobal().GetTypes())
-                AddVar(t.name, t);
+            //foreach (HeronType t in program.GetGlobal().GetTypes())
+            //    AddVar(t.name, t);
         }
         #endregion
 
@@ -218,7 +236,7 @@ namespace HeronEngine
             }
         }
 
-        public void ResolveModules()
+        public void ResolveTypesInModules()
         {
             foreach (ModuleDefn md in program.GetModules())
             {
@@ -233,7 +251,7 @@ namespace HeronEngine
             InitializeVM();
             ModuleDefn m = LoadModule(sFile);
             LoadDependentModules(sFile);
-            ResolveModules();
+            ResolveTypesInModules();
             RunModule(m);
         }
 
@@ -292,6 +310,19 @@ namespace HeronEngine
         public HeronValue Eval(Expression value)
         {
             return value.Eval(this);
+        }
+
+        /// <summary>
+        /// Evaluates a list of expressions and returns a list of values
+        /// </summary>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public List<HeronValue> EvalList(ExpressionList list)
+        {
+            List<HeronValue> r = new List<HeronValue>();
+            foreach (Expression e in list)
+                r.Add(Eval(e));
+            return r;
         }
 
         /// <summary>

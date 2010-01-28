@@ -1,8 +1,7 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <StartArguments>"C:\Program Files\Heron\src\Tests\HelloWorld.heron"</StartArguments>
-    <StartWorkingDirectory>
-    </StartWorkingDirectory>
+    <StartArguments>tests\TestReduce.heron</StartArguments>
+    <StartWorkingDirectory>C:\dev\heron\HeronEngine\</StartWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <StartArguments>tests\fact.heron</StartArguments>

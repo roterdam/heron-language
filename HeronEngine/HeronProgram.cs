@@ -40,6 +40,7 @@ namespace HeronEngine
         {
             global.AddDotNetType(t.Name, t);
         }
+
         /// <summary>
         /// This exposes a set of globally recognized Heron and .NET 
         /// types to the environment (essentially global variables).
@@ -57,8 +58,6 @@ namespace HeronEngine
             RegisterDotNetType(typeof(File));
             RegisterDotNetType(typeof(Directory));
             RegisterDotNetType(typeof(Regex));
-            
-            
 
             // Load other libraries specified in the configuration file
             foreach (string lib in Config.libs)

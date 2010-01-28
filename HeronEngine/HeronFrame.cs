@@ -243,5 +243,18 @@ namespace HeronEngine
         {
             return scopes;
         }
+
+        public Frame Clone()
+        {
+            Frame r = new Frame(this.function, this.self);
+            r.moduleDef = moduleDef;
+            r.moduleInstance = moduleInstance;
+            r.scopes = new Stack<Scope>();
+            foreach (Scope s in scopes)
+                r.scopes.Push(s.Clone());
+            // Reverse the scope
+            r.scopes = new Stack<Scope>(r.scopes);
+            return r;
+        }
     }
 }

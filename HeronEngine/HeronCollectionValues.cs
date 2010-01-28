@@ -380,6 +380,11 @@ namespace HeronEngine
             return list.Count();
         }
 
+        public HeronValue InternalGetAtIndex(int n)
+        {
+            return list[n];
+        }
+
         [HeronVisible]
         public HeronValue Count()
         {
@@ -404,15 +409,38 @@ namespace HeronEngine
         public override HeronValue GetAtIndex(HeronValue index)
         {
             if (!(index is IntValue))
-                throw new Exception("Can only index lists using integers");
+                throw new Exception("Can only use index lists using integers");
             return list[(index as IntValue).GetValue()];
         }
 
         public override void SetAtIndex(HeronValue index, HeronValue val)
         {
             if (!(index is IntValue))
-                throw new Exception("Can only index lists using integers");
+                throw new Exception("Can only use index lists using integers");
             list[(index as IntValue).GetValue()] = val;
+        }
+
+        public List<HeronValue> InternalList()
+        {
+            return list;
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append('[');
+            for (int i = 0; i < list.Count; ++i)
+            {
+                if (i > Config.maxListPrintableSize)
+                {
+                    sb.Append("...");
+                    break;
+                }
+                if (i > 0) sb.Append(", ");
+                sb.Append(list[i].ToString());
+            }
+            sb.Append(']');
+            return sb.ToString();
         }
     }
 }

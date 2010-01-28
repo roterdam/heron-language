@@ -86,14 +86,16 @@ class PrettyPrinter
 		{
 			Write("module ");
 			WriteLine(m.name);
-			BracesAround(
-				function() 
+			BracesAround(function() 
 				{
-					OutputAll(m.GetClasses());
-					OutputAll(m.GetInterfaces());
-					OutputAll(m.GetEnums());
-				}
-			);	
+					OutputSection("inherits", m.GetInheritedClasses());
+					OutputSection("imports", m.GetImports());
+					OutputSection("fields", m.GetFields());
+					OutputSection("methods", m.GetDeclaredMethods());
+				});
+			OutputAll(m.GetClasses());
+			OutputAll(m.GetInterfaces());
+			OutputAll(m.GetEnums());
 		}
 		OutputSection(name : String, xs : Seq)
 		{
@@ -163,6 +165,9 @@ class PrettyPrinter
 			OutputTypeDecl(m.rettype);
 			WriteLine();
 			Output(m.body);
+		}
+		Output(i : Import)
+		{
 		}
 		Output(fa : FormalArg)
 		{

@@ -36,6 +36,16 @@ namespace HeronEngine
     /// </summary>
     public class FormalArgs : List<FormalArg>
     {
+        public void ResolveTypes(ModuleDefn m)
+        {
+            foreach (FormalArg a in this)
+            {
+                if (a.type is UnresolvedType)
+                {
+                    a.type = (a.type as UnresolvedType).Resolve(m);
+                }
+            }
+        }
     }
 
     /// <summary>

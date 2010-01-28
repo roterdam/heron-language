@@ -1,0 +1,25 @@
+module Heron.Windows.Console
+{
+    methods
+    {
+        WriteLine(s : String)
+        {
+            Console.WriteLine(s);
+        }
+        
+        Write(s : String)
+        {
+            Console.Write(s);
+        }
+        
+        ReadLine() : String
+        {
+            return Conole.ReadLine();
+        }
+        
+        ReadKey() : Char
+        {
+            return Console.ReadKey().get_Keychar();
+        }
+    }
+}

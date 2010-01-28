@@ -9,7 +9,7 @@ module Squares
 		Square(n : Int) : Int
 		{
 			return n * n;
-		}
+        }
 
 		Main() 
 		{

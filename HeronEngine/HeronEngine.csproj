@@ -64,11 +64,14 @@
     <Compile Include="HeronAny.cs" />
     <Compile Include="HeronClass.cs" />
     <Compile Include="HeronDuckCasting.cs" />
+    <Compile Include="HeronEngineThreadPool.cs" />
     <Compile Include="HeronEnum.cs" />
     <Compile Include="HeronInterface.cs" />
+    <Compile Include="HeronPrimitiveValues.cs" />
     <Compile Include="HeronREPL.cs" />
+    <Compile Include="HeronTable.cs" />
     <Compile Include="HeronUserType.cs" />
-    <Compile Include="HeronCollection.cs" />
+    <Compile Include="HeronCollectionValues.cs" />
     <Compile Include="HeronConfig.cs" />
     <Compile Include="HeronDebugger.cs" />
     <Compile Include="HeronDotNet.cs" />
@@ -85,6 +88,7 @@
     <Compile Include="HeronProgram.cs" />
     <Compile Include="HeronStandardLibrary.cs" />
     <Compile Include="HeronStatements.cs" />
+    <Compile Include="HeronUserValues.cs" />
     <Compile Include="HeronVM.cs" />
     <Compile Include="HeronValue.cs" />
     <Compile Include="HeronTests.cs">
@@ -93,7 +97,7 @@
     <Compile Include="HeronType.cs" />
     <Compile Include="PegRuleTypes.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="PegAst.cs" />
+    <Compile Include="PegParseTree.cs" />
     <Compile Include="PegBaseGrammar.cs" />
     <Compile Include="PegParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -107,6 +111,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="bugs.txt" />
+    <Content Include="Heron.ico" />
     <Content Include="license.txt" />
     <Content Include="readme.txt" />
   </ItemGroup>
@@ -139,12 +144,12 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <None Include="lib\Heron.Windows.Console.heron" />
     <None Include="lib\TestModule1.heron" />
     <None Include="lib\TestModule2.heron" />
     <None Include="tests\Factorial.heron" />
     <None Include="tests\Fibonacci.heron" />
     <None Include="tests\HelloWorld.heron" />
-    <None Include="tests\Parsing.heron" />
     <None Include="tests\PrettyPrinting.heron" />
     <None Include="tests\Sieve.heron" />
     <None Include="tests\Squares.heron" />
@@ -164,8 +169,10 @@
     <None Include="tests\TestModuleInheritance.heron" />
     <None Include="tests\TestOutput.heron" />
     <None Include="tests\TestRandom.heron" />
+    <None Include="tests\TestReduce.heron" />
     <None Include="tests\TestReturn.heron" />
     <None Include="tests\TestStatic.heron" />
+    <None Include="tests\TestTables.heron" />
     <None Include="tests\TestViewport.heron" />
     <None Include="tests\TestWhile.heron" />
   </ItemGroup>

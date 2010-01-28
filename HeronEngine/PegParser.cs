@@ -87,13 +87,13 @@ namespace HeronEngine
         int mIndex = 0;
         int mExtent = 0;
         string mInput;
-        AstNode mTree;
-        AstNode mCur;
+        ParseNode mTree;
+        ParseNode mCur;
 
         public ParserState(string s)
         {
             mInput = s;
-            mTree = new AstNode("ast", 0, mInput, null);
+            mTree = new ParseNode("ast", 0, mInput, null);
             mCur = mTree;
         }
 
@@ -176,12 +176,12 @@ namespace HeronEngine
             return mInput[mIndex];
         }
 
-        public AstNode GetCurrentNode()
+        public ParseNode GetCurrentNode()
         {
             return mCur;
         }
 
-        public AstNode CreateNode(string sLabel)
+        public ParseNode CreateNode(string sLabel)
         {
             Trace.Assert(mCur != null);
             mCur = mCur.Add(sLabel, this);
@@ -192,7 +192,7 @@ namespace HeronEngine
         public void AbandonNode()
         {
             Trace.Assert(mCur != null);
-            AstNode tmp = mCur;
+            ParseNode tmp = mCur;
             mCur = mCur.GetParent();
             Trace.Assert(mCur != null);
             mCur.Remove(tmp);
@@ -206,12 +206,12 @@ namespace HeronEngine
             Trace.Assert(mCur != null);
         }
 
-        public AstNode GetAst()
+        public ParseNode GetAst()
         {
             return mTree;
         }
 
-        public AstNode Parse(Rule r)
+        public ParseNode Parse(Rule r)
         {
             Trace.Assert(r != null);
 
@@ -225,12 +225,12 @@ namespace HeronEngine
             return mTree;
         }
         
-        public static AstNode Parse(Rule r, string s)
+        public static ParseNode Parse(Rule r, string s)
         {
             Trace.Assert(r != null);
 
             ParserState p = new ParserState(s);
-            AstNode node = p.Parse(r);
+            ParseNode node = p.Parse(r);
             if (node == null)
                 return null;
             if (node.Label != "ast")
