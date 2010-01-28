@@ -13,18 +13,18 @@ using System.Diagnostics;
 namespace HeronEngine
 {
     /// <summary>
-    /// Abstract Syntax Tree node.  
+    /// Concrete Syntax Tree node.  
     /// </summary>
-    public class AstNode
+    public class ParseNode
     {
         int mnBegin;
         int mnCount;
         string msLabel;
         String msText;
-        AstNode mpParent;
-        List<AstNode> mChildren = new List<AstNode>();
+        ParseNode mpParent;
+        List<ParseNode> mChildren = new List<ParseNode>();
 
-        public AstNode(string label, int n, String text, AstNode p)
+        public ParseNode(string label, int n, String text, ParseNode p)
         {
             msLabel = label;
             msText = text;
@@ -38,9 +38,9 @@ namespace HeronEngine
             return mnBegin;
         }
 
-        public AstNode Add(string sLabel, ParserState p)
+        public ParseNode Add(string sLabel, ParserState p)
         {
-            AstNode ret = new AstNode(sLabel, p.GetPos(), msText, this);
+            ParseNode ret = new ParseNode(sLabel, p.GetPos(), msText, this);
             mChildren.Add(ret);
             return ret;
         }
@@ -50,12 +50,12 @@ namespace HeronEngine
             mnCount = p.GetPos() - mnBegin;
         }
 
-        public AstNode GetParent()
+        public ParseNode GetParent()
         {
             return mpParent;
         }
 
-        public void Remove(AstNode x)
+        public void Remove(ParseNode x)
         {
             mChildren.Remove(x);
         }
@@ -82,7 +82,7 @@ namespace HeronEngine
             }
             else
             {
-                foreach (AstNode node in mChildren)
+                foreach (ParseNode node in mChildren)
                 {
                     s += node.GetXmlText();
                 }
@@ -99,7 +99,7 @@ namespace HeronEngine
             }
         }
 
-        public List<AstNode> Children
+        public List<ParseNode> Children
         {
             get
             {
@@ -112,17 +112,24 @@ namespace HeronEngine
             return mChildren.Count;
         }
 
-        public AstNode GetChild(int n)
+        public ParseNode GetChild(int n)
         {
             return mChildren[n];
         }
 
-        public AstNode GetChild(string s)
+        public ParseNode GetChild(string s)
         {
-            foreach (AstNode node in Children)
+            foreach (ParseNode node in Children)
                 if (node.Label.Equals(s))
                     return node;
             return null;
+        }
+
+        public IEnumerable<ParseNode> GetChildren(string s)
+        {
+            foreach (ParseNode node in Children)
+                if (node.Label.Equals(s))
+                    yield return node;
         }
         
         public bool HasChild(string s)

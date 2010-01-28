@@ -39,9 +39,7 @@ namespace HeronEngine
             {
                 Console.WriteLine("scope : ");
                 foreach (string s in scope.Keys)
-                {
                     Console.WriteLine("  " + s + " = " + scope[s].ToString());
-                }
             }
         }
 

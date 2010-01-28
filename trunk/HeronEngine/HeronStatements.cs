@@ -15,11 +15,11 @@ namespace HeronEngine
 {
     public abstract class Statement : HeronValue
     {
-        public AstNode node;
+        public ParseNode node;
 
         public abstract void Eval(VM vm);
 
-        internal Statement(AstNode node)
+        internal Statement(ParseNode node)
         {
             this.node = node;
         }
@@ -123,7 +123,7 @@ namespace HeronEngine
         [HeronVisible] public HeronType type;
         [HeronVisible] public Expression value;
 
-        internal VariableDeclaration(AstNode node)
+        internal VariableDeclaration(ParseNode node)
             : base(node)
         {
         }
@@ -157,7 +157,7 @@ namespace HeronEngine
     {
         [HeronVisible] public Expression expression;
 
-        internal DeleteStatement(AstNode node)
+        internal DeleteStatement(ParseNode node)
             : base(node)
         {
         }
@@ -185,7 +185,7 @@ namespace HeronEngine
     {
         [HeronVisible] public Expression expression;
 
-        internal ExpressionStatement(AstNode node)
+        internal ExpressionStatement(ParseNode node)
             : base(node)
         {
         }
@@ -220,7 +220,7 @@ namespace HeronEngine
         [HeronVisible] public HeronType type;
         [HeronVisible] public bool nullable;
 
-        internal ForEachStatement(AstNode node)
+        internal ForEachStatement(ParseNode node)
             : base(node)
         {
         }
@@ -265,7 +265,7 @@ namespace HeronEngine
         [HeronVisible] public Expression next;
         [HeronVisible] public Statement body;
 
-        internal ForStatement(AstNode node)
+        internal ForStatement(ParseNode node)
             : base(node)
         {
         }
@@ -311,7 +311,7 @@ namespace HeronEngine
     {
         [HeronVisible] public List<Statement> statements = new List<Statement>();
         
-        internal CodeBlock(AstNode node)
+        internal CodeBlock(ParseNode node)
             : base(node)
         {
         }
@@ -358,7 +358,7 @@ namespace HeronEngine
         [HeronVisible] public Statement ontrue;
         [HeronVisible] public Statement onfalse;
 
-        internal IfStatement(AstNode node)
+        internal IfStatement(ParseNode node)
             : base(node)
         {
         }
@@ -384,7 +384,7 @@ namespace HeronEngine
         [HeronVisible] public Expression condition;
         [HeronVisible] public Statement body;
 
-        internal WhileStatement(AstNode node)
+        internal WhileStatement(ParseNode node)
             : base(node)
         {
         }
@@ -413,7 +413,7 @@ namespace HeronEngine
     {
         [HeronVisible] public Expression expression;
 
-        internal ReturnStatement(AstNode node)
+        internal ReturnStatement(ParseNode node)
             : base(node)
         {
         }
@@ -436,7 +436,7 @@ namespace HeronEngine
         [HeronVisible] public List<Statement> cases;
         [HeronVisible] public Statement ondefault;
         
-        internal SwitchStatement(AstNode node)
+        internal SwitchStatement(ParseNode node)
             : base(node)
         {
         }
@@ -470,7 +470,7 @@ namespace HeronEngine
         [HeronVisible] public Expression condition;
         [HeronVisible] public Statement statement;
 
-        internal CaseStatement(AstNode node)
+        internal CaseStatement(ParseNode node)
             : base(node)
         {
         }

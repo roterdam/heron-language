@@ -1,0 +1,16 @@
+module TestReduce
+{
+  inherits
+  {
+    Heron.Windows.Console;
+  }
+  methods
+  {    
+    Main()
+    {
+      var input = 1..10000;
+      var output = reduce (a, b in input) a + b;
+      WriteLine(output[0].ToString());
+    }
+  }
+}

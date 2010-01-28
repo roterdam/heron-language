@@ -5,6 +5,7 @@
 - I need to prevent passing and returning of "null", unless the type is explicitly optional.
 - There are missing some basic interfaces. Heron should know what the ISequence, IIterator, and IList interfaces are
 - The types should not be resolved before interpretation. That may be a mistake. 
+- Forgetting a semicolon after a statement can cause weird expression parsing errors.
 
 Features
 ========

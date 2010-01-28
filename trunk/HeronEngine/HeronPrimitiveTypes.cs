@@ -34,6 +34,8 @@ namespace HeronEngine
         public static HeronType IteratorType = new HeronType(null, typeof(IteratorValue), "Iterator");
         public static HeronType SeqType = new HeronType(null, typeof(SeqValue), "Seq");
         public static HeronType ListType = new HeronType(null, typeof(ListValue), "List");
+        public static HeronType RecordType = new HeronType(null, typeof(RecordValue), "Record");
+        public static HeronType TableType = new HeronType(null, typeof(TableValue), "Table");
 
         // Not currently supported
         public static HeronType TreeType = new HeronType(null, typeof(ListValue), "__Tree");
@@ -60,6 +62,7 @@ namespace HeronEngine
         public static HeronCodeModelType InterfaceType = new HeronCodeModelType(typeof(InterfaceDefn));
         public static HeronCodeModelType EnumType = new HeronCodeModelType(typeof(EnumDefn));
         public static HeronCodeModelType FieldDefnType = new HeronCodeModelType(typeof(FieldDefn));
+        public static HeronCodeModelType ImportType = new HeronCodeModelType(typeof(ModuleDefn.Import));
         public static HeronCodeModelType FunctionDefnType = new HeronCodeModelType(typeof(FunctionDefn));
         public static HeronCodeModelType FormalArg = new HeronCodeModelType(typeof(FormalArg));
 
@@ -91,11 +94,12 @@ namespace HeronEngine
         public static HeronCodeModelType FunCall = new HeronCodeModelType(typeof(FunCall));
         public static HeronCodeModelType UnaryOperation = new HeronCodeModelType(typeof(UnaryOperation));
         public static HeronCodeModelType BinaryOperation = new HeronCodeModelType(typeof(BinaryOperation));
-        public static HeronCodeModelType AnonFunExpr = new HeronCodeModelType(typeof(AnonFunExpr));
+        public static HeronCodeModelType AnonFunExpr = new HeronCodeModelType(typeof(FunExpr));
         public static HeronCodeModelType PostIncExpr = new HeronCodeModelType(typeof(PostIncExpr));
         public static HeronCodeModelType SelectExpr = new HeronCodeModelType(typeof(SelectExpr));
         public static HeronCodeModelType MapEachExpr = new HeronCodeModelType(typeof(MapEachExpr));
         public static HeronCodeModelType AccumulateExpr = new HeronCodeModelType(typeof(AccumulateExpr));
+        public static HeronCodeModelType ReduceExpr = new HeronCodeModelType(typeof(ReduceExpr));
         public static HeronCodeModelType TupleExpr = new HeronCodeModelType(typeof(TupleExpr));
 
         static SortedDictionary<string, HeronType> types = null;

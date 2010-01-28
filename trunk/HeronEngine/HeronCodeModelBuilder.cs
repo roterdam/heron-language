@@ -43,6 +43,7 @@ namespace HeronEngine
             }
         }
 
+        // TODO: remove this.
         ProgramDefn p;
 
         public HeronCodeModelBuilder(ProgramDefn program)
@@ -51,7 +52,7 @@ namespace HeronEngine
         }
 
         #region utility functions
-        static private void Assure(AstNode x, bool b, string s)
+        static private void Assure(ParseNode x, bool b, string s)
         {
             if (!b)
                 throw new Exception("Expression error: " + s);
@@ -65,45 +66,40 @@ namespace HeronEngine
         #endregion
 
         #region construct parsing functions
-        private void CreateModuleDefn(ModuleDefn m, AstNode x)
+        private void CreateModuleDefn(ModuleDefn m, ParseNode x)
         {
-            Dictionary<string, Expression> initializers = new Dictionary<string, Expression>();
-            AstNode imports = x.GetChild("imports");
+            ParseNode imports = x.GetChild("imports");
             if (imports != null)
             {
-                foreach (AstNode import in imports.Children)
+                foreach (ParseNode import in imports.Children)
                 {
-                    string modDefName = import.GetChild(0).ToString();
+                    string modDefName = import.GetChild(0).ToString().RemoveInternalWSpace();
+                    
                     // By default the alias of a module is its own name
                     string modAlias = modDefName;
                     // look for a defined alias "eg. MyModule as M"
                     if (import.GetNumChildren() > 1 && import.GetChild(1).Label == "name")                     
                         modAlias = import.GetChild(1).ToString();
-                    m.AddImport(modAlias, modDefName);
 
                     // Look for a module initialization expression
                     if (import.HasChild("expr"))
                     {
-                        initializers.Add(modAlias, CreateExpr(import.GetChild("expr")));
+                        Expression expr = CreateExpr(import.GetChild("expr"));
+                        m.AddImport(modAlias, modDefName, expr);
+                    }
+                    else
+                    {
+                        m.AddImport(modAlias, modDefName, null);
                     }
                 }
             }
 
-            // Note: this has to always happen before we ProcessFields.
-            foreach (string s in initializers.Keys)
-            {
-                Assignment ass = new Assignment(new Name(s), initializers[s]);
-                ExpressionStatement st = new ExpressionStatement(ass);
-                m.GetAutoContructor().body.statements.Add(st);
-            }
-
-
-            AstNode inherits = x.GetChild("inherits");
+            ParseNode inherits = x.GetChild("inherits");
             if (inherits != null)
             {
                 if (inherits.GetNumChildren() != 1)
                     throw new Exception("A module can only inherit from exactly one other module");
-                AstNode type = inherits.GetChild(0);
+                ParseNode type = inherits.GetChild(0);
                 if (type.Label != "typeexpr")
                     throw new Exception("Can only inherit type expressions");
                 string s = GetTypeName(type, null);
@@ -112,10 +108,10 @@ namespace HeronEngine
                 m.SetBaseClass(new UnresolvedType(s));
             }
 
-            AstNode methods = x.GetChild("methods");
+            ParseNode methods = x.GetChild("methods");
             if (methods != null)
             {
-                foreach (AstNode node in methods.Children)
+                foreach (ParseNode node in methods.Children)
                 {
                     FunctionDefn f = CreateFunction(node, m);
                     m.AddMethod(f);
@@ -125,17 +121,17 @@ namespace HeronEngine
             ProcessFields(x, m);
         }
 
-        public ModuleDefn CreateModule(AstNode x)
+        public ModuleDefn CreateModule(ParseNode x)
         {
-            AstNode nameNode = x.GetChild(0);
+            ParseNode nameNode = x.GetChild(0);
             ModuleDefn r = new ModuleDefn(p, nameNode.ToString());
 
-            AstNode bodyNode = x.GetChild(1);
+            ParseNode bodyNode = x.GetChild(1);
             CreateModuleDefn(r, bodyNode);
 
             // Now store all of the types
             for (int i=2; i < x.GetNumChildren(); ++i) {
-                AstNode child = x.GetChild(i);
+                ParseNode child = x.GetChild(i);
                 switch (child.Label)
                 {
                     case "class":
@@ -155,25 +151,25 @@ namespace HeronEngine
             return r;
         }
 
-        public string GetNameNode(AstNode x)
+        public string GetNameNode(ParseNode x)
         {
-            AstNode name = x.GetChild("name");
+            ParseNode name = x.GetChild("name");
             if (name == null)
                 throw new Exception("Could not find name node");
             return name.ToString();
         }
 
-        public ClassDefn CreateClass(ModuleDefn m, AstNode x)
+        public ClassDefn CreateClass(ModuleDefn m, ParseNode x)
         {
             string name = x.GetChild("name").ToString();
             ClassDefn r = new ClassDefn(m, name);
 
-            AstNode inherits = x.GetChild("inherits");
+            ParseNode inherits = x.GetChild("inherits");
             if (inherits != null)
             {
                 if (inherits.GetNumChildren() != 1)
                     throw new Exception("A class can only inherit from exactly one other class");
-                AstNode type = inherits.GetChild(0);
+                ParseNode type = inherits.GetChild(0);
                 if (type.Label != "typeexpr")
                     throw new Exception("Can only inherit type expressions");
                 string s = GetTypeName(type, null);
@@ -182,10 +178,10 @@ namespace HeronEngine
                 r.SetBaseClass(new UnresolvedType(s));
             }
 
-            AstNode implements = x.GetChild("implements");
+            ParseNode implements = x.GetChild("implements");
             if (implements != null)
             {
-                foreach (AstNode node in implements.Children)
+                foreach (ParseNode node in implements.Children)
                 {
                     if (node.Label != "typeexpr")
                         throw new Exception("Can only implement type expression");
@@ -196,10 +192,10 @@ namespace HeronEngine
                 }
             }
 
-            AstNode methods = x.GetChild("methods");
+            ParseNode methods = x.GetChild("methods");
             if (methods != null)
             {
-                foreach (AstNode node in methods.Children)
+                foreach (ParseNode node in methods.Children)
                 {
                     FunctionDefn f = CreateFunction(node, r);
                     r.AddMethod(f);
@@ -212,17 +208,17 @@ namespace HeronEngine
             return r;
         }
 
-        public void ProcessFields(AstNode x, ClassDefn defn)
+        public void ProcessFields(ParseNode x, ClassDefn defn)
         {
             Dictionary<string, Expression> initializers = new Dictionary<string, Expression>();
-            AstNode fields = x.GetChild("fields");
+            ParseNode fields = x.GetChild("fields");
             if (fields != null)
             {
-                foreach (AstNode node in fields.Children)
+                foreach (ParseNode node in fields.Children)
                 {
                     FieldDefn fd = CreateField(node);
                     defn.AddField(fd);
-                    AstNode exprNode = node.GetChild("expr");
+                    ParseNode exprNode = node.GetChild("expr");
                     if (exprNode != null)
                     {
                         Expression expr = CreateExpr(exprNode);
@@ -239,15 +235,15 @@ namespace HeronEngine
             }
         }
 
-        public InterfaceDefn CreateInterface(ModuleDefn m, AstNode x)
+        public InterfaceDefn CreateInterface(ModuleDefn m, ParseNode x)
         {
             string name = x.GetChild("name").ToString();
             InterfaceDefn r = new InterfaceDefn(m, name);
 
-            AstNode inherits = x.GetChild("inherits");
+            ParseNode inherits = x.GetChild("inherits");
             if (inherits != null)
             {
-                foreach (AstNode node in inherits.Children)
+                foreach (ParseNode node in inherits.Children)
                 {
                     string s = GetTypeName(node, null);
                     if (s == null)
@@ -256,10 +252,10 @@ namespace HeronEngine
                 }                    
             }
 
-            AstNode methods = x.GetChild("methods");
+            ParseNode methods = x.GetChild("methods");
             if (methods != null)
             {
-                foreach (AstNode node in methods.Children)
+                foreach (ParseNode node in methods.Children)
                 {
                     FunctionDefn f = CreateFunction(node, r);
                     r.AddMethod(f);
@@ -270,15 +266,15 @@ namespace HeronEngine
             return r;
         }
 
-        public EnumDefn CreateEnum(ModuleDefn m, AstNode x)
+        public EnumDefn CreateEnum(ModuleDefn m, ParseNode x)
         {
             string name = x.GetChild("name").ToString();
             EnumDefn r = new EnumDefn(m, name);
 
-            AstNode values = x.GetChild("values");
+            ParseNode values = x.GetChild("values");
             if (values != null)
             {
-                foreach (AstNode node in values.Children)
+                foreach (ParseNode node in values.Children)
                 {
                     r.AddValue(node.ToString());
                 }
@@ -288,19 +284,18 @@ namespace HeronEngine
             return r;
         }
 
-        public string TypeToTypeName(AstNode x)
+        public string TypeToTypeName(ParseNode x)
         {
             string r = x.GetChild("name").ToString();
-            AstNode typeargs = x.GetChild("typeargs");
+            ParseNode typeargs = x.GetChild("typeargs");
             if (typeargs == null) return r;
             r += "<";
-            foreach (AstNode y in typeargs.Children)
+            foreach (ParseNode y in typeargs.Children)
                 r += TypeToTypeName(y) + ";";
             return r + ">";
         }
 
-
-        public string GetTypeName(AstNode x, string def)
+        public string GetTypeName(ParseNode x, string def)
         {
             if (x == null)
                 return def;
@@ -308,18 +303,18 @@ namespace HeronEngine
             if (x.Label == "typeexpr")
                 return TypeToTypeName(x);
 
-            AstNode typedecl = x.GetChild("typedecl");
+            ParseNode typedecl = x.GetChild("typedecl");
             if (typedecl != null)
                 x = typedecl;
 
-            AstNode type = x.GetChild("typeexpr");
+            ParseNode type = x.GetChild("typeexpr");
             if (type != null)
                 return TypeToTypeName(type);
 
             return def;
         }
 
-        public bool IsNullable(AstNode x)
+        public bool IsNullable(ParseNode x)
         {
             if (x == null)
                 return false;
@@ -327,16 +322,18 @@ namespace HeronEngine
             return x.GetChild("nullable") != null; 
         }
 
-        public FieldDefn CreateField(AstNode x)
+        public FieldDefn CreateField(ParseNode x)
         {
             FieldDefn r = new FieldDefn();
             r.name = x.GetChild("name").ToString();
             r.type = new UnresolvedType(GetTypeName(x, "Any"));
             r.nullable = IsNullable(x.GetChild("typedecl"));
+            if (x.HasChild("expr"))
+                r.expr = CreateExpr(x.GetChild("expr"));
             return r;
         }
 
-        public FormalArg CreateFormalArg(AstNode x)
+        public FormalArg CreateFormalArg(ParseNode x)
         {
             FormalArg r = new FormalArg();
             r.name = x.GetChild("name").ToString();
@@ -345,32 +342,32 @@ namespace HeronEngine
             return r;            
         }
 
-        public FormalArgs CreateFormalArgs(AstNode x)
+        public FormalArgs CreateFormalArgs(ParseNode x)
         {
             FormalArgs r = new FormalArgs();
-            foreach (AstNode node in x.Children)
+            foreach (ParseNode node in x.Children)
                 r.Add(CreateFormalArg(node));
             return r;
         }
 
-        public FunctionDefn CreateFunction(AstNode x, HeronType parent)
+        public FunctionDefn CreateFunction(ParseNode x, HeronType parent)
         {
             ModuleDefn module = parent.GetModule();
             FunctionDefn r = new FunctionDefn(parent);
-            AstNode fundecl = x.GetChild("fundecl");            
+            ParseNode fundecl = x.GetChild("fundecl");            
             r.name = fundecl.GetChild("name").ToString();
             r.formals = CreateFormalArgs(fundecl.GetChild("arglist"));
-            AstNode rt = x.GetChild("typedecl");
+            ParseNode rt = x.GetChild("typedecl");
             r.rettype = new UnresolvedType(GetTypeName(rt, "Void"));
             r.nullable = IsNullable(rt);
-            AstNode codeblock = x.GetChild("codeblock");
+            ParseNode codeblock = x.GetChild("codeblock");
             r.body = CreateCodeBlock(codeblock);
             return r;
         }
         #endregion 
 
         #region statement parsing functions.
-        public Statement CreateStatement(AstNode x)
+        public Statement CreateStatement(ParseNode x)
         {
             switch (x.Label)
             {
@@ -399,28 +396,28 @@ namespace HeronEngine
             }
         }
 
-        public CodeBlock CreateCodeBlock(AstNode x)
+        public CodeBlock CreateCodeBlock(ParseNode x)
         {
             if (x == null)
                 return new CodeBlock(null);
             CodeBlock r = new CodeBlock(x);
-            foreach (AstNode node in x.Children)
+            foreach (ParseNode node in x.Children)
                 r.statements.Add(CreateStatement(node));
             return r;
         }
 
-        public VariableDeclaration CreateVarDecl(AstNode x)
+        public VariableDeclaration CreateVarDecl(ParseNode x)
         {
             VariableDeclaration r = new VariableDeclaration(x);
             r.name = x.GetChild("name").ToString();
             r.type = new UnresolvedType(GetTypeName(x, "Any"));
-            AstNode tmp = x.GetChild("expr");
+            ParseNode tmp = x.GetChild("expr");
             if (tmp != null)
                 r.value = CreateExpr(tmp);
             return r;
         }
 
-        public IfStatement CreateIfStatement(AstNode x)
+        public IfStatement CreateIfStatement(ParseNode x)
         {
             IfStatement r = new IfStatement(x);
             r.condition = CreateExpr(x.GetChild(0).GetChild(0));
@@ -430,7 +427,7 @@ namespace HeronEngine
             return r;
         }
 
-        public CaseStatement CreateCaseStatement(AstNode x)
+        public CaseStatement CreateCaseStatement(ParseNode x)
         {
             CaseStatement r = new CaseStatement(x);
             r.condition = CreateExpr(x.GetChild(0).GetChild(0));
@@ -438,17 +435,17 @@ namespace HeronEngine
             return r;
         }
 
-        public CodeBlock CreateDefaultStatement(AstNode x)
+        public CodeBlock CreateDefaultStatement(ParseNode x)
         {
             return CreateCodeBlock(x.GetChild(0));
         }
 
-        public SwitchStatement CreateSwitchStatement(AstNode x)
+        public SwitchStatement CreateSwitchStatement(ParseNode x)
         {
             SwitchStatement r = new SwitchStatement(x);
             r.condition = CreateExpr(x.GetChild(0).GetChild(0));
-            AstNode cases = x.GetChild(1);
-            foreach (AstNode y in cases.Children)
+            ParseNode cases = x.GetChild(1);
+            foreach (ParseNode y in cases.Children)
             {
                 CaseStatement cs = CreateCaseStatement(y);
                 r.cases.Add(cs);
@@ -460,14 +457,14 @@ namespace HeronEngine
             return r;
         }
 
-        public ReturnStatement CreateReturnStatement(AstNode x)
+        public ReturnStatement CreateReturnStatement(ParseNode x)
         {
             ReturnStatement r = new ReturnStatement(x);
             r.expression = CreateExpr(x.GetChild(0));
             return r;
         }
 
-        public WhileStatement CreateWhileStatement(AstNode x)
+        public WhileStatement CreateWhileStatement(ParseNode x)
         {
             WhileStatement r = new WhileStatement(x);
             r.condition = CreateExpr(x.GetChild(0).GetChild(0));
@@ -475,14 +472,14 @@ namespace HeronEngine
             return r;
         }
 
-        public ExpressionStatement CreateExprStatement(AstNode x)
+        public ExpressionStatement CreateExprStatement(ParseNode x)
         {
             ExpressionStatement r = new ExpressionStatement(x);
             r.expression = CreateExpr(x.GetChild(0));
             return r;
         }
 
-        public ForEachStatement CreateForEachStatement(AstNode x)
+        public ForEachStatement CreateForEachStatement(ParseNode x)
         {
             ForEachStatement r = new ForEachStatement(x);
             
@@ -510,7 +507,7 @@ namespace HeronEngine
             return r;
         }
 
-        public ForStatement CreateForStatement(AstNode x)
+        public ForStatement CreateForStatement(ParseNode x)
         {
             ForStatement r = new ForStatement(x);
             r.name = x.GetChild(0).ToString();
@@ -582,12 +579,12 @@ namespace HeronEngine
         /// The following functions create an expression tree from a list of 
         /// nodes representing expressions. When parsing, expressions are treated as a flat group
         /// These function use implicit precedence rules to construct the appropriate tree structure.
-        /// Most of these functions will return an Expr object. They also take a single AstNode 
+        /// Most of these functions will return an CompoundExpr object. They also take a single ParseNode 
         /// representing the list of parsed expression nodes, and a current index into the list called 
         /// "i". 
         #region Expression creating functions
         
-        private bool ChildNodeMatches(AstNode x, ref int i, string s)
+        private bool ChildNodeMatches(ParseNode x, ref int i, string s)
         {
             if (i >= x.GetNumChildren())
                 return false;
@@ -602,51 +599,61 @@ namespace HeronEngine
         // TODO: clean-up all of the error checking and stuff. 
         // Make this stuff into functions.
 
-        NewExpr CreateNewExpr(AstNode x)
+        NewExpr CreateNewExpr(ParseNode x)
         {
             Assure(x, x.GetNumChildren() >= 2, "new operator must be followed by type expression and arguments in paranthesis");
-            AstNode type = x.GetChild(0);
+            ParseNode type = x.GetChild(0);
             Assure(x, type.Label == "typeexpr", "new operator is missing type expression");
-            AstNode args = x.GetChild(1);
+            ParseNode args = x.GetChild(1);
             Assure(args, args.Label == "paranexpr", "new operator is missing argument list");
             
             Expression modexpr = null;
             if (x.GetNumChildren() > 2)
                 modexpr = CreateExpr(x.GetChild(2));
            
-            return new NewExpr(new UnresolvedType(GetTypeName(type, "Void")), CreateExprList(args), modexpr);
+            return new NewExpr(new UnresolvedType(GetTypeName(type, "Void")), CreateDelimitedExprList(args), modexpr);
         }
 
-        MapEachExpr CreateMapEachExpr(AstNode x)
+        MapEachExpr CreateMapEachExpr(ParseNode x)
         {
             Assure(x, x.GetNumChildren() == 3, "map each operator must have three child nodes");
-            AstNode name = x.GetChild(0);
-            AstNode list = x.GetChild(1);
-            AstNode func = x.GetChild(2);
+            ParseNode name = x.GetChild(0);
+            ParseNode list = x.GetChild(1);
+            ParseNode func = x.GetChild(2);
             return new MapEachExpr(name.ToString(), CreateExpr(list), CreateExpr(func));
         }
 
-        SelectExpr CreateSelectExpr(AstNode x)
+        SelectExpr CreateSelectExpr(ParseNode x)
         {
             Assure(x, x.GetNumChildren() == 3, "select operator must have three child nodes");
-            AstNode name = x.GetChild(0);
-            AstNode list = x.GetChild(1);
-            AstNode func = x.GetChild(2);
+            ParseNode name = x.GetChild(0);
+            ParseNode list = x.GetChild(1);
+            ParseNode func = x.GetChild(2);
             return new SelectExpr(name.ToString(), CreateExpr(list), CreateExpr(func));
         }
 
-        AccumulateExpr CreateAccumulateExpr(AstNode x)
+        AccumulateExpr CreateAccumulateExpr(ParseNode x)
         {
             Assure(x, x.GetNumChildren() == 5, "accumulate operator must have five child nodes");
-            AstNode acc = x.GetChild(0);
-            AstNode init = x.GetChild(1);
-            AstNode each = x.GetChild(2);
-            AstNode list = x.GetChild(3);
-            AstNode expr = x.GetChild(4);
+            ParseNode acc = x.GetChild(0);
+            ParseNode init = x.GetChild(1);
+            ParseNode each = x.GetChild(2);
+            ParseNode list = x.GetChild(3);
+            ParseNode expr = x.GetChild(4);
             return new AccumulateExpr(acc.ToString(), CreateExpr(init), each.ToString(), CreateExpr(list), CreateExpr(expr));
         }
 
-        Expression CreateNullaryOperatorExpr(AstNode x)
+        ReduceExpr CreateReduceExpr(ParseNode x)
+        {
+            Assure(x, x.GetNumChildren() == 4, "reduce operator must have four child nodes");
+            string a = x.GetChild(0).ToString();
+            string b = x.GetChild(1).ToString();
+            Expression list = CreateExpr(x.GetChild(2));
+            Expression expr = CreateExpr(x.GetChild(3));
+            return new ReduceExpr(a, b, list, expr) ;
+        }
+
+        Expression CreateNullaryOperatorExpr(ParseNode x)
         {
             switch (x.ToString())
             {
@@ -660,10 +667,10 @@ namespace HeronEngine
             throw new Exception("Not a recognized keyword/operator " + x.ToString());
         }
 
-        Expression CreatePrimaryExpr(AstNode x, ref int i)
+        Expression CreatePrimaryExpr(ParseNode x, ref int i)
         {
             Assure(i < x.GetNumChildren(), "sub-expression index went out of bounds");
-            AstNode child = x.GetChild(i);
+            ParseNode child = x.GetChild(i);
 
             string sLabel = child.Label;
             string sVal = child.ToString();
@@ -699,12 +706,12 @@ namespace HeronEngine
                     throw new Exception("hexadecimal literals not yet supported");
                 case "paranexpr":
                     Assure(child, child.GetNumChildren() == 1, "can only have one expression node in a paranthesized expression");
-                    AstNode tmp = child.GetChild(0);
+                    ParseNode tmp = child.GetChild(0);
                     i++;
                     return CreateExpr(tmp);
                 case "bracketedexpr":
                     i++;
-                    return new TupleExpr(CreateExprList(child));
+                    return new TupleExpr(CreateDelimitedExprList(child));
                 case "mapeach":
                     i++;
                     return CreateMapEachExpr(child);
@@ -714,33 +721,40 @@ namespace HeronEngine
                 case "accumulate":
                     i++;
                     return CreateAccumulateExpr(child);
+                case "reduce":
+                    i++;
+                    return CreateReduceExpr(child);
                 default:
                     Assure(child, false, "unrecognized primary expression: '" + sLabel + "'");
                     return null; // unreachable
             }
         }
 
-        ExpressionList CreateExprList(AstNode x)
+        ExpressionList CreateDelimitedExprList(ParseNode x)
         {
             Assure(x, x.Label == "paranexpr" || x.Label == "bracketedexpr", "Can only create argument lists from paranthesized or bracketed expression");
             Assure(x, x.GetNumChildren() <= 1, "Must contain at most one compound expression");
-            ExpressionList r = new ExpressionList();
 
             // If there are no arguments, return an empty expression list
             if (x.GetNumChildren() == 0)
-                return r;
+                return new ExpressionList();
 
-            AstNode child = x.GetChild(0);
+            return CreateCompoundExpr(x.GetChild(0));
+        }
+
+        ExpressionList CreateCompoundExpr(ParseNode x)
+        {
+            ExpressionList r = new ExpressionList();
             int i = 0;
-            while (i < child.GetNumChildren())
+            while (i < x.GetNumChildren())
             {
-                Expression tmp = CreateExpr(child, ref i);
+                Expression tmp = CreateExpr(x, ref i);
                 r.Add(tmp);
             }
             return r;
         }
 
-        Expression CreatePostfixExpr(AstNode x, ref int i)
+        Expression CreatePostfixExpr(ParseNode x, ref int i)
         {
             int old = i;
             Expression r = CreatePrimaryExpr(x, ref i);
@@ -749,7 +763,7 @@ namespace HeronEngine
             while (i < x.GetNumChildren())
             {
                 old = i;
-                AstNode tmp = x.GetChild(i);
+                ParseNode tmp = x.GetChild(i);
                 
                 if (tmp.Label == "bracketedexpr")
                 {
@@ -760,7 +774,7 @@ namespace HeronEngine
                 else if (tmp.Label == "paranexpr")
                 {
                     i++;
-                    r = new FunCall(r, CreateExprList(tmp));
+                    r = new FunCall(r, CreateDelimitedExprList(tmp));
                 }
                 else if (tmp.ToString() == ".")
                 {
@@ -789,7 +803,7 @@ namespace HeronEngine
             return r;
         }
 
-        Expression CreateUnaryExpr(AstNode x, ref int i)
+        Expression CreateUnaryExpr(ParseNode x, ref int i)
         {
             if (ChildNodeMatches(x, ref i, "-"))
             {
@@ -810,7 +824,7 @@ namespace HeronEngine
             }
         }
 
-        Expression CreateMultExpr(AstNode x, ref int i)
+        Expression CreateMultExpr(ParseNode x, ref int i)
         {
             Expression r = CreateUnaryExpr(x, ref i);
 
@@ -829,7 +843,7 @@ namespace HeronEngine
             return r;
         }
 
-        Expression CreateAddExpr(AstNode x, ref int i)
+        Expression CreateAddExpr(ParseNode x, ref int i)
         {
             Expression r = CreateMultExpr(x, ref i);
 
@@ -851,7 +865,7 @@ namespace HeronEngine
             return r;
         }
 
-        Expression CreateRelExpr(AstNode x, ref int i)
+        Expression CreateRelExpr(ParseNode x, ref int i)
         {
             Expression r = CreateAddExpr(x, ref i);
 
@@ -874,7 +888,7 @@ namespace HeronEngine
             return r;
         }
 
-        Expression CreateTypeOpExpr(AstNode x, ref int i)
+        Expression CreateTypeOpExpr(ParseNode x, ref int i)
         {
             Expression r = CreateRelExpr(x, ref i);
 
@@ -890,7 +904,7 @@ namespace HeronEngine
 
         }
 
-        Expression CreateEqExpr(AstNode x, ref int i)
+        Expression CreateEqExpr(ParseNode x, ref int i)
         {
             Expression r = CreateTypeOpExpr(x, ref i);
 
@@ -905,7 +919,7 @@ namespace HeronEngine
             return r;
         }
 
-        Expression CreateXOrExpr(AstNode x, ref int i)
+        Expression CreateXOrExpr(ParseNode x, ref int i)
         {
             Expression r = CreateEqExpr(x, ref i);
             if (ChildNodeMatches(x, ref i, "^^")) 
@@ -913,7 +927,7 @@ namespace HeronEngine
             return r;
         }
 
-        Expression CreateAndExpr(AstNode x, ref int i)
+        Expression CreateAndExpr(ParseNode x, ref int i)
         {
             Expression r = CreateXOrExpr(x, ref i);
             if (ChildNodeMatches(x, ref i, "&&"))
@@ -921,7 +935,7 @@ namespace HeronEngine
             return r;
         }
 
-        Expression CreateOrExpr(AstNode x, ref int i)
+        Expression CreateOrExpr(ParseNode x, ref int i)
         {
             Expression r = CreateAndExpr(x, ref i);
             if (ChildNodeMatches(x, ref i, "||"))
@@ -929,7 +943,7 @@ namespace HeronEngine
             return r;
         }
 
-        Expression CreateRangeExpr(AstNode x, ref int i)
+        Expression CreateRangeExpr(ParseNode x, ref int i)
         {
             Expression r = CreateOrExpr(x, ref i);
             if (ChildNodeMatches(x, ref i, ".."))
@@ -937,27 +951,44 @@ namespace HeronEngine
             return r;
         }
 
-        Expression CreateCondExpr(AstNode x, ref int i)
+        Expression CreateCondExpr(ParseNode x, ref int i)
         {
             Expression r = CreateRangeExpr(x, ref i);
             // TODO: support the ternary "a ? b : c" operator
             return r;
         }
 
-        Expression CreateAnonFunExpr(AstNode x, ref int i)
+        Expression CreateSpecialExpr(ParseNode x, ref int i)
         {
             if (i >= x.GetNumChildren())
                 throw new Exception("Internal parse error");
-            AstNode child = x.GetChild(i);
+            ParseNode child = x.GetChild(i);
             
-            if (child.Label == "anonfxn")
+            if (child.Label == "funexpr")
             {
                 ++i;
-                AnonFunExpr r = new AnonFunExpr();
+                FunExpr r = new FunExpr();
                 r.formals = CreateFormalArgs(child.GetChild("arglist"));
                 r.rettype = new UnresolvedType(GetTypeName(child, "Void"));
                 r.nullable = (child.GetChild("typedecl") != null && child.GetChild("typedecl").GetChild("nullable") != null);
                 r.body = CreateCodeBlock(child.GetChild("codeblock"));
+                return r;
+            }
+            else if (child.Label == "table")
+            {
+                ++i;
+                TableExpr r = new TableExpr();
+                r.fielddefs = CreateFormalArgs(child.GetChild("arglist"));
+                foreach (ParseNode field in child.GetChild("rows").Children)
+                    r.AddRow(CreateCompoundExpr(field));
+                return r;            
+            }
+            else if (child.Label == "record")
+            {
+                ++i;
+                RecordExpr r = new RecordExpr();
+                r.fielddefs = CreateFormalArgs(child.GetChild("arglist"));
+                r.fields = CreateCompoundExpr(child.GetChild("expr"));
                 return r;
             }
             else
@@ -966,10 +997,10 @@ namespace HeronEngine
             }
         }
 
-        Expression CreateAssignmentExpr(AstNode x, ref int i)
+        Expression CreateAssignmentExpr(ParseNode x, ref int i)
         {
             int old = i;
-            Expression r = CreateAnonFunExpr(x, ref i);
+            Expression r = CreateSpecialExpr(x, ref i);
             Assure(x, r != null, "failed to create expression");
             Assure(x, i > old, "internal error, expression index not updated");
             if (i >= x.GetNumChildren())
@@ -980,27 +1011,27 @@ namespace HeronEngine
                 case "=":
                     if (++i >= x.GetNumChildren())
                         throw new Exception("illegal expression");
-                    return new Assignment(r, CreateAnonFunExpr(x, ref i));
+                    return new Assignment(r, CreateSpecialExpr(x, ref i));
                 case "+=":
                     if (++i >= x.GetNumChildren())
                         throw new Exception("illegal expression");
-                    return new Assignment(r, new BinaryOperation("+", r, CreateAnonFunExpr(x, ref i)));
+                    return new Assignment(r, new BinaryOperation("+", r, CreateSpecialExpr(x, ref i)));
                 case "-=":
                     if (++i >= x.GetNumChildren())
                         throw new Exception("illegal expression");
-                    return new Assignment(r, new BinaryOperation("-", r, CreateAnonFunExpr(x, ref i)));
+                    return new Assignment(r, new BinaryOperation("-", r, CreateSpecialExpr(x, ref i)));
                 case "*=":
                     if (++i >= x.GetNumChildren())
                         throw new Exception("illegal expression");
-                    return new Assignment(r, new BinaryOperation("*", r, CreateAnonFunExpr(x, ref i)));
+                    return new Assignment(r, new BinaryOperation("*", r, CreateSpecialExpr(x, ref i)));
                 case "/=":
                     if (++i >= x.GetNumChildren())
                         throw new Exception("illegal expression");
-                    return new Assignment(r, new BinaryOperation("/", r, CreateAnonFunExpr(x, ref i)));
+                    return new Assignment(r, new BinaryOperation("/", r, CreateSpecialExpr(x, ref i)));
                 case "%=":
                     if (++i >= x.GetNumChildren())
                         throw new Exception("illegal expression");
-                    return new Assignment(r, new BinaryOperation("%", r, CreateAnonFunExpr(x, ref i)));
+                    return new Assignment(r, new BinaryOperation("%", r, CreateSpecialExpr(x, ref i)));
                 default:
                     // TODO: support other assignment operators.
                     return r;
@@ -1008,34 +1039,41 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// This function might be called by the top-level CreateExpr(AstNode x), 
-        /// or by CreateExprList(AstNode x)
+        /// Creates a simple non-compound expression
         /// </summary>
         /// <param name="x"></param>
         /// <param name="i"></param>
         /// <returns></returns>
-        Expression CreateExpr(AstNode x, ref int i)
+        Expression CreateBasicExpr(ParseNode x, ref int i)
         {
-            Assure(x, x.Label == "expr", "Expected 'expr' node not '" + x.Label + "'");
+            return CreateAssignmentExpr(x, ref i);
+        }
+
+        /// <summary>
+        /// This function might be called by the top-level CreateExpr(ParseNode x), 
+        /// or by CreateDelimitedExprList(ParseNode x)
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="i"></param>
+        /// <returns></returns>
+        Expression CreateExpr(ParseNode x, ref int i)
+        {
             Assure(x.GetNumChildren() > 0, "Cannot create an expression from a node with no children");
 
             int old = i;
-            Expression r = CreateAssignmentExpr(x, ref i);
+            Expression r = CreateBasicExpr(x, ref i);
             Assure(x, r != null, "is not a valid expression");
             Assure(x, i > old, "internal error, current expression index was not updated");
 
             // Are there more expressions in the list?
             if (i < x.GetNumChildren())
             {
-                // Make sure that they are separated by "," which is its own expression
-                AstNode tmp = x.GetChild(i);
+                // Advance past "," which is potentially an expression
+                ParseNode tmp = x.GetChild(i);
 
-                // If this assertion fails, typically it means that there is a problem 
-                // in the parsing algorithm fo
-                Assure(x, tmp.ToString() == ",", "compound expressions must be separated by ','");
-                
-                // don't forget to advance the index, so the next node parsed is not the comma.
-                i++;
+                // Advance to comma 
+                if (tmp.ToString() == ",")
+                    i++;
             }
             return r;
         }
@@ -1045,7 +1083,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="x"></param>
         /// <returns></returns>
-        public Expression CreateExpr(AstNode x)
+        public Expression CreateExpr(ParseNode x)
         {
             int i = 0;
             Expression r = CreateExpr(x, ref i);
@@ -1057,7 +1095,7 @@ namespace HeronEngine
         #region public functions    
         static public Expression ParseExpr(ProgramDefn p, string s)
         {
-            AstNode node = ParserState.Parse(HeronGrammar.Expr, s);
+            ParseNode node = ParserState.Parse(HeronGrammar.CompoundExpr, s);
             if (node == null)
                 return null;
             Expression r = (new HeronCodeModelBuilder(p)).CreateExpr(node);
@@ -1066,7 +1104,7 @@ namespace HeronEngine
 
         static public Statement ParseStatement(ProgramDefn p, string s)
         {
-            AstNode node = ParserState.Parse(HeronGrammar.Statement, s);
+            ParseNode node = ParserState.Parse(HeronGrammar.Statement, s);
             if (node == null)
                 return null;
             Statement r = (new HeronCodeModelBuilder(p)).CreateStatement(node);
@@ -1075,7 +1113,7 @@ namespace HeronEngine
 
         static public ModuleDefn ParseModule(ProgramDefn p, string s)
         {
-            AstNode node = ParserState.Parse(HeronGrammar.Module, s);
+            ParseNode node = ParserState.Parse(HeronGrammar.Module, s);
             if (node == null)
                 return null;
             ModuleDefn r = (new HeronCodeModelBuilder(p)).CreateModule(node);
@@ -1084,7 +1122,7 @@ namespace HeronEngine
 
         static public ModuleDefn ParseFile(ProgramDefn p, string sFileName)
         {
-            AstNode node;
+            ParseNode node;
             string sFileContents = File.ReadAllText(sFileName);
             try
             {
@@ -1121,7 +1159,7 @@ namespace HeronEngine
 
         static public ClassDefn ParseClass(ModuleDefn m, string s)
         {
-            AstNode node = ParserState.Parse(HeronGrammar.Class, s);
+            ParseNode node = ParserState.Parse(HeronGrammar.Class, s);
             if (node == null)
                 return null;
             ClassDefn r = (new HeronCodeModelBuilder(null)).CreateClass(m, node);
@@ -1130,7 +1168,7 @@ namespace HeronEngine
 
         static public InterfaceDefn ParseInterface(ModuleDefn m, string s)
         {
-            AstNode node = ParserState.Parse(HeronGrammar.Interface, s);
+            ParseNode node = ParserState.Parse(HeronGrammar.Interface, s);
             if (node == null)
                 return null;
             InterfaceDefn r = (new HeronCodeModelBuilder(null)).CreateInterface(m, node);

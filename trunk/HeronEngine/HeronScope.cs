@@ -17,6 +17,15 @@ namespace HeronEngine
     /// </summary>
     public class Scope : Dictionary<String, HeronValue>
     {
+        public Scope(Scope s)
+        : base(s)
+        {
+        }
+
+        public Scope()
+        {
+        }
+
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
@@ -31,6 +40,11 @@ namespace HeronEngine
                     sb.AppendLine("null");
             }
             return sb.ToString();
+        }
+
+        public Scope Clone()
+        {
+            return new Scope(this);
         }
     }
 }

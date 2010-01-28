@@ -13,20 +13,6 @@ primitive AccumulateExpr
     ToString() : System.String;
   }
 }
-primitive AnonFunExpr
-{
-  fields
-  {
-    formals : HeronEngine.FormalArgs;
-    body : HeronEngine.CodeBlock;
-    rettype : HeronEngine.HeronType;
-    nullable : System.Boolean;
-  }
-  methods
-  {
-    ToString() : System.String;
-  }
-}
 primitive Assignment
 {
   fields
@@ -188,6 +174,7 @@ primitive FieldDefn
     name : System.String;
     type : HeronEngine.HeronType;
     nullable : System.Boolean;
+    expr : HeronEngine.Expression;
   }
   methods
   {
@@ -277,6 +264,20 @@ primitive FunctionDefn
     GetStatements() : System.Collections.Generic.IEnumerable`1[HeronEngine.Statement];
   }
 }
+primitive FunExpr
+{
+  fields
+  {
+    formals : HeronEngine.FormalArgs;
+    body : HeronEngine.CodeBlock;
+    rettype : HeronEngine.HeronType;
+    nullable : System.Boolean;
+  }
+  methods
+  {
+    ToString() : System.String;
+  }
+}
 primitive IfStatement
 {
   fields
@@ -284,6 +285,19 @@ primitive IfStatement
     condition : HeronEngine.Expression;
     ontrue : HeronEngine.Statement;
     onfalse : HeronEngine.Statement;
+  }
+  methods
+  {
+    ToString() : System.String;
+  }
+}
+primitive Import
+{
+  fields
+  {
+    alias : System.String;
+    module : System.String;
+    expr : HeronEngine.Expression;
   }
   methods
   {
@@ -453,6 +467,20 @@ primitive ReadAt
   {
     self : HeronEngine.Expression;
     index : HeronEngine.Expression;
+  }
+  methods
+  {
+    ToString() : System.String;
+  }
+}
+primitive ReduceExpr
+{
+  fields
+  {
+    a : System.String;
+    b : System.String;
+    list : HeronEngine.Expression;
+    expr : HeronEngine.Expression;
   }
   methods
   {

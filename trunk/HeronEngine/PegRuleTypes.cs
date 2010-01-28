@@ -141,11 +141,11 @@ namespace HeronEngine
     /// In otherwords the grammar tree is not expected to correspond directly to 
     /// the syntax tree since much of the grammar is noise (e.ci. whitespace).
     /// </summary>
-    public class AstNodeRule : Rule
+    public class ParseNodeRule : Rule
     {
         string sLabel;
 
-        public AstNodeRule(string sLabel, Rule r)
+        public ParseNodeRule(string sLabel, Rule r)
         {
             Trace.Assert(r != null);
             this.sLabel = sLabel;

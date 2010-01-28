@@ -21,7 +21,7 @@ namespace HeronEngine
             try
             {
                 Console.WriteLine("Trying to parse input " + s);
-                AstNode node = ParserState.Parse(r, s);
+                ParseNode node = ParserState.Parse(r, s);
                 if (node == null)
                     Console.WriteLine("Test failed"); 
                 else
@@ -147,6 +147,7 @@ namespace HeronEngine
             TestCompareValues("mapeach (i in 0..2) i * 2", "[0, 2, 4]");
             TestCompareValues("select (i from 0..5) i % 2 == 1", "[1, 3, 5]");
             TestCompareValues("accumulate (a = 0 forall i in 0..3) a + i", "6");
+            TestCompareValues("reduce (a, b in 0..3) a + b", "[6]");
         }
 
         static void PegTests()
@@ -158,30 +159,30 @@ namespace HeronEngine
             TestPeg(HeronGrammar.Name, "a");
             TestPeg(HeronGrammar.Name, "abc");
             TestPeg(HeronGrammar.Name, "*");
-            TestPeg(HeronGrammar.Expr, "1");
-            TestPeg(HeronGrammar.Expr, "12");
-            TestPeg(HeronGrammar.Expr, "1.0");
-            TestPeg(HeronGrammar.Expr, "abc");
-            TestPeg(HeronGrammar.Expr, "a + b");
+            TestPeg(HeronGrammar.CompoundExpr, "1");
+            TestPeg(HeronGrammar.CompoundExpr, "12");
+            TestPeg(HeronGrammar.CompoundExpr, "1.0");
+            TestPeg(HeronGrammar.CompoundExpr, "abc");
+            TestPeg(HeronGrammar.CompoundExpr, "a + b");
             TestPeg(HeronGrammar.ParanthesizedExpr, "(1)");
             TestPeg(HeronGrammar.ParanthesizedExpr, "(1 + 2)");
-            TestPeg(HeronGrammar.Expr, "(1 + 2)");
-            TestPeg(HeronGrammar.Expr, "(1 + 2) * (3 + 4)");
-            TestPeg(HeronGrammar.Expr, "ab");
-            TestPeg(HeronGrammar.Expr, "ab(a)");
-            TestPeg(HeronGrammar.Expr, "a.x");
-            TestPeg(HeronGrammar.Expr, "a.f");
-            TestPeg(HeronGrammar.Expr, "a[1]");
-            TestPeg(HeronGrammar.Expr, "a[1,2]");
-            TestPeg(HeronGrammar.Expr, "a['b']");
-            TestPeg(HeronGrammar.Expr, "a[\"hello\"]");
-            TestPeg(HeronGrammar.Expr, "a && b");
-            TestPeg(HeronGrammar.Expr, "a .. b");
-            TestPeg(HeronGrammar.Expr, "[a, b, c]");
-            TestPeg(HeronGrammar.Expr, "ab(a.x + 24)");
-            TestPeg(HeronGrammar.Expr, "function() { }");
-            TestPeg(HeronGrammar.Expr, "function(a : Int) { return a + 1; }");
-            TestPeg(HeronGrammar.Expr, "f(function(a : Int) { return a + 1; })");
+            TestPeg(HeronGrammar.CompoundExpr, "(1 + 2)");
+            TestPeg(HeronGrammar.CompoundExpr, "(1 + 2) * (3 + 4)");
+            TestPeg(HeronGrammar.CompoundExpr, "ab");
+            TestPeg(HeronGrammar.CompoundExpr, "ab(a)");
+            TestPeg(HeronGrammar.CompoundExpr, "a.x");
+            TestPeg(HeronGrammar.CompoundExpr, "a.f");
+            TestPeg(HeronGrammar.CompoundExpr, "a[1]");
+            TestPeg(HeronGrammar.CompoundExpr, "a[1,2]");
+            TestPeg(HeronGrammar.CompoundExpr, "a['b']");
+            TestPeg(HeronGrammar.CompoundExpr, "a[\"hello\"]");
+            TestPeg(HeronGrammar.CompoundExpr, "a && b");
+            TestPeg(HeronGrammar.CompoundExpr, "a .. b");
+            TestPeg(HeronGrammar.CompoundExpr, "[a, b, c]");
+            TestPeg(HeronGrammar.CompoundExpr, "ab(a.x + 24)");
+            TestPeg(HeronGrammar.CompoundExpr, "function() { }");
+            TestPeg(HeronGrammar.CompoundExpr, "function(a : Int) { return a + 1; }");
+            TestPeg(HeronGrammar.CompoundExpr, "f(function(a : Int) { return a + 1; })");
             TestPeg(HeronGrammar.SelectExpr, "select (a from b..c) a % 2 == 1");
             TestPeg(HeronGrammar.MapEachExpr, "mapeach (a in b..c) a * 2");
             TestPeg(HeronGrammar.AccumulateExpr, "accumulate (a = 0 forall b in c..d) a + b");
