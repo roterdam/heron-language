@@ -146,7 +146,7 @@ namespace HeronEngine
 
         public override IteratorValue GetIterator()
         {
-            return new EnumeratorToHeronAdapter(values.GetEnumerator());
+            return new ListToIterValue(values);
         }
 
         public HeronValue GetValue(int n)
@@ -269,21 +269,14 @@ namespace HeronEngine
             return PrimitiveTypes.TableType;
         }
 
-        private IEnumerable<HeronValue> GetValues()
-        {
-            foreach (RecordValue v in values.Values)
-                yield return v;
-        }
-
         public override IteratorValue GetIterator()
         {
-            return new EnumeratorToHeronAdapter(GetValues().GetEnumerator());
+            return new ListToIterValue(values.Values);
         }
 
         public string GetIndexField()
         {
             return layout.GetNames()[0];
-
         }
 
         public HeronValue GetIndexValue(RecordValue rec)

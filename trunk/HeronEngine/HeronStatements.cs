@@ -130,8 +130,10 @@ namespace HeronEngine
 
         public override void Eval(VM vm)
         {
-            HeronValue initVal = vm.Eval(value);
-            vm.AddVar(name, initVal);
+            if (value != null)
+                vm.AddVar(name, vm.Eval(value));
+            else
+                vm.AddVar(name, HeronValue.Null);
         }
 
         public override string ToString()
@@ -227,12 +229,11 @@ namespace HeronEngine
 
         public override void Eval(VM vm)
         {
-            using (vm.CreateScope())
+            foreach (HeronValue x in vm.EvalListAsDotNet(collection))
             {
-                vm.AddVar(name, HeronValue.Null);
-                foreach (HeronValue x in vm.EvalListAsDotNet(collection))
+                using (vm.CreateScope())
                 {
-                    vm.SetVar(name, x);
+                    vm.AddVar(name, x);
                     vm.Eval(body);
                     if (vm.ShouldExitScope())
                         return;

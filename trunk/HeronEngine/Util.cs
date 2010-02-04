@@ -196,5 +196,26 @@ namespace HeronEngine
             return s.SafeSubstring(begin, cnt);
         }
         #endregion
+
+        #region list extensions
+        public static T Peek<T>(this List<T> self)
+        {
+            return self[self.Count - 1];
+        }
+        public static void Pop<T>(this List<T> self)
+        {
+            self.RemoveAt(self.Count - 1);
+        }
+        public static T Pull<T>(this List<T> self)
+        {
+            T r = self.Peek();
+            self.Pop();
+            return r;
+        }
+        public static bool IsEmpty<T>(this List<T> self)
+        {
+            return self.Count == 0;
+        }
+        #endregion
     }
 }

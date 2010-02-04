@@ -144,6 +144,7 @@ primitive Iterator
   {
     MoveNext() : System.Boolean;
     GetValue() : HeronEngine.HeronValue;
+    Restart() : HeronEngine.IteratorValue;
     GetIterator() : HeronEngine.IteratorValue;
     ToList() : HeronEngine.ListValue;
     ToString() : System.String;

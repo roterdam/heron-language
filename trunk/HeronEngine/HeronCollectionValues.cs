@@ -29,12 +29,14 @@ namespace HeronEngine
         public abstract bool MoveNext();
         [HeronVisible]
         public abstract HeronValue GetValue();
+        [HeronVisible]
+        public abstract IteratorValue Restart();
         #endregion 
 
         #region sequence functions 
         public override IteratorValue GetIterator()
         {
-            return this;
+            return Restart();
         }
         #endregion
     }
@@ -57,6 +59,7 @@ namespace HeronEngine
             this.name = name;
             this.iter = iter;
             this.pred = pred;
+            this.current = HeronValue.Null;
         }
 
         public override bool MoveNext()
@@ -82,6 +85,11 @@ namespace HeronEngine
         public override HeronValue GetValue()
         {
             return current;
+        }
+
+        public override IteratorValue Restart()
+        {
+            return new SelectEnumerator(vm, name, iter.Restart(), pred);
         }
     }
 
@@ -121,10 +129,15 @@ namespace HeronEngine
         {
             return PrimitiveTypes.SeqType;
         }
-
+        
         public override string ToString()
         {
             return min.ToString() + ".." + max.ToString();
+        }
+
+        public override IteratorValue Restart()
+        {
+            return new RangeEnumerator(new IntValue(min), new IntValue(max));
         }
     }
 
@@ -159,6 +172,11 @@ namespace HeronEngine
                 vm.AddVar(name, iter.GetValue());
                 return vm.Eval(yield);
             }
+        }
+
+        public override IteratorValue Restart()
+        {
+            return new MapEachEnumerator(vm, name, iter.Restart(), yield);
         }
    }
 
@@ -239,6 +257,7 @@ namespace HeronEngine
         #endregion
     }
 
+    /*
     /// <summary>
     /// Takes a generic .NET enumerator instance and converts it into a HeronValue
     /// specifically: an IteratorValue
@@ -262,7 +281,7 @@ namespace HeronEngine
         {
             return iter.Current;
         }
-    }
+    }*/
 
     /// <summary>
     /// Represents a sequence, which is a collection which can only be
@@ -398,7 +417,7 @@ namespace HeronEngine
 
         public override IteratorValue GetIterator()
         {
-            return new EnumeratorToHeronAdapter(list.GetEnumerator());
+            return new ListToIterValue(list);
         }
     
         public override ListValue ToList()
