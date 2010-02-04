@@ -28,7 +28,8 @@ namespace HeronEngine
         public static bool outputGrammar = false;
         public static bool outputPrimitives = false;
         public static int maxListPrintableSize = 5;
-        public static int maxThreads = 2;
+        public static int maxThreads = 1;
+        public static bool showTiming = false;
 
         static Config()
         {
@@ -82,6 +83,12 @@ namespace HeronEngine
                 case "extensions":
                     extensions = ProcessStringList(e);
                     break;
+                case "maxthreads":
+                    maxThreads = ProcessInt(e);
+                    break;
+                case "showtiming":
+                    showTiming = ProcessBool(e);
+                    break;
             }
         }
 
@@ -104,6 +111,11 @@ namespace HeronEngine
         static bool ProcessBool(XmlElement e)
         {
             return e.InnerXml.Trim() == "true";
+        }
+
+        static int ProcessInt(XmlElement e)
+        {
+            return Int32.Parse(e.InnerXml.Trim());
         }
 
         static string ProcessString(XmlElement e)

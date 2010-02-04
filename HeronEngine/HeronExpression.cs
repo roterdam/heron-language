@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
+using System.Threading;
+using System.Diagnostics;
 
 namespace HeronEngine
 {
@@ -895,105 +897,6 @@ namespace HeronEngine
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.AccumulateExpr;
-        }
-    }
-
-    /// <summary>
-    /// Represents an expression that involves the reduce operator.
-    /// This transforms a list of N items into a list of 0 items by 
-    /// applying a binary function to item in the list consecutively.
-    /// </summary>
-    public class ReduceExpr : Expression
-    {
-        [HeronVisible]
-        public string a;
-        [HeronVisible]
-        public string b;
-        [HeronVisible]
-        public Expression list;
-        [HeronVisible]
-        public Expression expr;
-
-        public ReduceExpr(string a, string b, Expression list, Expression expr)
-        {
-            this.a = a;
-            this.b = b;
-            this.list = list;
-            this.expr = expr;
-        }
-
-        public override HeronValue Eval(VM vm)
-        {
-            SeqValue seq = vm.EvalList(list);
-            List<HeronValue> r = new List<HeronValue>(seq.ToDotNetEnumerable(vm));
-
-            using (vm.CreateScope())
-            {
-                vm.AddVar(a, HeronValue.Null);
-                vm.AddVar(b, HeronValue.Null);
-
-                return Eval_MultiThreaded(vm, r);
-            }
-        }
-
-        public HeronValue Eval_SingleThreaded(VM vm, List<HeronValue> r)
-        {
-            while (r.Count > 1)
-            {
-                List<HeronValue> r2 = new List<HeronValue>(r.Count / 2 + r.Count % 2);
-                for (int i = 0; i < r.Count - 1; i += 2)
-                {
-                    vm.SetVar(a, r[i]);
-                    vm.SetVar(b, r[i + 1]);
-                    r2[i / 2] = vm.Eval(expr);
-                }
-                r = r2;
-            }
-
-            return new ListValue(r as System.Collections.Generic.IEnumerable<HeronValue>);
-        }
-
-        public HeronValue Eval_MultiThreaded(VM vm, List<HeronValue> r)
-        {
-            VM vm2 = vm.Clone();
-
-            HeronValue[] r1 = r.ToArray();
-            while (r1.Count() > 1)
-            {
-                HeronValue[] r2 = new HeronValue[r1.Count() - 1 / 2];
-                Procedure p1 = () =>
-                {
-                    for (int i = 0; i < r1.Count() - 1; i += 4)
-                    {
-                        vm.SetVar(a, r1[i]);
-                        vm.SetVar(b, r1[i + 1]);
-                        r2[i / 2] = vm.Eval(expr);
-                    }
-                };
-                Procedure p2 = () =>
-                {                   
-                    for (int i = 2; i < r1.Count() - 1; i += 4)
-                    {
-                        vm2.SetVar(a, r1[i]);
-                        vm2.SetVar(b, r1[i + 1]);
-                        r2[i / 2] = vm2.Eval(expr);
-                    }
-                };
-                HeronEngineThreadPool.SplitWork(p1, p2);
-                r1 = r2;
-            }
-
-            return new ListValue(r1 as System.Collections.Generic.IEnumerable<HeronValue>);
-        }
-
-        public override string ToString()
-        {
-            return "reduce (" + a + ", " + b + " in " + list.ToString() + ") " + expr.ToString();
-        }
-
-        public override HeronType GetHeronType()
-        {
-            return PrimitiveTypes.ReduceExpr;
         }
     }
 

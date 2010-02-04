@@ -61,10 +61,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HeronReduceExpr.cs" />
     <Compile Include="HeronAny.cs" />
     <Compile Include="HeronClass.cs" />
     <Compile Include="HeronDuckCasting.cs" />
-    <Compile Include="HeronEngineThreadPool.cs" />
+    <Compile Include="HeronWorkSplitter.cs" />
     <Compile Include="HeronEnum.cs" />
     <Compile Include="HeronInterface.cs" />
     <Compile Include="HeronPrimitiveValues.cs" />
@@ -79,7 +80,6 @@
     <Compile Include="HeronFunctionValues.cs" />
     <Compile Include="HeronModule.cs" />
     <Compile Include="HeronScope.cs" />
-    <Compile Include="HeronTree.cs" />
     <Compile Include="HeronCodeModelBuilder.cs" />
     <Compile Include="HeronExpression.cs" />
     <Compile Include="HeronFunction.cs" />

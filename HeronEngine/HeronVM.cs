@@ -73,7 +73,7 @@ namespace HeronEngine
         /// <summary>
         /// A list of call stack frames (also called activation records)
         /// </summary>
-        private Stack<Frame> frames = new Stack<Frame>();
+        private List<Frame> frames = new List<Frame>();
 
         /// <summary>
         /// Currently executing program. It contains global names.
@@ -146,11 +146,25 @@ namespace HeronEngine
             r.bReturning = bReturning;
             r.result = result;
             r.program = program;
-            r.frames = new Stack<Frame>();
+            r.frames = new List<Frame>();
             foreach (Frame f in frames)
-                r.frames.Push(f.Clone());
-            // This stack is reversed so we have to fix it
-            r.frames = new Stack<Frame>(r.frames);
+                r.frames.Add(f.Clone());
+            return r;
+        }
+
+        /// <summary>
+        /// Creates a shallow copy of the VM
+        /// </summary>
+        /// <returns></returns>
+        public VM Fork()
+        {
+            VM r = new VM();
+            r.bReturning = bReturning;
+            r.result = result;
+            r.program = program;
+            r.frames = new List<Frame>();
+            foreach (Frame f in frames)
+                r.frames.Add(f);
             return r;
         }
 
@@ -275,7 +289,18 @@ namespace HeronEngine
         {
             ModuleInstance mi = m.Instantiate(this, new HeronValue[] { }, null) as ModuleInstance;
             RunMeta(mi);
-            RunMain(mi);            
+
+            if (Config.showTiming)
+            {
+                DateTime dt = DateTime.Now;
+                RunMain(mi);
+                TimeSpan ts = DateTime.Now - dt;
+                Console.WriteLine(ts.TotalMilliseconds + " ms");
+            }
+            else
+            {
+                RunMain(mi);
+            }
         }
 
         /// <summary>
@@ -345,7 +370,7 @@ namespace HeronEngine
         public Frame CurrentFrame
         {
             get
-            {               
+            {
                 return frames.Peek();
             }
         }
@@ -415,7 +440,7 @@ namespace HeronEngine
         /// <param name="self"></param>
         public void PushNewFrame(FunctionDefn f, ClassInstance self)
         {
-            frames.Push(new Frame(f, self));
+            frames.Add(new Frame(f, self));
         }
 
         /// <summary>
@@ -437,6 +462,16 @@ namespace HeronEngine
         public DisposableFrame CreateFrame(FunctionDefn fun, ClassInstance classInstance)
         {
             return new DisposableFrame(this, fun, classInstance);
+        }
+
+        /// <summary>
+        /// Createa a new frame that is a copy of an existing frame.
+        /// </summary>
+        /// <param name="f"></param>
+        /// <returns></returns>
+        public DisposableFrame CreateFrame(Frame f)
+        {
+            return new DisposableFrame(this, f.function, f.self);
         }
         #endregion
 

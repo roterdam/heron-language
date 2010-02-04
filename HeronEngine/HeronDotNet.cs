@@ -14,28 +14,49 @@ using System.Reflection;
 
 namespace HeronEngine
 {
-    /// <summary>
-    /// Takes an IEnumerator instance and converts it into a HeronValue
-    /// specifically: an IteratorValue
-    /// </summary>
-    public class DotNetEnumeratorToHeronAdapter
+
+    public class ListToIterValue
         : IteratorValue
     {
-        IEnumerator iter;
+        List<HeronValue> list;
+        int current;
 
-        public DotNetEnumeratorToHeronAdapter(IEnumerator iter)
+        public ListToIterValue(List<HeronValue> list)
         {
-            this.iter = iter;
+            this.list = list;
+            current = 0;
+        }
+
+        public ListToIterValue(IEnumerable<HeronValue> iter)
+        {
+            list = new List<HeronValue>(iter);
+            current = 0;
+        }
+
+        public ListToIterValue(IEnumerable iter)
+        {
+            list = new List<HeronValue>();
+            foreach (Object o in iter)
+                list.Add(HeronDotNet.Marshal(o));
+            current = 0;
         }
 
         public override bool MoveNext()
         {
-            return iter.MoveNext();
+            if (current >= list.Count)
+                return false;
+            current++;
+            return true;
         }
 
         public override HeronValue GetValue()
         {
-            return DotNetObject.Marshal(iter.Current);
+            return list[current - 1];
+        }
+
+        public override IteratorValue Restart()
+        {
+            return new ListToIterValue(list);
         }
     }
 
@@ -214,7 +235,7 @@ namespace HeronEngine
                     if (o is IList)
                         return new ListValue(o as IList);
                     else if (o is IEnumerable)
-                        return new DotNetEnumeratorToHeronAdapter((o as IEnumerable).GetEnumerator());
+                        return new ListToIterValue(o as IEnumerable);
                     else
                         return DotNetObject.CreateDotNetObjectNoMarshal(o);
             }
