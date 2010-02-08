@@ -44,7 +44,7 @@ namespace HeronEngine
         /// <summary>
         /// A list of scopes, which are effectivelyh name value pairs
         /// </summary>
-        private Stack<Scope> scopes = new Stack<Scope>();
+        private List<Scope> scopes = new List<Scope>();
 
         /// <summary>
         /// Constructor.
@@ -64,7 +64,7 @@ namespace HeronEngine
 
         public void AddScope(Scope scope)
         {
-            scopes.Push(scope);
+            scopes.Add(scope);
         }
 
         public void PopScope()
@@ -77,9 +77,12 @@ namespace HeronEngine
             // Look in the scopes starting with the innermost 
             // and moving to the outermost.
             // The outermost scope contains the arguments
-            foreach (Scope tbl in scopes)
-                if (tbl.ContainsKey(s))
+            for (int i = scopes.Count; i > 0; --i)
+            {
+                Scope tbl = scopes[i - 1];
+                if (tbl.HasName(s))
                     return tbl[s];
+            }
 
             // Nothing found in the local vars, 
             // So we look in the "this" pointer (called "self")
@@ -130,9 +133,12 @@ namespace HeronEngine
 
         public HeronValue GetVar(string s)
         {
-            foreach (Scope tbl in scopes)
-                if (tbl.ContainsKey(s))
+            for (int i = scopes.Count; i > 0; --i)
+            {
+                Scope tbl = scopes[i - 1];
+                if (tbl.HasName(s))
                     return tbl[s];
+            }
             throw new Exception("No field named '" + s + "' could be found");
         }
 
@@ -158,20 +164,36 @@ namespace HeronEngine
 
         public bool HasVar(string s)
         {
-            foreach (Scope tbl in scopes)
-                if (tbl.ContainsKey(s))
+            for (int i = scopes.Count; i > 0; --i)
+            {
+                Scope tbl = scopes[i - 1];
+                if (tbl.HasName(s))
                     return true;
+            }
             return false;
+        }
+
+        public VM.Accessor GetAccessor(string s)
+        {
+            for (int i = scopes.Count; i > 0; --i)
+            {
+                Scope tbl = scopes[i - 1];
+                int n = tbl.Lookup(s);
+                if (n >= 0)
+                    return new VM.Accessor(tbl, n);
+            }
+            return null;
         }
 
         public bool SetVar(string s, HeronValue o)
         {
-            foreach (Scope tbl in scopes)
+            for (int i = scopes.Count; i > 0; --i)
             {
-                if (tbl.ContainsKey(s))
+                Scope tbl = scopes[i - 1];
+                if (tbl.HasName(s))
                 {
                     tbl[s] = o;
-                    return true;
+                    return false;
                 }
             }
             return false;
@@ -179,7 +201,7 @@ namespace HeronEngine
 
         public void AddVar(string s, HeronValue o)
         {
-            if (scopes.Peek().ContainsKey(s))
+            if (scopes.Peek().HasName(s))
                 throw new Exception(s + " is already declared in the scope");
             scopes.Peek().Add(s, o);
         }
@@ -209,11 +231,6 @@ namespace HeronEngine
                 sb.Append("null");
             sb.AppendLine("]");
 
-            foreach (Scope tab in scopes)
-            {
-                sb.Append("[scope]");
-                sb.Append(tab.ToString());
-            }
             return sb.ToString();
         }
 
@@ -242,19 +259,6 @@ namespace HeronEngine
         public IEnumerable<Scope> GetScopes()
         {
             return scopes;
-        }
-
-        public Frame Clone()
-        {
-            Frame r = new Frame(this.function, this.self);
-            r.moduleDef = moduleDef;
-            r.moduleInstance = moduleInstance;
-            r.scopes = new Stack<Scope>();
-            foreach (Scope s in scopes)
-                r.scopes.Push(s.Clone());
-            // Reverse the scope
-            r.scopes = new Stack<Scope>(r.scopes);
-            return r;
         }
     }
 }

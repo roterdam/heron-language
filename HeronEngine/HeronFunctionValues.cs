@@ -60,7 +60,7 @@ namespace HeronEngine
             foreach (string name in st.GetUsedNames())
             {
                 // Is this not a boundVar, and not already marked as a free var
-                if (!boundVars.Contains(name) && !result.ContainsKey(name))
+                if (!boundVars.Contains(name) && !result.HasName(name))
                 {
                     // Throws an exception if the name is not found
                     HeronValue val = vm.LookupName(name);
@@ -80,7 +80,7 @@ namespace HeronEngine
         private void PushArgs(VM vm, HeronValue[] args)
         {
             int n = fun.formals.Count;
-            Trace.Assert(n == args.Length);
+            Debug.Assert(n == args.Length);
             for (int i = 0; i < n; ++i)
                 vm.AddVar(fun.formals[i].name, args[i]);
         }
@@ -233,7 +233,7 @@ namespace HeronEngine
                     return tmp[0];
             }
 
-            Trace.Assert(tmp.Count > 1);
+            Debug.Assert(tmp.Count > 1);
             
             // There are multiple functions
             // Choose the function which is the most derived type.
@@ -263,7 +263,7 @@ namespace HeronEngine
 
         public override HeronValue Apply(VM vm, HeronValue[] args)
         {
-            Trace.Assert(functions.Count > 0);
+            Debug.Assert(functions.Count > 0);
             FunctionValue o = Resolve(vm, args);
             if (o == null)
                 throw new Exception("Could not resolve function '" + name + "' with arguments " + ArgsToString(args));

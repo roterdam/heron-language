@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 
 namespace HeronEngine
 {
@@ -15,36 +16,69 @@ namespace HeronEngine
     /// This is an association list of objects with names.
     /// This is used as a mechanism for creating scoped names.
     /// </summary>
-    public class Scope : Dictionary<String, HeronValue>
+    public class Scope 
     {
-        public Scope(Scope s)
-        : base(s)
+        Dictionary<string, int> lookup = new Dictionary<string, int>();
+        List<string> names = new List<string>();
+        List<HeronValue> values = new List<HeronValue>();
+
+        public int Count
         {
+            get { return values.Count; }
         }
 
-        public Scope()
+        public void Add(string name, HeronValue value)
         {
+            lookup.Add(name, Count);
+            names.Add(name);
+            values.Add(value);
         }
 
-        public override string ToString()
+        public HeronValue GetValue(int n)
         {
-            StringBuilder sb = new StringBuilder();
-            foreach (string s in Keys)
+            return values[n];
+        }
+
+        public string GetName(int n)
+        {
+            return names[n];
+        }
+
+        public bool HasName(string s)
+        {
+            return Lookup(s) >= 0;
+        }
+
+        public int Lookup(string s)
+        {
+            if (!lookup.ContainsKey(s))
+                return -1;
+            else
+                return lookup[s];
+        }
+
+        public HeronValue this[string s]
+        {
+            get
             {
-                sb.Append(s);
-                sb.Append(" = ");
-                HeronValue o = this[s];
-                if (o != null)
-                    sb.AppendLine(o.ToString());
-                else
-                    sb.AppendLine("null");
+                return values[Lookup(s)];
             }
-            return sb.ToString();
+            set
+            {
+                values[Lookup(s)] = value;
+            }
         }
 
-        public Scope Clone()
+        public HeronValue this[int n]
         {
-            return new Scope(this);
+            get
+            {
+                return values[n];
+            }
+            set
+            {
+                values[n] = value;
+            }
         }
     }
 }

@@ -16,7 +16,7 @@ namespace HeronEngine
 {
     public static class Util
     {
-        public static Regex reWSpace = new Regex(@"\s+", RegexOptions.Singleline | RegexOptions.Compiled);
+        public static Regex reWSpace = new Regex(@"\s+", RegexOptions.Singleline);
 
         public static string RemoveInternalWSpace(this string self)
         {
