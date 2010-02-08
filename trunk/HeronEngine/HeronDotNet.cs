@@ -113,7 +113,7 @@ namespace HeronEngine
         public static Object Unmarshal(Type t, HeronValue v)
         {
             Object o = v.ToSystemObject();
-            Trace.Assert(o.GetType().Equals(t));
+            Debug.Assert(o.GetType().Equals(t));
             return o;
         }
 

@@ -183,27 +183,27 @@ namespace HeronEngine
 
         public ParseNode CreateNode(string sLabel)
         {
-            Trace.Assert(mCur != null);
+            Debug.Assert(mCur != null);
             mCur = mCur.Add(sLabel, this);
-            Trace.Assert(mCur != null);
+            Debug.Assert(mCur != null);
             return mCur;
         }
 
         public void AbandonNode()
         {
-            Trace.Assert(mCur != null);
+            Debug.Assert(mCur != null);
             ParseNode tmp = mCur;
             mCur = mCur.GetParent();
-            Trace.Assert(mCur != null);
+            Debug.Assert(mCur != null);
             mCur.Remove(tmp);
         }
 
         public void CompleteNode()
         {
-            Trace.Assert(mCur != null);
+            Debug.Assert(mCur != null);
             mCur.Complete(this);
             mCur = mCur.GetParent();
-            Trace.Assert(mCur != null);
+            Debug.Assert(mCur != null);
         }
 
         public ParseNode GetAst()
@@ -213,7 +213,7 @@ namespace HeronEngine
 
         public ParseNode Parse(Rule r)
         {
-            Trace.Assert(r != null);
+            Debug.Assert(r != null);
 
             if (!r.Match(this))
                 return null;
@@ -227,7 +227,7 @@ namespace HeronEngine
         
         public static ParseNode Parse(Rule r, string s)
         {
-            Trace.Assert(r != null);
+            Debug.Assert(r != null);
 
             ParserState p = new ParserState(s);
             ParseNode node = p.Parse(r);

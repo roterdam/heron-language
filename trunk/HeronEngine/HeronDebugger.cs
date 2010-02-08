@@ -38,8 +38,8 @@ namespace HeronEngine
             foreach (Scope scope in f.GetScopes())
             {
                 Console.WriteLine("scope : ");
-                foreach (string s in scope.Keys)
-                    Console.WriteLine("  " + s + " = " + scope[s].ToString());
+                for (int i=0; i < scope.Count; ++i)
+                    Console.WriteLine("  " + scope.GetName(i) + " = " + scope.GetValue(i).ToString());
             }
         }
 

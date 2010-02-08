@@ -30,6 +30,7 @@ namespace HeronEngine
         public static int maxListPrintableSize = 5;
         public static int maxThreads = 1;
         public static bool showTiming = false;
+        public static bool waitForKeypress = true;
 
         static Config()
         {
@@ -75,10 +76,10 @@ namespace HeronEngine
                     runUnitTests = ProcessBool(e);
                     break;
                 case "outputgrammar":
-                    outputGrammar = true;
+                    outputGrammar = ProcessBool(e);
                     break;
                 case "outputprimitives":
-                    outputPrimitives = true;
+                    outputPrimitives = ProcessBool(e);
                     break;
                 case "extensions":
                     extensions = ProcessStringList(e);
@@ -88,6 +89,9 @@ namespace HeronEngine
                     break;
                 case "showtiming":
                     showTiming = ProcessBool(e);
+                    break;
+                case "waitforkeypress":
+                    waitForKeypress = ProcessBool(e);
                     break;
             }
         }

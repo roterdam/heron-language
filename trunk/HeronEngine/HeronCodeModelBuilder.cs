@@ -318,7 +318,7 @@ namespace HeronEngine
         {
             if (x == null)
                 return false;
-            Trace.Assert(x.Label == "typedecl");
+            Debug.Assert(x.Label == "typedecl");
             return x.GetChild("nullable") != null; 
         }
 

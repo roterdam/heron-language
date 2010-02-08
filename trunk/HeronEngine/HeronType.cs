@@ -36,7 +36,7 @@ namespace HeronEngine
         {
             module = m;
             type = t;
-            Trace.Assert(t != null);
+            Debug.Assert(t != null);
             this.name = name;
             StoreExposedFunctionsAndFields();
         }

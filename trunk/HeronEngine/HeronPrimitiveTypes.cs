@@ -22,6 +22,7 @@ namespace HeronEngine
         // The specials
         public static HeronType VoidType = new HeronType(null, typeof(VoidValue), "Void");
         public static HeronType NullType = new HeronType(null, typeof(NullValue), "Null");
+        public static HeronType UnknownType = new HeronType(null, typeof(VoidValue), "Unknown"); 
 
         // Usual suspects 
         public static HeronType BoolType = new HeronType(null, typeof(BoolValue), "Bool");
@@ -106,7 +107,7 @@ namespace HeronEngine
 
         static void AddType(HeronType prim)
         {
-            Trace.Assert(prim != null);
+            Debug.Assert(prim != null);
             types.Add(prim.name, prim);
         }
 

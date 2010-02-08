@@ -79,6 +79,11 @@ namespace HeronEngine
                 }
             }
         }
+
+        public virtual Expression Optimize(VM vm)
+        {
+            return this;
+        }
     }
 
     /// <summary>
@@ -292,7 +297,7 @@ namespace HeronEngine
 
         public override HeronValue Eval(VM vm)
         {
-            return new NullValue();
+            return HeronValue.Null;
         }
 
         public override HeronType GetHeronType()
@@ -435,8 +440,7 @@ namespace HeronEngine
 
         public override HeronValue Eval(VM vm)
         {
-            HeronValue r = vm.LookupName(name);
-            return r;
+            return vm.LookupName(name);
         }
 
         public override string ToString()
@@ -447,6 +451,32 @@ namespace HeronEngine
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.Name;
+        }
+
+        public override Expression Optimize(VM vm)
+        {
+            VM.Accessor acc = vm.GetAccessor(name);
+            return new OptimizedName(acc);
+        }
+    }
+
+    public class OptimizedName : Expression
+    {
+        VM.Accessor acc;
+
+        public OptimizedName(VM.Accessor acc)
+        {
+            this.acc = acc;
+        }
+
+        public override HeronValue Eval(VM vm)
+        {
+            return acc.Get();
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.UnknownType;
         }
     }
 
@@ -692,6 +722,11 @@ namespace HeronEngine
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.BinaryOperation;
+        }
+
+        public override Expression Optimize(VM vm)     
+        {
+            return new BinaryOperation(operation, operand1.Optimize(vm), operand2.Optimize(vm));
         }
     }
 

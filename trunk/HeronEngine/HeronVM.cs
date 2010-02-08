@@ -21,6 +21,31 @@ namespace HeronEngine
     {
         #region helper classes
         /// <summary>
+        /// Speeds up access to variables.
+        /// </summary>
+        public class Accessor
+        {
+            Scope scope;
+            int n;
+
+            public Accessor(Scope scope, int n)
+            {
+                this.scope = scope;
+                this.n = n;
+            }
+
+            public HeronValue Get()
+            {
+                return scope[n];
+            }
+
+            public void Set(HeronValue value)
+            {
+                scope[n] = value;
+            }
+        }
+
+        /// <summary>
         /// Used for creation and deletion of scopes.
         /// Do not instantiate directly, only VM creates this.
         /// <seealso cref="HeronVm.CreateFrame"/>
@@ -133,23 +158,6 @@ namespace HeronEngine
         /// </summary>
         public VM()
         {
-            InitializeVM();
-        }
-
-        /// <summary>
-        /// Creates a copy of the VM
-        /// </summary>
-        /// <returns></returns>
-        public VM Clone()
-        {
-            VM r = new VM();
-            r.bReturning = bReturning;
-            r.result = result;
-            r.program = program;
-            r.frames = new List<Frame>();
-            foreach (Frame f in frames)
-                r.frames.Add(f.Clone());
-            return r;
         }
 
         /// <summary>
@@ -493,7 +501,7 @@ namespace HeronEngine
         /// <param name="ret"></param>
         public void Return(HeronValue ret)
         {
-            Trace.Assert(!bReturning, "internal error, returning flag was not reset");
+            Debug.Assert(!bReturning, "internal error, returning flag was not reset");
             bReturning = true;
             result = ret;
         }
@@ -521,8 +529,13 @@ namespace HeronEngine
         [HeronVisible]
         public void SetVar(string s, HeronValue o)
         {
-            Trace.Assert(o != null);
+            Debug.Assert(o != null);
             frames.Peek().SetVar(s, o);
+        }
+
+        public Accessor GetAccessor(string s)
+        {
+            return frames.Peek().GetAccessor(s);
         }
 
         /// <summary>
@@ -563,7 +576,7 @@ namespace HeronEngine
         /// <param name="val"></param>
         public new void SetField(string s, HeronValue o)
         {
-            Trace.Assert(o != null);
+            Debug.Assert(o != null);
             frames.Peek().SetField(s, o);
         }
 
@@ -612,8 +625,8 @@ namespace HeronEngine
         /// <param name="vars"></param>
         public void AddVars(Scope vars)
         {
-            foreach (string name in vars.Keys)
-                AddVar(name, vars[name]);
+            for (int i=0; i < vars.Count; ++i)
+                AddVar(vars.GetName(i), vars.GetValue(i));
         }        
         #endregion 
 

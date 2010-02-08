@@ -274,17 +274,20 @@ namespace HeronEngine
         public override void Eval(VM vm)
         {
             HeronValue initVal = initial.Eval(vm);
-            vm.AddVar(name, initVal);
-            while (true)
+            using (vm.CreateScope())
             {
-                HeronValue condVal = vm.Eval(condition);
-                bool b = condVal.ToBool();
-                if (!b)
-                    break;
-                vm.Eval(body);
-                if (vm.ShouldExitScope())
-                    break;
-                vm.Eval(next);
+                vm.AddVar(name, initVal);
+                while (true)
+                {
+                    HeronValue condVal = vm.Eval(condition);
+                    bool b = condVal.ToBool();
+                    if (!b)
+                        return;
+                    vm.Eval(body);
+                    if (vm.ShouldExitScope())
+                        return;
+                    vm.Eval(next);
+                }
             }
         }
 

@@ -8,12 +8,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Timers;
+using System.Diagnostics;
+using System.Diagnostics.PerformanceData;
 using System.IO;
 
 namespace HeronEngine
 {
     public static class Program
     {
+        static public int count = 0;
+
         /// <summary>
         /// Prints a usage message to the console
         /// </summary>
@@ -59,6 +64,7 @@ namespace HeronEngine
         static public void RunFile(string file)
         {
             VM vm = new VM();
+            vm.InitializeVM();
             vm.EvalFile(file);
         }
         
@@ -98,7 +104,10 @@ namespace HeronEngine
                         OutputPrimitives();
                     if (Config.runUnitTests)
                         HeronTests.MainTest();
+                    Parallelizer.Initialize(Config.maxThreads);
                     RunFile(args[0]);
+                    Parallelizer.CleanUp();
+                    Console.WriteLine("Total count " + count); 
                 }
                 catch (Exception e)
                 {
@@ -107,8 +116,11 @@ namespace HeronEngine
             }
 
             Console.WriteLine();
-            Console.Write("Press any key to continue ...");
-            Console.ReadKey();
+            if (Config.waitForKeypress)
+            {
+                Console.Write("Press any key to continue ...");
+                Console.ReadKey();
+            }
         }
     }
 }

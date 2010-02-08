@@ -93,7 +93,7 @@ namespace HeronEngine
 
         public Rule Add(Rule r)
         {
-            Trace.Assert(r != null);
+            Debug.Assert(r != null);
             children.Add(r);
             return r;
         }
@@ -147,7 +147,7 @@ namespace HeronEngine
 
         public ParseNodeRule(string sLabel, Rule r)
         {
-            Trace.Assert(r != null);
+            Debug.Assert(r != null);
             this.sLabel = sLabel;
             Add(r);
         }
@@ -166,7 +166,7 @@ namespace HeronEngine
             {
                 p.AbandonNode();
                 // ASsure that the position is restored
-                Trace.Assert(p.GetPos() == pos);
+                Debug.Assert(p.GetPos() == pos);
             }
             return result;
         }
@@ -194,7 +194,7 @@ namespace HeronEngine
 
         public RecursiveRule(string name, RuleDelegate deleg)
         {
-            Trace.Assert(deleg != null);
+            Debug.Assert(deleg != null);
             mName = name;
             mDeleg = deleg;
         }
@@ -223,7 +223,7 @@ namespace HeronEngine
     {
         public NoFailRule(Rule r)
         {
-            Trace.Assert(r != null);
+            Debug.Assert(r != null);
             Add(r);
         }
 
@@ -384,7 +384,7 @@ namespace HeronEngine
     {
         public OptRule(Rule r)
         {
-            Trace.Assert(r != null);
+            Debug.Assert(r != null);
             Add(r);
         }
 
@@ -414,7 +414,7 @@ namespace HeronEngine
     {
         public StarRule(Rule r)
         {
-            Trace.Assert(r != null);
+            Debug.Assert(r != null);
             Add(r);
         }
 
@@ -443,7 +443,7 @@ namespace HeronEngine
     {
         public PlusRule(Rule r)
         {
-            Trace.Assert(r != null);
+            Debug.Assert(r != null);
             Add(r);
         }
 
@@ -494,7 +494,7 @@ namespace HeronEngine
     {
         public NotRule(Rule r)
         {
-            Trace.Assert(r != null);
+            Debug.Assert(r != null);
             Add(r);
         }
 
@@ -506,7 +506,7 @@ namespace HeronEngine
                 p.SetPos(pos);
                 return false;
             }
-            Trace.Assert(p.GetPos() == pos);
+            Debug.Assert(p.GetPos() == pos);
             return true;
         }
 
@@ -529,7 +529,7 @@ namespace HeronEngine
     {
         public AtRule(Rule r)
         {
-            Trace.Assert(r != null);
+            Debug.Assert(r != null);
             Add(r);
         }
 
@@ -708,7 +708,7 @@ namespace HeronEngine
         {
             mFirst = first;
             mLast = last;
-            Trace.Assert(mFirst < mLast);
+            Debug.Assert(mFirst < mLast);
         }
 
         public override bool Match(ParserState p)
@@ -742,8 +742,8 @@ namespace HeronEngine
     {
         public WhileNotRule(Rule elem, Rule term)
         {
-            Trace.Assert(elem != null);
-            Trace.Assert(term != null);
+            Debug.Assert(elem != null);
+            Debug.Assert(term != null);
             mElem = elem;
             mTerm = term;
         }

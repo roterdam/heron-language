@@ -7,13 +7,11 @@ module TestReduce
   methods
   {    
     Main()
-    {
+    {     
+      var input = 1..5000;
       var output;
-      foreach (i in 1..10)
-      {
-        var input = 1..5000;
+      for (i=0; i < 200; i++)
         output = reduce (a, b in input) a + b;
-      }
       WriteLine(output[0].ToString());
     }
   }

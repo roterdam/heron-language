@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Diagnostics;
 
 namespace HeronEngine
@@ -13,14 +14,10 @@ namespace HeronEngine
     /// </summary>
     public class ReduceExpr : Expression
     {
-        [HeronVisible]
-        public string a;
-        [HeronVisible]
-        public string b;
-        [HeronVisible]
-        public Expression list;
-        [HeronVisible]
-        public Expression expr;
+        [HeronVisible] public string a;
+        [HeronVisible] public string b;
+        [HeronVisible] public Expression list;
+        [HeronVisible] public Expression expr;
 
         public ReduceExpr(string a, string b, Expression list, Expression expr)
         {
@@ -38,30 +35,6 @@ namespace HeronEngine
             return new ListValue(output as System.Collections.Generic.IEnumerable<HeronValue>);
         }
 
-        private int ReduceArrayIteration(VM vm, HeronValue[] input, int begin, int cnt)
-        {
-            if (cnt <= 1)
-                return cnt;
-
-            int cur = begin;
-
-            for (int i=0; i < cnt - 1; i += 2)
-            {
-                vm.SetVar(a, input[begin + i]);
-                vm.SetVar(b, input[begin + i + 1]);
-                input[cur++] = vm.Eval(expr);
-            }
-
-            if (cnt % 2 == 1)
-            {
-                input[cur++] = input[begin + cnt - 1];
-            }
-
-            int r = cur - begin;
-            Debug.Assert(r >= 1);
-            Debug.Assert(r < cnt);
-            return r;
-        }
 
         private void ReduceArray(VM vm, HeronValue[] input, int begin, int cnt)
         {
@@ -70,18 +43,44 @@ namespace HeronEngine
             {
                 vm.AddVar(a, HeronValue.Null);
                 vm.AddVar(b, HeronValue.Null);
+                VM.Accessor A = vm.GetAccessor(a);
+                VM.Accessor B = vm.GetAccessor(b);
+                Expression X = expr.Optimize(vm);
 
                 while (cnt > 1)
-                    cnt = ReduceArrayIteration(vm, input, begin, cnt);
+                {
+                    int cur = begin;
+
+                    for (int i = 0; i < cnt - 1; i += 2)
+                    {
+                        A.Set(input[begin + i]);
+                        B.Set(input[begin + i + 1]);
+                        input[cur++] = vm.Eval(X);
+                    }
+
+                    if (cnt % 2 == 1)
+                    {
+                        input[cur++] = input[begin + cnt - 1];
+                    }
+
+                    int r = cur - begin;
+                    Debug.Assert(r >= 1);
+                    Debug.Assert(r < cnt);
+                    cnt = r;
+                }
             }
         }
 
-        private Procedure ReduceArraySubTask(VM vm, HeronValue[] input, int begin, int cnt, HeronValue[] output, int nTask)
+        public Task CreateReduceArrayTask(VM vm, HeronValue[] input, HeronValue[] output, int begin, int cnt, int id)
         {
+            // Make sure we don't go out of range
+            if (begin + cnt > input.Length)
+                cnt = input.Length - begin;
+
             return () =>
             {
-                ReduceArray(vm, input, begin, cnt);               
-                output[nTask] = input[begin];
+                ReduceArray(vm, input, begin, cnt);
+                output[id] = input[begin];
             };
         }
 
@@ -102,19 +101,17 @@ namespace HeronEngine
                 int cnt = input.Length / nTasks;
                 if (input.Length % nTasks > 0)
                     cnt += 1;
-                List<Procedure> procs = new List<Procedure>();
+                List<Task> tasks = new List<Task>();
                 int begin = 0;
+                VM vm_tmp = vm;
                 for (int i = 0; i < nTasks; ++i)
                 {
-                    // Adjust for the last group which could be smaller
-                    if (begin + cnt > input.Length)
-                        cnt = input.Length - begin;
-
-                    Procedure p = ReduceArraySubTask(vm.Fork(), input, begin, cnt, output, i);
-                    procs.Add(p);
+                    Task t = CreateReduceArrayTask(vm_tmp, input, output, begin, cnt, i);
+                    vm_tmp = vm_tmp.Fork();
+                    tasks.Add(t);
                     begin += cnt;
                 }
-                WorkSplitter.SplitWork(procs);
+                Parallelizer.DistributeWork(tasks);
                 ReduceArray(vm, output, 0, nTasks);
                 return new List<HeronValue>() { output[0] };
             }
@@ -211,13 +208,13 @@ public class ReduceExpr : Expression
 
     public List<HeronValue> Eval_MultiThreaded(VM vm, List<HeronValue> input)
     {
-        if (input.Count < 100 || Config.maxThreads < 2)
+        if (input.Count < 100 || Config.cores < 2)
         {
             return ReduceArray(vm, input);
         }
         else
         {
-            int nTasks = Config.maxThreads;
+            int nTasks = Config.cores;
             HeronValue[] output = new HeronValue[nTasks];
             int cnt = input.Count / nTasks;
             if (input.Count % nTasks > 0)
@@ -235,7 +232,7 @@ public class ReduceExpr : Expression
                 procs.Add(p);
                 a += cnt;
             }
-            WorkSplitter.SplitWork(procs);
+            Parallelizer.DistributeWork(procs);
             List<HeronValue> r = new List<HeronValue>(output);
             r = ReduceArray(vm, r);
             return r;

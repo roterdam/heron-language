@@ -70,7 +70,7 @@ namespace HeronEngine
         /// <param name="val"></param>
         public override void SetField(string name, HeronValue val)
         {
-            if (fields.ContainsKey(name))
+            if (fields.HasName(name))
                 fields[name] = val;
             else if (GetBase() != null)
                 GetBase().SetField(name, val);
@@ -85,7 +85,7 @@ namespace HeronEngine
         /// <returns></returns>
         public bool HasField(string name)
         {
-            if (fields.ContainsKey(name))
+            if (fields.HasName(name))
                 return true;
             if (GetBase() != null)
                 return GetBase().HasField(name);
@@ -100,7 +100,7 @@ namespace HeronEngine
         /// <returns></returns>
         public HeronValue GetField(string name)
         {
-            if (fields.ContainsKey(name))
+            if (fields.HasName(name))
                 return fields[name];
             else if (GetBase() != null)
                 return GetBase().GetField(name);
@@ -146,7 +146,7 @@ namespace HeronEngine
         /// <returns></returns>
         public override HeronValue GetFieldOrMethod(string name)
         {
-            if (fields.ContainsKey(name))
+            if (fields.HasName(name))
                 return fields[name];
             if (HasMethod(name))
                 return GetMethods(name);
@@ -172,7 +172,7 @@ namespace HeronEngine
         /// <returns></returns>
         public ClassInstance GetBase()
         {
-            if (!fields.ContainsKey("base"))
+            if (!fields.HasName("base"))
                 return null;
             HeronValue r = fields["base"];
             if (!(r is ClassInstance))
