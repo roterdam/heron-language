@@ -4,7 +4,7 @@
     <StartWorkingDirectory>C:\dev\heron\HeronEngine\</StartWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <StartArguments>tests\TestReduce.heron</StartArguments>
+    <StartArguments>tests\TestMap.heron</StartArguments>
     <StartWorkingDirectory>C:\dev\heron\HeronEngine\</StartWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup>

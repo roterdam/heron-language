@@ -99,25 +99,7 @@ namespace HeronEngine
             throw new Exception("unary operator invocation not supported on " + ToString());
         }
 
-        public virtual HeronValue InvokeBinaryOperator(VM vm, string s, HeronValue x)
-        {
-            switch (s)
-            {
-                case "==":
-                    return new BoolValue(x == this);
-                case "!=":
-                    return new BoolValue(x != this);
-                default:
-                    throw new Exception("binary operator invocation not supported on " + ToString());              
-            }
-        }
-
         public abstract HeronType GetHeronType();
-
-        public virtual bool EqualsValue(VM vm, HeronValue x)
-        {
-            return InvokeBinaryOperator(vm, "==", x).ToBool();
-        }
 
         [HeronVisible]
         public override string ToString()
@@ -173,6 +155,16 @@ namespace HeronEngine
         {
             return As(t) != null;
         }
+
+        public override bool Equals(Object o)
+        {
+            return o == this;
+        }
+
+        public override int GetHashCode()
+        {            
+            return base.GetHashCode();
+        }
     }
 
     #region special values
@@ -207,17 +199,15 @@ namespace HeronEngine
             return PrimitiveTypes.NullType;
         }
 
-        public override HeronValue InvokeBinaryOperator(VM vm, string s, HeronValue x)
+        public override bool Equals(Object x)
         {
-            switch (s)
-            {
-                case "==": 
-                    return new BoolValue(x is NullValue);
-                case "!=": 
-                    return new BoolValue(!(x is NullValue));
-                default:
-                    throw new Exception("Binary operation: '" + s + "' not supported by null");
-            }
+            Debug.Assert(x is NullValue ? x == this : true);
+            return x is NullValue;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
     #endregion

@@ -62,6 +62,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HeronBinaryOperation.cs" />
+    <Compile Include="HeronMapExpr.cs" />
     <Compile Include="HeronReduceExpr.cs" />
     <Compile Include="HeronAny.cs" />
     <Compile Include="HeronClass.cs" />
@@ -167,6 +169,7 @@
     <None Include="tests\TestInheritance.heron" />
     <None Include="tests\TestInheritedConstructors.heron" />
     <None Include="tests\TestInterfaces.heron" />
+    <None Include="tests\TestMap.heron" />
     <None Include="tests\TestModuleInheritance.heron" />
     <None Include="tests\TestOutput.heron" />
     <None Include="tests\TestRandom.heron" />

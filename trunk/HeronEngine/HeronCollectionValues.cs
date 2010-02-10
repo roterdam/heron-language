@@ -142,45 +142,6 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// An enumerator that is the result of a map-each operator
-    /// </summary>
-    public class MapEachEnumerator
-        : IteratorValue
-    {
-        string name;
-        IteratorValue iter;
-        Expression yield;
-        VM vm;
-
-        public MapEachEnumerator(VM vm, string name, IteratorValue iter, Expression yield)
-        {
-            this.vm = vm;
-            this.name = name;
-            this.iter = iter;
-            this.yield = yield;
-        }
-
-        public override bool MoveNext()
-        {
-            return iter.MoveNext();
-        }
-
-        public override HeronValue GetValue()
-        {
-            using (vm.CreateScope())
-            {
-                vm.AddVar(name, iter.GetValue());
-                return vm.Eval(yield);
-            }
-        }
-
-        public override IteratorValue Restart()
-        {
-            return new MapEachEnumerator(vm, name, iter.Restart(), yield);
-        }
-   }
-
-    /// <summary>
     /// Used by IHeronEnumerableExtension to convert any IHeronEnumerable into a 
     /// an IEnumerable, so that we can use "foreach" statements
     /// </summary>
@@ -257,31 +218,6 @@ namespace HeronEngine
         #endregion
     }
 
-    /*
-    /// <summary>
-    /// Takes a generic .NET enumerator instance and converts it into a HeronValue
-    /// specifically: an IteratorValue
-    /// </summary>
-    public class EnumeratorToHeronAdapter
-        : IteratorValue
-    {
-        IEnumerator<HeronValue> iter;
-
-        public EnumeratorToHeronAdapter(IEnumerator<HeronValue> iter)
-        {
-            this.iter = iter;
-        }
-
-        public override bool MoveNext()
-        {
-            return iter.MoveNext();
-        }
-
-        public override HeronValue GetValue()
-        {
-            return iter.Current;
-        }
-    }*/
 
     /// <summary>
     /// Represents a sequence, which is a collection which can only be
@@ -300,21 +236,7 @@ namespace HeronEngine
             return new HeronToEnumeratorAdapter(vm, this);
         }
 
-        public override HeronValue InvokeBinaryOperator(VM vm, string s, HeronValue x)
-        {
-            switch (s)
-            {
-                case "==":
-                    return new BoolValue(EqualsValue(vm, x));
-                case "!=":
-                    return new BoolValue(!EqualsValue(vm, x));
-                default:
-                    return base.InvokeBinaryOperator(vm, s, x);
-            }
-        }
-
-
-        public override bool EqualsValue(VM vm, HeronValue x)
+        public override bool Equals(Object x)
         {
             if (!(x is SeqValue))
                 return false;
@@ -328,7 +250,7 @@ namespace HeronEngine
             {
                 HeronValue v1 = e1.GetValue();
                 HeronValue v2 = e2.GetValue();
-                if (!v1.EqualsValue(vm, v2))
+                if (!v1.Equals(v2))
                     return false;
                 b1 = e1.MoveNext();
                 b2 = e2.MoveNext();                
@@ -349,6 +271,11 @@ namespace HeronEngine
 
         [HeronVisible]
         public abstract IteratorValue GetIterator();
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 
     /// <summary>
@@ -364,6 +291,11 @@ namespace HeronEngine
         }
 
         public ListValue(IEnumerable<HeronValue> xs)
+        {
+            list.AddRange(xs);
+        }
+
+        public ListValue(List<HeronValue> xs)
         {
             list.AddRange(xs);
         }
@@ -457,6 +389,74 @@ namespace HeronEngine
                 }
                 if (i > 0) sb.Append(", ");
                 sb.Append(list[i].ToString());
+            }
+            sb.Append(']');
+            return sb.ToString();
+        }
+    }
+
+
+    /// <summary>
+    /// Represents a collection which can be iterated over multiple times.
+    /// </summary>
+    public class ArrayValue
+        : SeqValue
+    {
+        HeronValue[] array;
+
+        public ArrayValue(HeronValue[] xs)
+        {
+            array = xs;
+        }
+
+        [HeronVisible]
+        public HeronValue Count()
+        {
+            return new IntValue(array.Length);
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.ArrayType;
+        }
+
+        public override IteratorValue GetIterator()
+        {
+            return new ListToIterValue(array);
+        }
+
+        public override ListValue ToList()
+        {
+            return new ListValue(new List<HeronValue>(array));
+        }
+
+        public override HeronValue GetAtIndex(HeronValue index)
+        {
+            if (!(index is IntValue))
+                throw new Exception("Can only use index lists using integers");
+            return array[(index as IntValue).GetValue()];
+        }
+
+        public override void SetAtIndex(HeronValue index, HeronValue val)
+        {
+            if (!(index is IntValue))
+                throw new Exception("Can only use index lists using integers");
+            array[(index as IntValue).GetValue()] = val;
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append('[');
+            for (int i = 0; i < array.Length; ++i)
+            {
+                if (i > Config.maxListPrintableSize)
+                {
+                    sb.Append("...");
+                    break;
+                }
+                if (i > 0) sb.Append(", ");
+                sb.Append(array[i].ToString());
             }
             sb.Append(']');
             return sb.ToString();

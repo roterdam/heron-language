@@ -35,6 +35,7 @@ namespace HeronEngine
         public static HeronType IteratorType = new HeronType(null, typeof(IteratorValue), "Iterator");
         public static HeronType SeqType = new HeronType(null, typeof(SeqValue), "Seq");
         public static HeronType ListType = new HeronType(null, typeof(ListValue), "List");
+        public static HeronType ArrayType = new HeronType(null, typeof(ArrayValue), "Array");
         public static HeronType RecordType = new HeronType(null, typeof(RecordValue), "Record");
         public static HeronType TableType = new HeronType(null, typeof(TableValue), "Table");
 

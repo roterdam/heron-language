@@ -17,8 +17,6 @@ namespace HeronEngine
 {
     public static class Program
     {
-        static public int count = 0;
-
         /// <summary>
         /// Prints a usage message to the console
         /// </summary>
@@ -104,10 +102,17 @@ namespace HeronEngine
                         OutputPrimitives();
                     if (Config.runUnitTests)
                         HeronTests.MainTest();
+
+                    DateTime dt = DateTime.Now;
                     Parallelizer.Initialize(Config.maxThreads);
                     RunFile(args[0]);
                     Parallelizer.CleanUp();
-                    Console.WriteLine("Total count " + count); 
+
+                    if (Config.showTiming)
+                    {
+                        TimeSpan ts = DateTime.Now - dt;
+                        Console.WriteLine(ts.TotalMilliseconds + " ms");
+                    }
                 }
                 catch (Exception e)
                 {

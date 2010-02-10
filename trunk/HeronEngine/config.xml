@@ -7,7 +7,7 @@
     <bool name="rununittests">false</bool>
     <bool name="outputgrammar">false</bool>
     <bool name="outputprimitives">false</bool>
-    <int name="maxthreads">1</int>
+    <int name="maxthreads">2</int>
     <bool name="showtiming">true</bool>
     <bool name="waitforkeypress">false</bool>
   </section>
