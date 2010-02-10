@@ -156,6 +156,19 @@ namespace HeronEngine
         /// <param name="localTasks"></param>
         public static void DistributeWork(List<Task> localTasks)
         {
+            // In the degenerate case of no work, just leave
+            if (localTasks.Count == 0)
+            {
+                return;
+            }
+
+            // If there is only one task, just execute it.
+            if (localTasks.Count == 1)
+            {
+                localTasks[0]();
+                return;
+            }
+
             // Create a count-down latch that block until a count is decremented to zero
             CountDownLatch latch = new CountDownLatch(localTasks.Count);
 

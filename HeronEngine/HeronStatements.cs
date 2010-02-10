@@ -451,7 +451,7 @@ namespace HeronEngine
             foreach (CaseStatement c in cases)
             {
                 HeronValue cond = vm.Eval(c.condition);
-                if (o.EqualsValue(vm, cond))
+                if (o.Equals(cond))
                 {
                     vm.Eval(c.statement);
                     return;

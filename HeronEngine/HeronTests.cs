@@ -85,7 +85,7 @@ namespace HeronEngine
                 HeronValue output = vm.EvalString(sOutput);
                 Console.WriteLine("test input was " + input.ToString());
                 Console.WriteLine("test output was " + output.ToString());
-                if (!input.EqualsValue(vm, output))
+                if (!input.Equals(output))
                     throw new Exception("Result was different than expected");
             }
             catch (Exception e)

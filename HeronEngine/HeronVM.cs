@@ -297,18 +297,7 @@ namespace HeronEngine
         {
             ModuleInstance mi = m.Instantiate(this, new HeronValue[] { }, null) as ModuleInstance;
             RunMeta(mi);
-
-            if (Config.showTiming)
-            {
-                DateTime dt = DateTime.Now;
-                RunMain(mi);
-                TimeSpan ts = DateTime.Now - dt;
-                Console.WriteLine(ts.TotalMilliseconds + " ms");
-            }
-            else
-            {
-                RunMain(mi);
-            }
+            RunMain(mi);
         }
 
         /// <summary>
@@ -473,13 +462,11 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Createa a new frame that is a copy of an existing frame.
+        /// Createa a new frame that is a copy of the top frame.
         /// </summary>
-        /// <param name="f"></param>
-        /// <returns></returns>
-        public DisposableFrame CreateFrame(Frame f)
+        public DisposableFrame CreateFrame()
         {
-            return new DisposableFrame(this, f.function, f.self);
+            return new DisposableFrame(this, CurrentFrame.function, CurrentFrame.self);
         }
         #endregion
 
@@ -618,7 +605,16 @@ namespace HeronEngine
             Assure(o != null, "Null is not an acceptable value");
             frames.Peek().AddVar(s, o);
         }
-        
+
+        /// <summary>
+        /// Creates a new variable name in the current scope.
+        /// </summary>
+        /// <param name="s"></param>
+        public void AddVar(string s)
+        {
+            AddVar(s, HeronValue.Null);
+        }
+
         /// <summary>
         /// Add a group of variables at once
         /// </summary>

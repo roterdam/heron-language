@@ -80,5 +80,15 @@ namespace HeronEngine
                 values[n] = value;
             }
         }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < Count; ++i)
+            {
+                sb.AppendLine(names[i] + " = " + values[i].ToString());
+            }
+            return sb.ToString();
+        }
     }
 }
