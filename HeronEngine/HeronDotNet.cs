@@ -58,6 +58,16 @@ namespace HeronEngine
         {
             return new ListToIterValue(list);
         }
+
+        public override ListValue ToList()
+        {
+            return new ListValue(list);
+        }
+
+        public override HeronValue[] ToArray()
+        {
+            return list.ToArray();
+        }
     }
 
     public class DotNetMethod : HeronValue
@@ -100,8 +110,8 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Creates a Heron object from a System (.NET) object
-        /// If it is a primitive, this will convert to the Heron primitives
+        /// Creates ta Heron object from ta System (.NET) object
+        /// If it is ta primitive, this will convert to the Heron primitives
         /// </summary>
         /// <param name="o"></param>
         /// <returns></returns>
@@ -256,7 +266,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Exposes a .NET class to Heron
+    /// Exposes ta .NET class to Heron
     /// </summary>
     public class DotNetClass : HeronType
     {
@@ -281,7 +291,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Returns the value of a static field, or a method group.
+        /// Returns the value of ta static field, or ta method group.
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
@@ -315,8 +325,8 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// In .NET methods are overloaded, so resolve a method name on a .NET object
-    /// yields a group of methods. This class stores the object and the method
+    /// In .NET methods are overloaded, so resolve ta method name on ta .NET object
+    /// yields ta group of methods. This class stores the object and the method
     /// name for invocation.
     /// </summary>
     public class DotNetMethodGroup : HeronValue
@@ -371,7 +381,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Exposes a method from a Heron primitive type to Heron
+    /// Exposes ta method from ta Heron primitive type to Heron
     /// </summary>
     public class ExposedMethodValue : HeronValue
     {

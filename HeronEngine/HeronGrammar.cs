@@ -107,12 +107,12 @@ namespace HeronEngine
         public static Rule NewExpr = Store("new", Token("new") + NoFail(TypeExpr + ParanthesizedExpr) + Opt(Token("from") + NestedExpr));
         public static Rule SelectExpr = Store("select", Token("select") + NoFail(Token("(") + Name + Token("from") + NestedExpr + Token(")") + NestedExpr));
         public static Rule AccumulateExpr = Store("accumulate", Token("accumulate") + NoFail(Token("(") + Name + Delay("Initializer", () => Initializer) + Token("forall") + Name + Token("in") +NestedExpr + Token(")") + NestedExpr));
-        public static Rule ReduceExpr = Store("reduce", Token("reduce") + NoFail(Token("(") + Name + Token(",") + Name + Token("in") + NestedExpr + Token(")") + NestedExpr));
-        public static Rule MapEachExpr = Store("mapeach", Token("mapeach") + NoFail(Token("(") + Name + Token("in") + NestedExpr + Token(")") + NoFail(NestedExpr)));
+        public static Rule ReduceExpr = Store("reduce", Token("reduce") + NoFail(Token("(") + Name + Token(",") + Name + Token("in") + NestedExpr + Token(")") + NoFail(NestedExpr)));
+        public static Rule MapExpr = Store("map", Token("map") + NoFail(Token("(") + Name + Token("in") + NestedExpr + Token(")") + NoFail(NestedExpr)));
         public static Rule Rows = Store("rows", NoFail(BracedGroup(NestedExpr + Eos)));
         public static Rule RecordExpr = Store("record", Token("record") + NoFail(ArgList) + NoFail(Token("{")) + NoFail(NestedExpr) + NoFail(Token("}")));
         public static Rule TableExpr = Store("table", Token("table") + NoFail(ArgList) + NoFail(Rows));
-        public static Rule BasicExpr = (NewExpr | MapEachExpr | SelectExpr | AccumulateExpr | ReduceExpr | FunExpr | TableExpr | RecordExpr | SpecialName | Name | Literal | ParanthesizedExpr | BracketedExpr);
+        public static Rule BasicExpr = (NewExpr | MapExpr | SelectExpr | AccumulateExpr | ReduceExpr | FunExpr | TableExpr | RecordExpr | SpecialName | Name | Literal | ParanthesizedExpr | BracketedExpr);
         public static Rule CompoundExpr = Store("expr", Plus(BasicExpr));
         #endregion
 

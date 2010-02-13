@@ -13,8 +13,8 @@ using System.Reflection;
 namespace HeronEngine
 {
     /// <summary>
-    /// A grammar is a set of rules which define a language. Grammar rules in the context 
-    /// of a recursive descent parsing library correspond to pattern matches which are also known
+    /// A grammar is ta set of rules which define ta language. Grammar rules in the context 
+    /// of ta recursive descent parsing library correspond to pattern matches which are also known
     /// somewhat confusingly as "parsers". 
     /// </summary>
     public class Grammar
@@ -66,8 +66,8 @@ namespace HeronEngine
 
         #region miscellaneous grammar functions
         /// <summary>
-        /// This function loops through all static rule fields in a class
-        /// and assigns a name to them, which is the same as the field name.
+        /// This function loops through all static rule fields in ta class
+        /// and assigns ta name to them, which is the same as the field name.
         /// </summary>
         /// <param name="grammarType"></param>
         public static void AssignRuleNames(Type grammarType)
@@ -83,7 +83,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Converts the entire grammar into a text-file representation
+        /// Converts the entire grammar into ta text-file representation
         /// </summary>
         /// <param name="grammarType"></param>
         /// <returns></returns>

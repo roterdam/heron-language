@@ -218,7 +218,7 @@ namespace HeronEngine
     /// instance of UnresolvedType should be replaced with the correct type. To do this, requires
     /// all modules to be parsed, so it has to be done after parsing. There are probably more 
     /// elegant solutions available, but this is the best I could come up with. It does not 
-    /// require a lot of code, and errors are easy to detect.
+    /// require ta lot of code, and errors are easy to detect.
     /// </summary>
     public class UnresolvedType : HeronType
     {

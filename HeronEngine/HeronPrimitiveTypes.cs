@@ -23,6 +23,7 @@ namespace HeronEngine
         public static HeronType VoidType = new HeronType(null, typeof(VoidValue), "Void");
         public static HeronType NullType = new HeronType(null, typeof(NullValue), "Null");
         public static HeronType UnknownType = new HeronType(null, typeof(VoidValue), "Unknown"); 
+        public static HeronType OptimizedExpressionType = new HeronType(null, typeof(OptimizedExpression), "Optimized");
 
         // Usual suspects 
         public static HeronType BoolType = new HeronType(null, typeof(BoolValue), "Bool");
@@ -99,7 +100,7 @@ namespace HeronEngine
         public static HeronCodeModelType AnonFunExpr = new HeronCodeModelType(typeof(FunExpr));
         public static HeronCodeModelType PostIncExpr = new HeronCodeModelType(typeof(PostIncExpr));
         public static HeronCodeModelType SelectExpr = new HeronCodeModelType(typeof(SelectExpr));
-        public static HeronCodeModelType MapEachExpr = new HeronCodeModelType(typeof(MapEachExpr));
+        public static HeronCodeModelType MapExpr = new HeronCodeModelType(typeof(MapExpr));
         public static HeronCodeModelType AccumulateExpr = new HeronCodeModelType(typeof(AccumulateExpr));
         public static HeronCodeModelType ReduceExpr = new HeronCodeModelType(typeof(ReduceExpr));
         public static HeronCodeModelType TupleExpr = new HeronCodeModelType(typeof(TupleExpr));

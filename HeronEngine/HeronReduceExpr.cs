@@ -8,8 +8,8 @@ using System.Diagnostics;
 namespace HeronEngine
 {
     /// <summary>
-    /// Represents a reduce expression.
-    /// This transforms a list of N items into a list of 1 items (unless N == 0) by 
+    /// Represents ta reduce expression.
+    /// This transforms ta list of N items into ta list of 1 items (unless N == 0) by 
     /// applying an associative binary function to items in the list. 
     /// </summary>
     public class ReduceExpr : Expression
@@ -35,6 +35,10 @@ namespace HeronEngine
             return new ListValue(output as System.Collections.Generic.IEnumerable<HeronValue>);
         }
 
+        public override Expression Optimize(VM vm)
+        {
+            return this;
+        }
 
         private void ReduceArray(VM vm, HeronValue[] input, int begin, int cnt)
         {
@@ -44,7 +48,10 @@ namespace HeronEngine
                 vm.AddVar(b, HeronValue.Null);
                 VM.Accessor A = vm.GetAccessor(a);
                 VM.Accessor B = vm.GetAccessor(b);
-                Expression X = expr.Optimize(vm);
+
+                Expression X = expr;
+                if (Config.optimize)
+                    X = expr.Optimize(vm);
 
                 while (cnt > 1)
                 {

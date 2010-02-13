@@ -14,6 +14,8 @@ using System.Diagnostics;
 
 namespace HeronEngine
 {
+    public delegate HeronValue Evaluator(VM vm);
+
     /// <summary>
     /// An expression in its represtantation as part of the abstract syntax tree.     
     /// </summary>
@@ -80,7 +82,33 @@ namespace HeronEngine
             }
         }
 
-        public virtual Expression Optimize(VM vm)
+        public abstract Expression Optimize(VM vm);
+    }
+
+    /// <summary>
+    /// Used to construct optimized versions of expressions for 
+    /// evaluation inside of tight loops.
+    /// </summary>
+    public class OptimizedExpression : Expression
+    {
+        Evaluator e;
+        
+        public OptimizedExpression(Evaluator e)
+        {
+            this.e = e;
+        }
+
+        public override HeronValue Eval(VM vm)
+        {
+            return e(vm);
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.OptimizedExpressionType;
+        }
+
+        public override Expression Optimize(VM vm)
         {
             return this;
         }
@@ -110,10 +138,20 @@ namespace HeronEngine
                 list.Add(x.Eval(vm));
             return list.ToArray();
         }
+
+        public ExpressionList Optimize(VM vm)
+        {
+            ExpressionList r = new ExpressionList();
+            foreach (Expression x in this)
+            {
+                r.Add(x.Optimize(vm));
+            }
+            return r;
+        }
     }
 
     /// <summary>
-    /// Represents an assignment to a variable or member variable.
+    /// Represents an assignment to ta variable or member variable.
     /// </summary>
     public class Assignment : Expression
     {
@@ -124,6 +162,29 @@ namespace HeronEngine
         {
             this.lvalue = lvalue;
             this.rvalue = rvalue;
+        }
+
+        public override Expression Optimize(VM vm)
+        {
+            Expression opt_rvalue = rvalue.Optimize(vm);
+
+            if (lvalue is Name)
+            {
+                Name nm = lvalue as Name;
+                VM.Accessor acc = vm.GetAccessor(nm.name);
+                if (acc == null)
+                    throw new Exception("Could not find name " + nm.name);
+                return new OptimizedExpression((VM v) =>
+                {
+                    HeronValue x = opt_rvalue.Eval(v);
+                    acc.Set(x);
+                    return x;
+                });
+            }
+            else
+            {
+                return new Assignment(lvalue.Optimize(vm), opt_rvalue);
+            }
         }
 
         public override HeronValue Eval(VM vm)
@@ -158,7 +219,7 @@ namespace HeronEngine
             else if (lvalue is ReadAt)
             {
                 // TODO: 
-                // This is for "a[x] = y"
+                // This is for "ta[x] = y"
                 throw new Exception("Unimplemented");
             }
             else
@@ -179,7 +240,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents access of a member field (or method) of an object
+    /// Represents access of ta member field (or method) of an object
     /// </summary>
     public class ChooseField : Expression
     {
@@ -201,6 +262,11 @@ namespace HeronEngine
             if (r == null)
                 throw new Exception("Could not resolve name " + name + " on expression " + self.ToString());
             return r;
+        }
+
+        public override Expression Optimize(VM vm)
+        {
+            return new ChooseField(self.Optimize(vm), name);
         }
 
         public override string ToString()
@@ -244,10 +310,15 @@ namespace HeronEngine
         {
             return PrimitiveTypes.ReadAt;
         }
+
+        public override Expression Optimize(VM vm)
+        {
+            return new ReadAt(self.Optimize(vm), index.Optimize(vm));
+        }
     }
 
     /// <summary>
-    /// Represents an expression that instantiates a class.
+    /// Represents an expression that instantiates ta class.
     /// </summary>
     public class NewExpr : Expression
     {
@@ -284,6 +355,11 @@ namespace HeronEngine
         {
             return PrimitiveTypes.NewExpr;
         }
+
+        public override Expression Optimize(VM vm)
+        {
+            return new NewExpr(type, args.Optimize(vm), modexpr.Optimize(vm));
+        }
     }
 
     /// <summary>
@@ -303,6 +379,11 @@ namespace HeronEngine
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.NullExpr;
+        }
+
+        public override Expression Optimize(VM vm)
+        {
+            return this;
         }
     }
 
@@ -333,6 +414,11 @@ namespace HeronEngine
         public HeronValue GetValue()
         {
             return val;
+        }
+
+        public override Expression Optimize(VM vm)
+        {
+            return this;
         }
     }
 
@@ -427,7 +513,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// An identifier expression. Could be a function name, variable name, etc.
+    /// An identifier expression. Could be ta function name, variable name, etc.
     /// </summary>
     public class Name : Expression
     {
@@ -456,32 +542,12 @@ namespace HeronEngine
         public override Expression Optimize(VM vm)
         {
             VM.Accessor acc = vm.GetAccessor(name);
-            return new OptimizedName(acc);
-        }
-    }
-
-    public class OptimizedName : Expression
-    {
-        VM.Accessor acc;
-
-        public OptimizedName(VM.Accessor acc)
-        {
-            this.acc = acc;
-        }
-
-        public override HeronValue Eval(VM vm)
-        {
-            return acc.Get();
-        }
-
-        public override HeronType GetHeronType()
-        {
-            return PrimitiveTypes.UnknownType;
+            return new OptimizedExpression((VM v) => acc.Get()); 
         }
     }
 
     /// <summary>
-    /// Represents a function call expression.
+    /// Represents ta function call expression.
     /// </summary>
     public class FunCall : Expression
     {
@@ -492,6 +558,11 @@ namespace HeronEngine
         {
             funexpr = f;
             this.args = args;
+        }
+
+        public override Expression Optimize(VM vm)
+        {
+            return new FunCall(funexpr.Optimize(vm), args.Optimize(vm)); 
         }
         
         public override HeronValue Eval(VM vm)
@@ -513,7 +584,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents an expression with a unary operator. That is with one operand (e.g. the not operator '!' or the negation operator '-').
+    /// Represents an expression with ta unary operator. That is with one operand (e.g. the not operator '!' or the negation operator '-').
     /// This does not include the post-increment operator.
     /// </summary>
     public class UnaryOperation : Expression
@@ -525,6 +596,11 @@ namespace HeronEngine
         {
             operation = sOp;
             operand = x;
+        }
+
+        public override Expression Optimize(VM vm)
+        {
+            return new UnaryOperation(operation, operand.Optimize(vm))   ;
         }
 
         public override HeronValue Eval(VM vm)
@@ -545,8 +621,8 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// An anonymous function expression. An anonymous function may be a closure, 
-    /// if it has free variables. A free variable is a variable that is not local
+    /// An anonymous function expression. An anonymous function may be ta closure, 
+    /// if it has free variables. A free variable is ta variable that is not local
     /// to the function and that is not an argument.
     /// </summary>
     public class FunExpr : Expression
@@ -563,6 +639,11 @@ namespace HeronEngine
             formals.ResolveTypes(m);
             body.ResolveTypes(m);
             rettype = rettype.Resolve(m);
+        }
+
+        public override Expression Optimize(VM vm)
+        {
+            return this;
         }
 
         public override HeronValue Eval(VM vm)
@@ -618,6 +699,11 @@ namespace HeronEngine
             return result;
         }
 
+        public override Expression Optimize(VM vm)
+        {
+            return new PostIncExpr(expr.Optimize(vm));
+        }
+
         public override string ToString()
         {
             return expr.ToString() + "++";
@@ -631,7 +717,7 @@ namespace HeronEngine
 
     /// <summary>
     /// Represents an expression involving the "select" operator
-    /// which filters a list depending on a predicate.
+    /// which filters ta list depending on ta predicate.
     /// </summary>
     public class SelectExpr : Expression
     {
@@ -646,11 +732,17 @@ namespace HeronEngine
             this.pred = pred;
         }
 
+        public override Expression Optimize(VM vm)
+        {
+            return this;
+        }
+
         public override HeronValue Eval(VM vm)
         {
-            SeqValue seq = vm.EvalList(list); 
-            var r = new SelectEnumerator(vm, name, seq.GetIterator(), pred);
-            return r.ToList();
+            SeqValue seq = vm.EvalList(list);
+
+            // TODO: finish, very important!
+            throw new NotImplementedException();
         }
 
         public override string ToString()
@@ -666,7 +758,7 @@ namespace HeronEngine
 
     /// <summary>
     /// Represents an expression that involves the accumulate operator.
-    /// This transforms a list into a single value by applying a binary function
+    /// This transforms ta list into ta single value by applying ta binary function
     /// to an accumulator and each item in the list consecutively.
     /// </summary>
     public class AccumulateExpr : Expression
@@ -686,6 +778,11 @@ namespace HeronEngine
             this.expr = expr;
         }
 
+        public override Expression Optimize(VM vm)
+        {
+            return this;
+        }
+        
         public override HeronValue Eval(VM vm)
         {
             using (vm.CreateScope())
@@ -715,7 +812,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents a literal list expression, such as [1, 'q', "hello"]
+    /// Represents ta literal list expression, such as [1, 'q', "hello"]
     /// </summary>
     public class TupleExpr : Expression
     {
@@ -724,6 +821,11 @@ namespace HeronEngine
         public TupleExpr(ExpressionList xs)
         {
             exprs = xs;
+        }
+
+        public override Expression Optimize(VM vm)
+        {
+            return new TupleExpr(exprs.Optimize(vm));
         }
 
         public override HeronValue Eval(VM vm)
@@ -741,8 +843,8 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents a literal table expression, such as 
-    ///   table(a:Int, s:String) { 1, "one"; 2, "two"; }
+    /// Represents ta literal table expression, such as 
+    ///   table(ta:Int, s:String) { 1, "one"; 2, "two"; }
     /// </summary>
     public class TableExpr : Expression
     {
@@ -780,6 +882,11 @@ namespace HeronEngine
             rows.Add(row);
         }
 
+        public override Expression Optimize(VM vm)
+        {
+            return this;
+        }
+
         public override HeronValue Eval(VM vm)
         {
             RecordLayout layout = ComputeRecordLayout();
@@ -802,8 +909,8 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents a literal record expression, such as 
-    ///   record(a:Int, s:String) { 1, "one" }
+    /// Represents ta literal record expression, such as 
+    ///   record(ta:Int, s:String) { 1, "one" }
     /// </summary>
     public class RecordExpr : Expression
     {
@@ -812,6 +919,17 @@ namespace HeronEngine
 
         public RecordExpr()
         {
+        }
+
+        public RecordExpr(ExpressionList fields, FormalArgs args)
+        {
+            this.fields = fields;
+            this.fielddefs = args;
+        }
+
+        public override Expression Optimize(VM vm)
+        {
+            return new RecordExpr(fields.Optimize(vm), fielddefs);
         }
 
         public override void ResolveTypes(ModuleDefn m)

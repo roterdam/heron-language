@@ -31,6 +31,7 @@ namespace HeronEngine
         public static int maxThreads = 1;
         public static bool showTiming = false;
         public static bool waitForKeypress = true;
+        public static bool optimize = false;
 
         static Config()
         {
@@ -41,97 +42,97 @@ namespace HeronEngine
 
         public static void LoadFromFile(string s)
         {
-            XmlDocument doc = new XmlDocument();
-            doc.Load(s);
-            XmlElement root = doc.DocumentElement;
-            XmlElement version = doc.FirstChild as XmlElement;
-            // TODO: process version if need be
-            foreach (XmlElement e in root.GetElementsByTagName("section"))
+            XmlReader xr = XmlReader.Create(s);
+            xr.ReadStartElement("cfgxml");           
+            xr.MoveToContent();
+            xr.ReadStartElement("section");
+            while (xr.MoveToContent() == XmlNodeType.Element)
             {
-                string sectionName = "";
-                if (e.HasAttribute("name"))     
-                    sectionName = e.GetAttribute("name");
-                foreach (XmlNode n in e.ChildNodes)
-                    ProcessElement(n as XmlElement, sectionName);
+                ProcessElement(xr);
             }
         }
 
-        static void ProcessElement(XmlElement e, string sectionName)
+        static void ProcessElement(XmlReader xr)
         {
-            if (e == null)
+            if (xr.EOF)
                 return;
 
-            if (!e.HasAttribute("name"))
-                throw new Exception("Missing name field in configuration file");
-
-            switch (e.GetAttribute("name"))
+            string name = xr.GetAttribute("name");
+            
+            switch (name)
             {
                 case "inputpath":
-                    inputPath.AddRange(ProcessPathList(e));
+                    inputPath.AddRange(ProcessPathList(xr));
                     break;
                 case "libs":
-                    libs = ProcessStringList(e);
+                    libs = ProcessStringList(xr);
                     break;
                 case "rununittests":
-                    runUnitTests = ProcessBool(e);
+                    runUnitTests = xr.ReadElementContentAsBoolean();
                     break;
                 case "outputgrammar":
-                    outputGrammar = ProcessBool(e);
+                    outputGrammar = xr.ReadElementContentAsBoolean();
                     break;
                 case "outputprimitives":
-                    outputPrimitives = ProcessBool(e);
+                    outputPrimitives = xr.ReadElementContentAsBoolean();
                     break;
                 case "extensions":
-                    extensions = ProcessStringList(e);
+                    extensions = ProcessStringList(xr);
                     break;
                 case "maxthreads":
-                    maxThreads = ProcessInt(e);
+                    maxThreads = xr.ReadElementContentAsInt();
                     break;
                 case "showtiming":
-                    showTiming = ProcessBool(e);
+                    showTiming = xr.ReadElementContentAsBoolean();
                     break;
                 case "waitforkeypress":
-                    waitForKeypress = ProcessBool(e);
+                    waitForKeypress = xr.ReadElementContentAsBoolean();
                     break;
+                case "optimize":
+                    optimize = xr.ReadElementContentAsBoolean();
+                    break;
+                default:
+                    throw new Exception("Unrecognized node type '" + name + "'");
             }
         }
 
-        static string ProcessPath(XmlElement e)
+        static string ProcessPath(XmlReader xr)
         {
-            string r = e.InnerXml;
-            if (e.HasAttribute("relative") && e.GetAttribute("relative") == "true")
-                r = Util.GetExeDir() + "\\" + r;
-            return r;
+            if (xr.GetAttribute("relative") == "true")
+                return Util.GetExeDir() + "\\" + xr.ReadElementContentAsString();
+            else
+                return xr.ReadElementContentAsString();
         }
 
-        static List<string> ProcessPathList(XmlElement e)
+        static List<string> ProcessPathList(XmlReader xr)
         {
+            xr.ReadStartElement("pathlist");
             List<string> paths = new List<string>();
-            foreach (XmlElement path in e.GetElementsByTagName("path"))
-                paths.Add(ProcessPath(path));
+            XmlNodeType xnt = xr.MoveToContent();
+            while (xnt == XmlNodeType.Element)
+            {
+                paths.Add(ProcessPath(xr));
+                xnt = xr.MoveToContent();
+            }
+            if (xnt != XmlNodeType.EndElement)
+                throw new Exception("Config parsing error, expected end element");
+            xr.ReadEndElement();                
             return paths;
         }
 
-        static bool ProcessBool(XmlElement e)
+        static List<string> ProcessStringList(XmlReader xr)
         {
-            return e.InnerXml.Trim() == "true";
-        }
-
-        static int ProcessInt(XmlElement e)
-        {
-            return Int32.Parse(e.InnerXml.Trim());
-        }
-
-        static string ProcessString(XmlElement e)
-        {
-            return e.InnerXml.Trim();
-        }
-
-        static List<string> ProcessStringList(XmlElement e)
-        {
+            xr.ReadStartElement("stringlist");
             List<string> r = new List<string>();
-            foreach (XmlElement child in e.GetElementsByTagName("string"))
-                r.Add(ProcessString(child));
+            XmlNodeType xnt = xr.MoveToContent();
+            while (xnt == XmlNodeType.Element)
+            {
+                r.Add(xr.ReadElementContentAsString());
+                xnt = xr.MoveToContent();
+            }
+            if (xnt != XmlNodeType.EndElement)
+                throw new Exception("Config parsing error, expected end element");
+            xr.ReadEndElement();                
             return r;
         }
     }

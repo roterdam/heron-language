@@ -42,7 +42,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// This exposes a set of globally recognized Heron and .NET 
+        /// This exposes ta set of globally recognized Heron and .NET 
         /// types to the environment (essentially global variables).
         /// A simple way to extend the scope of Heron is to introduce
         /// new types in this function.
@@ -160,7 +160,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Returns a list of names of modules that need to be imported
+        /// Returns ta list of names of modules that need to be imported
         /// </summary>
         /// <returns></returns>
         public IEnumerable<string> GetUnloadedDependentModules()

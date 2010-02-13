@@ -14,7 +14,7 @@ using System.Diagnostics;
 namespace HeronEngine
 {
     /// <summary>
-    /// This is the core class of Heron. Often we think of a VM as being a byte-code
+    /// This is the core class of Heron. Often we think of ta VM as being ta byte-code
     /// machine, but in the case of the HeronEngine, it evaluates the code model directly.
     /// </summary>
     public class VM : HeronValue
@@ -106,7 +106,7 @@ namespace HeronEngine
         private ProgramDefn program;
 
         /// <summary>
-        /// A flag that is set to true when a return statement occurs. 
+        /// A flag that is set to true when ta return statement occurs. 
         /// </summary>
         bool bReturning = false;
         #endregion
@@ -161,7 +161,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Creates a shallow copy of the VM
+        /// Creates ta shallow copy of the VM
         /// </summary>
         /// <returns></returns>
         public VM Fork()
@@ -300,21 +300,22 @@ namespace HeronEngine
             RunMain(mi);
         }
 
-        /// <summary>
-        /// Evaluates a list expression as an IHeronEnumerator
-        /// </summary>
-        /// <param name="list"></param>
-        /// <returns></returns>
-        public SeqValue EvalList(Expression list)
+        public ListValue EvalList(Expression list)
         {
             HeronValue tmp = Eval(list);
-            if (!(tmp is SeqValue))
-                throw new Exception("Expected an enumerable value");
-            return (tmp as SeqValue);
+            if (!(tmp is ListValue))
+            {
+                if (tmp is SeqValue)
+                {
+                    return (tmp as SeqValue).ToList();
+                }
+                throw new Exception("Expression did not evaluate to a list " + list.ToString());
+            }
+            return (tmp as ListValue);
         }
 
         /// <summary>
-        /// Evaluates a list expression, converting it into an IEnumerable&lt;HeronValue&gt;
+        /// Evaluates ta list expression, converting it into an IEnumerable&lt;HeronValue&gt;
         /// </summary>
         /// <param name="list"></param>
         /// <returns></returns>
@@ -335,7 +336,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Evaluates a list of expressions and returns a list of values
+        /// Evaluates ta list of expressions and returns ta list of values
         /// </summary>
         /// <param name="list"></param>
         /// <returns></returns>
@@ -373,7 +374,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Creates a new lexical scope. Roughly corresponds to an open brace ('{') in many languages.
+        /// Creates ta new lexical scope. Roughly corresponds to an open brace ('{') in many languages.
         /// </summary>
         public void PushScope()
         {
@@ -381,7 +382,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Creates a new scope, with a predefined set of variable names. Useful for function arguments
+        /// Creates ta new scope, with ta predefined set of variable names. Useful for function arguments
         /// or class fields.
         /// </summary>
         /// <param name="scope"></param>
@@ -391,7 +392,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Removes the current scope. Correspond roughly to a closing brace ('}').
+        /// Removes the current scope. Correspond roughly to ta closing brace ('}').
         /// </summary>
         public void PopScope()
         {
@@ -399,7 +400,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Creates a scope, and when DisposableScope.Dispose is called removes it
+        /// Creates ta scope, and when DisposableScope.Dispose is called removes it
         /// Normally you would use this as follows:
         /// <code>
         ///     using (vm.CreateScope())
@@ -415,7 +416,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Creates a scope, and when DisposableScope.Dispose is called removes it
+        /// Creates ta scope, and when DisposableScope.Dispose is called removes it
         /// Normally you would use this as follows:
         /// <code>
         ///     using (vm.CreateScope(scope))
@@ -431,7 +432,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Called when a new function execution starts.
+        /// Called when ta new function execution starts.
         /// </summary>
         /// <param name="f"></param>
         /// <param name="self"></param>
@@ -450,7 +451,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Creates a new frame, and returns a frame manager, which will release the frame
+        /// Creates ta new frame, and returns ta frame manager, which will release the frame
         /// on Dispose.
         /// </summary>
         /// <param name="fun"></param>
@@ -462,7 +463,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Createa a new frame that is a copy of the top frame.
+        /// Createa ta new frame that is ta copy of the top frame.
         /// </summary>
         public DisposableFrame CreateFrame()
         {
@@ -472,8 +473,8 @@ namespace HeronEngine
 
         #region control flow
         /// <summary>
-        /// This is used by loops over statements to check whether a return statement, a break 
-        /// statement, or a throw statement was called. Currently only return statements are supported.
+        /// This is used by loops over statements to check whether ta return statement, ta break 
+        /// statement, or ta throw statement was called. Currently only return statements are supported.
         /// </summary>
         /// <returns></returns>
         public bool ShouldExitScope()
@@ -482,7 +483,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Called by a return statement. Sets the function result, and sets a flag to indicate 
+        /// Called by ta return statement. Sets the function result, and sets ta flag to indicate 
         /// to executing statement groups that execution should terminate.
         /// </summary>
         /// <param name="ret"></param>
@@ -508,7 +509,7 @@ namespace HeronEngine
 
         #region variables, fields, and name management
         /// <summary>
-        /// Assigns a value a variable name in the current environment.
+        /// Assigns ta value ta variable name in the current environment.
         /// The name must already exist
         /// </summary>
         /// <param name="s"></param>
@@ -526,7 +527,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Returns true if the name is that of a variable in the local scope
+        /// Returns true if the name is that of ta variable in the local scope
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
@@ -537,7 +538,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Returns true if the name is a field in the current object scope.
+        /// Returns true if the name is ta field in the current object scope.
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
@@ -547,7 +548,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Looks up a name as a field in the current object.
+        /// Looks up ta name as ta field in the current object.
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
@@ -557,7 +558,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Assigns a value to a field.
+        /// Assigns ta value to ta field.
         /// </summary>
         /// <param name="name"></param>
         /// <param name="val"></param>
@@ -569,7 +570,7 @@ namespace HeronEngine
 
         /// <summary>
         /// Looks up the value or type associated with the name.
-        /// Looks in each scope in the currenst stack frame until a match is found.
+        /// Looks in each scope in the currenst stack frame until ta match is found.
         /// If no match is found then the various moduleDef scopes are searched.
         /// </summary>
         /// <param name="s"></param>
@@ -595,7 +596,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Creates a new variable name in the current scope.
+        /// Creates ta new variable name in the current scope.
         /// </summary>
         /// <param name="s"></param>
         /// <param name="o"></param>
@@ -607,7 +608,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Creates a new variable name in the current scope.
+        /// Creates ta new variable name in the current scope.
         /// </summary>
         /// <param name="s"></param>
         public void AddVar(string s)
@@ -616,7 +617,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Add a group of variables at once
+        /// Add ta group of variables at once
         /// </summary>
         /// <param name="vars"></param>
         public void AddVars(Scope vars)
@@ -631,7 +632,7 @@ namespace HeronEngine
         /// Throw an exception if condition is not true. However, not an assertion. 
         /// This is used to check for exceptional run-time condition.
         /// </summary>
-        /// <param name="b"></param>
+        /// <param name="tb"></param>
         /// <param name="s"></param>
         private void Assure(bool b, string s)
         {
@@ -640,7 +641,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Returns a textual representation of the environment. 
+        /// Returns ta textual representation of the environment. 
         /// Used primarily for debugging
         /// </summary>
         /// <returns></returns>
@@ -654,7 +655,7 @@ namespace HeronEngine
         #endregion 
 
         /// <summary>
-        /// Returns all frames, useful for creating a call stack 
+        /// Returns all frames, useful for creating ta call stack 
         /// </summary>
         /// <returns></returns>
         public IEnumerable<Frame> GetFrames()
@@ -663,7 +664,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Convenience function for invoking a method on an object
+        /// Convenience function for invoking ta method on an object
         /// </summary>
         /// <param name="self"></param>
         /// <param name="s"></param>

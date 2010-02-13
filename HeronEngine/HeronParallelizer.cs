@@ -12,13 +12,21 @@ namespace HeronEngine
     public delegate void Task();
 
     /// <summary>
+    /// Represents a work item for a chunk of data.
+    /// </summary>
+    public delegate void ArrayTask<T>(T[] xs);
+
+    /// <summary>
     /// This class is intended to efficiently distribute work 
     /// across the number of cores. 
     /// </summary>
     public static class Parallelizer 
     {
+        static DateTime start;
+        static bool showTiming = true;
+
         /// <summary>
-        /// Releases a thread when a count reaches zero
+        /// Releases ta thread when ta count reaches zero
         /// http://msdn.microsoft.com/en-us/magazine/cc163427.aspx#S1
         /// </summary>
         public class CountDownLatch
@@ -44,7 +52,7 @@ namespace HeronEngine
         }
         
         /// <summary>
-        /// List of tasks that haven't been yet acquired by a thread 
+        /// List of tasks that haven't been yet acquired by ta thread 
         /// </summary>
         static List<Task> allTasks = new List<Task>();
         
@@ -64,18 +72,22 @@ namespace HeronEngine
         static bool shuttingDown = false;
 
         /// <summary>
-        /// Creates a number of high-priority threads for performing 
+        /// Creates ta number of high-priority threads for performing 
         /// work. The hope is that the OS will assign each thread to 
-        /// a separate core.
+        /// ta separate core.
         /// </summary>
         /// <param name="cores"></param>
         public static void Initialize(int cores)
         {
+            start = DateTime.Now;
+            Thread.CurrentThread.Name = "Main_Thread";
+
             for (int i = 0; i < cores; ++i)
             {
                 Thread t = new Thread(ThreadMain);
                 // This system is not designed to play well with others
                 t.Priority = ThreadPriority.Highest;
+                t.Name = "Thread_" + i.ToString();
                 threads.Add(t);
                 t.Start();
             }
@@ -117,9 +129,23 @@ namespace HeronEngine
                     BlockThreads();
                     return null;
                 }
-                Task t = allTasks.Peek();
-                allTasks.Pop();
+
+                Task t = allTasks[allTasks.Count - 1];
+                allTasks.RemoveAt(allTasks.Count - 1);
                 return t;
+            }
+        }
+
+        /// <summary>
+        /// A rudimentary profiling tool for identifying when task execution starts and finishes.
+        /// </summary>
+        /// <param name="msg"></param>
+        private static void PrintTime(string msg)
+        {
+            if (showTiming)
+            {
+                TimeSpan ts = DateTime.Now - start;
+                Console.WriteLine(Thread.CurrentThread.Name + " " + msg + " at " + ts.TotalMilliseconds);
             }
         }
 
@@ -136,12 +162,16 @@ namespace HeronEngine
                 // Get an available task
                 Task task = GetTask();
 
-                // Note a task might still be null becaue
+                // Note ta task might still be null becaue
                 // another thread might have gotten to it first
                 while (task != null)
                 {
+                    PrintTime("started work");
+
                     // Do the work
                     task();
+
+                    PrintTime("finished work");
 
                     // Get the next task
                     task = GetTask();
@@ -150,7 +180,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Distributes work across a number of threads equivalent to the number 
+        /// Distributes work across ta number of threads equivalent to the number 
         /// of cores. All tasks will be run on the available cores. 
         /// </summary>
         /// <param name="localTasks"></param>
@@ -165,16 +195,18 @@ namespace HeronEngine
             // If there is only one task, just execute it.
             if (localTasks.Count == 1)
             {
+                PrintTime("started work");
                 localTasks[0]();
+                PrintTime("finished work");
                 return;
             }
 
-            // Create a count-down latch that block until a count is decremented to zero
+            // Create ta count-down latch that block until ta count is decremented to zero
             CountDownLatch latch = new CountDownLatch(localTasks.Count);
 
             lock (allTasks)
             {
-                // Iterate over the list of localTasks, creating a new task that 
+                // Iterate over the list of localTasks, creating ta new task that 
                 // will signal when it is done.
                 for (int i = 0; i < localTasks.Count; ++i)
                 {
@@ -183,7 +215,7 @@ namespace HeronEngine
                     // Create an event used to signal that the task is complete
                     ManualResetEvent e = new ManualResetEvent(false);
 
-                    // Create a new signaling task and add it to the list
+                    // Create ta new signaling task and add it to the list
                     Task signalingTask = () => { t(); latch.Decrement(); };
                     allTasks.Add(signalingTask);
                 }

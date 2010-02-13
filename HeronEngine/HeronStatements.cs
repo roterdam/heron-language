@@ -166,7 +166,7 @@ namespace HeronEngine
 
         public override void Eval(VM vm)
         {
-            // TODO: check if the expression is a name.
+            // TODO: check if the expression is ta name.
             // if so, then set it to NULL. 
             // then dispose of it, etc. 
             throw new NotImplementedException();

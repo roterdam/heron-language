@@ -16,6 +16,11 @@ namespace HeronEngine
     {
         static VM vm = new VM();
 
+        static HeronTests()
+        {
+            vm.InitializeVM();
+        }
+
         static public void TestPeg(Rule r, string s)
         {
             try
@@ -144,7 +149,7 @@ namespace HeronEngine
             TestCompareValues("0..2", "0..2");
             TestCompareValues("[0, 1, 2]", "[0, 1, 2]");
             TestCompareValues("0..2", "[0, 1, 2]");
-            TestCompareValues("mapeach (i in 0..2) i * 2", "[0, 2, 4]");
+            TestCompareValues("map (i in 0..2) i * 2", "[0, 2, 4]");
             TestCompareValues("select (i from 0..5) i % 2 == 1", "[1, 3, 5]");
             TestCompareValues("accumulate (a = 0 forall i in 0..3) a + i", "6");
             TestCompareValues("reduce (a, b in 0..3) a + b", "[6]");
@@ -184,7 +189,7 @@ namespace HeronEngine
             TestPeg(HeronGrammar.CompoundExpr, "function(a : Int) { return a + 1; }");
             TestPeg(HeronGrammar.CompoundExpr, "f(function(a : Int) { return a + 1; })");
             TestPeg(HeronGrammar.SelectExpr, "select (a from b..c) a % 2 == 1");
-            TestPeg(HeronGrammar.MapEachExpr, "mapeach (a in b..c) a * 2");
+            TestPeg(HeronGrammar.MapExpr, "map (a in b..c) a * 2");
             TestPeg(HeronGrammar.AccumulateExpr, "accumulate (a = 0 forall b in c..d) a + b");
             TestPeg(HeronGrammar.SpecialName, "null");
             TestPeg(HeronGrammar.SpecialName, "true");

@@ -10,5 +10,6 @@
     <int name="maxthreads">2</int>
     <bool name="showtiming">true</bool>
     <bool name="waitforkeypress">false</bool>
+    <bool name="optimize">true</bool>
   </section>
 </cfgxml>

@@ -14,7 +14,7 @@ using System.Reflection;
 namespace HeronEngine
 {
     /// <summary>
-    /// Represents the formal argument to a function
+    /// Represents the formal argument to ta function
     /// </summary>
     public class FormalArg : HeronValue
     {
@@ -32,7 +32,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents all of the formals arguments to a function.
+    /// Represents all of the formals arguments to ta function.
     /// </summary>
     public class FormalArgs : List<FormalArg>
     {
@@ -49,9 +49,9 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents the definition of a Heron member function in the source code.
+    /// Represents the definition of ta Heron member function in the source code.
     /// Like MethodINfo in C#
-    /// Not to be confused with a FunctionValue which represents a value of function type.
+    /// Not to be confused with ta FunctionValue which represents ta value of function type.
     /// </summary>
     public class FunctionDefn : HeronValue
     {
@@ -117,7 +117,7 @@ namespace HeronEngine
                 FormalArg arg1 = formals[i];
                 ParameterInfo arg2 = mi.GetParameters()[i];
 
-                // TODO: find a better way to compare types
+                // TODO: find ta better way to compare types
                 if (arg1.type.ToString() != arg2.ParameterType.Name)
                     return false;
             }
