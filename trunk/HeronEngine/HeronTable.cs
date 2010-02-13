@@ -121,7 +121,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// A record is a dictionary that can't add and remove values. 
+    /// A record is ta dictionary that can't add and remove values. 
     /// </summary>
     public class RecordValue : SeqValue
     {
@@ -246,10 +246,15 @@ namespace HeronEngine
                 return GetValue(name);
             return base.GetFieldOrMethod(name);
         }
+
+        public override HeronValue[] ToArray()
+        {
+            return values.ToArray();
+        }
     }
 
     /// <summary>
-    /// A record is a dictionary that can't add and remove values. 
+    /// A record is ta dictionary that can't add and remove values. 
     /// </summary>
     public class TableValue : SeqValue
     {
@@ -360,6 +365,11 @@ namespace HeronEngine
         {
             CheckIndexType(index);
             return values.ContainsKey(index.GetHashCode());
+        }
+
+        public override HeronValue[] ToArray()
+        {
+            return values.Values.ToArray();
         }
     }
 }

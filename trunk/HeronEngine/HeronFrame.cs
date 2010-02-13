@@ -13,7 +13,7 @@ namespace HeronEngine
 {
     /// <summary>
     /// A stack frame, also called an activation record, contains information 
-    /// about the calling function. It also has a stack of object-name association lists
+    /// about the calling function. It also has ta stack of object-name association lists
     /// which correspond to scopes. A stack is used so that names declared in one scope override
     /// any similiarly named variables in previous scopes.
     /// </summary>
@@ -36,7 +36,7 @@ namespace HeronEngine
 
         /// <summary>
         /// The module instance containing the "self" type.
-        /// Note that if the self type is a module instance,
+        /// Note that if the self type is ta module instance,
         /// then this value will be null.
         /// </summary>
         public ModuleInstance moduleInstance = null;
@@ -86,7 +86,7 @@ namespace HeronEngine
 
             // Nothing found in the local vars, 
             // So we look in the "this" pointer (called "self")
-            // Note that "self" may be a class instance, or a moduleDef
+            // Note that "self" may be ta class instance, or ta moduleDef
             // instance
             if (self != null)
             {
@@ -106,14 +106,14 @@ namespace HeronEngine
                 }
             }
 
-            // Look to see if the name is a type in the current module definition.
+            // Look to see if the name is ta type in the current module definition.
             if (moduleDef != null)
             {
                 HeronType t = moduleDef.FindType(s);
                 if (t != null)
                     return t;
 
-                // Look to see if the name is a type in one of the imported module definitions.
+                // Look to see if the name is ta type in one of the imported module definitions.
                 List<HeronType> candidates = new List<HeronType>();
                 foreach (ModuleDefn defn in moduleDef.GetImportedModuleDefns())
                 {

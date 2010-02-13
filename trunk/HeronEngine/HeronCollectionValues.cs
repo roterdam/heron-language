@@ -42,59 +42,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// An enumerator that is the result of a select operator
-    /// </summary>
-    public class SelectEnumerator
-        : IteratorValue
-    {
-        IteratorValue iter;
-        string name;
-        Expression pred;
-        HeronValue current;
-        VM vm;
-
-        public SelectEnumerator(VM vm, string name, IteratorValue iter, Expression pred)
-        {
-            this.vm = vm;
-            this.name = name;
-            this.iter = iter;
-            this.pred = pred;
-            this.current = HeronValue.Null;
-        }
-
-        public override bool MoveNext()
-        {
-            using (vm.CreateScope())
-            {
-                vm.AddVar(name, Null);
-
-                while (iter.MoveNext())
-                {
-                    current = iter.GetValue();
-                    vm.SetVar(name, current);
-                    HeronValue cond = vm.Eval(pred);
-                    if (cond.ToBool())
-                        return true;
-                }
-
-                current = null;
-                return false;
-            }
-        }
-
-        public override HeronValue GetValue()
-        {
-            return current;
-        }
-
-        public override IteratorValue Restart()
-        {
-            return new SelectEnumerator(vm, name, iter.Restart(), pred);
-        }
-    }
-
-    /// <summary>
-    /// An enumerator that is the result of a range operator (a..b)
+    /// An enumerator that is the result of ta range operator (ta..tb)
     /// </summary>
     public class RangeEnumerator
         : IteratorValue
@@ -139,10 +87,24 @@ namespace HeronEngine
         {
             return new RangeEnumerator(new IntValue(min), new IntValue(max));
         }
+
+        public override ListValue ToList()
+        {
+            return new ListValue(new List<HeronValue>(ToArray()));
+        }
+
+        public override HeronValue[] ToArray()
+        {
+            int count = max - min;
+            HeronValue[] a = new HeronValue[count];
+            for (int i = 0; i < count; ++i)
+                a[i] = new IntValue(min + i);
+            return a;
+        }
     }
 
     /// <summary>
-    /// Used by IHeronEnumerableExtension to convert any IHeronEnumerable into a 
+    /// Used by IHeronEnumerableExtension to convert any IHeronEnumerable into ta 
     /// an IEnumerable, so that we can use "foreach" statements
     /// </summary>
     public class HeronToEnumeratorAdapter
@@ -220,8 +182,8 @@ namespace HeronEngine
 
 
     /// <summary>
-    /// Represents a sequence, which is a collection which can only be
-    /// iterated over once. It is constructed from a Heron enumerator
+    /// Represents ta sequence, which is ta collection which can only be
+    /// iterated over once. It is constructed from ta Heron enumerator
     /// </summary>
     public abstract class SeqValue
         : HeronValue
@@ -269,6 +231,8 @@ namespace HeronEngine
             return new ListValue(GetIterator());
         }
 
+        public abstract HeronValue[] ToArray();
+
         [HeronVisible]
         public abstract IteratorValue GetIterator();
 
@@ -279,7 +243,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents a collection which can be iterated over multiple times.
+    /// Represents ta collection which can be iterated over multiple times.
     /// </summary>
     public class ListValue
         : SeqValue
@@ -393,11 +357,16 @@ namespace HeronEngine
             sb.Append(']');
             return sb.ToString();
         }
+
+        public override HeronValue[] ToArray()
+        {
+            return list.ToArray();
+        }
     }
 
 
     /// <summary>
-    /// Represents a collection which can be iterated over multiple times.
+    /// Represents ta collection which can be iterated over multiple times.
     /// </summary>
     public class ArrayValue
         : SeqValue
@@ -460,6 +429,11 @@ namespace HeronEngine
             }
             sb.Append(']');
             return sb.ToString();
+        }
+
+        public override HeronValue[] ToArray()
+        {
+            return array;
         }
     }
 }

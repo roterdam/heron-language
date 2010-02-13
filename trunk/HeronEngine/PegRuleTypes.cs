@@ -18,14 +18,14 @@ namespace HeronEngine
     public delegate Rule RuleDelegate();
 
     /// <summary>
-    /// A rule class corresponds a PEG grammar production rule. 
+    /// A rule class corresponds ta PEG grammar production rule. 
     /// A production rule describes how to generate valid syntactic
-    /// phrases in a programming language. A production rule also
-    /// corresponds to a pattern matcher in a recursive-descent parser. 
+    /// phrases in ta programming language. A production rule also
+    /// corresponds to ta pattern matcher in ta recursive-descent parser. 
     /// 
-    /// Each instance of a Rule class has a Match function which 
+    /// Each instance of ta Rule class has ta Match function which 
     /// has the responsibility to look at the current input 
-    /// (which is managed by a Parser object) and return true or false, 
+    /// (which is managed by ta Parser object) and return true or false, 
     /// depending on whether the current input corresponds
     /// to the rule. The Match function will increment the parsers internal
     /// pointer as it successfully matches characters, but will also 
@@ -135,7 +135,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// This associates a rule with a node in the abstract syntax tree (AST). 
+    /// This associates ta rule with ta node in the abstract syntax tree (AST). 
     /// Even though one could automatically associate each production rule with
     /// an AST node it is very cumbersome and inefficient to create and parse. 
     /// In otherwords the grammar tree is not expected to correspond directly to 
@@ -184,7 +184,7 @@ namespace HeronEngine
 
     /// <summary>
     /// This rule is neccessary allows you to make recursive references in the grammar.
-    /// If you don't use this rule in a cyclical rule reference (e.ci. A ::= B C, B ::== A D)
+    /// If you don't use this rule in ta cyclical rule reference (e.ci. A ::= B C, B ::== A D)
     /// then you will end up with an infinite loop during grammar generation.
     /// </summary>
     public class RecursiveRule : Rule
@@ -214,8 +214,8 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// This causes a rule to throw an exception with a particular error message if 
-    /// it fails to match. You would use this rule in a grammar once you know clearly what 
+    /// This causes ta rule to throw an exception with ta particular error message if 
+    /// it fails to match. You would use this rule in ta grammar once you know clearly what 
     /// you are trying to parse, and failure is clearly an error. In other words you are saying 
     /// that back-tracking is of no use. 
     /// </summary>
@@ -262,8 +262,8 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// This corresponds to a sequence operator in a PEG grammar. This tries 
-    /// to match a series of rules in order, if one rules fails, then the entire 
+    /// This corresponds to ta sequence operator in ta PEG grammar. This tries 
+    /// to match ta series of rules in order, if one rules fails, then the entire 
     /// group fails and the parser index is returned to the original state.
     /// </summary>
     public class SeqRule : Rule
@@ -323,10 +323,10 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// This rule corresponds to a choice operator in a PEG grammar. This rule 
+    /// This rule corresponds to ta choice operator in ta PEG grammar. This rule 
     /// is successful if any of the matching rules are successful. The ordering of the 
     /// rules imply precedence. This means that the grammar will be unambiguous, and 
-    /// differentiates the grammar as a PEG grammar from a context free grammar (CFG). 
+    /// differentiates the grammar as ta PEG grammar from ta context free grammar (CFG). 
     /// </summary>
     public class ChoiceRule : Rule
     {
@@ -377,7 +377,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// This but attempts to match a optional rule. It always succeeds 
+    /// This but attempts to match ta optional rule. It always succeeds 
     /// whether the underlying rule succeeds or not.
     /// </summary>
     public class OptRule : Rule
@@ -406,7 +406,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// This attempts to match a rule 0 or more times. It will always succeed,
+    /// This attempts to match ta rule 0 or more times. It will always succeed,
     /// and will match the rule as often as possible. Unlike the * operator 
     /// in PERL regular expressions, partial backtracking is not possible. 
     /// </summary>
@@ -437,7 +437,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// This is similar to the StarRule except it matches a rule 1 or more times. 
+    /// This is similar to the StarRule except it matches ta rule 1 or more times. 
     /// </summary>
     public class PlusRule : Rule
     {
@@ -487,7 +487,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// This returns true if a rule can not be matched.
+    /// This returns true if ta rule can not be matched.
     /// It never advances the parser.
     /// </summary>
     public class NotRule : Rule
@@ -522,7 +522,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// This returns true if a rule can not be matched.
+    /// This returns true if ta rule can not be matched.
     /// It never advances the parser.
     /// </summary>
     public class AtRule : Rule
@@ -560,7 +560,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Attempts to match a specific character.
+    /// Attempts to match ta specific character.
     /// </summary>
     public class SingleCharRule : Rule
     {
@@ -593,7 +593,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Attempts to match a sequence of characters.
+    /// Attempts to match ta sequence of characters.
     /// </summary>
     public class CharSeqRule : Rule
     {
@@ -661,7 +661,7 @@ namespace HeronEngine
 
     /// <summary>
     /// Returns true and advances the parser if the current character matches any 
-    /// member of a specific set of characters.
+    /// member of ta specific set of characters.
     /// </summary>
     public class CharSetRule : Rule
     {
@@ -700,7 +700,7 @@ namespace HeronEngine
 
     /// <summary>
     /// Returns true and advances the parser if the current character matches any 
-    /// member of a specific range of characters.
+    /// member of ta specific range of characters.
     /// </summary>
     public class CharRangeRule : Rule
     {
@@ -735,7 +735,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Matches a rule over and over until a terminating rule can be 
+    /// Matches ta rule over and over until ta terminating rule can be 
     /// successfully matched. 
     /// </summary>
     public class WhileNotRule : Rule

@@ -14,7 +14,7 @@ namespace HeronEngine
 {
     /// <summary>
     /// This is an association list of objects with names.
-    /// This is used as a mechanism for creating scoped names.
+    /// This is used as ta mechanism for creating scoped names.
     /// </summary>
     public class Scope 
     {

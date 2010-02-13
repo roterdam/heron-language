@@ -7,7 +7,7 @@ namespace HeronEngine
 {
     #region user defined type value
     /// <summary>
-    /// An instance of a Heron class. A HeronObject is more general in that it includes 
+    /// An instance of ta Heron class. A HeronObject is more general in that it includes 
     /// primitive objects and .NET objects which are not part of the ClassDefn 
     /// hierarchy.
     /// </summary>
@@ -34,7 +34,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Creates a scope in the environment, containing variables that map to the class field names. 
+        /// Creates ta scope in the environment, containing variables that map to the class field names. 
         /// It is the caller's reponsibility to remove the scope. 
         /// </summary>
         /// <param name="env"></param>
@@ -64,7 +64,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Sets the value on the named field. Does not automatically add a field if missing.
+        /// Sets the value on the named field. Does not automatically add ta field if missing.
         /// </summary>
         /// <param name="name"></param>
         /// <param name="val"></param>
@@ -129,7 +129,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Adds a field. FieldDefn must not already exist. 
+        /// Adds ta field. FieldDefn must not already exist. 
         /// </summary>
         /// <param name="name"></param>
         /// <param name="val"></param>
@@ -140,7 +140,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Gets a field or method associated with the name.
+        /// Gets ta field or method associated with the name.
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
@@ -226,7 +226,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// An instance of a Heron class. A HeronObject is more general in that it includes 
+    /// An instance of ta Heron class. A HeronObject is more general in that it includes 
     /// primitive objects and .NET objects which are not part of the ClassDefn 
     /// hierarchy.
     /// </summary>
@@ -333,7 +333,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// A moduleDef instance can contain fields and methods just like a class
+    /// A moduleDef instance can contain fields and methods just like ta class
     /// </summary>
     public class ModuleInstance : ClassInstance
     {

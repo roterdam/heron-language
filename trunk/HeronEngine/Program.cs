@@ -18,7 +18,7 @@ namespace HeronEngine
     public static class Program
     {
         /// <summary>
-        /// Prints a usage message to the console
+        /// Prints ta usage message to the console
         /// </summary>
         static public void Usage()
         {
@@ -56,7 +56,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Loads, parses, and executes a file
+        /// Loads, parses, and executes ta file
         /// </summary>
         /// <param name="s"></param>
         static public void RunFile(string file)

@@ -12,7 +12,7 @@ using System.Text;
 namespace HeronEngine
 {
     /// <summary>
-    /// An instance of a class type.
+    /// An instance of ta class type.
     /// </summary>
     public class ClassDefn : HeronUserType
     {

@@ -378,9 +378,9 @@ class PrettyPrinter
 			Write(") ");
 			Output(x.predicate);
 		}
-		Output(x : MapEachExpr)
+		Output(x : MapExpr)
 		{
-			Write("mapeach (");
+			Write("map (");
 			Write(x.name);
 			Write(" in ");
 			Output(x.list);
