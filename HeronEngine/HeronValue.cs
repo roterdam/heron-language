@@ -18,7 +18,7 @@ namespace HeronEngine
     /// which are to be exposed automatically to Heron. The exposed functions are managed by PrimitiveType.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property)]    
-    public class HeronVisible : Attribute
+    public sealed class HeronVisible : Attribute
     {
     }
 

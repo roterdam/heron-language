@@ -28,8 +28,7 @@ namespace HeronEngine
             for (int i = 0; i < basetypes.Count; ++i)
             {
                 HeronType t = basetypes[i];
-                if (t is UnresolvedType)
-                    basetypes[i] = (t as UnresolvedType).Resolve(m);
+                basetypes[i] = t.Resolve(m);
             }
 
             foreach (FunctionDefn f in GetAllMethods())

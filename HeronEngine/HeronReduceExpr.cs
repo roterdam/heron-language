@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Diagnostics;
 
 namespace HeronEngine
@@ -42,7 +43,7 @@ namespace HeronEngine
 
         private void ReduceArray(VM vm, HeronValue[] input, int begin, int cnt)
         {
-            using (vm.CreateFrame())
+            using (vm.CreateScope())
             {
                 vm.AddVar(a, HeronValue.Null);
                 vm.AddVar(b, HeronValue.Null);
@@ -77,50 +78,43 @@ namespace HeronEngine
             }
         }
 
-        public Task CreateReduceArrayTask(VM vm, HeronValue[] input, HeronValue[] output, int begin, int cnt, int id)
+        public Task CreateReduceArrayTask(VM vm, HeronValue[] input, HeronValue[] output, int i, int tasks)
         {
-            // Make sure we don't go out of range
+            int cnt = input.Length / tasks;
+            if (input.Length % tasks > 0)
+                cnt += 1;
+            int begin = i * cnt;
             if (begin + cnt > input.Length)
                 cnt = input.Length - begin;
 
-            return () =>
+            return new Task(() =>
             {
                 ReduceArray(vm, input, begin, cnt);
-                output[id] = input[begin];
-            };
+                output[i] = input[begin];
+            });
         }
 
         public List<HeronValue> Eval_MultiThreaded(VM vm, HeronValue[] input)
         {
-            if (input.Length < 100 || Config.maxThreads < 2)
+            int nTasks = Config.maxThreads;
+            if (input.Length < nTasks * 4)
+                nTasks = 1; 
+
+            HeronValue[] output = new HeronValue[nTasks];
+            Task[] tasks = new Task[nTasks];
+            VM vm_tmp = vm;
+
+            for (int i = 0; i < nTasks; ++i)
             {
-                ReduceArray(vm, input, 0, input.Length);
-                if (input.Length > 0)
-                    return new List<HeronValue>() { input[0] };
-                else
-                    return new List<HeronValue>();
+                Task t = CreateReduceArrayTask(vm_tmp, input, output, i, nTasks);
+                vm_tmp = vm_tmp.Fork();
+                tasks[i] = t;
+                t.Start();
             }
-            else
-            {
-                int nTasks = Config.maxThreads;
-                HeronValue[] output = new HeronValue[nTasks];
-                int cnt = input.Length / nTasks;
-                if (input.Length % nTasks > 0)
-                    cnt += 1;
-                List<Task> tasks = new List<Task>();
-                int begin = 0;
-                VM vm_tmp = vm;
-                for (int i = 0; i < nTasks; ++i)
-                {
-                    Task t = CreateReduceArrayTask(vm_tmp, input, output, begin, cnt, i);
-                    vm_tmp = vm_tmp.Fork();
-                    tasks.Add(t);
-                    begin += cnt;
-                }
-                Parallelizer.DistributeWork(tasks);
-                ReduceArray(vm, output, 0, nTasks);
-                return new List<HeronValue>() { output[0] };
-            }
+
+            Task.WaitAll(tasks);
+            ReduceArray(vm, output, 0, nTasks);
+            return new List<HeronValue>() { output[0] };
         }
 
         public override string ToString()

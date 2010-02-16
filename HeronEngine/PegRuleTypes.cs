@@ -300,9 +300,10 @@ namespace HeronEngine
                 foreach (Rule r in Children)
                 {
                     if (n++ != 0) result.Append(" + ");
-                    if (r is SeqRule && !r.HasName)
+                    SeqRule sr = r as SeqRule;
+                    if (sr != null && !r.HasName)
                     {
-                        result.Append((r as SeqRule).BasicDefn);
+                        result.Append(sr.BasicDefn);
                     }
                     else
                     {

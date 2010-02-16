@@ -186,7 +186,7 @@ namespace HeronEngine
         {
             if (FindType(s) != null)
                 throw new Exception("Type '" + s + "' already exists");
-            types.Add(s, new DotNetClass(this, s, t));
+            types.Add(s, DotNetClass.Create(s, t));
         }
 
         [HeronVisible]

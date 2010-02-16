@@ -344,9 +344,9 @@ namespace HeronEngine
             else
             {
                 HeronValue v = vm.Eval(modexpr);
-                if (!(v is ModuleInstance))
+                ModuleInstance module = v as ModuleInstance;                
+                if (module == null)
                     throw new Exception("Expected a module, from " + modexpr.ToString() + " instead got value of type " + v.GetHeronType().ToString());
-                ModuleInstance module = v as ModuleInstance;
                 return type.Instantiate(vm, argvals, module);
             }
         }
@@ -712,47 +712,6 @@ namespace HeronEngine
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.PostIncExpr;
-        }
-    }
-
-    /// <summary>
-    /// Represents an expression involving the "select" operator
-    /// which filters ta list depending on ta predicate.
-    /// </summary>
-    public class SelectExpr : Expression
-    {
-        [HeronVisible] public string name;
-        [HeronVisible] public Expression list;
-        [HeronVisible] public Expression pred;
-
-        public SelectExpr(string name, Expression list, Expression pred)
-        {
-            this.name = name;
-            this.list = list;
-            this.pred = pred;
-        }
-
-        public override Expression Optimize(VM vm)
-        {
-            return this;
-        }
-
-        public override HeronValue Eval(VM vm)
-        {
-            SeqValue seq = vm.EvalList(list);
-
-            // TODO: finish, very important!
-            throw new NotImplementedException();
-        }
-
-        public override string ToString()
-        {
-            return "select (" + name + " from " + list.ToString() + ") where " + pred.ToString();
-        }
-
-        public override HeronType GetHeronType()
-        {
-            return PrimitiveTypes.SelectExpr;
         }
     }
 

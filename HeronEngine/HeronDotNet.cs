@@ -106,7 +106,7 @@ namespace HeronEngine
         private DotNetObject(Object obj)
         {
             this.obj = obj;
-            type = new DotNetClass(null, this.obj.GetType().Name, this.obj.GetType());
+            type = DotNetClass.Create(this.obj.GetType());
         }
 
         /// <summary>
@@ -220,8 +220,10 @@ namespace HeronEngine
         {
             if (o == null)
                 return HeronValue.Null;
-            if (o is HeronValue)
-                return o as HeronValue;
+
+            HeronValue ohv = o as HeronValue;
+            if (ohv != null)
+                return ohv;
 
             Type t = o.GetType();
 
@@ -242,12 +244,13 @@ namespace HeronEngine
                 case "Boolean":
                     return new BoolValue((bool)o);
                 default:
-                    if (o is IList)
-                        return new ListValue(o as IList);
-                    else if (o is IEnumerable)
-                        return new ListToIterValue(o as IEnumerable);
-                    else
-                        return DotNetObject.CreateDotNetObjectNoMarshal(o);
+                    IList ilist = o as IList;
+                    if (ilist != null)
+                        return new ListValue(ilist);
+                    IEnumerable ie = o as IEnumerable;
+                    if (ie != null)
+                        return new ListToIterValue(ie);
+                    return DotNetObject.CreateDotNetObjectNoMarshal(o);
             }
         }
 
@@ -270,13 +273,22 @@ namespace HeronEngine
     /// </summary>
     public class DotNetClass : HeronType
     {
-        public DotNetClass(ModuleDefn m, string name, Type type)
-            : base(m, type, name)
+        static Dictionary<Type, DotNetClass> types = new Dictionary<Type, DotNetClass>();
+
+        public static DotNetClass Create(string name, Type t)
         {
+            if (!types.ContainsKey(t))
+                types.Add(t, new DotNetClass(name, t));
+            return types[t];
         }
 
-        public DotNetClass(ModuleDefn m, Type type)
-            : base(m, type, type.Name)
+        public static DotNetClass Create(Type t)
+        {
+            return Create(t.Name, t);
+        }
+
+        private DotNetClass(string name, Type type)
+            : base(null, type, name)
         {
         }
 

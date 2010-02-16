@@ -18,10 +18,11 @@ namespace HeronEngine
 
         public AnyValue(HeronValue obj)
         {
-            if (obj is AnyValue)
+            AnyValue av = (obj as AnyValue);
+            if (av != null)
             {
-                this.obj = (obj as AnyValue).obj;
-                this.type = (obj as AnyValue).type;
+                this.obj = av.obj;
+                this.type = av.type;
             }
             else
             {
