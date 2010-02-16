@@ -15,7 +15,6 @@ namespace HeronStandardLibrary
     public partial class ViewportForm : Form
     {
         public List<ViewportCmd> mCmds = new List<ViewportCmd>();
-        Mutex mMutex = new Mutex();
         public Graphics g;
         public Pen pen = new Pen(Color.Black);
         Bitmap bmp = new Bitmap(1000, 1000);

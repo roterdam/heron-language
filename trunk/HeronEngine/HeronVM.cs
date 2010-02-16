@@ -161,7 +161,8 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Creates ta shallow copy of the VM
+        /// Creates ta shallow copy of the VM, so that multiple threads
+        /// can share it. 
         /// </summary>
         /// <returns></returns>
         public VM Fork()
@@ -172,7 +173,7 @@ namespace HeronEngine
             r.program = program;
             r.frames = new List<Frame>();
             foreach (Frame f in frames)
-                r.frames.Add(f);
+                r.frames.Add(f.Fork());
             return r;
         }
 
@@ -187,10 +188,6 @@ namespace HeronEngine
             // Push an empty first frame and scope
             PushNewFrame(null, null);
             PushScope();
-
-            // Load the global types
-            //foreach (HeronType t in program.GetGlobal().GetTypes())
-            //    AddVar(t.name, t);
         }
         #endregion
 
@@ -634,7 +631,7 @@ namespace HeronEngine
         /// </summary>
         /// <param name="tb"></param>
         /// <param name="s"></param>
-        private void Assure(bool b, string s)
+        private static void Assure(bool b, string s)
         {
             if (!b)
                 throw new Exception("error occured: " + s);

@@ -260,5 +260,15 @@ namespace HeronEngine
         {
             return scopes;
         }
+
+        public Frame Fork()
+        {
+            Frame f = new Frame(function, self);
+            f.moduleDef = moduleDef;
+            f.moduleInstance = moduleInstance;
+            foreach (Scope s in scopes)
+                f.AddScope(s);
+            return f;
+        }
     }
 }

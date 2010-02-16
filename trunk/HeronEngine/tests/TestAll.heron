@@ -5,9 +5,11 @@ module TestAll
 		Factorial = new Factorial();
 		Fibonacci = new Fibonacci();
 		HelloWorld = new HelloWorld();
+        NQueens = new NQueens();
 		PrettyPrinting = new PrettyPrinting();
 		Sieve = new Sieve();
 		Squares = new Squares();
+        TestAutoCtor = new TestAutoCtor();
 		TestClosures = new TestClosures();
 		TestConstructor = new TestConstructor();
 		TestDuckTyping = new TestDuckTyping();
@@ -19,11 +21,15 @@ module TestAll
 		TestInheritance = new TestInheritance();
 		TestInheritedConstructors = new TestInheritedConstructors();
 		TestInterfaces = new TestInterfaces();
-		TestModuleInheritance = new TestModuleInheritance();
+        TestMap = new TestMap();		
+        TestModuleInheritance = new TestModuleInheritance();
 		TestOutput = new TestOutput();
 		TestRandom = new TestRandom();
-		TestReturn = new TestReturn();
+		TestReduce = new TestReduce();
+        TestReturn = new TestReturn();
 		TestStatic = new TestStatic();
+        TestTables = new TestTables();
+        TestViewport = new TestViewport();
 		TestWhile = new TestWhile();
 	}
 	methods

@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace HeronEngine
 {
@@ -95,7 +96,7 @@ namespace HeronEngine
 
         public override HeronValue[] ToArray()
         {
-            int count = max - min;
+            int count = max - min + 1;
             HeronValue[] a = new HeronValue[count];
             for (int i = 0; i < count; ++i)
                 a[i] = new IntValue(min + i);
@@ -241,6 +242,7 @@ namespace HeronEngine
             return base.GetHashCode();
         }
     }
+   
 
     /// <summary>
     /// Represents ta collection which can be iterated over multiple times.
@@ -323,16 +325,18 @@ namespace HeronEngine
 
         public override HeronValue GetAtIndex(HeronValue index)
         {
-            if (!(index is IntValue))
+            IntValue iv = index as IntValue;
+            if (iv == null)
                 throw new Exception("Can only use index lists using integers");
-            return list[(index as IntValue).GetValue()];
+            return list[iv.GetValue()];
         }
 
         public override void SetAtIndex(HeronValue index, HeronValue val)
         {
-            if (!(index is IntValue))
+            IntValue iv = index as IntValue;
+            if (iv != null)
                 throw new Exception("Can only use index lists using integers");
-            list[(index as IntValue).GetValue()] = val;
+            list[iv.GetValue()] = val;
         }
 
         public List<HeronValue> InternalList()
@@ -401,15 +405,17 @@ namespace HeronEngine
 
         public override HeronValue GetAtIndex(HeronValue index)
         {
-            if (!(index is IntValue))
-                throw new Exception("Can only use index lists using integers");
-            return array[(index as IntValue).GetValue()];
+            IntValue iv = index as IntValue;
+            if (iv == null)
+                throw new Exception("Can only use index array using integers");
+            return array[iv.GetValue()];
         }
 
         public override void SetAtIndex(HeronValue index, HeronValue val)
         {
-            if (!(index is IntValue))
-                throw new Exception("Can only use index lists using integers");
+            IntValue iv = index as IntValue;
+            if (iv == null)
+                throw new Exception("Can only use index array using integers");
             array[(index as IntValue).GetValue()] = val;
         }
 

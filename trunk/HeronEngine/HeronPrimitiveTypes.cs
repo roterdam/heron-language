@@ -22,7 +22,7 @@ namespace HeronEngine
         // The specials
         public static HeronType VoidType = new HeronType(null, typeof(VoidValue), "Void");
         public static HeronType NullType = new HeronType(null, typeof(NullValue), "Null");
-        public static HeronType UnknownType = new HeronType(null, typeof(VoidValue), "Unknown"); 
+        //public static HeronType UnknownType = new HeronType(null, typeof(VoidValue), "Unknown"); 
         public static HeronType OptimizedExpressionType = new HeronType(null, typeof(OptimizedExpression), "Optimized");
 
         // Usual suspects 
@@ -39,9 +39,6 @@ namespace HeronEngine
         public static HeronType ArrayType = new HeronType(null, typeof(ArrayValue), "Array");
         public static HeronType RecordType = new HeronType(null, typeof(RecordValue), "Record");
         public static HeronType TableType = new HeronType(null, typeof(TableValue), "Table");
-
-        // Not currently supported
-        public static HeronType TreeType = new HeronType(null, typeof(ListValue), "__Tree");
 
         // Misc types
         public static HeronType TypeType = new HeronType(null, typeof(HeronType), "Type");

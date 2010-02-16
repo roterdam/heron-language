@@ -27,10 +27,7 @@ namespace HeronEngine
         Dictionary<string, ExposedMethodValue> functions = new Dictionary<string, ExposedMethodValue>();
         Dictionary<string, ExposedField> fields = new Dictionary<string, ExposedField>();
 
-        public HeronType(Type t)
-            : this(null, t, t.Name)
-        {
-        }
+        static Dictionary<string, Type> allTypes = new Dictionary<string,Type>();
 
         public HeronType(ModuleDefn m, Type t, string name)
         {
@@ -84,6 +81,10 @@ namespace HeronEngine
         private void StoreExposedFunctionsAndFields()
         {
             if (type == null)
+                return;
+            if (type == typeof(UnresolvedType))
+                return;
+            if (!typeof(HeronValue).IsAssignableFrom(type))
                 return;
 
             foreach (MethodInfo mi in type.GetMethods(BindingFlags.Instance | BindingFlags.Public))
@@ -163,9 +164,9 @@ namespace HeronEngine
         [HeronVisible]
         public override bool Equals(object obj)
         {
-            if (!(obj is HeronType))
-                return false;
-            return name == (obj as HeronType).name;
+            HeronType t = obj as HeronType;
+            if (t == null) return false;
+            return name == t.name;
         }
 
         [HeronVisible]
@@ -251,7 +252,7 @@ namespace HeronEngine
     public class HeronCodeModelType : HeronType
     {
         public HeronCodeModelType(Type t)
-            : base(t)
+            : base(null, t, t.Name)
         {
         }
     }

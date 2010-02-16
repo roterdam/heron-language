@@ -270,7 +270,7 @@ namespace HeronEngine
             return o.Apply(vm, args);
         }
 
-        public string ArgsToString(HeronValue[] args)
+        public static string ArgsToString(HeronValue[] args)
         {
             string r = "(";
             for (int i = 0; i < args.Length; ++i)

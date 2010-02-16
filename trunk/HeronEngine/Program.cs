@@ -17,6 +17,8 @@ namespace HeronEngine
 {
     public static class Program
     {
+        public static DateTime timeStarted;
+
         /// <summary>
         /// Prints ta usage message to the console
         /// </summary>
@@ -24,8 +26,8 @@ namespace HeronEngine
         {
             Console.WriteLine("HeronEngine.exe");
             Console.WriteLine("    by Christopher Diggins");
-            Console.WriteLine("    version 0.9");
-            Console.WriteLine("    January 5th, 2010");
+            Console.WriteLine("    version 0.9.1");
+            Console.WriteLine("    February 15th, 2010");
             Console.WriteLine("");
             Console.WriteLine("Usage: ");
             Console.WriteLine("  HeronEngine.exe inputfile.heron ");
@@ -78,21 +80,29 @@ namespace HeronEngine
         }
 
         /// <summary>
+        /// Ouputs the time elapsed since the beginning of the program.
+        /// </summary>
+        static public void PrintTimeElapsed()
+        {
+            TimeSpan ts = DateTime.Now - timeStarted;
+            Console.WriteLine(ts.TotalMilliseconds + " ms");
+        }
+
+        /// <summary>
+        /// Ouputs the time elapsed since the beginning of the program.
+        /// </summary>
+        static public void PrintTimeElapsed(string s)
+        {
+            Console.Write(s + " : ");
+            PrintTimeElapsed();
+        }
+
+        /// <summary>
         /// Entry point for the application. 
         /// </summary>
         /// <param name="funcs"></param>
         static public void Main(string[] args)
         {
-            if (args.Length != 1)
-            {
-                Usage();
-                /*
-                REPL repl = new REPL();
-                repl.Run();
-                 */
-            }
-            else
-            {
                 try
                 {
                     LoadConfig();
@@ -103,22 +113,22 @@ namespace HeronEngine
                     if (Config.runUnitTests)
                         HeronTests.MainTest();
 
-                    DateTime dt = DateTime.Now;
-                    Parallelizer.Initialize(Config.maxThreads);
+                    timeStarted = DateTime.Now;
+                    if (args.Length != 1)
+                    {
+                        Usage();
+                        return;
+                    }
+
                     RunFile(args[0]);
-                    Parallelizer.CleanUp();
 
                     if (Config.showTiming)
-                    {
-                        TimeSpan ts = DateTime.Now - dt;
-                        Console.WriteLine(ts.TotalMilliseconds + " ms");
-                    }
+                        PrintTimeElapsed();
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine("Error occured: " + e.Message);
                 }
-            }
 
             Console.WriteLine();
             if (Config.waitForKeypress)

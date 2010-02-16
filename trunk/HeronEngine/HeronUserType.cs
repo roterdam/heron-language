@@ -87,7 +87,7 @@ namespace HeronEngine
         public ExposedField(FieldInfo fi)
         {
             this.name = fi.Name;
-            this.type = new DotNetClass(null, fi.FieldType);
+            this.type = DotNetClass.Create(fi.FieldType);
             this.fi = fi;
         }
 

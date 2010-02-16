@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>HeronEngine</RootNamespace>
     <AssemblyName>HeronEngine</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <StartupObject>
     </StartupObject>
@@ -18,6 +18,12 @@
     <AssemblyOriginatorKeyFile>
     </AssemblyOriginatorKeyFile>
     <IsWebBootstrapper>false</IsWebBootstrapper>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkProfile />
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -41,6 +47,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -50,6 +57,7 @@
     </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>..\..\..\Program Files\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\Rule Sets\Performance.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -62,13 +70,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HeronSelectExpr.cs" />
     <Compile Include="HeronBinaryOperation.cs" />
     <Compile Include="HeronMapExpr.cs" />
     <Compile Include="HeronReduceExpr.cs" />
     <Compile Include="HeronAny.cs" />
     <Compile Include="HeronClass.cs" />
     <Compile Include="HeronDuckCasting.cs" />
-    <Compile Include="HeronParallelizer.cs" />
     <Compile Include="HeronEnum.cs" />
     <Compile Include="HeronInterface.cs" />
     <Compile Include="HeronPrimitiveValues.cs" />
@@ -135,6 +143,11 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
       <Visible>False</Visible>
       <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
@@ -150,6 +163,11 @@
       <ProductName>.NET Framework 3.5</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
       <Visible>False</Visible>
       <ProductName>Windows Installer 3.1</ProductName>
@@ -157,12 +175,14 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="lib\Heron.Windows.Console.heron" />
     <None Include="lib\TestModule1.heron" />
     <None Include="lib\TestModule2.heron" />
     <None Include="tests\Factorial.heron" />
     <None Include="tests\Fibonacci.heron" />
     <None Include="tests\HelloWorld.heron" />
+    <None Include="tests\NQueens.heron" />
     <None Include="tests\PrettyPrinting.heron" />
     <None Include="tests\Sieve.heron" />
     <None Include="tests\Squares.heron" />
@@ -185,6 +205,7 @@
     <None Include="tests\TestRandom.heron" />
     <None Include="tests\TestReduce.heron" />
     <None Include="tests\TestReturn.heron" />
+    <None Include="tests\TestSort.heron" />
     <None Include="tests\TestStatic.heron" />
     <None Include="tests\TestTables.heron" />
     <None Include="tests\TestViewport.heron" />

@@ -45,13 +45,13 @@ namespace HeronEngine
             return Console.ReadLine();
         }
 
-        public string Eval(string s)
+        public static string Eval(string s)
         {
             s = s.TrimEnd();
             throw new NotImplementedException();
         }
 
-        public void Print(string s)
+        public static void Print(string s)
         {
             Console.WriteLine(s);
         }

@@ -151,7 +151,7 @@ namespace HeronEngine
             return r;
         }
 
-        public string GetNameNode(ParseNode x)
+        public static string GetNameNode(ParseNode x)
         {
             ParseNode name = x.GetChild("name");
             if (name == null)
@@ -266,7 +266,7 @@ namespace HeronEngine
             return r;
         }
 
-        public EnumDefn CreateEnum(ModuleDefn m, ParseNode x)
+        public static EnumDefn CreateEnum(ModuleDefn m, ParseNode x)
         {
             string name = x.GetChild("name").ToString();
             EnumDefn r = new EnumDefn(m, name);
@@ -314,7 +314,7 @@ namespace HeronEngine
             return def;
         }
 
-        public bool IsNullable(ParseNode x)
+        public static bool IsNullable(ParseNode x)
         {
             if (x == null)
                 return false;
@@ -520,7 +520,7 @@ namespace HeronEngine
         #endregion
 
         #region utility functions
-        public char ToSpecialChar(char c)
+        public static char ToSpecialChar(char c)
         {
             switch (c)
             {
@@ -584,7 +584,7 @@ namespace HeronEngine
         /// "i". 
         #region Expression creating functions
         
-        private bool ChildNodeMatches(ParseNode x, ref int i, string s)
+        private static bool ChildNodeMatches(ParseNode x, ref int i, string s)
         {
             if (i >= x.GetNumChildren())
                 return false;
@@ -653,7 +653,7 @@ namespace HeronEngine
             return new ReduceExpr(a, b, list, expr) ;
         }
 
-        Expression CreateNullaryOperatorExpr(ParseNode x)
+        static Expression CreateNullaryOperatorExpr(ParseNode x)
         {
             switch (x.ToString())
             {

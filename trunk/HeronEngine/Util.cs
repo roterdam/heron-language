@@ -11,6 +11,7 @@ using System.Text;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace HeronEngine
 {
@@ -217,5 +218,19 @@ namespace HeronEngine
             return self.Count == 0;
         }
         #endregion
+
+        public static int ParitionSize(int size, int n, int m)
+        {
+            if (n < 0 || n > m || size < 0 || m < 0)
+                throw new ArgumentOutOfRangeException();
+            int r = size / m;
+            if (size % m > 0)
+                r += 1;
+            int begin = r * n;
+            Debug.Assert(begin >= 0 && begin < size);
+            if (r * n + r > size)
+                r = size - begin;
+            return r;
+        }
     }
 }
