@@ -1,0 +1,84 @@
+module NQueens
+{
+	fields
+	{
+		n : Int = 4;
+		sols : List = new List();
+	}
+	methods
+	{
+        AddQueen(b : Board, row : Int, col : Int)
+        {
+            Board r = new Board(b);
+            if (!r.TryAddQueen(row, col))
+                return;
+            if (row < n)
+                foreach (i in 0..n-1)
+                   AddQueen(b, row + 1, col);
+            else
+                sols.Add(r);
+        }
+        
+		Main() 
+		{
+		    foreach (i in 0..n-1)
+		        AddQueen(new Board(), 0, i);
+		}
+	}
+	class Board
+	{
+	    fields
+	    {
+	        row = new List();
+	        cols = new List();
+	    }
+	    methods
+	    {
+	        Constructor()
+	        {
+	            foreach (0..n-1)
+	            {
+	                rows.Add(false);
+	                cols.Add(false);
+	            }	                
+	        }
+	        Constructor(b : Board)
+	        {
+	            Constructor();
+	            foreach (i in 0..n-1)
+	            {
+	                rows[i] = b.rows[i];
+	                cols[i] = b.cols[i];
+	            }
+	        }
+            SpaceOccupied(row, col) : Bool
+            {
+                return rows[i] && cols[i];
+            }
+            ValidPos(row, col) : Bool
+            {
+              return row >= 0 && row < n && col >= 0 && col < n; 
+            }
+            DiagonalOccupied(row, col, rowDir, colDir) : Bool
+            {
+              if (SpaceOccupied(row, col)) return false;
+              var nextRow = row + rowDir;
+              var nextCol = col + colDir;
+              if (!ValidPos(row, col)) return false;
+              return DiagonalOccupied(nextRow, nextCol, rowDir, colDir);
+            }
+	        TryAddQueen(row, col) : Bool;
+	        {
+	            if (rows[row]) return false;
+	            if (cols[col]) return false;
+                if (DiagonalOccupied(row, col, -1, -1)) return false;
+                if (DiagonalOccupied(row, col, -1, 1)) return false;
+                if (DiagonalOccupied(row, col, 1, -1)) return false;
+                if (DiagonalOccupied(row, col, 1, 1)) return false;
+	            rows[row] = true;
+	            cols[col] = true;
+	            return true;
+	        }
+	    }
+	}
+}

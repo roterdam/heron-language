@@ -1,18 +1,3 @@
-primitive __Tree
-{
-  fields
-  {
-  }
-  methods
-  {
-    Add(v : HeronEngine.HeronValue) : System.Void;
-    Remove() : System.Void;
-    Count() : HeronEngine.HeronValue;
-    GetIterator() : HeronEngine.IteratorValue;
-    ToList() : HeronEngine.ListValue;
-    ToString() : System.String;
-  }
-}
 primitive Any
 {
   fields
@@ -20,6 +5,19 @@ primitive Any
   }
   methods
   {
+    ToString() : System.String;
+  }
+}
+primitive Array
+{
+  fields
+  {
+  }
+  methods
+  {
+    Count() : HeronEngine.HeronValue;
+    GetIterator() : HeronEngine.IteratorValue;
+    ToList() : HeronEngine.ListValue;
     ToString() : System.String;
   }
 }
@@ -166,6 +164,16 @@ primitive List
   }
 }
 primitive Null
+{
+  fields
+  {
+  }
+  methods
+  {
+    ToString() : System.String;
+  }
+}
+primitive Optimized
 {
   fields
   {

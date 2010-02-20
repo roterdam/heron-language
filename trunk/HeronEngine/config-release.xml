@@ -7,5 +7,9 @@
     <bool name="rununittests">false</bool>
     <bool name="outputgrammar">false</bool>
     <bool name="outputprimitives">false</bool>
+    <int name="maxthreads">1</int>
+    <bool name="showtiming">true</bool>
+    <bool name="waitforkeypress">true</bool>
+    <bool name="optimize">true</bool>
   </section>
 </cfgxml>

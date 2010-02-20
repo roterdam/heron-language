@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Timers;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Diagnostics.PerformanceData;
 using System.IO;
@@ -103,32 +105,35 @@ namespace HeronEngine
         /// <param name="funcs"></param>
         static public void Main(string[] args)
         {
-                try
+            try
+            {
+                LoadConfig();
+                if (Config.outputGrammar)
+                    OutputGrammar();
+                if (Config.outputPrimitives)
+                    OutputPrimitives();
+                if (Config.runUnitTests)
+                    HeronTests.MainTest();
+                
+                timeStarted = DateTime.Now;
+                if (args.Length != 1)
                 {
-                    LoadConfig();
-                    if (Config.outputGrammar)
-                        OutputGrammar();
-                    if (Config.outputPrimitives)
-                        OutputPrimitives();
-                    if (Config.runUnitTests)
-                        HeronTests.MainTest();
-
-                    timeStarted = DateTime.Now;
-                    if (args.Length != 1)
-                    {
-                        Usage();
-                        return;
-                    }
-
-                    RunFile(args[0]);
-
-                    if (Config.showTiming)
-                        PrintTimeElapsed();
+                    Usage();
+                    Console.WriteLine();
+                    Console.WriteLine("Press any key to continue...");
+                    Console.ReadKey();
+                    return;
                 }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Error occured: " + e.Message);
-                }
+
+                RunFile(args[0]);
+
+                if (Config.showTiming)
+                    PrintTimeElapsed();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error occured: " + e.Message);
+            }
 
             Console.WriteLine();
             if (Config.waitForKeypress)

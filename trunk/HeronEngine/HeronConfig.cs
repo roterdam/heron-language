@@ -28,13 +28,15 @@ namespace HeronEngine
         public static bool outputGrammar = false;
         public static bool outputPrimitives = false;
         public static int maxListPrintableSize = 5;
-        public static int maxThreads = 1;
+        public static int maxThreads = System.Environment.ProcessorCount;
         public static bool showTiming = false;
         public static bool waitForKeypress = true;
         public static bool optimize = false;
 
         static Config()
         {
+            // By default the input path always includes the executable directory
+            // and the subfolder "lib"
             inputPath.Add(Util.GetExeDir());
             inputPath.Add(Util.GetExeDir() + "\\lib");
             extensions.Add(".heron");
@@ -44,8 +46,6 @@ namespace HeronEngine
         {
             XmlReader xr = XmlReader.Create(s);
             xr.ReadStartElement("cfgxml");           
-            xr.MoveToContent();
-            xr.ReadStartElement("section");
             while (xr.MoveToContent() == XmlNodeType.Element)
             {
                 ProcessElement(xr);

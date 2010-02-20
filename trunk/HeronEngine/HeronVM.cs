@@ -19,31 +19,6 @@ namespace HeronEngine
     /// </summary>
     public class VM : HeronValue
     {
-        #region helper classes
-        /// <summary>
-        /// Speeds up access to variables.
-        /// </summary>
-        public class Accessor
-        {
-            Scope scope;
-            int n;
-
-            public Accessor(Scope scope, int n)
-            {
-                this.scope = scope;
-                this.n = n;
-            }
-
-            public HeronValue Get()
-            {
-                return scope[n];
-            }
-
-            public void Set(HeronValue value)
-            {
-                scope[n] = value;
-            }
-        }
 
         /// <summary>
         /// Used for creation and deletion of scopes.
@@ -87,8 +62,7 @@ namespace HeronEngine
                 vm.PopFrame();
             }
         }
-        #endregion helper classes
-
+        
         #region fields
         /// <summary>
         /// The current result value
@@ -516,11 +490,6 @@ namespace HeronEngine
         {
             Debug.Assert(o != null);
             frames.Peek().SetVar(s, o);
-        }
-
-        public Accessor GetAccessor(string s)
-        {
-            return frames.Peek().GetAccessor(s);
         }
 
         /// <summary>

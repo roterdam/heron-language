@@ -4,7 +4,7 @@ Annotations ::== (<[> + WS + (Annotation + (<,> + WS + Annotation!)*)?! + <]>! +
 AnyChar ::== .
 Arg ::== (Name + TypeDecl?)
 ArgList ::== (<(> + WS + (Arg + (<,> + WS + Arg!)*)? + <)>! + WS!)
-BasicExpr ::== (NewExpr | MapEachExpr | SelectExpr | AccumulateExpr | ReduceExpr | FunExpr | TableExpr | RecordExpr | SpecialName | Name | Literal | ParanthesizedExpr | BracketedExpr)
+BasicExpr ::== (NewExpr | MapExpr | SelectExpr | AccumulateExpr | ReduceExpr | FunExpr | TableExpr | RecordExpr | SpecialName | Name | Literal | ParanthesizedExpr | BracketedExpr)
 BinaryDigit ::== [01]
 BinaryLiteral ::== (<0b> + BinaryValue!)
 BinaryValue ::== BinaryDigit+
@@ -65,7 +65,7 @@ Letter ::== (LowerCaseLetter | UpperCaseLetter)
 LineComment ::== (<//> + UntilEndOfLine)
 Literal ::== ((StringLiteral | CharLiteral | NumLiteral) + WS)
 LowerCaseLetter ::== [a..z]
-MapEachExpr ::== (<mapeach> + WS + <(>! + WS! + (SpecialDelimiter^ + (Symbol | Ident))! + WS! + <in>! + WS! + NestedExpr! + <)>! + WS! + NestedExpr!!)
+MapExpr ::== (<map> + WS + <(>! + WS! + (SpecialDelimiter^ + (Symbol | Ident))! + WS! + <in>! + WS! + NestedExpr! + <)>! + WS! + NestedExpr!!)
 Method ::== (FunDecl + CodeBlock!)
 Methods ::== (<methods> + WS + <{>! + WS! + Method*! + <}>!! + WS!!)
 Module ::== (Annotations? + <module> + WS + (Ident + (<.> + WS + IdentFirstChar! + IdentNextChar*!)*)! + WS! + ModuleBody + TypeDefinition*)
@@ -78,7 +78,7 @@ Nullable ::== <?>
 NumLiteral ::== (HexLiteral | BinaryLiteral | FloatLiteral | IntegerLiteral)
 ParanthesizedExpr ::== (<(> + WS + NestedExpr?! + <)>! + WS!)
 RecordExpr ::== (<record> + WS + ArgList! + <{>! + WS! + NestedExpr! + <}>! + WS!)
-ReduceExpr ::== (<reduce> + WS + <(>! + WS! + (SpecialDelimiter^ + (Symbol | Ident))! + WS! + <,>! + WS! + (SpecialDelimiter^ + (Symbol | Ident))! + WS! + <in>! + WS! + NestedExpr! + <)>! + WS! + NestedExpr!)
+ReduceExpr ::== (<reduce> + WS + <(>! + WS! + (SpecialDelimiter^ + (Symbol | Ident))! + WS! + <,>! + WS! + (SpecialDelimiter^ + (Symbol | Ident))! + WS! + <in>! + WS! + NestedExpr! + <)>! + WS! + NestedExpr!!)
 ReturnStatement ::== (<return> + WS + CompoundExpr! + <;>! + WS!)
 Rows ::== (<{>! + WS! + (NestedExpr + Eos)*! + <}>!! + WS!!)
 SelectExpr ::== (<select> + WS + <(>! + WS! + (SpecialDelimiter^ + (Symbol | Ident))! + WS! + <from>! + WS! + NestedExpr! + <)>! + WS! + NestedExpr!)

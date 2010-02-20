@@ -1,0 +1,23 @@
+module TestSelect
+{
+    inherits
+    {
+        Heron.Windows.Console;
+    }
+    methods
+    {
+        Main()
+        {
+            var xs = 0..200000;
+            var ys = select (x from xs) x == 42;
+            WriteLine("Expect [42]");
+            WriteLine(ys.ToString());
+            ys = select (x from xs) x < 3;
+            WriteLine("Expect [0, 1, 2]");
+            WriteLine(ys.ToString());
+            ys = select (x from xs) (x % 3 == 0) && (x < 10);
+            WriteLine("Expect [0, 3, 6, 9]");
+            WriteLine(ys.ToString());
+        }
+    }
+}
