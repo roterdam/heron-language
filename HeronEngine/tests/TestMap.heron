@@ -1,0 +1,16 @@
+module TestMap
+{
+  inherits
+  {
+    Heron.Windows.Console;
+  }
+  methods
+  {    
+    Main()
+    {         
+      var input = 1..1000000;
+      var output = map (a in input) a * 2 + 1;
+      WriteLine(output[0].ToString());
+    }
+  }
+}

@@ -23,7 +23,7 @@
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <OldToolsVersion>3.5</OldToolsVersion>
-    <TargetFrameworkProfile />
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -47,7 +47,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>Performance.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -58,6 +58,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>..\..\..\Program Files\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\Rule Sets\Performance.ruleset</CodeAnalysisRuleSet>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <CodeAnalysisIgnoreGeneratedCode>false</CodeAnalysisIgnoreGeneratedCode>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -126,7 +128,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="bugs.txt" />
+    <Content Include="config.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Heron.ico" />
     <Content Include="license.txt" />
     <Content Include="readme.txt" />
@@ -205,6 +209,7 @@
     <None Include="tests\TestRandom.heron" />
     <None Include="tests\TestReduce.heron" />
     <None Include="tests\TestReturn.heron" />
+    <None Include="tests\TestSelect.heron" />
     <None Include="tests\TestSort.heron" />
     <None Include="tests\TestStatic.heron" />
     <None Include="tests\TestTables.heron" />

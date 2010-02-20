@@ -337,7 +337,7 @@ primitive IntLiteral
     GetValue() : HeronEngine.HeronValue;
   }
 }
-primitive MapEachExpr
+primitive MapExpr
 {
   fields
   {

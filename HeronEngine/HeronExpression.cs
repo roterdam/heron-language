@@ -17,6 +17,50 @@ namespace HeronEngine
     public delegate HeronValue Evaluator(VM vm);
 
     /// <summary>
+    /// Speeds up access to variables.
+    /// </summary>
+    public class Accessor
+    {
+        HeronValue value;
+
+        public Accessor(HeronValue val)
+        {
+            value = val;
+        }
+
+        public HeronValue Get()
+        {
+            return value;
+        }
+
+        public void Set(HeronValue value)
+        {
+            this.value = value;
+        }
+    }
+
+    public class OptimizationParams
+    {
+        Dictionary<String, Accessor> accessors = new Dictionary<string, Accessor>();
+        public Accessor AddNewAccessor(string name, HeronValue val)
+        {
+            Accessor acc = new Accessor(val);
+            accessors.Add(name, acc);
+            return acc;
+        }
+        public Accessor AddNewAccessor(string name)
+        {
+            return AddNewAccessor(name, HeronValue.Null);
+        }
+        public Accessor GetAccessor(string name)
+        {
+            if (!accessors.ContainsKey(name))
+                return null;
+            return accessors[name];
+        }
+    }
+
+    /// <summary>
     /// An expression in its represtantation as part of the abstract syntax tree.     
     /// </summary>
     public abstract class Expression : HeronValue
@@ -82,7 +126,7 @@ namespace HeronEngine
             }
         }
 
-        public abstract Expression Optimize(VM vm);
+        public abstract Expression Optimize(OptimizationParams op);
     }
 
     /// <summary>
@@ -108,7 +152,7 @@ namespace HeronEngine
             return PrimitiveTypes.OptimizedExpressionType;
         }
 
-        public override Expression Optimize(VM vm)
+        public override Expression Optimize(OptimizationParams op)
         {
             return this;
         }
@@ -139,12 +183,12 @@ namespace HeronEngine
             return list.ToArray();
         }
 
-        public ExpressionList Optimize(VM vm)
+        public ExpressionList Optimize(OptimizationParams op)
         {
             ExpressionList r = new ExpressionList();
             foreach (Expression x in this)
             {
-                r.Add(x.Optimize(vm));
+                r.Add(x.Optimize(op));
             }
             return r;
         }
@@ -164,26 +208,31 @@ namespace HeronEngine
             this.rvalue = rvalue;
         }
 
-        public override Expression Optimize(VM vm)
+        public override Expression Optimize(OptimizationParams op)
         {
-            Expression opt_rvalue = rvalue.Optimize(vm);
+            Expression opt_rvalue = rvalue.Optimize(op);
 
             if (lvalue is Name)
             {
                 Name nm = lvalue as Name;
-                VM.Accessor acc = vm.GetAccessor(nm.name);
+                Accessor acc = op.GetAccessor(nm.name);
                 if (acc == null)
-                    throw new Exception("Could not find name " + nm.name);
-                return new OptimizedExpression((VM v) =>
                 {
-                    HeronValue x = opt_rvalue.Eval(v);
-                    acc.Set(x);
-                    return x;
-                });
+                    return this;
+                }
+                else
+                {
+                    return new OptimizedExpression((VM vm) =>
+                    {
+                        HeronValue x = opt_rvalue.Eval(vm);
+                        acc.Set(x);
+                        return x;
+                    });
+                }
             }
             else
             {
-                return new Assignment(lvalue.Optimize(vm), opt_rvalue);
+                return new Assignment(lvalue.Optimize(op), opt_rvalue);
             }
         }
 
@@ -264,9 +313,9 @@ namespace HeronEngine
             return r;
         }
 
-        public override Expression Optimize(VM vm)
+        public override Expression Optimize(OptimizationParams op)
         {
-            return new ChooseField(self.Optimize(vm), name);
+            return new ChooseField(self.Optimize(op), name);
         }
 
         public override string ToString()
@@ -281,7 +330,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents indexing of an object, like you would of an array or dictionary.
+    /// Represents indexing of an object, like you would of an source or dictionary.
     /// </summary>
     public class ReadAt : Expression
     {
@@ -311,9 +360,9 @@ namespace HeronEngine
             return PrimitiveTypes.ReadAt;
         }
 
-        public override Expression Optimize(VM vm)
+        public override Expression Optimize(OptimizationParams op)
         {
-            return new ReadAt(self.Optimize(vm), index.Optimize(vm));
+            return new ReadAt(self.Optimize(op), index.Optimize(op));
         }
     }
 
@@ -356,9 +405,9 @@ namespace HeronEngine
             return PrimitiveTypes.NewExpr;
         }
 
-        public override Expression Optimize(VM vm)
+        public override Expression Optimize(OptimizationParams op)
         {
-            return new NewExpr(type, args.Optimize(vm), modexpr.Optimize(vm));
+            return new NewExpr(type, args.Optimize(op), modexpr.Optimize(op));
         }
     }
 
@@ -381,7 +430,7 @@ namespace HeronEngine
             return PrimitiveTypes.NullExpr;
         }
 
-        public override Expression Optimize(VM vm)
+        public override Expression Optimize(OptimizationParams op)
         {
             return this;
         }
@@ -416,7 +465,7 @@ namespace HeronEngine
             return val;
         }
 
-        public override Expression Optimize(VM vm)
+        public override Expression Optimize(OptimizationParams op)
         {
             return this;
         }
@@ -539,10 +588,12 @@ namespace HeronEngine
             return PrimitiveTypes.Name;
         }
 
-        public override Expression Optimize(VM vm)
+        public override Expression Optimize(OptimizationParams op)
         {
-            VM.Accessor acc = vm.GetAccessor(name);
-            return new OptimizedExpression((VM v) => acc.Get()); 
+            Accessor acc = op.GetAccessor(name);
+            if (acc == null)
+                return this;
+            return new OptimizedExpression((VM vm) => acc.Get()); 
         }
     }
 
@@ -560,9 +611,9 @@ namespace HeronEngine
             this.args = args;
         }
 
-        public override Expression Optimize(VM vm)
+        public override Expression Optimize(OptimizationParams op)
         {
-            return new FunCall(funexpr.Optimize(vm), args.Optimize(vm)); 
+            return new FunCall(funexpr.Optimize(op), args.Optimize(op)); 
         }
         
         public override HeronValue Eval(VM vm)
@@ -598,9 +649,9 @@ namespace HeronEngine
             operand = x;
         }
 
-        public override Expression Optimize(VM vm)
+        public override Expression Optimize(OptimizationParams op)
         {
-            return new UnaryOperation(operation, operand.Optimize(vm))   ;
+            return new UnaryOperation(operation, operand.Optimize(op))   ;
         }
 
         public override HeronValue Eval(VM vm)
@@ -641,7 +692,7 @@ namespace HeronEngine
             rettype = rettype.Resolve(m);
         }
 
-        public override Expression Optimize(VM vm)
+        public override Expression Optimize(OptimizationParams op)
         {
             return this;
         }
@@ -699,9 +750,9 @@ namespace HeronEngine
             return result;
         }
 
-        public override Expression Optimize(VM vm)
+        public override Expression Optimize(OptimizationParams op)
         {
-            return new PostIncExpr(expr.Optimize(vm));
+            return new PostIncExpr(expr.Optimize(op));
         }
 
         public override string ToString()
@@ -737,7 +788,7 @@ namespace HeronEngine
             this.expr = expr;
         }
 
-        public override Expression Optimize(VM vm)
+        public override Expression Optimize(OptimizationParams op)
         {
             return this;
         }
@@ -782,9 +833,9 @@ namespace HeronEngine
             exprs = xs;
         }
 
-        public override Expression Optimize(VM vm)
+        public override Expression Optimize(OptimizationParams op)
         {
-            return new TupleExpr(exprs.Optimize(vm));
+            return new TupleExpr(exprs.Optimize(op));
         }
 
         public override HeronValue Eval(VM vm)
@@ -841,7 +892,7 @@ namespace HeronEngine
             rows.Add(row);
         }
 
-        public override Expression Optimize(VM vm)
+        public override Expression Optimize(OptimizationParams op)
         {
             return this;
         }
@@ -886,9 +937,9 @@ namespace HeronEngine
             this.fielddefs = args;
         }
 
-        public override Expression Optimize(VM vm)
+        public override Expression Optimize(OptimizationParams op)
         {
-            return new RecordExpr(fields.Optimize(vm), fielddefs);
+            return new RecordExpr(fields.Optimize(op), fielddefs);
         }
 
         public override void ResolveTypes(ModuleDefn m)

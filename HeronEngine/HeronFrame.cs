@@ -173,18 +173,6 @@ namespace HeronEngine
             return false;
         }
 
-        public VM.Accessor GetAccessor(string s)
-        {
-            for (int i = scopes.Count; i > 0; --i)
-            {
-                Scope tbl = scopes[i - 1];
-                int n = tbl.Lookup(s);
-                if (n >= 0)
-                    return new VM.Accessor(tbl, n);
-            }
-            return null;
-        }
-
         public bool SetVar(string s, HeronValue o)
         {
             for (int i = scopes.Count; i > 0; --i)

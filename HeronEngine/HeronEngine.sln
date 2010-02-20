@@ -3,6 +3,10 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeronEngine", "HeronEngine.csproj", "{E3C7F929-5004-4403-8C10-0B20645D2D27}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "HeronSetup", "..\HeronSetup\HeronSetup.vdproj", "{B6F12BCC-CE9E-4D7F-8EA1-63E031371870}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B69A0724-4612-413C-A9AF-9D50EF29F88C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +35,16 @@ Global
 		{E3C7F929-5004-4403-8C10-0B20645D2D27}.Release|x86.ActiveCfg = Release|Any CPU
 		{E3C7F929-5004-4403-8C10-0B20645D2D27}.Release|Xbox 360.ActiveCfg = Release|Any CPU
 		{E3C7F929-5004-4403-8C10-0B20645D2D27}.Release|Zune.ActiveCfg = Release|Any CPU
+		{B6F12BCC-CE9E-4D7F-8EA1-63E031371870}.Debug|Any CPU.ActiveCfg = Debug
+		{B6F12BCC-CE9E-4D7F-8EA1-63E031371870}.Debug|Mixed Platforms.ActiveCfg = Debug
+		{B6F12BCC-CE9E-4D7F-8EA1-63E031371870}.Debug|x86.ActiveCfg = Debug
+		{B6F12BCC-CE9E-4D7F-8EA1-63E031371870}.Debug|Xbox 360.ActiveCfg = Debug
+		{B6F12BCC-CE9E-4D7F-8EA1-63E031371870}.Debug|Zune.ActiveCfg = Debug
+		{B6F12BCC-CE9E-4D7F-8EA1-63E031371870}.Release|Any CPU.ActiveCfg = Release
+		{B6F12BCC-CE9E-4D7F-8EA1-63E031371870}.Release|Mixed Platforms.ActiveCfg = Release
+		{B6F12BCC-CE9E-4D7F-8EA1-63E031371870}.Release|x86.ActiveCfg = Release
+		{B6F12BCC-CE9E-4D7F-8EA1-63E031371870}.Release|Xbox 360.ActiveCfg = Release
+		{B6F12BCC-CE9E-4D7F-8EA1-63E031371870}.Release|Zune.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
