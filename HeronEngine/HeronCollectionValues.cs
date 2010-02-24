@@ -13,6 +13,12 @@ using System.Threading.Tasks;
 
 namespace HeronEngine
 {
+    public interface IIndexable
+    {
+        int InternalCount();
+        HeronValue InternalAt(int n);
+    }
+
     /// <summary>
     /// Represents an enumerator at run-time. AnyValue enumerator is also an enumerable: it just 
     /// returns itself.
@@ -46,7 +52,7 @@ namespace HeronEngine
     /// An enumerator that is the result of ta range operator (ta..tb)
     /// </summary>
     public class RangeEnumerator
-        : IteratorValue
+        : IteratorValue, IIndexable
     {
         int min;
         int max;
@@ -91,16 +97,31 @@ namespace HeronEngine
 
         public override ListValue ToList()
         {
-            return new ListValue(new List<HeronValue>(ToArray()));
+            return new ListValue((IList)ToArray());
         }
 
         public override HeronValue[] ToArray()
         {
-            int count = max - min + 1;
-            HeronValue[] a = new HeronValue[count];
-            for (int i = 0; i < count; ++i)
-                a[i] = new IntValue(min + i);
-            return a;
+            int cnt = max - min + 1;
+            HeronValue[] r = new HeronValue[cnt];
+            for (int i = 0; i < cnt; ++i)
+                r[i] = new IntValue(min + i);
+            return r;
+        }
+
+        public override IIndexable GetIndexable()
+        {
+            return this;
+        }
+
+        public int InternalCount()
+        {
+            return max - min + 1;
+        }
+
+        public HeronValue InternalAt(int n)
+        {
+            return new IntValue(min + n);
         }
     }
 
@@ -181,7 +202,6 @@ namespace HeronEngine
         #endregion
     }
 
-
     /// <summary>
     /// Represents ta sequence, which is ta collection which can only be
     /// iterated over once. It is constructed from ta Heron enumerator
@@ -241,14 +261,15 @@ namespace HeronEngine
         {
             return base.GetHashCode();
         }
+
+        public abstract IIndexable GetIndexable();
     }
    
-
     /// <summary>
     /// Represents ta collection which can be iterated over multiple times.
     /// </summary>
     public class ListValue
-        : SeqValue
+        : SeqValue, IIndexable
     {
         List<HeronValue> list = new List<HeronValue>();
 
@@ -297,7 +318,7 @@ namespace HeronEngine
             return list.Count();
         }
 
-        public HeronValue InternalGetAtIndex(int n)
+        public HeronValue InternalAt(int n)
         {
             return list[n];
         }
@@ -366,14 +387,18 @@ namespace HeronEngine
         {
             return list.ToArray();
         }
-    }
 
+        public override IIndexable GetIndexable()
+        {
+            return this;
+        }
+    }
 
     /// <summary>
     /// Represents ta collection which can be iterated over multiple times.
     /// </summary>
     public class ArrayValue
-        : SeqValue
+        : SeqValue, IIndexable
     {
         HeronValue[] array;
 
@@ -440,6 +465,25 @@ namespace HeronEngine
         public override HeronValue[] ToArray()
         {
             return array;
+        }
+
+        #region IIndexable Members
+
+        public int InternalCount()
+        {
+            return array.Length;
+        }
+
+        public HeronValue InternalAt(int n)
+        {
+            return array[n];
+        }
+
+        #endregion
+
+        public override IIndexable GetIndexable()
+        {
+            return this;
         }
     }
 }
