@@ -19,7 +19,6 @@ namespace HeronEngine
     /// </summary>
     public class VM : HeronValue
     {
-
         /// <summary>
         /// Used for creation and deletion of scopes.
         /// Do not instantiate directly, only VM creates this.
@@ -28,6 +27,7 @@ namespace HeronEngine
         public class DisposableScope : IDisposable
         {
             VM vm;
+
             public DisposableScope(VM vm)
             {
                 this.vm = vm;
@@ -68,7 +68,7 @@ namespace HeronEngine
         /// The current result value
         /// </summary>
         private HeronValue result;
-
+        
         /// <summary>
         /// A list of call stack frames (also called activation records)
         /// </summary>
@@ -454,7 +454,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Called by ta return statement. Sets the function result, and sets ta flag to indicate 
+        /// Called by a return statement. Sets the function result, and sets a flag to indicate 
         /// to executing statement groups that execution should terminate.
         /// </summary>
         /// <param name="ret"></param>
@@ -658,5 +658,31 @@ namespace HeronEngine
         {
             return PrimitiveTypes.VMType;
         }
+
+        public HeronValue MakeTemporary(bool x)
+        {
+            return new BoolValue(x);
+        }
+
+        public HeronValue MakeTemporary(int x)
+        {
+            return new IntValue(x);
+        }
+
+        public HeronValue MakeTemporary(char x)
+        {
+            return new CharValue(x);
+        }
+
+        public HeronValue MakeTemporary(string x)
+        {
+            return new StringValue(x);
+        }
+
+        public HeronValue MakeTemporary(float x)
+        {
+            return new FloatValue(x);
+        }
+
     }
 }

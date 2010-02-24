@@ -44,6 +44,21 @@ namespace HeronEngine
             throw new Exception("Cannot convert '" + ToString() + "' into System.Boolean");
         }
 
+        public virtual int ToInt()
+        {
+            throw new Exception("Cannot convert '" + ToString() + "' into System.Int32");
+        }
+
+        public virtual char ToChar()
+        {
+            throw new Exception("Cannot convert '" + ToString() + "' into System.Char");
+        }
+
+        public virtual float ToFloat()
+        {
+            throw new Exception("Cannot convert '" + ToString() + "' into System.Float");
+        }
+
         public virtual HeronValue GetAtIndex(HeronValue index)
         {
             throw new Exception("Indexing is not supported on " + ToString());
@@ -96,7 +111,12 @@ namespace HeronEngine
 
         public virtual HeronValue InvokeUnaryOperator(VM vm, string s)
         {
-            throw new Exception("unary operator invocation not supported on " + ToString());
+            throw new Exception("unary operator '" + s + "' not supported on " + ToString());
+        }
+
+        public virtual HeronValue InvokeBinaryOperator(VM vm, OpCode opcode, HeronValue val)
+        {
+            throw new Exception("binary operator '" + Enum.GetName(typeof(OpCode), opcode) + "' not supported on " + ToString());
         }
 
         public abstract HeronType GetHeronType();

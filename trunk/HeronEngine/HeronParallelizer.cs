@@ -7,50 +7,42 @@ using System.Threading;
 namespace HeronEngine
 {
     /// <summary>
-    /// Represents a work item.
-    /// </summary>
-    public delegate void Task();
-
-    /// <summary>
-    /// Represents a work item for a chunk of data.
-    /// </summary>
-    public delegate void ArrayTask<T>(T[] xs);
-
-    /// <summary>
     /// This class is intended to efficiently distribute work 
     /// across the number of cores. 
     /// </summary>
     public static class Parallelizer 
     {
-        static DateTime start;
-        static bool showTiming = true;
-
         /// <summary>
-        /// Releases ta thread when ta count reaches zero
-        /// http://msdn.microsoft.com/en-us/magazine/cc163427.aspx#S1
+        /// Represents a work item.
         /// </summary>
-        public class CountDownLatch
+        public class Task
         {
-            private int count;
-            private EventWaitHandle handle = new ManualResetEvent(false);
+            Action a;
+            CountdownEvent countdown;
 
-            public CountDownLatch(int count)
+            public Task(Action a, CountdownEvent countdown)
             {
-                this.count = count;
+                this.a = a;
+                this.countdown = countdown;
             }
 
-            public void Decrement()
+            public void Execute()
             {
-                if (Interlocked.Decrement(ref count) == 0)
-                    handle.Set();
-            }
-
-            public void Wait()
-            {
-                handle.WaitOne();
+                a();
+                countdown.Signal();
             }
         }
-        
+
+        /// <summary>
+        /// Used to compute rudimentary profiling information
+        /// </summary>
+        static DateTime start = DateTime.Now;
+
+        /// <summary>
+        /// Controls whether to output profiling information or not
+        /// </summary>
+        static bool showTiming = true;        
+
         /// <summary>
         /// List of tasks that haven't been yet acquired by ta thread 
         /// </summary>
@@ -77,16 +69,15 @@ namespace HeronEngine
         /// ta separate core.
         /// </summary>
         /// <param name="cores"></param>
-        public static void Initialize(int cores)
+        static Parallelizer()
         {
-            start = DateTime.Now;
             Thread.CurrentThread.Name = "Main_Thread";
 
+            int cores = Environment.ProcessorCount;
+            //cores = 1;
             for (int i = 0; i < cores; ++i)
             {
                 Thread t = new Thread(ThreadMain);
-                // This system is not designed to play well with others
-                t.Priority = ThreadPriority.Highest;
                 t.Name = "Thread_" + i.ToString();
                 threads.Add(t);
                 t.Start();
@@ -162,20 +153,24 @@ namespace HeronEngine
                 // Get an available task
                 Task task = GetTask();
 
-                // Note ta task might still be null becaue
+                // Note a task might still be null becaue
                 // another thread might have gotten to it first
                 while (task != null)
                 {
+                    Thread.CurrentThread.Priority = ThreadPriority.Highest;
+
                     PrintTime("started work");
 
                     // Do the work
-                    task();
+                    task.Execute();
 
                     PrintTime("finished work");
 
                     // Get the next task
                     task = GetTask();
                 }
+
+                Thread.CurrentThread.Priority = ThreadPriority.Normal;
             }
         }
 
@@ -184,55 +179,43 @@ namespace HeronEngine
         /// of cores. All tasks will be run on the available cores. 
         /// </summary>
         /// <param name="localTasks"></param>
-        public static void DistributeWork(List<Task> localTasks)
+        public static void Invoke(params Action[] actions)
         {
             // In the degenerate case of no work, just leave
-            if (localTasks.Count == 0)
-            {
+            if (actions.Length == 0)
                 return;
-            }
 
-            // If there is only one task, just execute it.
-            if (localTasks.Count == 1)
-            {
-                PrintTime("started work");
-                localTasks[0]();
-                PrintTime("finished work");
-                return;
-            }
-
-            // Create ta count-down latch that block until ta count is decremented to zero
-            CountDownLatch latch = new CountDownLatch(localTasks.Count);
+            // Create a count-down latch that block until the count is reached
+            CountdownEvent countdown = new CountdownEvent(actions.Length);
 
             lock (allTasks)
             {
                 // Iterate over the list of localTasks, creating ta new task that 
                 // will signal when it is done.
-                for (int i = 0; i < localTasks.Count; ++i)
+                for (int i = 0; i < actions.Length; ++i)
                 {
-                    Task t = localTasks[i];
-
-                    // Create an event used to signal that the task is complete
-                    ManualResetEvent e = new ManualResetEvent(false);
-
                     // Create ta new signaling task and add it to the list
-                    Task signalingTask = () => { t(); latch.Decrement(); };
-                    allTasks.Add(signalingTask);
+                    Task t = new Task(actions[i], countdown);
+                    allTasks.Add(t);
                 }
             }
 
-            // Signal to waiting threads that there is work
+            Thread.CurrentThread.Priority = ThreadPriority.BelowNormal;
+
+            // Signal to waiting threads that there is work to be done
             ReleaseThreads();
 
+            Thread.CurrentThread.Priority = ThreadPriority.Normal;
+
             // Wait until all of the designated work items are completed.
-            latch.Wait();
+            countdown.Wait();
         }
 
         /// <summary>
         /// Indicate to the system that the threads should terminate
         /// and unblock them.
         /// </summary>
-        public static void CleanUp()
+        public static void Cleanup()
         {
             shuttingDown = true;
             ReleaseThreads();

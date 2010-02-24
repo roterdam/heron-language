@@ -8,9 +8,11 @@ module TestMap
   {    
     Main()
     {         
-      var input = 1..1000000;
-      var output = map (a in input) a * 2 + 1;
-      WriteLine(output[0].ToString());
+      var input = 0..100000;
+      var output;
+      foreach (i in 1..50)
+        output = map (a in input) a * 2 + 1;
+      WriteLine(output[6].ToString());
     }
   }
 }

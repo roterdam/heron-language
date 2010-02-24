@@ -105,6 +105,8 @@ namespace HeronEngine
         /// <param name="funcs"></param>
         static public void Main(string[] args)
         {
+            //GC
+           //GCCollectionMode mode = GCCollectionMode.
             try
             {
                 LoadConfig();
@@ -114,6 +116,7 @@ namespace HeronEngine
                     OutputPrimitives();
                 if (Config.runUnitTests)
                     HeronTests.MainTest();
+               
                 
                 timeStarted = DateTime.Now;
                 if (args.Length != 1)
@@ -133,6 +136,10 @@ namespace HeronEngine
             catch (Exception e)
             {
                 Console.WriteLine("Error occured: " + e.Message);
+            }
+            finally
+            {
+                //Parallelizer.Cleanup();
             }
 
             Console.WriteLine();
