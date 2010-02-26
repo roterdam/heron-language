@@ -164,7 +164,7 @@ namespace HeronEngine
 
         public override float ToFloat()
         {
-            return base.ToFloat();
+            return GetValue();
         }
 
         public override HeronValue InvokeUnaryOperator(VM vm, string s)

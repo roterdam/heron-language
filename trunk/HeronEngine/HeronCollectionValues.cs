@@ -13,10 +13,19 @@ using System.Threading.Tasks;
 
 namespace HeronEngine
 {
-    public interface IIndexable
+    public interface IInternalIndexable
     {
         int InternalCount();
         HeronValue InternalAt(int n);
+    }
+
+    public struct LoopParams
+    {
+        public OptimizationParams op;
+        public VM vm;
+        public Accessor acc;
+        public Accessor acc2;
+        public Expression expr;
     }
 
     /// <summary>
@@ -52,7 +61,7 @@ namespace HeronEngine
     /// An enumerator that is the result of ta range operator (ta..tb)
     /// </summary>
     public class RangeEnumerator
-        : IteratorValue, IIndexable
+        : IteratorValue, IInternalIndexable
     {
         int min;
         int max;
@@ -109,7 +118,7 @@ namespace HeronEngine
             return r;
         }
 
-        public override IIndexable GetIndexable()
+        public override IInternalIndexable GetIndexable()
         {
             return this;
         }
@@ -262,14 +271,14 @@ namespace HeronEngine
             return base.GetHashCode();
         }
 
-        public abstract IIndexable GetIndexable();
+        public abstract IInternalIndexable GetIndexable();
     }
    
     /// <summary>
     /// Represents ta collection which can be iterated over multiple times.
     /// </summary>
     public class ListValue
-        : SeqValue, IIndexable
+        : SeqValue, IInternalIndexable
     {
         List<HeronValue> list = new List<HeronValue>();
 
@@ -388,7 +397,7 @@ namespace HeronEngine
             return list.ToArray();
         }
 
-        public override IIndexable GetIndexable()
+        public override IInternalIndexable GetIndexable()
         {
             return this;
         }
@@ -398,7 +407,7 @@ namespace HeronEngine
     /// Represents ta collection which can be iterated over multiple times.
     /// </summary>
     public class ArrayValue
-        : SeqValue, IIndexable
+        : SeqValue, IInternalIndexable
     {
         HeronValue[] array;
 
@@ -467,7 +476,7 @@ namespace HeronEngine
             return array;
         }
 
-        #region IIndexable Members
+        #region IInternalIndexable Members
 
         public int InternalCount()
         {
@@ -481,7 +490,7 @@ namespace HeronEngine
 
         #endregion
 
-        public override IIndexable GetIndexable()
+        public override IInternalIndexable GetIndexable()
         {
             return this;
         }

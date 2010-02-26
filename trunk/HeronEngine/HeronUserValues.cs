@@ -20,6 +20,8 @@ namespace HeronEngine
         public ClassInstance(ClassDefn c, ModuleInstance m)
         {
             cls = c;
+            if (m == null && !(this is ModuleInstance))
+                throw new Exception("Class is not associated with a module instance");
             module = m;
         }
 

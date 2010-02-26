@@ -8,7 +8,7 @@ module TestSelect
     {
         Main()
         {
-            var xs = 0..200000;
+            var xs = 0..2000000;
             var ys = select (x from xs) x == 42;
             WriteLine("Expect [42]");
             WriteLine(ys.ToString());

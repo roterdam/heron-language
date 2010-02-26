@@ -388,7 +388,7 @@ namespace HeronEngine
             
             if (modexpr == null)
             {
-                return type.Instantiate(vm, argvals, null);
+                return type.Instantiate(vm, argvals, vm.CurrentModuleInstance);
             }
             else
             {

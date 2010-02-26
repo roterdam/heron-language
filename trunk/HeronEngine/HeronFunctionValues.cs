@@ -109,21 +109,28 @@ namespace HeronEngine
 
         public override HeronValue Apply(VM vm, HeronValue[] args)
         {
-            // Create ta stack frame 
+            // Create a stack frame 
             using (vm.CreateFrame(fun, GetSelfAsInstance()))
             {
-                // Convert the arguments into appropriate types
-                PerformConversions(args);
+                try
+                {
+                    // Convert the arguments into appropriate types
+                    PerformConversions(args);
 
-                // Push the arguments into the current scope
-                PushArgs(vm, args);
+                    // Push the arguments into the current scope
+                    PushArgs(vm, args);
 
-                // Copy free vars
-                if (freeVars != null)
-                    vm.AddVars(freeVars);
+                    // Copy free vars
+                    if (freeVars != null)
+                        vm.AddVars(freeVars);
 
-                // Eval the function body
-                vm.Eval(fun.body);
+                    // Eval the function body
+                    vm.Eval(fun.body);
+                }
+                catch (Exception e)
+                {
+                    throw new VMException(fun, fun.FileName, vm.CurrentStatement, e);
+                }
             }
 
             // Gets last result and resets it

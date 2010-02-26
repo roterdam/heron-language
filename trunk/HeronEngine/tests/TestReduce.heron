@@ -8,11 +8,12 @@ module TestReduce
   {    
     Main()
     {     
-      var input = 1..5000;
+      var input = 1..50000;
       var output;
-      for (i=0; i < 200; i++)
+      for (i=0; i < 100; i++)
         output = reduce (a, b in input) a + b;
-      WriteLine(output[0].ToString());
+
+      WriteLine(output[0].ToString()); 
     }
   }
 }

@@ -20,6 +20,11 @@ namespace HeronEngine
     public class Frame 
     {
         /// <summary>
+        /// The current executing statement. Used for call stack traces.
+        /// </summary>
+        Statement statement;
+
+        /// <summary>
         /// Function associated with this activation record 
         /// </summary>
         public FunctionDefn function = null;
@@ -249,6 +254,10 @@ namespace HeronEngine
             return scopes;
         }
 
+        /// <summary>
+        /// Creates a shallow copy of the frame
+        /// </summary>
+        /// <returns></returns>
         public Frame Fork()
         {
             Frame f = new Frame(function, self);
@@ -257,6 +266,16 @@ namespace HeronEngine
             foreach (Scope s in scopes)
                 f.AddScope(s);
             return f;
+        }
+
+        /// <summary>
+        /// Used to get or set the currently executing statement for this frame.
+        /// Useful for stack frames etc.
+        /// </summary>
+        public Statement CurrentStatement
+        {
+            get { return statement; }
+            set { statement = value; }
         }
     }
 }

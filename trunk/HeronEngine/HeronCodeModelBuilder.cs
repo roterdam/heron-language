@@ -121,10 +121,10 @@ namespace HeronEngine
             ProcessFields(x, m);
         }
 
-        public ModuleDefn CreateModule(ParseNode x)
+        public ModuleDefn CreateModule(ParseNode x, string sFileName)
         {
             ParseNode nameNode = x.GetChild(0);
-            ModuleDefn r = new ModuleDefn(p, nameNode.ToString());
+            ModuleDefn r = new ModuleDefn(p, nameNode.ToString(), sFileName);
 
             ParseNode bodyNode = x.GetChild(1);
             CreateModuleDefn(r, bodyNode);
@@ -354,6 +354,7 @@ namespace HeronEngine
         {
             ModuleDefn module = parent.GetModule();
             FunctionDefn r = new FunctionDefn(parent);
+            r.node = x;
             ParseNode fundecl = x.GetChild("fundecl");            
             r.name = fundecl.GetChild("name").ToString();
             r.formals = CreateFormalArgs(fundecl.GetChild("arglist"));
@@ -460,7 +461,8 @@ namespace HeronEngine
         public ReturnStatement CreateReturnStatement(ParseNode x)
         {
             ReturnStatement r = new ReturnStatement(x);
-            r.expression = CreateExpr(x.GetChild(0));
+            if (x.GetNumChildren() > 0)
+                r.expression = CreateExpr(x.GetChild(0));
             return r;
         }
 
@@ -1111,12 +1113,12 @@ namespace HeronEngine
             return r;
         }
 
-        static public ModuleDefn ParseModule(ProgramDefn p, string s)
+        static public ModuleDefn ParseModule(ProgramDefn p, string s, string fileName)
         {
             ParseNode node = ParserState.Parse(HeronGrammar.Module, s);
             if (node == null)
                 return null;
-            ModuleDefn r = (new HeronCodeModelBuilder(p)).CreateModule(node);
+            ModuleDefn r = (new HeronCodeModelBuilder(p)).CreateModule(node, fileName);
             return r;
         }
 
@@ -1146,7 +1148,7 @@ namespace HeronEngine
 
             try
             {
-                ModuleDefn r = (new HeronCodeModelBuilder(p)).CreateModule(node);
+                ModuleDefn r = (new HeronCodeModelBuilder(p)).CreateModule(node, sFileName);
                 return r;
             }
             catch (Exception e)

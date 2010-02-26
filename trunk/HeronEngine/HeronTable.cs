@@ -123,7 +123,7 @@ namespace HeronEngine
     /// <summary>
     /// A record is ta dictionary that can't add and remove values. 
     /// </summary>
-    public class RecordValue : SeqValue, IIndexable
+    public class RecordValue : SeqValue, IInternalIndexable
     {
         RecordLayout layout;
         List<HeronValue> values;        
@@ -252,12 +252,12 @@ namespace HeronEngine
             return values.ToArray();
         }
 
-        public override IIndexable GetIndexable()
+        public override IInternalIndexable GetIndexable()
         {
             return this;
         }
 
-        #region IIndexable Members
+        #region IInternalIndexable Members
 
         public int InternalCount()
         {
@@ -275,7 +275,7 @@ namespace HeronEngine
     /// <summary>
     /// A record is ta dictionary that can't add and remove values. 
     /// </summary>
-    public class TableValue : SeqValue, IIndexable
+    public class TableValue : SeqValue, IInternalIndexable
     {
         Dictionary<int, RecordValue> values = new Dictionary<int, RecordValue>();
         RecordLayout layout;
@@ -391,7 +391,7 @@ namespace HeronEngine
             return values.Values.ToArray();
         }
 
-        #region IIndexable Members
+        #region IInternalIndexable Members
 
         public int InternalCount()
         {
@@ -405,7 +405,7 @@ namespace HeronEngine
 
         #endregion
 
-        public override IIndexable GetIndexable()
+        public override IInternalIndexable GetIndexable()
         {
             return this;
         }
