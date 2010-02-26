@@ -213,7 +213,7 @@ namespace HeronEngine
             throw new Exception("Could not find module : " + sModule);
         }
 
-        private void LoadDependentModules(string sFile)
+        public void LoadDependentModules(string sFile)
         {
             // Load any dependent modules 
             List<string> modules = new List<string>(program.GetUnloadedDependentModules());
@@ -239,15 +239,6 @@ namespace HeronEngine
             }
         }
 
-        public void EvalFile(string sFile)
-        {
-            InitializeVM();
-            ModuleDefn m = LoadModule(sFile);
-            LoadDependentModules(sFile);
-            ResolveTypesInModules();
-            RunModule(m);
-        }
-
         public void RunMeta(ModuleInstance m)
         {
             HeronValue f = m.GetFieldOrMethod("Meta");
@@ -271,20 +262,6 @@ namespace HeronEngine
             RunMain(mi);
         }
 
-        public ListValue EvalList(Expression list)
-        {
-            HeronValue tmp = Eval(list);
-            if (!(tmp is ListValue))
-            {
-                if (tmp is SeqValue)
-                {
-                    return (tmp as SeqValue).ToList();
-                }
-                throw new Exception("Expression did not evaluate to a list " + list.ToString());
-            }
-            return (tmp as ListValue);
-        }
-
         /// <summary>
         /// Evaluates ta list expression, converting it into an IEnumerable&lt;HeronValue&gt;
         /// </summary>
@@ -292,7 +269,17 @@ namespace HeronEngine
         /// <returns></returns>
         public IEnumerable<HeronValue> EvalListAsDotNet(Expression list)
         {
-            return new HeronToEnumeratorAdapter(this, EvalList(list));
+            IInternalIndexable ii = EvalInternalList(list);
+            for (int i = 0; i < ii.InternalCount(); ++i)
+                yield return ii.InternalAt(i);
+        }
+
+        public IInternalIndexable EvalInternalList(Expression list)
+        {
+            SeqValue sv = Eval(list) as SeqValue;
+            if (sv == null)
+                throw new Exception("Expected list: " + list.ToString());
+            return sv.GetIndexable();
         }
 
         /// <summary>
@@ -327,6 +314,7 @@ namespace HeronEngine
         /// <returns></returns>
         public void Eval(Statement statement)
         {
+            CurrentStatement = statement;
             statement.Eval(this);
         }
         #endregion
@@ -543,8 +531,8 @@ namespace HeronEngine
         /// <returns></returns>
         [HeronVisible]
         public HeronValue LookupName(string s)
-        {
-            HeronValue r = frames.Peek().LookupName(s);
+        {            
+            HeronValue r = CurrentFrame.LookupName(s);
             if (r != null)
                 return r;
 
@@ -684,5 +672,47 @@ namespace HeronEngine
             return new FloatValue(x);
         }
 
+
+        /// <summary>
+        /// Gets the current statement.
+        /// </summary>
+        /// <returns></returns>
+        public Statement CurrentStatement
+        {
+            get
+            {
+                return CurrentFrame.CurrentStatement;
+            }
+            set
+            {
+                CurrentFrame.CurrentStatement = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets the current statement.
+        /// </summary>
+        /// <returns></returns>
+        public string CurrentFileName
+        {
+            get
+            {
+                return CurrentModuleDef.FileName;
+            }
+        }
+
+        /// <summary>
+        /// Returns the current module instance.
+        /// </summary>
+        public ModuleInstance CurrentModuleInstance
+        {
+            get
+            {
+                if (CurrentFrame.self is ModuleInstance)
+                    return CurrentFrame.self as ModuleInstance;
+                else
+                    return CurrentFrame.self.GetModuleInstance();
+            }
+        }
     }
 }

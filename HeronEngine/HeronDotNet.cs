@@ -16,7 +16,7 @@ namespace HeronEngine
 {
 
     public class ListToIterValue
-        : IteratorValue, IIndexable
+        : IteratorValue, IInternalIndexable
     {
         List<HeronValue> list;
         int current;
@@ -69,7 +69,7 @@ namespace HeronEngine
             return list.ToArray();
         }
 
-        #region IIndexable Members
+        #region IInternalIndexable Members
 
         public int InternalCount()
         {
@@ -83,7 +83,7 @@ namespace HeronEngine
 
         #endregion
 
-        public override IIndexable GetIndexable()
+        public override IInternalIndexable GetIndexable()
         {
             return this;
         }

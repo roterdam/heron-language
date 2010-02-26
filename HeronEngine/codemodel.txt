@@ -480,7 +480,7 @@ primitive ReduceExpr
     a : System.String;
     b : System.String;
     list : HeronEngine.Expression;
-    expr : HeronEngine.Expression;
+    yield : HeronEngine.Expression;
   }
   methods
   {

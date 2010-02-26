@@ -39,14 +39,24 @@ namespace HeronEngine
         Dictionary<string, string> aliases = new Dictionary<string, string>();
         List<Import> imports = new List<Import>();
         ProgramDefn program;
+        string fileName = "no file";
 
-        public ModuleDefn(ProgramDefn prog, string name)
+        public ModuleDefn(ProgramDefn prog, string name, string sFileName)
             : base(null, name)
         {
             program = prog;
             this.name = name;
             this.module = this;
             types.Add(name, this);
+            this.fileName = sFileName;
+        }
+
+        public string FileName
+        {
+            get
+            {
+                return fileName;
+            }
         }
 
         public override HeronType GetHeronType()

@@ -62,9 +62,30 @@ namespace HeronEngine
         [HeronVisible] public HeronType rettype = new UnresolvedType("Void");
         [HeronVisible] public bool nullable = false;
 
+        public ParseNode node;
+
         public FunctionDefn(HeronType parent)
         {
             this.parent = parent;
+        }
+
+        public ModuleDefn GetModule()
+        {
+            if (parent != null)
+                return parent.GetModule();
+            else
+                return null;
+        }
+
+        public string FileName
+        {
+            get
+            {
+                if (GetModule() == null)
+                    return "no file";
+                else
+                    return GetModule().FileName;
+            }
         }
 
         public FunctionDefn(HeronType parent, string name)
@@ -150,7 +171,7 @@ namespace HeronEngine
                 st.ResolveTypes(m);
         }
 
-        public override string ToString()
+        public string GetSignature()
         {
             StringBuilder sb = new StringBuilder();
             sb.Append(name);
@@ -167,6 +188,11 @@ namespace HeronEngine
                 sb.Append(" : ").Append(rettype.ToString());
 
             return sb.ToString();
+        }
+
+        public override string ToString()
+        {
+            return GetSignature();
         }
 
         [HeronVisible]

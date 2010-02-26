@@ -29,7 +29,7 @@ namespace HeronEngine
         public ProgramDefn(string name)
         {
             this.name = name;
-            global = new ModuleDefn(this, "_global_");
+            global = new ModuleDefn(this, "_global_", "_internal_");
             RegisterPrimitives();
         }
         public void RegisterDotNetType(Type t, string name)

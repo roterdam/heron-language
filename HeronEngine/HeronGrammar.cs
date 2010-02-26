@@ -127,7 +127,7 @@ namespace HeronEngine
         public static Rule ForParams = NoFail(Token("(") + Name + Initializer + Eos + CompoundExpr + Eos + CompoundExpr + Token(")"));
         public static Rule ForStatement = Store("for", Token("for") + NoFail(ForParams + DelayedStatement));
 	    public static Rule ExprStatement = Store("exprstatement", CompoundExpr + Eos);
-        public static Rule ReturnStatement = Store("return", Token("return") + NoFail(CompoundExpr + Eos));
+        public static Rule ReturnStatement = Store("return", Token("return") + NoFail(Opt(CompoundExpr) + Eos));
 	    public static Rule CaseStatement = Store("case", Token("case") + NoFail(ParanthesizedExpr + CodeBlock));
 	    public static Rule DefaultStatement = Store("default", (Token("default") + NoFail(CodeBlock)));
         public static Rule CaseGroup = Store("casegroup", Star(CaseStatement));

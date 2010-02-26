@@ -29,7 +29,7 @@ namespace HeronEngine
             Console.WriteLine("HeronEngine.exe");
             Console.WriteLine("    by Christopher Diggins");
             Console.WriteLine("    version 0.9.1");
-            Console.WriteLine("    February 15th, 2010");
+            Console.WriteLine("    February 24th, 2010");
             Console.WriteLine("");
             Console.WriteLine("Usage: ");
             Console.WriteLine("  HeronEngine.exe inputfile.heron ");
@@ -63,11 +63,17 @@ namespace HeronEngine
         /// Loads, parses, and executes ta file
         /// </summary>
         /// <param name="s"></param>
-        static public void RunFile(string file)
+        static public void RunFile(string sFile)
         {
             VM vm = new VM();
             vm.InitializeVM();
-            vm.EvalFile(file);
+            ModuleDefn m = vm.LoadModule(sFile);
+            vm.LoadDependentModules(sFile);
+            vm.ResolveTypesInModules();
+
+            timeStarted = DateTime.Now;
+
+            vm.RunModule(m);
         }
         
         /// <summary>
@@ -116,9 +122,7 @@ namespace HeronEngine
                     OutputPrimitives();
                 if (Config.runUnitTests)
                     HeronTests.MainTest();
-               
-                
-                timeStarted = DateTime.Now;
+
                 if (args.Length != 1)
                 {
                     Usage();
@@ -132,6 +136,10 @@ namespace HeronEngine
 
                 if (Config.showTiming)
                     PrintTimeElapsed();
+            }
+            catch (VMException e)
+            {
+                e.OutputErrorMessage();
             }
             catch (Exception e)
             {

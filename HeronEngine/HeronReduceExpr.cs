@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Parallel;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Collections.Concurrent;
 
 namespace HeronEngine
 {
@@ -18,22 +20,69 @@ namespace HeronEngine
         [HeronVisible] public string a;
         [HeronVisible] public string b;
         [HeronVisible] public Expression list;
-        [HeronVisible] public Expression expr;
+        [HeronVisible] public Expression yield;
 
         public ReduceExpr(string a, string b, Expression list, Expression expr)
         {
             this.a = a;
             this.b = b;
             this.list = list;
-            this.expr = expr;
+            this.yield = expr;
         }
 
         public override HeronValue Eval(VM vm)
         {
-            SeqValue seq = vm.EvalList(list);
-            List<HeronValue> input = new List<HeronValue>(seq.ToDotNetEnumerable(vm));
-            HeronValue[] output = Eval_MultiThreaded(vm, input.ToArray()).ToArray();
-            return new ListValue(output as System.Collections.Generic.IEnumerable<HeronValue>);
+            IInternalIndexable ii = vm.EvalInternalList(list);
+            HeronValue[] output = new HeronValue[ii.InternalCount()];
+            ParallelOptions po = new ParallelOptions();
+            po.MaxDegreeOfParallelism = Config.maxThreads;
+            var p = Partitioner.Create(1, ii.InternalCount());
+
+            if (ii.InternalCount() == 0)
+                return new ListValue();
+
+            HeronValue result = ii.InternalAt(0);
+            object resultLock = new Object();
+
+            Parallel.ForEach(
+                p,
+                po,
+                () =>
+                {
+                    LoopParams lp = new LoopParams();
+                    lp.op = new OptimizationParams();
+                    lp.acc = lp.op.AddNewAccessor(a);
+                    lp.acc2 = lp.op.AddNewAccessor(b);
+                    lp.vm = vm.Fork();
+                    lp.expr = yield.Optimize(lp.op);
+                    return lp;
+                },
+                (Tuple<int, int> range, ParallelLoopState state, LoopParams lp) =>
+                {
+                    if (range.Item1 == range.Item2)
+                        return lp;
+
+                    lp.acc.Set(ii.InternalAt(range.Item1));
+                    
+                    for (int i = range.Item1 + 1; i < range.Item2; ++i)
+                    {
+                        lp.acc2.Set(ii.InternalAt(i));
+                        lp.acc.Set(lp.vm.Eval(lp.expr));
+                    }
+
+                    // Update the result 
+                    lock (resultLock)
+                    {
+                        lp.acc2.Set(result);
+                        result = lp.vm.Eval(lp.expr);
+                    }
+
+                    return lp;
+                },
+                (LoopParams lp) => { }
+                );
+
+            return new ArrayValue(new HeronValue[] { result });
         }
 
         public override Expression Optimize(OptimizationParams op)
@@ -41,66 +90,9 @@ namespace HeronEngine
             return this;
         }
 
-        private void ReduceArray(VM vm, HeronValue[] input, int begin, int cnt)
-        {
-            OptimizationParams op = new OptimizationParams();
-            Accessor A = op.AddNewAccessor(a);
-            Accessor B = op.AddNewAccessor(b);
-            Expression X = expr.Optimize(op);
-
-            while (cnt > 1)
-            {
-                int cur = begin;
-
-                for (int i = 0; i < cnt - 1; i += 2)
-                {
-                    A.Set(input[begin + i]);
-                    B.Set(input[begin + i + 1]);
-                    input[cur++] = vm.Eval(X);
-                }
-
-                if (cnt % 2 == 1)
-                {
-                    input[cur++] = input[begin + cnt - 1];
-                }
-
-                int r = cur - begin;
-                Debug.Assert(r >= 1);
-                Debug.Assert(r < cnt);
-                cnt = r;
-            }
-        }
-
-        public void ReduceArrayTask(VM vm, HeronValue[] input, HeronValue[] output, int i, int tasks)
-        {
-            int cnt = input.Length / tasks;
-            if (input.Length % tasks > 0)
-                cnt += 1;
-            int begin = i * cnt;
-            if (begin + cnt > input.Length)
-                cnt = input.Length - begin;
-
-            ReduceArray(vm, input, begin, cnt);
-            output[i] = input[begin];
-        }
-
-        public List<HeronValue> Eval_MultiThreaded(VM vm, HeronValue[] input)
-        {
-            int nTasks = Config.maxThreads;
-            if (input.Length < nTasks * 4)
-                nTasks = 1; 
-
-            HeronValue[] output = new HeronValue[nTasks];
-            ParallelOptions po = new ParallelOptions();
-            po.MaxDegreeOfParallelism = nTasks;
-            Parallel.For(0, nTasks, po, (int i) => ReduceArrayTask(vm.Fork(), input, output, i, nTasks));
-            ReduceArray(vm, output, 0, nTasks);
-            return new List<HeronValue>() { output[0] };
-        }
-
         public override string ToString()
         {
-            return "reduce (" + a + ", " + b + " in " + list.ToString() + ") " + expr.ToString();
+            return "reduce (" + a + ", " + b + " in " + list.ToString() + ") " + yield.ToString();
         }
 
         public override HeronType GetHeronType()
