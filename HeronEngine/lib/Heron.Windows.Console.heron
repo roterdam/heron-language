@@ -6,6 +6,11 @@ module Heron.Windows.Console
         {
             Console.WriteLine(s);
         }
+
+        WriteLine()
+        {
+            Console.WriteLine();
+        }
         
         Write(s : String)
         {
@@ -19,7 +24,7 @@ module Heron.Windows.Console
         
         ReadKey() : Char
         {
-            return Console.ReadKey().get_Keychar();
+            return Console.ReadKey().get_KeyChar();
         }
     }
 }

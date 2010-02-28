@@ -244,7 +244,7 @@ namespace HeronEngine
             HeronValue f = m.GetFieldOrMethod("Meta");
             if (f == null)
                 return;
-            f.Apply(this, new HeronValue[] { });
+            f.Apply(this, new HeronValue[] { program });
         }
 
         public void RunMain(ModuleInstance m)
@@ -711,7 +711,12 @@ namespace HeronEngine
                 if (CurrentFrame.self is ModuleInstance)
                     return CurrentFrame.self as ModuleInstance;
                 else
-                    return CurrentFrame.self.GetModuleInstance();
+                {
+                    if (CurrentFrame.self == null)
+                        return null;
+                    else
+                        return CurrentFrame.self.GetModuleInstance();
+                }
             }
         }
     }

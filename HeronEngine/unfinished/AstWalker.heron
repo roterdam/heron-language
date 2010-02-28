@@ -1,151 +1,115 @@
-﻿module PrettyPrinting
+module AstWalking
 {
 	methods
 	{
-		Meta(p : ProgramDefn)
-		{
-			new PrettyPrinter(p);
-		}
-		Main()
-		{
-		}
 	}
 }
 
-class PrettyPrinterBase
+class Name
+{
+    fields
+    {
+        name : String;
+        defn : Any;
+        uses : List;
+    }
+}
+
+class Scope
+{
+    fields
+    {   
+        declaredNames : Seq;
+        usedNames : Seq;        
+    }
+}
+
+interface IAstVisitor
+{
+}
+
+class NameResolver
 {
 	fields
 	{
-		indent : String;
-		atNewLine : Bool;
+	    IAstVisitor v;
+        program : ProgramDefn?;
+        module : ModuleDefn?;
+        class : ClassDefn?;
+        interface : InterfaceDefn?;
+        enum : EnumDefn?;
+        function : FunctionDefn?;
+        statementStack : List;
+        scopeStack : List;
 	}
 	methods
-	{		
-		Constructor()
+	{	
+	    Constructor(IAstVisitor v)
+	    {
+	        this.v = v;
+	        env = new Environment;	        
+	        // TODO: after a constructor, make sure everything is created. 
+	    }
+	    Visit(x : ProgramDefn)
+	    {
+	        program = x;
+	        foreach (m in x.GetModules())
+	            v.Visit(m);
+	        program = null;
+	    }	
+	    Visit(x : ModuleDefn)
+	    {	       
+	        module = x;
+	        foreach (a in x.GetInherits())
+	            v.VisitBaseModule(a);
+	        foreach (a in x.GetImports())
+	            v.Visit(a);
+	        foreach (a in x.GetMethods())
+	            v.Visit(a);
+	        foreach (a in x.GetFields())
+	            v.Visit(a);
+	        foreach (a in x.GetClasses())
+	            v.Visit(a);
+	        foreach (a in x.GetInterfaces())
+	            v.Visit(a);
+	        foreach (a in x.GetEnums())
+	            v.Visit(a);
+	        module = null;	            	            
+	    }
+		Visit(x : ClassDefn)
 		{
-			indent = new String();
-			atNewLine = false;
+		    class = x;
+	        foreach (a in x.GetMethods())
+	            v.Visit(a);
+	        foreach (a in x.GetFields())
+	            v.Visit(a);
+	        v.VisitBaseClass(x.GetBaseClass());
+	        class = null;
 		}
-		Write(s : String)
+		Visit(x : InterfaceDefn)
 		{
-			if (atNewLine)
-			{
-				atNewLine = false;
-				Console.WriteLine();
-				Console.Write(indent);
-			} 
-			Console.Write(s);
+		    interface = x;
+	        foreach (a in x.GetMethods())
+	            v.Visit(a);
+	        foreach (a in x.GetBaseInterfaces())
+	            v.VisitInheritedInterface(a);
+	        interface = null;
 		}
-		WriteLine()
+		Visit(x : EnumDefn)
 		{
-			Write("");
-			atNewLine = true;
-		}			
-		WriteLine(s : String)
+		    enum = x;
+		    foreach (a in x.GetValues())
+		        v.VisitEnumValue(a);
+		    enum = null;		        
+		}	
+		Visit(x : FunctionDefn)
 		{
-			Write(s);
-			atNewLine = true;
-		}
-		Indent(f : Function)
+		    function = x;
+		    
+		    function = null;
+		}	
+		Visit(x : FieldDefn)
 		{
-			var old_indent = indent;
-			indent = indent + "  ";
-			f();
-			indent = old_indent;				
-		}
-		BracesAround(f : Function)
-		{
-			WriteLine("{");
-			Indent(f);
-			WriteLine("}");
-		}			
-	}			
-}
-
-class PrettyPrinter
-{
-	inherits 
-	{
-		PrettyPrinterBase;
-	}
-	methods
-	{					
-		Constructor(program : ProgramDefn)
-		{
-			base.Constructor();
-			foreach (m in program.GetModules())
-				Output(m);
-			WriteLine("");
-		}   
-		OutputAll(xs : Seq)
-		{
-			foreach (x in xs)
-				Output(x);
-		}						
-		Output(m : ModuleDefn)
-		{
-			Write("module ");
-			WriteLine(m.name);
-			BracesAround(function() 
-				{
-					OutputSection("inherits", m.GetInheritedClasses());
-					OutputSection("imports", m.GetImports());
-					OutputSection("fields", m.GetFields());
-					OutputSection("methods", m.GetDeclaredMethods());
-				});
-			OutputAll(m.GetClasses());
-			OutputAll(m.GetInterfaces());
-			OutputAll(m.GetEnums());
-		}
-		OutputSection(name : String, xs : Seq)
-		{
-			WriteLine(name);
-			BracesAround(
-				function() {
-					OutputAll(xs);
-				});
-		}
-		OutputList(xs : List, sDelim : String)
-		{
-			foreach (i in 0..xs.Count() - 1) {
-				if (i > 0)
-					Write(sDelim);
-				Output(xs[i]);
-			}
-		}
-		Output(c : ClassDefn)
-		{
-			Write("class ");				
-			WriteLine(c.name);
-			BracesAround(function() 
-				{
-					OutputSection("inherits", c.GetInheritedClasses());
-					OutputSection("implements", c.GetImplementedInterfaces());				
-					OutputSection("fields", c.GetFields());
-					OutputSection("methods", c.GetDeclaredMethods());
-				});
-		}
-		Output(i : InterfaceDefn)
-		{
-			Write("interface ");
-			WriteLine(i.name);
-			BracesAround(function()
-				{
-					OutputSection("inherits", i.GetInheritedInterfaces());
-					OutputSection("methods", i.GetDeclaredMethods());
-				});
-		}
-		Output(e : EnumDefn)
-		{
-			Write("enum ");
-			WriteLine(e.name);
-			WriteLine("{ }");
-		}
-		Output(f : FieldDefn)
-		{
-			Write(f.name);
-			OutputTypeDecl(f.type);
-			WriteLine(";");			
 		}
 		Output(t : Type)
 		{
@@ -354,7 +318,7 @@ class PrettyPrinter
 			Write(" " + x.operation + " ");
 			Output(x.operand2);
 		}
-		Output(x : FunExpr)
+		Output(x : AnonFunExpr)
 		{
 			Write("function (");				
 			OutputList(x.formals, ", ");
@@ -378,17 +342,19 @@ class PrettyPrinter
 			Write(") ");
 			Output(x.predicate);
 		}
-		Output(x : MapExpr)
+		Output(x : MapEachExpr)
 		{
-			Write("map (");
+		    CurrentScope.AddNewName(x.name, x);
+			Write("mapeach (");
 			Write(x.name);
 			Write(" in ");
 			Output(x.list);
 			Write(") ");
 			Output(x.yield);
 		}
-		Output(x : AccumulateExpr)
+		Visit(x : AccumulateExpr)
 		{
+		    new Scope();
 			Write("accumulate (");
 			Write(x.acc);
 			Write(" = ");
@@ -400,43 +366,8 @@ class PrettyPrinter
 			WriteLine(")");
 			Output(x.expr);
 		}
-		Output(x : TupleExpr)
-		{
-			Write("[");
-			OutputList(x.exprs, ", ");
-			Write("]");
+		Visit(x : TupleExpr)
+		{		   
 		}
 	}
 }
-
-enum TestEnum
-{
-	EnumValue1;
-	EnumValue2;
-}
-
-interface TestInterface
-{
-	methods 
-	{
-		F();
-		G(x : Int, y : Int) : Int;
-	}
-}
-
-class TestClass
-{
-	fields
-	{
-		x : Int;
-		y : Int;
-	}
-	methods
-	{
-		F(a : Int) : Int
-		{
-			x = a;
-			return y;
-		}
-	}
-}		

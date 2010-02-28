@@ -57,7 +57,14 @@ namespace HeronEngine
             RegisterDotNetType(typeof(Math));
             RegisterDotNetType(typeof(File));
             RegisterDotNetType(typeof(Directory));
-            RegisterDotNetType(typeof(Regex));
+            RegisterDotNetType(typeof(System.Text.RegularExpressions.Regex));
+            RegisterDotNetType(typeof(System.Text.RegularExpressions.Capture));
+            RegisterDotNetType(typeof(System.Text.RegularExpressions.CaptureCollection));
+            RegisterDotNetType(typeof(System.Text.RegularExpressions.Group));
+            RegisterDotNetType(typeof(System.Text.RegularExpressions.GroupCollection));
+            RegisterDotNetType(typeof(System.Text.RegularExpressions.Match));
+            RegisterDotNetType(typeof(System.Text.RegularExpressions.MatchCollection));
+            RegisterDotNetType(typeof(System.Text.RegularExpressions.RegexOptions));
 
             // Load other libraries specified in the configuration file
             foreach (string lib in Config.libs)

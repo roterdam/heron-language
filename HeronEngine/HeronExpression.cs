@@ -267,8 +267,22 @@ namespace HeronEngine
             }
             else if (lvalue is ReadAt)
             {
-                // TODO: 
-                // This is for "ta[x] = y"
+                ReadAt ra = lvalue as ReadAt;
+                HeronValue self = vm.Eval(ra.self);
+                HeronValue index = vm.Eval(ra.index);
+                ListValue list = self as ListValue;
+                if (list != null)
+                {
+                    list.SetAtIndex(index, val);
+                    return val;
+                }
+                ArrayValue array = self as ArrayValue;
+                if (array != null)
+                {
+                    array.SetAtIndex(index, val);
+                    return val;
+                }
+
                 throw new Exception("Unimplemented");
             }
             else
@@ -723,7 +737,7 @@ namespace HeronEngine
 
         public override HeronType GetHeronType()
         {
-            return PrimitiveTypes.AnonFunExpr;
+            return PrimitiveTypes.FunExpr;
         }
     }
 

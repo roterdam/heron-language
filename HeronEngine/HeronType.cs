@@ -18,10 +18,12 @@ namespace HeronEngine
     /// </summary>
     public class HeronType : HeronValue 
     {
-        [HeronVisible]
-        public string name = "anonymous_type";
-
-        protected ModuleDefn module;
+        [HeronVisible] public string name = "anonymous_type";
+        
+        // I tried to make the next two variables [HeronVisible] that caused an infinite loop.
+        // StoreExposedFunctionsAndFields
+        public HeronType baseType = null;
+        public ModuleDefn module = null;
         
         Type type;
         Dictionary<string, ExposedMethodValue> functions = new Dictionary<string, ExposedMethodValue>();
@@ -33,6 +35,16 @@ namespace HeronEngine
         {
             module = m;
             type = t;
+            Debug.Assert(t != null);
+            this.name = name;
+            StoreExposedFunctionsAndFields();
+        }
+
+        public HeronType(HeronType baseType, ModuleDefn m, Type t, string name)
+        {
+            module = m;
+            type = t;
+            this.baseType = baseType;
             Debug.Assert(t != null);
             this.name = name;
             StoreExposedFunctionsAndFields();
@@ -211,6 +223,15 @@ namespace HeronEngine
         public virtual HeronType Resolve(ModuleDefn m)
         {
             return this;
+        }
+
+        public bool IsAssignableFrom(HeronType type)
+        {
+            if (Equals(type)) return true;
+            if (type.baseType != null)
+                return IsAssignableFrom(type.baseType);
+            else
+                return false;
         }
     }
 

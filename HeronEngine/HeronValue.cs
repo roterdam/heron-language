@@ -164,7 +164,7 @@ namespace HeronEngine
 
         public virtual HeronValue As(HeronType t)
         {
-            if (t.Equals(GetHeronType()))
+            if (GetHeronType().IsAssignableFrom(GetHeronType()))
                 return this;
             if (t == PrimitiveTypes.AnyType)
                 return new AnyValue(this);

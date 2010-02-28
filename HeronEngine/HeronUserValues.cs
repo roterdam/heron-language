@@ -20,8 +20,6 @@ namespace HeronEngine
         public ClassInstance(ClassDefn c, ModuleInstance m)
         {
             cls = c;
-            if (m == null && !(this is ModuleInstance))
-                throw new Exception("Class is not associated with a module instance");
             module = m;
         }
 
@@ -342,8 +340,7 @@ namespace HeronEngine
         public ModuleInstance(ModuleDefn m, ModuleInstance i)
             : base(m, i)
         {
-            if (i != null)
-                throw new Exception("A module does not belong to a module");
+            //if (i != null) throw new Exception("A module does not belong to a module");
 
             if (m == null)
                 throw new Exception("Missing module");

@@ -7,7 +7,7 @@ Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "HeronSetup", "..\HeronSetup
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B69A0724-4612-413C-A9AF-9D50EF29F88C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApplication1", "..\ConsoleApplication1\ConsoleApplication1.csproj", "{AD052433-361F-4CF3-8637-4258CAF88C89}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WideFinder", "..\ConsoleApplication1\WideFinder.csproj", "{AD052433-361F-4CF3-8637-4258CAF88C89}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

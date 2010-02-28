@@ -215,6 +215,25 @@ namespace HeronEngine
         }
         #endregion
 
+        public void AddFields(ModuleInstance inst, ModuleInstance parent)
+        {
+            inst.AddField("this", inst);
+
+            foreach (FieldDefn field in GetFields())
+                inst.AddField(field.name, HeronValue.Null);
+
+            if (GetBaseClass() != null)
+            {
+                ModuleDefn baseMod = GetBaseClass() as ModuleDefn;
+                if (baseMod == null)
+                    throw new Exception("The base type of the module must be a module: " + GetBaseClass().name);
+
+                ModuleInstance baseInst = new ModuleInstance(baseMod, parent);
+                baseMod.AddFields(baseInst, parent);
+                inst.AddField("base", baseInst);
+            }
+        }
+
         public override HeronValue Instantiate(VM vm, HeronValue[] args, ModuleInstance m)
         {
             ModuleInstance r = new ModuleInstance(this, m);
@@ -282,7 +301,7 @@ namespace HeronEngine
         }
 
         [HeronVisible]
-        List<Import> GetImports()
+        public List<Import> GetImports()
         {
             return imports;
         }

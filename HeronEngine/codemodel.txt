@@ -377,6 +377,7 @@ primitive ModuleDefn
     AddDotNetType(s : System.String, t : System.Type) : System.Void;
     AddPrimitive(s : System.String, t : HeronEngine.HeronType) : System.Void;
     GetImportedModuleDefns() : System.Collections.Generic.IEnumerable`1[HeronEngine.ModuleDefn];
+    GetImports() : System.Collections.Generic.List`1[HeronEngine.ModuleDefn+Import];
     GetInheritedClasses() : System.Collections.Generic.IEnumerable`1[HeronEngine.ClassDefn];
     GetImplementedInterfaces() : System.Collections.Generic.IEnumerable`1[HeronEngine.HeronType];
     GetBaseClass() : HeronEngine.ClassDefn;

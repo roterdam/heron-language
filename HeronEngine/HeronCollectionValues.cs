@@ -364,7 +364,7 @@ namespace HeronEngine
         public override void SetAtIndex(HeronValue index, HeronValue val)
         {
             IntValue iv = index as IntValue;
-            if (iv != null)
+            if (iv == null)
                 throw new Exception("Can only use index lists using integers");
             list[iv.GetValue()] = val;
         }
