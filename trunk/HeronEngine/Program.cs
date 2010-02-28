@@ -22,20 +22,20 @@ namespace HeronEngine
         public static DateTime timeStarted;
 
         /// <summary>
-        /// Prints ta usage message to the console
+        /// Prints a usage message to the console
         /// </summary>
         static public void Usage()
         {
             Console.WriteLine("HeronEngine.exe");
             Console.WriteLine("    by Christopher Diggins");
-            Console.WriteLine("    version 0.9.1");
-            Console.WriteLine("    February 24th, 2010");
+            Console.WriteLine("    version 1.0 Alpha 1");
+            Console.WriteLine("    March 1st, 2010");
             Console.WriteLine("");
             Console.WriteLine("Usage: ");
             Console.WriteLine("  HeronEngine.exe inputfile.heron ");
             Console.WriteLine("");
-            Console.WriteLine("The configuration file 'config.xml' is loaded if it is found");
-            Console.WriteLine("in the same directory as the Heron executable.");
+            Console.WriteLine("The configuration file 'config.xml' is automatically loaded from");
+            Console.WriteLine("the same directory as the Heron executable.");
             Console.WriteLine("");
         }
 
