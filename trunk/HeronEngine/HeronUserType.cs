@@ -41,14 +41,10 @@ namespace HeronEngine
     /// </summary>
     public class FieldDefn : HeronValue
     {
-        [HeronVisible]
-        public string name;
-        [HeronVisible]
-        public HeronType type = PrimitiveTypes.AnyType;
-        [HeronVisible]
-        public bool nullable = false;
-        [HeronVisible]
-        public Expression expr;
+        [HeronVisible] public string name;
+        [HeronVisible] public HeronType type = PrimitiveTypes.AnyType;
+        [HeronVisible] public bool nullable = false;
+        [HeronVisible] public Expression expr;
 
         public void ResolveTypes(ModuleDefn m)
         {

@@ -1,4 +1,4 @@
-﻿module PrettyPrinting
+module PrettyPrinting
 {
 	methods
 	{
@@ -12,12 +12,77 @@
 	}
 }
 
-class PrettyPrinterBase
+type ClassTypeName = Record<name:String, type:ClassInstance>;
+type ModuleTypeName = Record<name:String, type:ModuleDefn>;
+type InterfaceType = Record<name:String, type:InterfaceDefn>;
+type EnumType = Record<name:String, type:EnumDefn>;
+
+union TypeName
+{
+    ClassTypeName;
+    ModuleTypeName; 
+    InterfaceTypeName;
+    EnumTypeName;
+    UnionTypeName;    
+    PrimitiveTypeName;
+}
+
+union VarName
+{
+    ClassInstanceVar;
+    ModuleInstanceVar;
+    InterfaceInstanceVar;
+    EnumValueVar;
+    EnumInstanceVar;
+    UnionInstanceVar; 
+}
+
+union VarName
+{
+    ClassInstanceVar;
+    ModuleInstanceVar;
+    InterfaceInstanceVar;
+    EnumValueVar;
+    EnumInstanceVar;
+    UnionInstanceVar; 
+}
+
+union Name 
+{    
+    ClassMethod;
+    InterfaceMethod;
+    MethodMethod;
+    TypeName;
+    UnknownName;
+}
+
+class Scope
+{
+    fields
+    {   
+        declaredNames : Seq;
+        usedNames : Seq;        
+    }
+}
+
+class Environment
+{
+    fields 
+    {
+        program : ProgramDefn;
+        module : ModuleDefn;
+        class : ClassDefn;
+        function : FunctionDefn;
+        statementStack : List;
+        scopeStack : List;
+    }        
+}
+
+class AstWalker
 {
 	fields
 	{
-		indent : String;
-		atNewLine : Bool;
+	    env : Environment
 	}
 	methods
 	{		
@@ -76,7 +141,7 @@ class PrettyPrinter
 			foreach (m in program.GetModules())
 				Output(m);
 			WriteLine("");
-		}   
+		}
 		OutputAll(xs : Seq)
 		{
 			foreach (x in xs)
@@ -354,7 +419,7 @@ class PrettyPrinter
 			Write(" " + x.operation + " ");
 			Output(x.operand2);
 		}
-		Output(x : FunExpr)
+		Output(x : AnonFunExpr)
 		{
 			Write("function (");				
 			OutputList(x.formals, ", ");
@@ -378,9 +443,9 @@ class PrettyPrinter
 			Write(") ");
 			Output(x.predicate);
 		}
-		Output(x : MapExpr)
+		Output(x : MapEachExpr)
 		{
-			Write("map (");
+			Write("mapeach (");
 			Write(x.name);
 			Write(" in ");
 			Output(x.list);
@@ -408,35 +473,3 @@ class PrettyPrinter
 		}
 	}
 }
-
-enum TestEnum
-{
-	EnumValue1;
-	EnumValue2;
-}
-
-interface TestInterface
-{
-	methods 
-	{
-		F();
-		G(x : Int, y : Int) : Int;
-	}
-}
-
-class TestClass
-{
-	fields
-	{
-		x : Int;
-		y : Int;
-	}
-	methods
-	{
-		F(a : Int) : Int
-		{
-			x = a;
-			return y;
-		}
-	}
-}		

@@ -33,12 +33,12 @@ namespace HeronEngine
         public static HeronType StringType = new HeronType(null, typeof(StringValue), "String");
         
         // Heron collection types
-        public static HeronType IteratorType = new HeronType(null, typeof(IteratorValue), "Iterator");
         public static HeronType SeqType = new HeronType(null, typeof(SeqValue), "Seq");
-        public static HeronType ListType = new HeronType(null, typeof(ListValue), "List");
-        public static HeronType ArrayType = new HeronType(null, typeof(ArrayValue), "Array");
-        public static HeronType RecordType = new HeronType(null, typeof(RecordValue), "Record");
-        public static HeronType TableType = new HeronType(null, typeof(TableValue), "Table");
+        public static HeronType IteratorType = new HeronType(SeqType, null, typeof(IteratorValue), "Iterator");
+        public static HeronType ListType = new HeronType(SeqType, null, typeof(ListValue), "List");
+        public static HeronType ArrayType = new HeronType(SeqType, null, typeof(ArrayValue), "Array");
+        public static HeronType RecordType = new HeronType(SeqType, null, typeof(RecordValue), "Record");
+        public static HeronType TableType = new HeronType(SeqType, null, typeof(TableValue), "Table");
 
         // Misc types
         public static HeronType TypeType = new HeronType(null, typeof(HeronType), "Type");
@@ -94,7 +94,7 @@ namespace HeronEngine
         public static HeronCodeModelType FunCall = new HeronCodeModelType(typeof(FunCall));
         public static HeronCodeModelType UnaryOperation = new HeronCodeModelType(typeof(UnaryOperation));
         public static HeronCodeModelType BinaryOperation = new HeronCodeModelType(typeof(BinaryOperation));
-        public static HeronCodeModelType AnonFunExpr = new HeronCodeModelType(typeof(FunExpr));
+        public static HeronCodeModelType FunExpr = new HeronCodeModelType(typeof(FunExpr));
         public static HeronCodeModelType PostIncExpr = new HeronCodeModelType(typeof(PostIncExpr));
         public static HeronCodeModelType SelectExpr = new HeronCodeModelType(typeof(SelectExpr));
         public static HeronCodeModelType MapExpr = new HeronCodeModelType(typeof(MapExpr));

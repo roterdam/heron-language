@@ -1,85 +1,125 @@
 module NQueens
 {
-	fields
-	{
-		n : Int = 4;
-		sols : List = new List();
-	}
-	methods
-	{
+    inherits
+    {
+        Heron.Windows.Console;
+    }
+    fields
+    {
+        n : Int = 4;
+        sols : List = new List();
+    }
+    methods
+    {
+        PosToString(row : Int, col : Int) : String
+        {
+            return "row " + row.ToString() + ", col " + col.ToString();
+        }
         AddQueen(b : Board, row : Int, col : Int)
         {
-            var r = new Board(b);
-            if (!r.TryAddQueen(row, col))
+            //b.Output();
+            //WriteLine();
+            //ReadKey();
+
+            if (!b.TryAddQueen(row, col))
                 return;
-            if (row < n)
+            
+            if (row < n - 1)
                 foreach (i in 0..n-1)
-                   AddQueen(b, row + 1, col);
+                   AddQueen(new Board(b), row + 1, i);
             else
-                sols.Add(r);
+                sols.Add(b);
+        }        
+        Main() 
+        {
+            foreach (i in 0..n-1)
+                AddQueen(new Board(), 0, i);
+
+            foreach (b in sols)
+            {
+                b.Output();
+                WriteLine("");
+            }
+
+            WriteLine("Found " + sols.Count().ToString() + " solutions");
         }
-        
-		Main() 
-		{
-		    foreach (i in 0..n-1)
-		        AddQueen(new Board(), 0, i);
-		}
-	}
+    }
 }
 
 class Board
 {
     fields
     {
-        row = new List();
-        cols = new List();
+        rows = new List();
     }
     methods
     {
         Constructor()
         {
-            foreach (i in 0..n-1)
+            foreach (r in 0..n-1)
             {
-                rows.Add(false);
-                cols.Add(false);
-            }	                
+                var col = new List();
+                foreach (c in 0..n-1)
+                    col.Add(false);
+                rows.Add(col);
+            }
         }
         Constructor(b : Board)
         {
             Constructor();
-            foreach (i in 0..n-1)
-            {
-                rows[i] = b.rows[i];
-                cols[i] = b.cols[i];
-            }
+            foreach (r in 0..n-1)
+                foreach (c in 0..n-1)
+                    SetSpaceOccupied(r, c, b.SpaceOccupied(r, c));
         }
-        SpaceOccupied(row, col) : Bool
+        SpaceOccupied(row : Int, col : Int) : Bool
         {
-            return rows[i] && cols[i];
+            return rows[row][col];
         }
-        ValidPos(row, col) : Bool
+        SetSpaceOccupied(row : Int, col : Int, b : Bool) 
         {
-          return ((row >= 0) && (row < n)) && ((col >= 0) && (col < n)); 
+            rows[row][col] = b;
         }
-        DiagonalOccupied(row, col, rowDir, colDir) : Bool
+        ValidPos(row : Int, col : Int) : Bool
         {
-          if (SpaceOccupied(row, col)) return false;
-          var nextRow = row + rowDir;
-          var nextCol = col + colDir;
-          if (!ValidPos(row, col)) return false;
-          return DiagonalOccupied(nextRow, nextCol, rowDir, colDir);
+            return ((row >= 0) && (row < n)) && ((col >= 0) && (col < n)); 
         }
-        TryAddQueen(row, col) : Bool
+        VectorOccupied(row : Int, col : Int, rowDir : Int, colDir : Int) : Bool
         {
-            if (rows[row]) return false;
-            if (cols[col]) return false;
-            if (DiagonalOccupied(row, col, -1, -1)) return false;
-            if (DiagonalOccupied(row, col, -1, 1)) return false;
-            if (DiagonalOccupied(row, col, 1, -1)) return false;
-            if (DiagonalOccupied(row, col, 1, 1)) return false;
-            rows[row] = true;
-            cols[col] = true;
+            var nextRow = row + rowDir;
+            var nextCol = col + colDir;
+            if (!ValidPos(nextRow, nextCol)) 
+                return false;
+            if (SpaceOccupied(nextRow, nextCol)) 
+                return true;
+            return VectorOccupied(nextRow, nextCol, rowDir, colDir);
+        }
+        TryAddQueen(row : Int, col : Int) : Bool
+        {
+            foreach (rowDir in -1..1)
+                foreach (colDir in -1..1)
+                    if (rowDir != 0 || colDir != 0)
+                        if (VectorOccupied(row, col, rowDir, colDir))
+                            return false;
+            SetSpaceOccupied(row, col, true);
             return true;
+        }
+        Output()
+        {
+            foreach (row in 0..n-1)
+            {
+                foreach (col in 0..n-1)
+                {
+                    if (SpaceOccupied(row, col))
+                    {
+                        Write("Q");
+                    }
+                    else
+                    {
+                        Write(".");
+                    }
+                }
+                WriteLine("");
+            }
         }
     }
 }

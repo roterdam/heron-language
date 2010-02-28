@@ -424,8 +424,15 @@ namespace HeronEngine
 
         public override void Eval(VM vm)
         {
-            HeronValue result = vm.Eval(expression);
-            vm.Return(result);
+            if (expression != null)
+            {
+                HeronValue result = vm.Eval(expression);
+                vm.Return(result);
+            }
+            else
+            {
+                vm.Return(HeronValue.Void);
+            }
         }
 
         public override HeronType GetHeronType()

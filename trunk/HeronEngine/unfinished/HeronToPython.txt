@@ -1,19 +1,9 @@
-﻿module PrettyPrinting
+module HeronToPython
 {
-	methods
-	{
-		Meta(p : ProgramDefn)
-		{
-			new PrettyPrinter(p);
-		}
-		Main()
-		{
-		}
-	}
-}
-
-class PrettyPrinterBase
-{
+    inherits
+    {
+        IO;
+    }
 	fields
 	{
 		indent : String;
@@ -46,10 +36,14 @@ class PrettyPrinterBase
 			Write(s);
 			atNewLine = true;
 		}
+		IncreaseIndent() 
+		{
+			indent = indent + "  ";
+	    }
 		Indent(f : Function)
 		{
 			var old_indent = indent;
-			indent = indent + "  ";
+		    IncreasIndent();
 			f();
 			indent = old_indent;				
 		}
@@ -59,44 +53,34 @@ class PrettyPrinterBase
 			Indent(f);
 			WriteLine("}");
 		}			
-	}			
-}
-
-class PrettyPrinter
-{
-	inherits 
-	{
-		PrettyPrinterBase;
-	}
-	methods
-	{					
-		Constructor(program : ProgramDefn)
+		Output(program : ProgramDefn)
 		{
 			base.Constructor();
 			foreach (m in program.GetModules())
 				Output(m);
 			WriteLine("");
-		}   
+		}
 		OutputAll(xs : Seq)
 		{
 			foreach (x in xs)
 				Output(x);
-		}						
+		}	
 		Output(m : ModuleDefn)
 		{
-			Write("module ");
-			WriteLine(m.name);
-			BracesAround(function() 
-				{
-					OutputSection("inherits", m.GetInheritedClasses());
-					OutputSection("imports", m.GetImports());
-					OutputSection("fields", m.GetFields());
-					OutputSection("methods", m.GetDeclaredMethods());
-				});
-			OutputAll(m.GetClasses());
-			OutputAll(m.GetInterfaces());
-			OutputAll(m.GetEnums());
+			Write("class ");			
+			Write(m.name);
+			// TODO: deal with inheritance
+			WriteLine(":");
+			IncreasIndent();
+			
+			// Output variables
+			// Output methods
+			
+			//OutputAll(m.GetClasses());
+			//OutputAll(m.GetInterfaces());
+			//OutputAll(m.GetEnums());
 		}
+		/*
 		OutputSection(name : String, xs : Seq)
 		{
 			WriteLine(name);
@@ -354,7 +338,7 @@ class PrettyPrinter
 			Write(" " + x.operation + " ");
 			Output(x.operand2);
 		}
-		Output(x : FunExpr)
+		Output(x : AnonFunExpr)
 		{
 			Write("function (");				
 			OutputList(x.formals, ", ");
@@ -378,9 +362,9 @@ class PrettyPrinter
 			Write(") ");
 			Output(x.predicate);
 		}
-		Output(x : MapExpr)
+		Output(x : MapEachExpr)
 		{
-			Write("map (");
+			Write("mapeach (");
 			Write(x.name);
 			Write(" in ");
 			Output(x.list);
@@ -406,37 +390,5 @@ class PrettyPrinter
 			OutputList(x.exprs, ", ");
 			Write("]");
 		}
-	}
+	}*/
 }
-
-enum TestEnum
-{
-	EnumValue1;
-	EnumValue2;
-}
-
-interface TestInterface
-{
-	methods 
-	{
-		F();
-		G(x : Int, y : Int) : Int;
-	}
-}
-
-class TestClass
-{
-	fields
-	{
-		x : Int;
-		y : Int;
-	}
-	methods
-	{
-		F(a : Int) : Int
-		{
-			x = a;
-			return y;
-		}
-	}
-}		

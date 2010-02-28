@@ -27,6 +27,7 @@ module TestAll
 		TestRandom = new TestRandom();
 		TestReduce = new TestReduce();
         TestReturn = new TestReturn();
+        TestSelect = new TestSelect();
 		TestStatic = new TestStatic();
         TestTables = new TestTables();
         TestViewport = new TestViewport();
@@ -39,9 +40,11 @@ module TestAll
 			Factorial.Main();
 			Fibonacci.Main();
 			HelloWorld.Main();
-			PrettyPrinting.Main();
+			NQueens.Main();
+            PrettyPrinting.Main();
 			Sieve.Main();
 			Squares.Main();
+            TestAutoCtor.Main();
 			TestClosures.Main();
 			TestConstructor.Main();
 			TestDuckTyping.Main();
@@ -53,11 +56,15 @@ module TestAll
 			TestInheritance.Main();
 			TestInheritedConstructors.Main();
 			TestInterfaces.Main();
+            TestMap.Main();
 			TestModuleInheritance.Main();
 			TestOutput.Main();
 			TestRandom.Main();
+            TestReduce.Main();
 			TestReturn.Main();
+            TestSelect.Main();
 			TestStatic.Main();
+            TestTables.Main();
 			TestWhile.Main();
 		}
 	}
