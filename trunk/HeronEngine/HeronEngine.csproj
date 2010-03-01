@@ -129,7 +129,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="config-release.xml" />
     <Content Include="config.xml">
       <SubType>Designer</SubType>
     </Content>
@@ -182,6 +181,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="heron.bat" />
     <None Include="lib\Heron.Windows.Console.heron" />
     <None Include="lib\TestModule1.heron" />
     <None Include="lib\TestModule2.heron" />
