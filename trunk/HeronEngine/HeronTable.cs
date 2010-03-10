@@ -121,7 +121,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// A record is ta dictionary that can't add and remove values. 
+    /// A record is a dictionary that can't add and remove values. 
     /// </summary>
     public class RecordValue : SeqValue, IInternalIndexable
     {
@@ -244,7 +244,16 @@ namespace HeronEngine
         {
             if (HasKey(name))
                 return GetValue(name);
-            return base.GetFieldOrMethod(name);
+            else
+                return base.GetFieldOrMethod(name);
+        }
+
+        public override void SetField(string name, HeronValue val)
+        {
+            if (HasKey(name))
+                SetValue(name, val);
+            else
+                SetValue(name, val);
         }
 
         public override HeronValue[] ToArray()
@@ -273,7 +282,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// A record is ta dictionary that can't add and remove values. 
+    /// A record is a dictionary that can't add and remove values. 
     /// </summary>
     public class TableValue : SeqValue, IInternalIndexable
     {
@@ -408,6 +417,25 @@ namespace HeronEngine
         public override IInternalIndexable GetIndexable()
         {
             return this;
+        }
+
+        public IEnumerable<HeronValue> GetValues(int col)
+        {
+            foreach (RecordValue rv in values.Values)
+                yield return rv.GetValue(col);
+        }
+
+        [HeronVisible]
+        public HeronValue GetColumn(HeronValue column)
+        {
+            int nCol = -1;
+            if (column is StringValue)
+                nCol = layout.GetFieldIndex((column as StringValue).GetValue());
+            else if (column is IntValue)
+                nCol = (column as IntValue).ToInt();
+            else
+                throw new Exception("Can only retrieve columns by name (String) or index (Int)");
+            return new ListValue(GetValues(nCol));
         }
     }
 }

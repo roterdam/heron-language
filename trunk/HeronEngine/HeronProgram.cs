@@ -42,7 +42,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// This exposes ta set of globally recognized Heron and .NET 
+        /// This exposes a set of globally recognized Heron and .NET 
         /// types to the environment (essentially global variables).
         /// A simple way to extend the scope of Heron is to introduce
         /// new types in this function.
@@ -57,6 +57,14 @@ namespace HeronEngine
             RegisterDotNetType(typeof(Math));
             RegisterDotNetType(typeof(File));
             RegisterDotNetType(typeof(Directory));
+            RegisterDotNetType(typeof(Path));
+
+            RegisterDotNetType(typeof(Environment));
+            RegisterDotNetType(typeof(Environment.SpecialFolder));
+            RegisterDotNetType(typeof(Environment.SpecialFolderOption));
+            RegisterDotNetType(typeof(EnvironmentVariableTarget));
+            RegisterDotNetType(typeof(OperatingSystem));
+
             RegisterDotNetType(typeof(System.Text.RegularExpressions.Regex));
             RegisterDotNetType(typeof(System.Text.RegularExpressions.Capture));
             RegisterDotNetType(typeof(System.Text.RegularExpressions.CaptureCollection));
@@ -167,7 +175,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Returns ta list of names of modules that need to be imported
+        /// Returns a list of names of modules that need to be imported
         /// </summary>
         /// <returns></returns>
         public IEnumerable<string> GetUnloadedDependentModules()

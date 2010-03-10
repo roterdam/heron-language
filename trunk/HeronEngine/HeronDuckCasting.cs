@@ -16,7 +16,7 @@ namespace HeronEngine
     /// </summary>
     public class DuckValue : InterfaceInstance
     {
-        // TODO: I may want to change the requirement that DuckValue needs ta 
+        // TODO: I may want to change the requirement that DuckValue needs a 
         // class instances, same with interface instance
         public DuckValue(ClassInstance obj, InterfaceDefn i)
             : base(obj, i)

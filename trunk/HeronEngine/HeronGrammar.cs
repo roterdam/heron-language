@@ -66,19 +66,21 @@ namespace HeronEngine
         public static Rule BlockComment = (CharSeq("/*") + NoFail(AnyCharExcept(CloseFullComment) + CloseFullComment));
         public static Rule Comment = BlockComment | LineComment;
         public static Rule WS = Star(CharSet(" \t\n\r") | Comment);
-        public static Rule Symbol = CharSet(",") | Plus(CharSet(".~`!@#$%^&*-+|:<>=?/"));
+        public static Rule Symbol = CharSet(",") | Plus(CharSet(".~`!#$%^&*-+|:<>=?/"));
         public static Rule IntegerLiteral = Store("int", Opt(SingleChar('-')) + Plus(Digit));
         public static Rule EscapeChar = SingleChar('\\') + AnyChar;
         public static Rule StringCharLiteral = EscapeChar | NotChar('"');
+        public static Rule VerbStringCharLiteral = CharSeq("\"\"") | NotChar('"');
         public static Rule CharLiteral = Store("char", SingleChar('\'') + StringCharLiteral + SingleChar('\''));
         public static Rule StringLiteral = Store("string", (SingleChar('\"') + Star(StringCharLiteral) + SingleChar('\"')));
+        public static Rule VerbStringLiteral = Store("verbstring", (CharSeq("@\"") + NoFail(Star(VerbStringCharLiteral) + SingleChar('\"'))));
         public static Rule FloatLiteral = Store("float", Opt(SingleChar('-')) + Plus(Digit) + SingleChar('.') + Plus(Digit));
         public static Rule HexValue = Store("hex", Plus(HexDigit));
         public static Rule HexLiteral = CharSeq("0x") + NoFail(HexValue);
         public static Rule BinaryValue = Store("bin", Plus(BinaryDigit));
         public static Rule BinaryLiteral = CharSeq("0b") + NoFail(BinaryValue);
         public static Rule NumLiteral = HexLiteral | BinaryLiteral | FloatLiteral | IntegerLiteral;
-        public static Rule Literal = (StringLiteral | CharLiteral | NumLiteral) + WS;
+        public static Rule Literal = (VerbStringLiteral | StringLiteral | CharLiteral | NumLiteral) + WS;
         public static Rule Eos = Token(";");
         #endregion
 

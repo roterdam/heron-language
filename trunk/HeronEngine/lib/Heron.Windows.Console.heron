@@ -26,5 +26,10 @@ module Heron.Windows.Console
         {
             return Console.ReadKey().get_KeyChar();
         }
+
+        CreateTempFile() : String
+        {
+            return Path.GetTempFileName();
+        }
     }
 }

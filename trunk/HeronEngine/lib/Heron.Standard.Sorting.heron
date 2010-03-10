@@ -1,0 +1,18 @@
+﻿module Heron.Standard.Sorting
+{
+    methods
+    {
+        Sort(xs : List, compare : Function) : List 
+        {
+            if (xs.Count() < 2) 
+                return xs;
+            var pivot = xs[0];
+            var tail = xs.Range(1);
+            var as = Sort(select (x from tail) Compare(x, pivot) < 0);
+            var bs = Sort(select (x from tail) Compare(x, pivot) >= 0);
+            as.Add(pivot);
+            as.AddRange(bs);
+            return as;
+        }
+    }
+}

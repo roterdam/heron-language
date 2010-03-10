@@ -60,7 +60,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Loads, parses, and executes ta file
+        /// Loads, parses, and executes a file
         /// </summary>
         /// <param name="s"></param>
         static public void RunFile(string sFile)

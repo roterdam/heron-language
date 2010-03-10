@@ -15,8 +15,8 @@ namespace HeronEngine
 {
     /// <summary>
     /// Represents an object that can be applied to arguments (i.e. called)
-    /// You can think of this as ta member function bound to the this argument.
-    /// In C# this would be called ta delegate.
+    /// You can think of this as a member function bound to the this argument.
+    /// In C# this would be called a delegate.
     /// </summary>
     public class FunctionValue : HeronValue
     {
@@ -31,7 +31,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// This is ta second stage of construction needed for closures. 
+        /// This is a second stage of construction needed for closures. 
         /// It computes any free variables in the function, and binds them 
         /// to values
         /// </summary>
@@ -59,7 +59,7 @@ namespace HeronEngine
             // Iterate over all names used by expressions in the statement
             foreach (string name in st.GetUsedNames())
             {
-                // Is this not ta boundVar, and not already marked as ta free var
+                // Is this not a boundVar, and not already marked as a free var
                 if (!boundVars.Contains(name) && !result.HasName(name))
                 {
                     // Throws an exception if the name is not found
@@ -149,7 +149,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents ta group of similiar functions. 
+    /// Represents a group of similiar functions. 
     /// In most cases these would all have the same name. 
     /// This is class is used for dynamic resolution of overloaded function
     /// names.
@@ -180,7 +180,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// This is ta very primitive resolution function that only looks at the number of arguments 
+        /// This is a very primitive resolution function that only looks at the number of arguments 
         /// provided. A more sophisticated function would look at the types.
         /// </summary>
         /// <param name="funcs"></param>
@@ -204,7 +204,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Given ta list of arguments, it looks at the types and tries to find out which function 
+        /// Given a list of arguments, it looks at the types and tries to find out which function 
         /// in this list is the best match.
         /// </summary>
         /// <param name="list"></param>
@@ -213,7 +213,7 @@ namespace HeronEngine
         public FunctionValue FindBestMatch(List<FunctionValue> list, HeronValue[] args)
         {
             // Each iteration removes candidates. This list holds all of the matches
-            // Necessary, because removing items from ta list while we iterate it is hard.
+            // Necessary, because removing items from a list while we iterate it is hard.
             List<FunctionValue> tmp = new List<FunctionValue>(list);
             for (int pos = 0; pos < args.Length; ++pos)
             {
@@ -235,7 +235,7 @@ namespace HeronEngine
                 if (tmp.Count == 0)
                     throw new Exception("Could not resolve function " + name + " no function matches perfectly");
 
-                // We found ta single best match
+                // We found a single best match
                 if (tmp.Count == 1)
                     return tmp[0];
             }
@@ -244,7 +244,7 @@ namespace HeronEngine
             
             // There are multiple functions
             // Choose the function which is the most derived type.
-            // This is ta pretty awful hack to make up for ta bad design. 
+            // This is a pretty awful hack to make up for a bad design. 
             int n = 0;
             FunctionValue best = null;
             foreach (FunctionValue fv in list)
@@ -301,9 +301,9 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents ta member function that is bound to the "this" value.
-    /// Just like ta C# delegate. Note that when you get ta method from ta PrimitiveValue
-    /// you have to convert it to ta BoundMethodValue.
+    /// Represents a member function that is bound to the "this" value.
+    /// Just like a C# delegate. Note that when you get a method from a PrimitiveValue
+    /// you have to convert it to a BoundMethodValue.
     /// </summary>
     public class BoundMethodValue : HeronValue
     {
