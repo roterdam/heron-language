@@ -14,7 +14,7 @@ using System.Diagnostics;
 namespace HeronEngine
 {
     /// <summary>
-    /// An attribute used to identify methods and properties on ta HeronValue derived type 
+    /// An attribute used to identify methods and properties on a HeronValue derived type 
     /// which are to be exposed automatically to Heron. The exposed functions are managed by PrimitiveType.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property)]    
@@ -70,7 +70,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Treats this value as ta function and calls it.
+        /// Treats this value as a function and calls it.
         /// </summary>
         /// <param name="vm"></param>
         /// <param name="funcs"></param>
@@ -81,7 +81,7 @@ namespace HeronEngine
         }
         
         /// <summary>
-        /// Given ta name returns the appropriate field (or method)
+        /// Given a name returns the appropriate field (or method)
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
@@ -189,7 +189,7 @@ namespace HeronEngine
 
     #region special values
     /// <summary>
-    /// Used to represent void types, which are non-value returned from ta function.
+    /// Used to represent void types, which are non-value returned from a function.
     /// </summary>
     public class VoidValue : HeronValue
     {
@@ -205,7 +205,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents ta null value (called NULL or nil in other languages
+    /// Represents a null value (called NULL or nil in other languages
     /// </summary>
     public class NullValue : HeronValue
     {

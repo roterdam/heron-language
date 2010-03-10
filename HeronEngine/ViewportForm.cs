@@ -99,7 +99,7 @@ namespace HeronStandardLibrary
                 foreach (ViewportCmd cmd in mCmds)
                     cmd(this);
 
-                // TODO: replace this call with ta bit block transfer API call
+                // TODO: replace this call with a bit block transfer API call
                 e.Graphics.DrawImageUnscaled(bmp, 0, 0);
             }
             finally

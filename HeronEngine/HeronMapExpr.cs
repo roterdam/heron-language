@@ -11,9 +11,9 @@ using System.Collections.Concurrent;
 namespace HeronEngine
 {
     /// <summary>
-    /// Represents ta map expression.
-    /// This transforms ta list of N items into ta list of N items by 
-    /// applying ta unary function to each item in the list.
+    /// Represents a map expression.
+    /// This transforms a list of N items into a list of N items by 
+    /// applying a unary function to each item in the list.
     /// </summary>
     public class MapExpr : Expression
     {
@@ -33,18 +33,34 @@ namespace HeronEngine
             return this;
         }
          
+        /// <summary>
+        /// Evaluates the map operation 
+        /// </summary>
+        /// <param name="vm">Current state of virtual machine</param>
+        /// <returns>An ArrayValue containing new values</returns>
         public override HeronValue Eval(VM vm)
         {   
+            // internal structure for indexing lists
             IInternalIndexable ii = vm.EvalInternalList(list);
+
+            // Array of values used for output of map operations
             HeronValue[] output = new HeronValue[ii.InternalCount()];
+            
+            // Create a parallel options object to limit parallelism
             ParallelOptions po = new ParallelOptions();
             po.MaxDegreeOfParallelism = Config.maxThreads;
-            var p = Partitioner.Create(0, ii.InternalCount());
+            
+            // Create a partitioner
+            var partitioner = Partitioner.Create(0, ii.InternalCount());
+            
             Parallel.ForEach(
-                p,
+                // Breaks the for loop up into sub-ranges
+                partitioner, 
+                // Parellel options
                 po,
-                () =>
-                {
+                // Initialization of thread-local variables
+                () => 
+                {  
                     LoopParams lp = new LoopParams();
                     lp.op = new OptimizationParams();
                     lp.acc = lp.op.AddNewAccessor(name);
@@ -52,6 +68,7 @@ namespace HeronEngine
                     lp.expr = yield.Optimize(lp.op);
                     return lp;
                 },
+                // Loop body
                 (Tuple<int, int> range, ParallelLoopState state, LoopParams lp) =>
                 {
                     for (int i = range.Item1; i < range.Item2; ++i)
@@ -61,6 +78,7 @@ namespace HeronEngine
                     }
                     return lp;
                 },
+                // Finalization function
                 (LoopParams lp) => { }
                 );
 

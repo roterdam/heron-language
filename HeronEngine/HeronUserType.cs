@@ -36,7 +36,7 @@ namespace HeronEngine
     }   
 
     /// <summary>
-    /// Represents the definition of ta member field of ta Heron class. 
+    /// Represents the definition of a member field of a Heron class. 
     /// Like "MethodInfo" in C#.
     /// </summary>
     public class FieldDefn : HeronValue
@@ -74,7 +74,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents ta field of ta class derived from HeronValue
+    /// Represents a field of a class derived from HeronValue
     /// </summary>
     public class ExposedField : FieldDefn
     {

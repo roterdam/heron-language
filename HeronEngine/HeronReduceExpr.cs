@@ -11,8 +11,8 @@ using System.Collections.Concurrent;
 namespace HeronEngine
 {
     /// <summary>
-    /// Represents ta reduce expression.
-    /// This transforms ta list of N items into ta list of 1 items (unless N == 0) by 
+    /// Represents a reduce expression.
+    /// This transforms a list of N items into a list of 1 items (unless N == 0) by 
     /// applying an associative binary function to items in the list. 
     /// </summary>
     public class ReduceExpr : Expression

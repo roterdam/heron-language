@@ -1,0 +1,17 @@
+﻿module TestFileIO
+{
+    inherits
+    {
+        Heron.Windows.Console;
+    }
+	methods
+	{
+		Main()			
+		{
+            var filename = CreateTempFile();
+            File.WriteAllText(filename, "Hello World");
+            var contents = File.ReadAllText(filename);
+            WriteLine(contents);
+		}
+	}
+}

@@ -58,7 +58,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// An enumerator that is the result of ta range operator (ta..tb)
+    /// An enumerator that is the result of a range operator (a..b)
     /// </summary>
     public class RangeEnumerator
         : IteratorValue, IInternalIndexable
@@ -135,7 +135,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Used by IHeronEnumerableExtension to convert any IHeronEnumerable into ta 
+    /// Used by IHeronEnumerableExtension to convert any IHeronEnumerable into a 
     /// an IEnumerable, so that we can use "foreach" statements
     /// </summary>
     public class HeronToEnumeratorAdapter
@@ -212,8 +212,8 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents ta sequence, which is ta collection which can only be
-    /// iterated over once. It is constructed from ta Heron enumerator
+    /// Represents a sequence, which is a collection which can only be
+    /// iterated over once. It is constructed from a Heron enumerator
     /// </summary>
     public abstract class SeqValue
         : HeronValue
@@ -275,7 +275,7 @@ namespace HeronEngine
     }
    
     /// <summary>
-    /// Represents ta collection which can be iterated over multiple times.
+    /// Represents a collection which can be iterated over multiple times.
     /// </summary>
     public class ListValue
         : SeqValue, IInternalIndexable
@@ -314,6 +314,15 @@ namespace HeronEngine
         public void Add(HeronValue v)
         {
             list.Add(v);
+        }
+
+        [HeronVisible]
+        public void AddRange(HeronValue v)
+        {
+            ListValue l = v as ListValue;
+            if (l == null)
+                throw new Exception("Can only add a list value as a range");
+            list.AddRange(l.InternalList());
         }
 
         [HeronVisible]
@@ -404,7 +413,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents ta collection which can be iterated over multiple times.
+    /// Represents a collection which can be iterated over multiple times.
     /// </summary>
     public class ArrayValue
         : SeqValue, IInternalIndexable

@@ -1,0 +1,46 @@
+module WideFinder
+{
+    imports
+    {
+        sorting = new Heron.Standard.Sorting();
+        console = new Heron.Windows.Console();
+    }
+	methods
+	{
+		Main()
+		{
+            var lines = File.ReadAllLines(@"C:\dev\heron\HeronEngine\testdata\wide-finder-test-data.txt");
+            var dict = table(url:String, cnt:Int) { };
+            var re = new Regex(@"GET /ongoing/When/\d\d\dx/(\d\d\d\d/\d\d/\d\d/[^ \.]+)");
+
+            foreach (line in lines)
+            {
+                var m = re.Match(line);
+                if (m.get_Success())
+                {
+                    var c = m.get_Groups().ToList()[1].get_Captures().ToList()[0];
+                    var s = c.get_Value();
+                    if (!dict.HasKey(s))
+                        dict.Add([s, 1]); 
+                    else
+                        dict[s].cnt = dict[s].cnt + 1;
+                    // WriteLine(s);
+                }
+            }
+
+            WriteLine("Sorted the keys");
+
+            var ordered = Sort(
+                dict.GetColumn(0),
+                function (a, b) { 
+                    return dict[a].cnt - dict[b].cnt; 
+                }); 
+
+            foreach (i in 0..9)
+            {
+                var key = orderedKeys[i];
+                Console.WriteLine(key + " = " + dict[key].ToString());
+            }
+		}
+	}
+}

@@ -195,7 +195,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents an assignment to ta variable or member variable.
+    /// Represents an assignment to a variable or member variable.
     /// </summary>
     public class Assignment : Expression
     {
@@ -303,7 +303,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents access of ta member field (or method) of an object
+    /// Represents access of a member field (or method) of an object
     /// </summary>
     public class ChooseField : Expression
     {
@@ -381,7 +381,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents an expression that instantiates ta class.
+    /// Represents an expression that instantiates a class.
     /// </summary>
     public class NewExpr : Expression
     {
@@ -576,7 +576,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// An identifier expression. Could be ta function name, variable name, etc.
+    /// An identifier expression. Could be a function name, variable name, etc.
     /// </summary>
     public class Name : Expression
     {
@@ -612,7 +612,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents ta function call expression.
+    /// Represents a function call expression.
     /// </summary>
     public class FunCall : Expression
     {
@@ -649,7 +649,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents an expression with ta unary operator. That is with one operand (e.g. the not operator '!' or the negation operator '-').
+    /// Represents an expression with a unary operator. That is with one operand (e.g. the not operator '!' or the negation operator '-').
     /// This does not include the post-increment operator.
     /// </summary>
     public class UnaryOperation : Expression
@@ -686,8 +686,8 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// An anonymous function expression. An anonymous function may be ta closure, 
-    /// if it has free variables. A free variable is ta variable that is not local
+    /// An anonymous function expression. An anonymous function may be a closure, 
+    /// if it has free variables. A free variable is a variable that is not local
     /// to the function and that is not an argument.
     /// </summary>
     public class FunExpr : Expression
@@ -782,7 +782,7 @@ namespace HeronEngine
 
     /// <summary>
     /// Represents an expression that involves the accumulate operator.
-    /// This transforms ta list into ta single value by applying ta binary function
+    /// This transforms a list into a single value by applying a binary function
     /// to an accumulator and each item in the list consecutively.
     /// </summary>
     public class AccumulateExpr : Expression
@@ -836,7 +836,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents ta literal list expression, such as [1, 'q', "hello"]
+    /// Represents a literal list expression, such as [1, 'q', "hello"]
     /// </summary>
     public class TupleExpr : Expression
     {
@@ -867,8 +867,8 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents ta literal table expression, such as 
-    ///   table(ta:Int, s:String) { 1, "one"; 2, "two"; }
+    /// Represents a literal table expression, such as 
+    ///   table(a:Int, s:String) { 1, "one"; 2, "two"; }
     /// </summary>
     public class TableExpr : Expression
     {
@@ -933,8 +933,8 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents ta literal record expression, such as 
-    ///   record(ta:Int, s:String) { 1, "one" }
+    /// Represents a literal record expression, such as 
+    ///   record(a:Int, s:String) { 1, "one" }
     /// </summary>
     public class RecordExpr : Expression
     {

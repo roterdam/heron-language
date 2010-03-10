@@ -1,0 +1,14 @@
+﻿module HelloWorld
+{
+    inherits
+    {
+        Heron.Windows.Console;
+    }
+	methods
+	{
+		Main()			
+		{
+			WriteLine("Hello World");
+		}
+	}
+}

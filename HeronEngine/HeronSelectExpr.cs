@@ -9,7 +9,7 @@ namespace HeronEngine
 {
     /// <summary>
     /// Represents an expression involving the "select" operator
-    /// which filters ta list depending on ta predicate.
+    /// which filters a list depending on a predicate.
     /// </summary>
     public class SelectExpr : Expression
     {
