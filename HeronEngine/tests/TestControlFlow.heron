@@ -1,0 +1,30 @@
+﻿module TestForLoop
+{		
+    imports {
+        Console = new Heron.Windows.Console();
+    }
+	methods {
+		Main() {
+            // Your plain old C style for loop
+			for (i = 0; i < 5; i++)
+				WriteLine("Hello world " + i.ToString());
+            
+            // Written in more idiomatic Heron
+			foreach (i in 0..4)
+				WriteLine("Hello world " + i.ToString());
+			
+            // Now using a while loop
+            var i = 0;
+			while (i < 5)
+			{
+				WriteLine("Hello World " + i.ToString());
+				i += 1;
+			}
+
+            // Now with if statements
+			foreach (i in 0..9)
+                if (i % 2 == 0)
+				    WriteLine("Hello world " + (i / 2).ToString());
+		}
+	}
+}
