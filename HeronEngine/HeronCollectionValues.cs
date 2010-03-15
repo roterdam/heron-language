@@ -311,6 +311,19 @@ namespace HeronEngine
         }
 
         [HeronVisible]
+        public HeronValue Slice(IntValue from, IntValue cnt)
+        {
+            int nCnt = cnt.GetValue();
+            int nFrom = from.GetValue();
+            List<HeronValue> r = new List<HeronValue>();
+            for (int i=0; i < nCnt; ++i)
+            {
+                r.Add(list[i + nFrom]);
+            }
+            return new ListValue(r);
+        }
+
+        [HeronVisible]
         public void Add(HeronValue v)
         {
             list.Add(v);
@@ -319,10 +332,10 @@ namespace HeronEngine
         [HeronVisible]
         public void AddRange(HeronValue v)
         {
-            ListValue l = v as ListValue;
-            if (l == null)
+            SeqValue sv = v as SeqValue;
+            if (sv == null)
                 throw new Exception("Can only add a list value as a range");
-            list.AddRange(l.InternalList());
+            list.AddRange(sv.ToList().InternalList());
         }
 
         [HeronVisible]
@@ -450,7 +463,7 @@ namespace HeronEngine
         {
             IntValue iv = index as IntValue;
             if (iv == null)
-                throw new Exception("Can only use index array using integers");
+                throw new Exception("Can only index an array using integers");
             return array[iv.GetValue()];
         }
 
@@ -458,7 +471,7 @@ namespace HeronEngine
         {
             IntValue iv = index as IntValue;
             if (iv == null)
-                throw new Exception("Can only use index array using integers");
+                throw new Exception("Can only index an array using integers");
             array[(index as IntValue).GetValue()] = val;
         }
 
@@ -502,6 +515,89 @@ namespace HeronEngine
         public override IInternalIndexable GetIndexable()
         {
             return this;
+        }
+    }
+
+    public class SliceValue : SeqValue, IInternalIndexable
+    {
+        ListValue list;
+        int from;
+        int cnt;
+
+        public SliceValue(ListValue list, int from, int cnt)
+        {
+            this.list = list;
+            this.from = from;
+            this.cnt = cnt;
+        }
+
+        public override HeronValue[] ToArray()
+        {
+            HeronValue[] a = new HeronValue[InternalCount()];
+            for (int i = 0; i < cnt ; ++i)
+                a[i + from] = list.InternalAt(i);
+            return a;
+        }
+
+        public IEnumerable<HeronValue> GetEnumerable()
+        {
+            return ToArray();
+        }
+
+        public override IteratorValue GetIterator()
+        {
+            return new ListToIterValue(GetEnumerable());
+        }
+
+        public override ListValue ToList()
+        {
+            return new ListValue(GetEnumerable());
+        }
+
+        public override IInternalIndexable GetIndexable()
+        {
+            return this;
+        }
+
+        #region IInternalIndexable Members
+
+        public int InternalCount()
+        {
+            return cnt;
+        }
+
+        public HeronValue InternalAt(int n)
+        {
+            return list.InternalAt(from + n);
+        }
+
+        [HeronVisible]
+        public HeronValue Count()
+        {
+            return new IntValue(InternalCount());
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.SliceType;
+        }
+
+        #endregion
+
+        public override HeronValue GetAtIndex(HeronValue index)
+        {
+            IntValue iv = index as IntValue;
+            if (iv == null)
+                throw new Exception("Can only index slices using integers");
+            return list.GetAtIndex(new IntValue(iv.GetValue() + from)); 
+        }
+
+        public override void SetAtIndex(HeronValue index, HeronValue val)
+        {
+            IntValue iv = index as IntValue;
+            if (iv == null)
+                throw new Exception("Can only index slices using integers");
+            list.SetAtIndex(new IntValue(iv.GetValue() + from), val);
         }
     }
 }

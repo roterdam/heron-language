@@ -337,11 +337,11 @@ namespace HeronEngine
     /// </summary>
     public class ModuleInstance : ClassInstance
     {
+        public Dictionary<string, ModuleInstance> imports = new Dictionary<string, ModuleInstance>();
+
         public ModuleInstance(ModuleDefn m, ModuleInstance i)
             : base(m, i)
         {
-            //if (i != null) throw new Exception("A module does not belong to a module");
-
             if (m == null)
                 throw new Exception("Missing module");
         }
@@ -353,21 +353,32 @@ namespace HeronEngine
                 throw new Exception("Missing module");
             return m;
         }
-        
+
+        public HeronValue GetExportedFieldOrMethod(string name)
+        {
+            return base.GetFieldOrMethod(name);
+        }
+
         public override HeronValue GetFieldOrMethod(string name)
         {
+            if (imports.ContainsKey(name))
+                return imports[name];
             HeronValue r = base.GetFieldOrMethod(name);
-            if (r == null)
+            if (r != null)
+                return r;
+
+            List<HeronValue> candidates = new List<HeronValue>();
+            foreach (ModuleInstance m in imports.Values)
             {
-                foreach (ModuleInstance mi in GetImportedModuleInstances())
-                {
-                    ClassInstance ci = mi as ClassInstance;
-                    r = ci.GetFieldOrMethod(name);
-                    return r;
-                }
-                       // NOTE: BEWARE RECURSION!!!!
+                HeronValue tmp = m.GetExportedFieldOrMethod(name);
+                if (tmp != null)
+                    candidates.Add(tmp);
             }
-            return r;
+            if (candidates.Count > 1)
+                throw new Exception("Found mulitple module instances containing definition of " + name);
+            if (candidates.Count == 1)
+                return candidates[0];
+            return null;
         }
     }
     #endregion

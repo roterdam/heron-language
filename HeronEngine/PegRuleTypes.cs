@@ -628,7 +628,7 @@ namespace HeronEngine
         {
             get
             {
-                return "<" + mData + ">";
+                return mData;
             }
         }
 

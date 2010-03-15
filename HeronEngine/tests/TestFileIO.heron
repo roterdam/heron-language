@@ -1,8 +1,8 @@
 ﻿module TestFileIO
 {
-    inherits
+    imports
     {
-        Heron.Windows.Console;
+        Console = new Heron.Windows.Console();
     }
 	methods
 	{

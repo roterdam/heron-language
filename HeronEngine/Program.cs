@@ -28,8 +28,8 @@ namespace HeronEngine
         {
             Console.WriteLine("HeronEngine.exe");
             Console.WriteLine("    by Christopher Diggins");
-            Console.WriteLine("    version 1.0 Alpha 1");
-            Console.WriteLine("    March 1st, 2010");
+            Console.WriteLine("    version 1.0 Alpha 2");
+            Console.WriteLine("    March 14th, 2010");
             Console.WriteLine("");
             Console.WriteLine("Usage: ");
             Console.WriteLine("  HeronEngine.exe inputfile.heron ");

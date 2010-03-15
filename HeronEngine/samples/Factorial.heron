@@ -1,5 +1,9 @@
 module Factorial
 {
+    imports
+    {
+        Console = new Heron.Windows.Console();
+    }
 	fields
 	{
 		max = 10;

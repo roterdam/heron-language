@@ -13,6 +13,8 @@ module WideFinder
             var dict = table(url:String, cnt:Int) { };
             var re = new Regex(@"GET /ongoing/When/\d\d\dx/(\d\d\d\d/\d\d/\d\d/[^ \.]+)");
 
+            WriteLine("Counting entries");
+
             foreach (line in lines)
             {
                 var m = re.Match(line);
@@ -28,17 +30,20 @@ module WideFinder
                 }
             }
 
-            WriteLine("Sorted the keys");
-
-            var ordered = Sort(
-                dict.GetColumn(0),
+            WriteLine("Counted the entries");
+            WriteLine("Sorting the keys");
+            
+            var keys = dict.GetColumn(0);
+            keys = Sort(
+                keys,
                 function (a, b) { 
-                    return dict[a].cnt - dict[b].cnt; 
+                    return dict[b].cnt - dict[a].cnt; 
                 }); 
+            WriteLine("Sorted the keys");
 
             foreach (i in 0..9)
             {
-                var key = orderedKeys[i];
+                var key = keys[i];
                 Console.WriteLine(key + " = " + dict[key].ToString());
             }
 		}

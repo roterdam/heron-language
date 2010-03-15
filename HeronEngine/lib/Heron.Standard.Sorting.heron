@@ -6,13 +6,34 @@
         {
             if (xs.Count() < 2) 
                 return xs;
+            
+            if (xs.Count() == 2)
+            {
+                if (compare(xs[0], xs[1]) <= 0)
+                {
+                    return xs;
+                }
+                else
+                {
+                    return [xs[1], xs[0]];
+                }
+            }
+
             var pivot = xs[0];
-            var tail = xs.Range(1);
-            var as = Sort(select (x from tail) Compare(x, pivot) < 0);
-            var bs = Sort(select (x from tail) Compare(x, pivot) >= 0);
-            as.Add(pivot);
-            as.AddRange(bs);
-            return as;
+            var tail = xs.Slice(1, xs.Count() - 1);
+            
+            var as = select (x from tail) 
+                compare(x, pivot) <= 0;
+
+            var bs = select (x from tail) 
+                compare(x, pivot) > 0;
+
+            as = Sort(as, compare);
+            bs = Sort(bs, compare);
+            var r = as.ToList();
+            r.Add(pivot);
+            r.AddRange(bs);
+            return r;
         }
     }
 }

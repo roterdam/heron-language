@@ -39,9 +39,15 @@ namespace HeronEngine
         /// <param name="vm">Current state of virtual machine</param>
         /// <returns>An ArrayValue containing new values</returns>
         public override HeronValue Eval(VM vm)
-        {   
+        {
+            SeqValue sv = vm.Eval(list) as SeqValue;
+            if (sv == null)
+                throw new Exception("Expected list: " + list.ToString());
+
             // internal structure for indexing lists
-            IInternalIndexable ii = vm.EvalInternalList(list);
+            IInternalIndexable ii = sv.GetIndexable();
+            if (ii.InternalCount() == 0)
+                return sv;
 
             // Array of values used for output of map operations
             HeronValue[] output = new HeronValue[ii.InternalCount()];

@@ -55,13 +55,7 @@ namespace HeronEngine
         static private void Assure(ParseNode x, bool b, string s)
         {
             if (!b)
-                throw new Exception("Expression error: " + s);
-        }
-
-        static private void Assure(bool b, string s)
-        {
-            if (!b)
-                throw new Exception("Expression error: " + s);
+                throw new Exception("Expression error: " + s + ", while parsing: " + x.ToString());
         }
         #endregion
 
@@ -73,24 +67,10 @@ namespace HeronEngine
             {
                 foreach (ParseNode import in imports.Children)
                 {
-                    string modDefName = import.GetChild(0).ToString().RemoveInternalWSpace();
-                    
-                    // By default the alias of a module is its own name
-                    string modAlias = modDefName;
-                    // look for a defined alias "eg. MyModule as M"
-                    if (import.GetNumChildren() > 1 && import.GetChild(1).Label == "name")                     
-                        modAlias = import.GetChild(1).ToString();
-
-                    // Look for a module initialization expression
-                    if (import.HasChild("expr"))
-                    {
-                        Expression expr = CreateExpr(import.GetChild("expr"));
-                        m.AddImport(modAlias, modDefName, expr);
-                    }
-                    else
-                    {
-                        m.AddImport(modAlias, modDefName, null);
-                    }
+                    string modAlias = import.GetChild(0).ToString();
+                    string modDefName = import.GetChild(1).ToString().RemoveInternalWSpace();
+                    ExpressionList args = CreateCompoundExpr(import.GetChild(2));
+                    m.AddImport(modAlias, modDefName, args);
                 }
             }
 
@@ -522,7 +502,7 @@ namespace HeronEngine
         #endregion
 
         #region utility functions
-        public static char ToSpecialChar(char c)
+        public static char ToSpecialChar(ParseNode x, char c)
         {
             switch (c)
             {
@@ -537,36 +517,36 @@ namespace HeronEngine
                 case '\'':
                     return '\'';
                 default:
-                    Assure(false, "illegal char escape sequence \\" + c);
+                    Assure(x, false, "illegal char escape sequence \\" + c);
                     // Unreachable code added to avoid compilation error
                     return '?';
             }
         }
 
-        public char CharFromLiteral(string s)
+        public char CharFromLiteral(ParseNode x, string s)
         {
-            Assure(s.Length == 3 || s.Length == 4, "invalid char literal");
-            Assure(s[0] == '\'', "expected single quotation marks around char");
-            Assure(s[s.Length - 1] == '\'', "expected single quotation marks around char");
+            Assure(x, s.Length == 3 || s.Length == 4, "invalid char literal");
+            Assure(x, s[0] == '\'', "expected single quotation marks around char");
+            Assure(x, s[s.Length - 1] == '\'', "expected single quotation marks around char");
             if (s.Length == 3)
                 return s[1];
-            Assure(s[1] == '\\', "invalid char literal");
-            return ToSpecialChar(s[2]);
+            Assure(x, s[1] == '\\', "invalid char literal");
+            return ToSpecialChar(x, s[2]);
 
         }
 
-        public string StringFromLiteral(string s)
+        public string StringFromLiteral(ParseNode x, string s)
         {
-            Assure(s.Length >= 2, "invalid string");
-            Assure(s[0] == '"', "Expected quotation marks around string");
-            Assure(s[s.Length - 1] == '"', "Expected quotation marks around string");
+            Assure(x, s.Length >= 2, "invalid string");
+            Assure(x, s[0] == '"', "Expected quotation marks around string");
+            Assure(x, s[s.Length - 1] == '"', "Expected quotation marks around string");
             StringBuilder r = new StringBuilder();
             for (int i = 1; i < s.Length - 1; ++i)
             {
                 if (s[i] == '\\')
                 {
                     i++;
-                    r.Append(ToSpecialChar(s[i]));
+                    r.Append(ToSpecialChar(x, s[i]));
                     i++;
                 }
                 else
@@ -577,12 +557,12 @@ namespace HeronEngine
             return r.ToString();
         }
 
-        public string StringFromVerbatimLiteral(string s)
+        public string StringFromVerbatimLiteral(ParseNode x, string s)
         {
-            Assure(s.Length >= 3, "invalid string");
-            Assure(s[0] == '@', "Expected @ sign leading string");
-            Assure(s[1] == '"', "Expected quotation marks around string");
-            Assure(s[s.Length - 1] == '"', "Expected quotation marks around string");
+            Assure(x, s.Length >= 3, "invalid string");
+            Assure(x, s[0] == '@', "Expected @ sign leading string");
+            Assure(x, s[1] == '"', "Expected quotation marks around string");
+            Assure(x, s[s.Length - 1] == '"', "Expected quotation marks around string");
             StringBuilder r = new StringBuilder();
             for (int i = 2; i < s.Length - 1; ++i)
             {
@@ -635,8 +615,8 @@ namespace HeronEngine
             Expression modexpr = null;
             if (x.GetNumChildren() > 2)
                 modexpr = CreateExpr(x.GetChild(2));
-           
-            return new NewExpr(new UnresolvedType(GetTypeName(type, "Void")), CreateDelimitedExprList(args), modexpr);
+
+            return new NewExpr(new UnresolvedType(GetTypeName(type, "Void")), CreateCompoundExpr(args), modexpr);
         }
 
         MapExpr CreateMapExpr(ParseNode x)
@@ -694,7 +674,7 @@ namespace HeronEngine
 
         Expression CreatePrimaryExpr(ParseNode x, ref int i)
         {
-            Assure(i < x.GetNumChildren(), "sub-expression index went out of bounds");
+            Assure(x, i < x.GetNumChildren(), "sub-expression index went out of bounds");
             ParseNode child = x.GetChild(i);
 
             string sLabel = child.Label;
@@ -716,13 +696,13 @@ namespace HeronEngine
                     return new IntLiteral(int.Parse(sVal));
                 case "char":
                     i++;
-                    return new CharLiteral(CharFromLiteral(sVal));
+                    return new CharLiteral(CharFromLiteral(x, sVal));
                 case "string":
                     i++;
-                    return new StringLiteral(StringFromLiteral(sVal));
+                    return new StringLiteral(StringFromLiteral(x, sVal));
                 case "verbstring":
                     i++;
-                    return new StringLiteral(StringFromVerbatimLiteral(sVal));
+                    return new StringLiteral(StringFromVerbatimLiteral(x, sVal));
                 case "float":
                     i++;
                     return new FloatLiteral(float.Parse(sVal));
@@ -739,7 +719,7 @@ namespace HeronEngine
                     return CreateExpr(tmp);
                 case "bracketedexpr":
                     i++;
-                    return new TupleExpr(CreateDelimitedExprList(child));
+                    return new TupleExpr(CreateCompoundExpr(child));
                 case "map":
                     i++;
                     return CreateMapExpr(child);
@@ -758,25 +738,13 @@ namespace HeronEngine
             }
         }
 
-        ExpressionList CreateDelimitedExprList(ParseNode x)
-        {
-            Assure(x, x.Label == "paranexpr" || x.Label == "bracketedexpr", "Can only create argument lists from paranthesized or bracketed expression");
-            Assure(x, x.GetNumChildren() <= 1, "Must contain at most one compound expression");
-
-            // If there are no arguments, return an empty expression list
-            if (x.GetNumChildren() == 0)
-                return new ExpressionList();
-
-            return CreateCompoundExpr(x.GetChild(0));
-        }
-
         ExpressionList CreateCompoundExpr(ParseNode x)
         {
             ExpressionList r = new ExpressionList();
-            int i = 0;
-            while (i < x.GetNumChildren())
+            foreach (ParseNode child in x.Children)
             {
-                Expression tmp = CreateExpr(x, ref i);
+                int i = 0;
+                Expression tmp = CreateExpr(child, ref i);
                 r.Add(tmp);
             }
             return r;
@@ -802,7 +770,7 @@ namespace HeronEngine
                 else if (tmp.Label == "paranexpr")
                 {
                     i++;
-                    r = new FunCall(r, CreateDelimitedExprList(tmp));
+                    r = new FunCall(r, CreateCompoundExpr(tmp));
                 }
                 else if (tmp.ToString() == ".")
                 {
@@ -825,7 +793,7 @@ namespace HeronEngine
                 {
                     return r;
                 }
-                Assure(i > 0, "internal error, failed to advance sub-expression index");
+                Assure(x, i > 0, "internal error, failed to advance sub-expression index");
             }
 
             return r;
@@ -1086,7 +1054,7 @@ namespace HeronEngine
         /// <returns></returns>
         Expression CreateExpr(ParseNode x, ref int i)
         {
-            Assure(x.GetNumChildren() > 0, "Cannot create an expression from a node with no children");
+            Assure(x, x.GetNumChildren() > 0, "Cannot create an expression from a node with no children");
 
             int old = i;
             Expression r = CreateBasicExpr(x, ref i);
@@ -1115,7 +1083,7 @@ namespace HeronEngine
         {
             int i = 0;
             Expression r = CreateExpr(x, ref i);
-            Assure(i == x.GetNumChildren(), "Could not parse entire expression");
+            Assure(x, i == x.GetNumChildren(), "Could not parse entire expression");
             return r;
         }
         #endregion
