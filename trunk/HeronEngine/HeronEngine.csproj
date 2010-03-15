@@ -135,6 +135,8 @@
     <Content Include="Heron.ico" />
     <Content Include="license.txt" />
     <Content Include="readme.txt" />
+    <None Include="tests\TestSort.heron" />
+    <None Include="tests\TestLists.heron" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -193,31 +195,24 @@
     <None Include="samples\Squares.heron" />
     <None Include="samples\WideFinder.heron" />
     <None Include="tests\TestAll.heron" />
-    <None Include="tests\TestAutoCtor.heron" />
-    <None Include="tests\TestClosures.heron" />
     <None Include="tests\TestConstructor.heron" />
+    <None Include="tests\TestClosures.heron" />
     <None Include="tests\TestDuckTyping.heron" />
     <None Include="tests\TestField.heron" />
+    <None Include="samples\AllSamples.heron" />
     <Content Include="tests\TestFileIO.heron" />
-    <None Include="tests\TestForLoop.heron" />
-    <None Include="tests\TestFunctionCall.heron" />
-    <None Include="tests\TestIf.heron" />
-    <None Include="tests\TestImport.heron" />
+    <None Include="tests\TestControlFlow.heron" />
     <None Include="tests\TestInheritance.heron" />
-    <None Include="tests\TestInheritedConstructors.heron" />
     <None Include="tests\TestInterfaces.heron" />
     <None Include="tests\TestMap.heron" />
-    <None Include="tests\TestModuleInheritance.heron" />
     <None Include="tests\TestOutput.heron" />
     <None Include="tests\TestRandom.heron" />
     <None Include="tests\TestReduce.heron" />
-    <None Include="tests\TestReturn.heron" />
     <None Include="tests\TestSelect.heron" />
-    <None Include="tests\TestSort.heron" />
+    <None Include="samples\Sort.heron" />
     <None Include="tests\TestStatic.heron" />
     <None Include="tests\TestTables.heron" />
     <None Include="tests\TestViewport.heron" />
-    <None Include="tests\TestWhile.heron" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

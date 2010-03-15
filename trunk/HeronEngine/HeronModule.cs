@@ -15,15 +15,15 @@ namespace HeronEngine
     {
         public class Import : HeronValue
         {
-            [HeronVisible] public string alias;
             [HeronVisible] public string module;
-            [HeronVisible] public Expression expr;
+            [HeronVisible] public string alias;
+            [HeronVisible] public ExpressionList args;
 
-            public Import(string alias, string module, Expression expr)
+            public Import(string alias, string module, ExpressionList args)
             {
-                this.alias = alias;
                 this.module = module;
-                this.expr = expr;
+                this.alias = alias;
+                this.args = args;
             }
 
             public override HeronType GetHeronType()
@@ -36,7 +36,6 @@ namespace HeronEngine
         List<InterfaceDefn> interfaces = new List<InterfaceDefn>();
         List<EnumDefn> enums = new List<EnumDefn>();
         Dictionary<string, HeronType> types = new Dictionary<string, HeronType>();
-        Dictionary<string, string> aliases = new Dictionary<string, string>();
         List<Import> imports = new List<Import>();
         ProgramDefn program;
         string fileName = "no file";
@@ -238,15 +237,23 @@ namespace HeronEngine
         {
             ModuleInstance r = new ModuleInstance(this, m);
             AddFields(r, m);
-            foreach (string s in aliases.Keys)
-                r.AddField(s, HeronValue.Null);
+            foreach (Import i in imports)
+            {
+                ModuleDefn importModDef = vm.LookupModuleDefn(i.module);
+                HeronValue[] importArgs = vm.EvalList(i.args).ToArray();
+                ModuleInstance importInstance = importModDef.Instantiate(vm, args, r) as ModuleInstance;
+                if (importInstance == null)
+                    throw new Exception("Failed to create loaded module instance");
+                r.imports.Add(i.alias, importInstance);
+            }
             CallConstructor(vm, args, m, r);
             return r;
         }
 
         public IEnumerable<string> GetImportedModuleAliases()
         {
-            return aliases.Keys;
+            foreach (Import i in imports)
+                yield return i.alias;
         }
 
         public IEnumerable<string> GetImportedModuleNames()
@@ -258,16 +265,9 @@ namespace HeronEngine
             return r;
         }
 
-        public void AddImport(string sModAlias, string sModName, Expression expr)
+        public void AddImport(string sModAlias, string sModName, ExpressionList args)
         {
-            aliases.Add(sModAlias, sModName);
-            imports.Add(new Import(sModAlias, sModName, expr));
-            if (expr != null)
-            {
-                Assignment ass = new Assignment(new Name(sModAlias), expr);
-                ExpressionStatement st = new ExpressionStatement(ass);
-                GetAutoContructor().body.statements.Add(st);
-            }
+            imports.Add(new Import(sModAlias, sModName, args));
         }
 
         public bool IsImportedModule(string sModName)

@@ -1,56 +1,37 @@
-module TestHeron
+module TestSort
 {
-    inherits
+    imports
     {
-        Heron.Windows.Console;
+        sorting = new Heron.Standard.Sorting();
+        console = new Heron.Windows.Console();
     }
     methods
     {
-        AddRange(xs : List, ys : Seq)
+        TestSort(xs)
         {
-            foreach (y in ys)
-                xs.Add(y);
-        }
-        Swap(xs : List, a : Int, b : Int)
-        {
-            var tmp = xs[a];
-            xs[a] = xs[b];
-            xs[b] = tmp;
-        }
-        Sort(xs : List) : List
-        {
-            var n = xs.Length();
-            if (n < 2)
-                return xs;
-            else if (n == 2)
-            {
-                if (xs[0] > xs[1])
-                {
-                    return [xs[1], xs[0]];    
-                }
-                else 
-                {
-                    return xs;
-                }
-            }
-            else 
-            {
-              var mid = n / 2;
-              Swap(xs, 0, mid);
-              var pivot = xs[0];
-              ys = select (x from xs) where x < pivot;
-              zs = select (x from xs) where x > pivot;
-              r = ys;
-              r.Add(pivot);
-              AddRange(r, zs);
-              return r;
-            }
+            Write("Sorting input ");
+            WriteLine(xs.ToString());
+            var f = function(a, b) { return a - b; };
+            var ys = Sort(xs, f);
+            Write("Sorting output");
+            WriteLine(ys.ToString());
         }
         Main()
         {
-            var xs = [10, 3, 2, 4, 7, 1, 9, 8, 5, 6];
-            var ys = Sort(xs);
-            WriteLine(ys.ToString());
+            TestSort([]);
+            TestSort([1]);
+            TestSort([1, 2]);
+            TestSort([2, 1]);
+            TestSort([1, 1]);
+            TestSort([1, 2, 3]);
+            TestSort([3, 2, 1]);
+            TestSort([2, 2, 1]);
+            TestSort([2, 1, 1]);
+            TestSort([5, 3, 2, 4, 1]);
+            TestSort([5, 4, 3, 2, 1]);
+            TestSort([1, 2, 3, 4, 5]);
+            TestSort([1, 1, 1, 1, 1]);
+            TestSort([5, 3, 8, 2, 3, 9, 2, 1, 4]);
         }
     }
 }

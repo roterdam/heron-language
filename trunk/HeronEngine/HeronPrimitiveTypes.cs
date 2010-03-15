@@ -39,6 +39,7 @@ namespace HeronEngine
         public static HeronType ArrayType = new HeronType(SeqType, null, typeof(ArrayValue), "Array");
         public static HeronType RecordType = new HeronType(SeqType, null, typeof(RecordValue), "Record");
         public static HeronType TableType = new HeronType(SeqType, null, typeof(TableValue), "Table");
+        public static HeronType SliceType = new HeronType(SeqType, null, typeof(SliceValue), "Slice");
 
         // Misc types
         public static HeronType TypeType = new HeronType(null, typeof(HeronType), "Type");

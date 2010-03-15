@@ -269,17 +269,13 @@ namespace HeronEngine
         /// <returns></returns>
         public IEnumerable<HeronValue> EvalListAsDotNet(Expression list)
         {
-            IInternalIndexable ii = EvalInternalList(list);
-            for (int i = 0; i < ii.InternalCount(); ++i)
-                yield return ii.InternalAt(i);
-        }
-
-        public IInternalIndexable EvalInternalList(Expression list)
-        {
             SeqValue sv = Eval(list) as SeqValue;
             if (sv == null)
                 throw new Exception("Expected list: " + list.ToString());
-            return sv.GetIndexable();
+
+            IInternalIndexable ii = sv.GetIndexable();
+            for (int i = 0; i < ii.InternalCount(); ++i)
+                yield return ii.InternalAt(i);
         }
 
         /// <summary>
@@ -672,7 +668,6 @@ namespace HeronEngine
             return new FloatValue(x);
         }
 
-
         /// <summary>
         /// Gets the current statement.
         /// </summary>
@@ -718,6 +713,14 @@ namespace HeronEngine
                         return CurrentFrame.self.GetModuleInstance();
                 }
             }
+        }
+
+        public ModuleDefn LookupModuleDefn(string s)
+        {
+            foreach (ModuleDefn m in program.GetModules())
+                if (m.name == s)
+                    return m;
+            throw new Exception("Could not find module " + s);
         }
     }
 }

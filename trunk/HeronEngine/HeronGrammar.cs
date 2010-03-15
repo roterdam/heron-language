@@ -35,12 +35,12 @@ namespace HeronEngine
         
         public static Rule CommaList(Rule r)
         {
-            return Opt((r + Star(Token(",") + NoFail(r))));
+            return Opt(r + Star(Token(",") + NoFail(r)));
         }
 
         public static Rule SemiColonList(Rule r)
         {
-            return Opt((r + Star(Token(";") + NoFail(r))));
+            return Opt(r + Star(Token(";") + NoFail(r)));
         }
 
         public static Rule Paranthesized(Rule r)
@@ -66,10 +66,10 @@ namespace HeronEngine
         public static Rule BlockComment = (CharSeq("/*") + NoFail(AnyCharExcept(CloseFullComment) + CloseFullComment));
         public static Rule Comment = BlockComment | LineComment;
         public static Rule WS = Star(CharSet(" \t\n\r") | Comment);
-        public static Rule Symbol = CharSet(",") | Plus(CharSet(".~`!#$%^&*-+|:<>=?/"));
+        public static Rule Symbol = Plus(CharSet(".~`!#$%^&*-+|:<>=?/"));
         public static Rule IntegerLiteral = Store("int", Opt(SingleChar('-')) + Plus(Digit));
         public static Rule EscapeChar = SingleChar('\\') + AnyChar;
-        public static Rule StringCharLiteral = EscapeChar | NotChar('"');
+        public static Rule StringCharLiteral = EscapeChar | (Not(CharSet("\n\"")) + AnyChar);
         public static Rule VerbStringCharLiteral = CharSeq("\"\"") | NotChar('"');
         public static Rule CharLiteral = Store("char", SingleChar('\'') + StringCharLiteral + SingleChar('\''));
         public static Rule StringLiteral = Store("string", (SingleChar('\"') + Star(StringCharLiteral) + SingleChar('\"')));
@@ -95,7 +95,7 @@ namespace HeronEngine
 
         #region expression rules
         public static Rule DelayedBasicExpr = Delay("basicexpr", () => BasicExpr);
-        public static Rule NestedExpr = Delay("expr", () => CompoundExpr);
+        public static Rule DelayedExpr = Delay("expr", () => CompoundExpr);
         public static Rule SpecialDelimiter = Token("forall");
         public static Rule SpecialName = Token(Store("specialname", CharSeq("null") | CharSeq("true") | CharSeq("false")));
         public static Rule Name = Store("name", Not(SpecialDelimiter) + (Symbol | Ident)) + WS;
@@ -104,15 +104,15 @@ namespace HeronEngine
         public static Rule DelayedStatement = Delay("Statement", () => Statement);
         public static Rule CodeBlock = Store("codeblock", BracedGroup(DelayedStatement));
         public static Rule FunExpr = Store("funexpr", Token("function") + NoFail(ArgList + Opt(TypeDecl) + CodeBlock));
-        public static Rule ParanthesizedExpr = Store("paranexpr", Paranthesized(Opt(NestedExpr)));
-        public static Rule BracketedExpr = Store("bracketedexpr", Bracketed(Opt(NestedExpr)));
-        public static Rule NewExpr = Store("new", Token("new") + NoFail(TypeExpr + ParanthesizedExpr) + Opt(Token("from") + NestedExpr));
-        public static Rule SelectExpr = Store("select", Token("select") + NoFail(Token("(") + Name + Token("from") + NestedExpr + Token(")") + NestedExpr));
-        public static Rule AccumulateExpr = Store("accumulate", Token("accumulate") + NoFail(Token("(") + Name + Delay("Initializer", () => Initializer) + Token("forall") + Name + Token("in") +NestedExpr + Token(")") + NestedExpr));
-        public static Rule ReduceExpr = Store("reduce", Token("reduce") + NoFail(Token("(") + Name + Token(",") + Name + Token("in") + NestedExpr + Token(")") + NoFail(NestedExpr)));
-        public static Rule MapExpr = Store("map", Token("map") + NoFail(Token("(") + Name + Token("in") + NestedExpr + Token(")") + NoFail(NestedExpr)));
-        public static Rule Rows = Store("rows", NoFail(BracedGroup(NestedExpr + Eos)));
-        public static Rule RecordExpr = Store("record", Token("record") + NoFail(ArgList) + NoFail(Token("{")) + NoFail(NestedExpr) + NoFail(Token("}")));
+        public static Rule ParanthesizedExpr = Store("paranexpr", Paranthesized(CommaList(DelayedExpr)));
+        public static Rule BracketedExpr = Store("bracketedexpr", Bracketed(CommaList(DelayedExpr)));
+        public static Rule NewExpr = Store("new", Token("new") + NoFail(TypeExpr + ParanthesizedExpr) + Opt(Token("from") + DelayedExpr));
+        public static Rule SelectExpr = Store("select", Token("select") + NoFail(Token("(") + Name + Token("from") + DelayedExpr + Token(")") + DelayedExpr));
+        public static Rule AccumulateExpr = Store("accumulate", Token("accumulate") + NoFail(Token("(") + Name + Delay("Initializer", () => Initializer) + Token("forall") + Name + Token("in") +DelayedExpr + Token(")") + DelayedExpr));
+        public static Rule ReduceExpr = Store("reduce", Token("reduce") + NoFail(Token("(") + Name + Token(",") + Name + Token("in") + DelayedExpr + Token(")") + NoFail(DelayedExpr)));
+        public static Rule MapExpr = Store("map", Token("map") + NoFail(Token("(") + Name + Token("in") + DelayedExpr + Token(")") + NoFail(DelayedExpr)));
+        public static Rule Rows = Store("rows", NoFail(BracedGroup(DelayedExpr + Eos)));
+        public static Rule RecordExpr = Store("record", Token("record") + NoFail(ArgList) + NoFail(Token("{")) + NoFail(DelayedExpr) + NoFail(Token("}")));
         public static Rule TableExpr = Store("table", Token("table") + NoFail(ArgList) + NoFail(Rows));
         public static Rule BasicExpr = (NewExpr | MapExpr | SelectExpr | AccumulateExpr | ReduceExpr | FunExpr | TableExpr | RecordExpr | SpecialName | Name | Literal | ParanthesizedExpr | BracketedExpr);
         public static Rule CompoundExpr = Store("expr", Plus(BasicExpr));
@@ -155,7 +155,7 @@ namespace HeronEngine
         public static Rule Fields = Store("fields", Token("fields") + NoFail(BracedGroup(Field)));
         public static Rule Methods = Store("methods", Token("methods") + NoFail(BracedGroup(Method)));
         public static Rule EmptyMethods = Store("methods", Token("methods") + NoFail(BracedGroup(EmptyMethod)));
-        public static Rule Import = Store("import", TypeExpr + Opt(Token("as") + Name) + Opt(Initializer) + NoFail(Eos));
+        public static Rule Import = Store("import", Name + NoFail(Token("=")) + NoFail(Token("new")) + NoFail(TypeName) + NoFail(ParanthesizedExpr) + NoFail(Eos));
         public static Rule Imports = Store("imports", Token("imports") + NoFail(BracedGroup(Import)));
         public static Rule ClassBody = NoFail(Token("{") + Opt(Inherits) + Opt(Implements) + Opt(Fields) + Opt(Methods) + Token("}"));
         public static Rule Class = Store("class", Opt(Annotations) + Token("class") + NoFail(Name) + ClassBody);

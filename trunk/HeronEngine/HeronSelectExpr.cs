@@ -31,7 +31,15 @@ namespace HeronEngine
 
         public override HeronValue Eval(VM vm)
         {
-            IInternalIndexable ii = vm.EvalInternalList(list);
+            SeqValue sv = vm.Eval(list) as SeqValue;
+            if (sv == null)
+                throw new Exception("Expected list: " + list.ToString());
+
+            // internal structure for indexing lists
+            IInternalIndexable ii = sv.GetIndexable();
+            if (ii.InternalCount() == 0)
+                return sv;
+
             bool[] bools = new bool[ii.InternalCount()];
 
             ParallelOptions po = new ParallelOptions();

@@ -60,7 +60,11 @@ module TestTables
     
             t2.Add(rec2);
             WriteLine("Expect 'cinq'");
-            WriteLine(t2["five"].c);            
+            WriteLine(t2["five"].c);  
+            
+            t2["five"].c = 'cinqo';
+            WriteLine("Expect 'cinqo'");
+            WriteLine(t2["five"].c);                        
             
             var rec = record(b:Int, c:String, a:String)
             { 6, "six", "six" };

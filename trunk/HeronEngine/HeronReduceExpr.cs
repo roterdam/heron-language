@@ -32,14 +32,19 @@ namespace HeronEngine
 
         public override HeronValue Eval(VM vm)
         {
-            IInternalIndexable ii = vm.EvalInternalList(list);
+            SeqValue sv = vm.Eval(list) as SeqValue;
+            if (sv == null)
+                throw new Exception("Expected list: " + list.ToString());
+
+            // internal structure for indexing lists
+            IInternalIndexable ii = sv.GetIndexable();
+            if (ii.InternalCount() < 2)
+                return sv;
+
             HeronValue[] output = new HeronValue[ii.InternalCount()];
             ParallelOptions po = new ParallelOptions();
             po.MaxDegreeOfParallelism = Config.maxThreads;
             var p = Partitioner.Create(1, ii.InternalCount());
-
-            if (ii.InternalCount() == 0)
-                return new ListValue();
 
             HeronValue result = ii.InternalAt(0);
             object resultLock = new Object();
