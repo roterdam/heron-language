@@ -2,10 +2,11 @@
 <cfgxml>
     <pathlist name="inputpath">
         <path relative="true">tests</path>
+        <path relative="true">samples</path>
     </pathlist>
-    <bool name="rununittests">false</bool>
-    <bool name="outputgrammar">false</bool>
-    <bool name="outputprimitives">false</bool>
+    <bool name="rununittests">true</bool>
+    <bool name="outputgrammar">true</bool>
+    <bool name="outputprimitives">true</bool>
     <int name="maxthreads">-1</int>
     <bool name="showtiming">true</bool>
     <bool name="waitforkeypress">true</bool>

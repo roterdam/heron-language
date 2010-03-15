@@ -295,9 +295,9 @@ primitive Import
 {
   fields
   {
-    alias : System.String;
     module : System.String;
-    expr : HeronEngine.Expression;
+    alias : System.String;
+    args : HeronEngine.ExpressionList;
   }
   methods
   {

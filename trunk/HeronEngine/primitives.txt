@@ -155,7 +155,9 @@ primitive List
   }
   methods
   {
+    Slice(from : HeronEngine.IntValue, cnt : HeronEngine.IntValue) : HeronEngine.HeronValue;
     Add(v : HeronEngine.HeronValue) : System.Void;
+    AddRange(v : HeronEngine.HeronValue) : System.Void;
     Remove() : System.Void;
     Count() : HeronEngine.HeronValue;
     GetIterator() : HeronEngine.IteratorValue;
@@ -220,6 +222,19 @@ primitive Seq
     ToString() : System.String;
   }
 }
+primitive Slice
+{
+  fields
+  {
+  }
+  methods
+  {
+    GetIterator() : HeronEngine.IteratorValue;
+    ToList() : HeronEngine.ListValue;
+    Count() : HeronEngine.HeronValue;
+    ToString() : System.String;
+  }
+}
 primitive String
 {
   fields
@@ -247,6 +262,7 @@ primitive Table
     Add(record : HeronEngine.HeronValue) : System.Void;
     Remove(index : HeronEngine.HeronValue) : System.Void;
     HasKey(index : HeronEngine.HeronValue) : System.Boolean;
+    GetColumn(column : HeronEngine.HeronValue) : HeronEngine.HeronValue;
     ToList() : HeronEngine.ListValue;
     ToString() : System.String;
   }
