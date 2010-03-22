@@ -70,17 +70,19 @@ MapExpr ::== (map + WS + (! + WS! + (SpecialDelimiter^ + (Symbol | Ident))! + WS
 Method ::== (FunDecl + CodeBlock!)
 Methods ::== (methods + WS + {! + WS! + Method*! + }!! + WS!!)
 Module ::== (Annotations? + module + WS + (Ident + (. + WS + IdentFirstChar! + IdentNextChar*!)*)! + WS! + ModuleBody + TypeDefinition*)
-ModuleBody ::== ({! + WS! + Imports?! + Inherits?! + Fields?! + Methods?! + }! + WS!)
+ModuleBody ::== ({! + WS! + Imports?! + Fields?! + Methods?! + }! + WS!)
 Name ::== ((SpecialDelimiter^ + (Symbol | Ident)) + WS)
 NewExpr ::== (new + WS + TypeExpr! + ParanthesizedExpr! + (from + WS + DelayedExpr)?)
 NL ::== [\n]
 Nullable ::== ?
 NumLiteral ::== (HexLiteral | BinaryLiteral | FloatLiteral | IntegerLiteral)
 ParanthesizedExpr ::== (( + WS + (DelayedExpr + (, + WS + DelayedExpr!)*)?! + )! + WS!)
-RecordExpr ::== (record + WS + ArgList! + {! + WS! + DelayedExpr! + }! + WS!)
+RecordExpr ::== (record + WS + ArgList! + {! + WS! + RecordFields! + }! + WS!)
+RecordFields ::== (DelayedExpr + (, + WS + DelayedExpr!)*)?
 ReduceExpr ::== (reduce + WS + (! + WS! + (SpecialDelimiter^ + (Symbol | Ident))! + WS! + ,! + WS! + (SpecialDelimiter^ + (Symbol | Ident))! + WS! + in! + WS! + DelayedExpr! + )! + WS! + DelayedExpr!!)
 ReturnStatement ::== (return + WS + CompoundExpr?! + ;! + WS!)
-Rows ::== ({! + WS! + (DelayedExpr + Eos)*! + }!! + WS!!)
+Row ::== ((DelayedExpr + (, + WS + DelayedExpr!)*)? + Eos)
+Rows ::== ({! + WS! + Row*! + }!! + WS!!)
 SelectExpr ::== (select + WS + (! + WS! + (SpecialDelimiter^ + (Symbol | Ident))! + WS! + from! + WS! + DelayedExpr! + )! + WS! + DelayedExpr!)
 SpecialDelimiter ::== (forall + WS)
 SpecialName ::== ((null | true | false) + WS)

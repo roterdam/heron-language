@@ -55,7 +55,7 @@ namespace HeronEngine
         static private void Assure(ParseNode x, bool b, string s)
         {
             if (!b)
-                throw new Exception("Expression error: " + s + ", while parsing: " + x.ToString());
+                throw new ParsingException(x.msText, x.mnBegin, x.mnBegin + x.mnCount, null, s);
         }
         #endregion
 
@@ -211,7 +211,7 @@ namespace HeronEngine
             {
                 Assignment ass = new Assignment(new Name(s), initializers[s]);
                 ExpressionStatement st = new ExpressionStatement(ass);
-                defn.GetAutoContructor().body.statements.Add(st);                
+                defn.GetAutoContructor().body.statements.Add(st);
             }
         }
 
@@ -716,7 +716,7 @@ namespace HeronEngine
                     Assure(child, child.GetNumChildren() == 1, "can only have one expression node in a paranthesized expression");
                     ParseNode tmp = child.GetChild(0);
                     i++;
-                    return CreateExpr(tmp);
+                    return new ParanthesizedExpr(CreateExpr(tmp));
                 case "bracketedexpr":
                     i++;
                     return new TupleExpr(CreateCompoundExpr(child));
@@ -975,8 +975,8 @@ namespace HeronEngine
                 ++i;
                 TableExpr r = new TableExpr();
                 r.fielddefs = CreateFormalArgs(child.GetChild("arglist"));
-                foreach (ParseNode field in child.GetChild("rows").Children)
-                    r.AddRow(CreateCompoundExpr(field));
+                foreach (ParseNode row in child.GetChild("rows").Children)
+                    r.AddRow(CreateCompoundExpr(row));
                 return r;            
             }
             else if (child.Label == "record")
@@ -984,7 +984,7 @@ namespace HeronEngine
                 ++i;
                 RecordExpr r = new RecordExpr();
                 r.fielddefs = CreateFormalArgs(child.GetChild("arglist"));
-                r.fields = CreateCompoundExpr(child.GetChild("expr"));
+                r.fields = CreateCompoundExpr(child.GetChild("recordfields"));
                 return r;
             }
             else
@@ -1144,6 +1144,15 @@ namespace HeronEngine
             {
                 ModuleDefn r = (new HeronCodeModelBuilder(p)).CreateModule(node, sFileName);
                 return r;
+            }
+            catch (ParsingException e)
+            {
+                Console.WriteLine("Parsing exception occured in file " + sFileName);
+                Console.WriteLine("at character " + e.context.col + " of line " + e.context.row);
+                Console.WriteLine(e.context.msg);
+                Console.WriteLine(e.context.line);
+                Console.WriteLine(e.context.ptr);
+                throw;
             }
             catch (Exception e)
             {

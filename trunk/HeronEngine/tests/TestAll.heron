@@ -1,55 +1,53 @@
 module TestAll
 {
-	imports
-	{
+    imports
+    {
         AllSamples = new AllSamples();
-		TestClosures = new TestClosures();
-		TestConstructor = new TestConstructor();
-		TestControlFlow = new TestControlFlow();
-		TestDuckTyping = new TestDuckTyping();
-		TestField = new TestField();
+        TestClosures = new TestClosures();
+        TestConstructor = new TestConstructor();
+        TestControlFlow = new TestControlFlow();
+        TestDuckTyping = new TestDuckTyping();
+        TestField = new TestField();
         TestFileIO = new TestFileIO();
-		TestForLoop = new TestForLoop();
-		TestFunctionCall = new TestFunctionCall();
-		TestInheritance = new TestInheritance();
-		TestInterfaces = new TestInterfaces();
+        TestInheritance = new TestInheritance();
+        TestInterfaces = new TestInterfaces();
         TestLists = new TestLists();
-        TestMap = new TestMap();		
-        TestModuleInheritance = new TestModuleInheritance();
-		TestOutput = new TestOutput();
-		TestRandom = new TestRandom();
-		TestReduce = new TestReduce();
+        TestMap = new TestMap();
+        TestOutput = new TestOutput();
+        TestRandom = new TestRandom();
+        TestReduce = new TestReduce();
         TestSelect = new TestSelect();
         TestSort = new TestSort();
-		TestStatic = new TestStatic();
+        TestStatic = new TestStatic();
         TestTables = new TestTables();
-        TestViewport = new TestViewport();
-		TestWhile = new TestWhile();
-	}
-	methods
-	{
-		Main()
-		{
+        
+        // Not currently run.
+        // TestViewport = new TestViewport();
+    }
+    methods
+    {
+        Main()
+        {
             // Run the tests
-			TestClosures.Main();
-			TestConstructor.Main();
-			TestControlFlow.Main();
-			TestDuckTyping.Main();
-			TestField.Main();
+            TestClosures.Main();
+            TestConstructor.Main();
+            TestControlFlow.Main();
+            TestDuckTyping.Main();
+            TestField.Main();
             TestFileIO.Main();
-			TestInheritance.Main();
-			TestInterfaces.Main();
+            TestInheritance.Main();
+            TestInterfaces.Main();
             TestLists.Main();
             TestMap.Main();
-			TestOutput.Main();
-			TestRandom.Main();
+            TestOutput.Main();
+            TestRandom.Main();
             TestReduce.Main();
             TestSelect.Main();
             TestSort.Main();
-			TestStatic.Main();
+            TestStatic.Main();
             TestTables.Main();
 
             AllSamples.Main();
-		}
-	}
+        }
+    }
 }

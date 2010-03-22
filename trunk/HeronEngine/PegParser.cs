@@ -84,16 +84,22 @@ namespace HeronEngine
     /// </summary>
     public class ParserState
     {
-        int mIndex = 0;
+        int mIndex;
         int mExtent = 0;
         string mInput;
         ParseNode mTree;
         ParseNode mCur;
 
         public ParserState(string s)
+            : this(s, 0)
+        {
+        }
+
+        public ParserState(string s, int from)
         {
             mInput = s;
-            mTree = new ParseNode("ast", 0, mInput, null);
+            mIndex = from;
+            mTree = new ParseNode("ast", mIndex, mInput, null);
             mCur = mTree;
         }
 
@@ -238,6 +244,40 @@ namespace HeronEngine
             if (node.GetNumChildren() != 1)
                 throw new Exception("more than one child node parsed");
             return node.GetChild(0);
+        }
+    }
+
+    /// <summary>
+    /// Parse 
+    /// </summary>
+    public static class Parser
+    {
+        static public bool Parse(Rule r, string s, int from, out string output, out ParseNode node)
+        {
+            ParserState state = new ParserState(s, from);
+            node = state.Parse(r);
+            if (node != null)
+                output = s.Substring(from, state.GetPos());
+            else
+                output = "";
+            return node != null;
+        }
+
+        static public bool Parse(Rule r, string s, out string output, out ParseNode node)
+        {
+            return Parse(r, s, 0, out output, out node);
+        }
+
+        static public bool Parse(Rule r, string s, out string output)
+        {
+            ParseNode node;
+            return Parse(r, s, 0, out output, out node);
+        }
+
+        static public bool Parse(Rule r, string s, int from, out string output)
+        {
+            ParseNode node;
+            return Parse(r, s, from, out output, out node);
         }
     }
 }

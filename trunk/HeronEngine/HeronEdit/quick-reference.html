@@ -1,0 +1,47 @@
+<html><head><title>Heron Language Help</title>
+
+<meta name="author" content="Christopher Diggins" />
+<link rel="stylesheet" type="text/css" href="heron.css"/>
+</head>
+
+<body>
+
+<table width='100%' bgcolor='#ffffff'>
+<tr valign='top'>
+<td colspan="2">
+  <h2>Heron Quick Reference</h2>
+</td>
+</tr>
+<tr valign="top">
+<td width=50%>
+  <ul>
+    <li><b>File layout:</b> - Module declaration followed by type declarations.</li>
+    <li><b>Module:</b> - <code>module MyModule { imports { ... } fields { ... } methods { ... } }</code> </li>
+    <li><b>Class:</b> - <code>class MyClass { inherits { ... } fields { ... } methods { ... } }</code></li>
+    <li><b>Interface:</b> - <code>interface MyInterface { inherits { ... } methods { ... } }</code></li>
+    <li><b>Enum:</b> - <code>enum MyEnum { fields { valueName; } }</code></li>
+    <li><b>Control flow:</b> - <code>foreach</code>, <code>for</code>, <code>while</code>, <code>if</code>.</li> 
+    <li><b>List operators:</b> - <code>map</code>, <code>select</code>, <code>reduce</code>, <code>accumulate</code>.</li> 
+    <li><b>Arithmetic operators:</b> - <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>%</code>, <code>++</code>.</li>
+    <li><b>Comparison operators:</b> - <code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&lt;=</code>, <code>></code>, <code>></code>.</li>
+  </ul>
+</td>
+<td width=50%>
+  <ul>
+    <li><b>Boolean operators</b> - <code>&&</code>, <code>||</code></li>
+    <li><b>Heron types:</b> <code>Int</code>, <code>Char</code>, <code>String</code>, <code>Float</code>, <code>Bool</code>, <code>List</code>, <code>Seq</code>, <code>Function</code>.</li> 
+    <li><b>Integer ranges:</b> <code>[1..100]</code></li> 
+    <li><b>Strings:</b> <code>"hello world"</code></li> 
+    <li><b>Verbatim strings:</b> <code>@"hello world"</code></li>
+    <li><b>Characters:</b> <code>'a'</code></li>
+    <li><b>Booleans:</b> <code>true</code></li>
+    <li><b>Records:</b> <code>record (a:Int, b:String) { 42, "forty-two" }</code></li>        
+    <li><b>Tables:</b> <code>table (a:Int, b:String) { one, "one"; two, "two"; }</code></li>        
+    <li><b>Functions:</b> - <code>function (a:Int) { WriteLine(a.ToString()); }</code></li>
+  </ul>
+</td>
+</tr>    
+</table>
+
+</body>
+</html>

@@ -55,6 +55,7 @@ namespace HeronEngine
         public static HeronType ExternalMethodType = new HeronType(null, typeof(DotNetMethod), "ExternalMethod");
         public static HeronType ExternalStaticMethodListType = new HeronType(null, typeof(DotNetStaticMethodGroup), "ExternalStaticMethodList");
         public static HeronType ExternalMethodListType = new HeronType(null, typeof(DotNetMethodGroup), "ExternalMethodList");
+        public static HeronType ExternalClass = new HeronType(null, typeof(DotNetClass), "ExternalClass");
 
         // Code model types
         public static HeronCodeModelType ProgramType = new HeronCodeModelType(typeof(ProgramDefn));
@@ -102,6 +103,9 @@ namespace HeronEngine
         public static HeronCodeModelType AccumulateExpr = new HeronCodeModelType(typeof(AccumulateExpr));
         public static HeronCodeModelType ReduceExpr = new HeronCodeModelType(typeof(ReduceExpr));
         public static HeronCodeModelType TupleExpr = new HeronCodeModelType(typeof(TupleExpr));
+        public static HeronCodeModelType TableExpr = new HeronCodeModelType(typeof(TableExpr));
+        public static HeronCodeModelType RecordExpr = new HeronCodeModelType(typeof(RecordExpr));
+        public static HeronCodeModelType ParanthesizedExpr = new HeronCodeModelType(typeof(ParanthesizedExpr));
 
         static SortedDictionary<string, HeronType> types = null;
 

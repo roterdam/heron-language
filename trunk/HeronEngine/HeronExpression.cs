@@ -928,7 +928,7 @@ namespace HeronEngine
 
         public override HeronType GetHeronType()
         {
-            return PrimitiveTypes.TupleExpr;
+            return PrimitiveTypes.TableExpr;
         }
     }
 
@@ -986,7 +986,38 @@ namespace HeronEngine
 
         public override HeronType GetHeronType()
         {
-            return PrimitiveTypes.TupleExpr;
+            return PrimitiveTypes.RecordExpr;
+        }
+    }
+
+    public class ParanthesizedExpr : Expression
+    {
+        [HeronVisible]
+        public Expression expr;
+
+        public ParanthesizedExpr(Expression expr)
+        {
+            this.expr = expr;
+        }
+
+        public override HeronValue Eval(VM vm)
+        {
+            return expr.Eval(vm);
+        }
+
+        public override Expression Optimize(OptimizationParams op)
+        {
+            return new ParanthesizedExpr(expr.Optimize(op));
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.ParanthesizedExpr;
+        }
+
+        public override string ToString()
+        {
+            return "(" + expr.ToString() + ")";
         }
     }
 }

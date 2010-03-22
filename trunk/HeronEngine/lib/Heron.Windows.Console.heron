@@ -1,35 +1,62 @@
 module Heron.Windows.Console
 {
+    fields
+    {
+        stdin : StreamReader;
+        oldin : StreamReader;
+        stdout : StreamWriter;
+        oldout : StreamWriter;
+    }
     methods
     {
+        Constructor()
+        {
+            stdin = new StreamReader(Console.OpenStandardInput());
+            stdout = new StreamWriter(Console.OpenStandardOutput());
+            oldin = stdin;
+            oldout = stdout;
+        }
         WriteLine(s : String)
         {
-            Console.WriteLine(s);
+            stdout.WriteLine(s);
         }
-
         WriteLine()
         {
-            Console.WriteLine();
+            stdout.WriteLine();
         }
-        
         Write(s : String)
         {
-            Console.Write(s);
-        }
-        
+            stdout.Write(s);
+        }        
         ReadLine() : String
         {
-            return Conole.ReadLine();
+            return stdin.ReadLine();
         }
-        
-        ReadKey() : Char
+        ReadChar() : Char
         {
-            return Console.ReadKey().get_KeyChar();
+            return stdin.Read();
         }
-
         CreateTempFile() : String
         {
             return Path.GetTempFileName();
+        }
+        SetIn(in : StreamReader)
+        {
+            oldin = stdin;
+            stdin = in;
+        }
+        SetOut(out : StreamWriter)
+        {
+            oldout = stdout;
+            stdout = out;
+        }
+        ResetIn()
+        {
+            stdin = oldin;
+        }
+        ResetOut()
+        {
+            stdout = oldout;
         }
     }
 }

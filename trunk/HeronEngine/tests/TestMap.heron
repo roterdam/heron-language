@@ -1,8 +1,8 @@
 module TestMap
 {
-  inherits
+  imports
   {
-    Heron.Windows.Console;
+    console = new Heron.Windows.Console();
   }
   methods
   {    

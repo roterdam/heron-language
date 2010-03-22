@@ -83,7 +83,6 @@
     <Compile Include="HeronEnum.cs" />
     <Compile Include="HeronInterface.cs" />
     <Compile Include="HeronPrimitiveValues.cs" />
-    <Compile Include="HeronREPL.cs" />
     <Compile Include="HeronTable.cs" />
     <Compile Include="HeronUserType.cs" />
     <Compile Include="HeronCollectionValues.cs" />
@@ -200,6 +199,7 @@
     <None Include="tests\TestDuckTyping.heron" />
     <None Include="tests\TestField.heron" />
     <None Include="samples\AllSamples.heron" />
+    <None Include="samples\HeronToHTML.heron" />
     <Content Include="tests\TestFileIO.heron" />
     <None Include="tests\TestControlFlow.heron" />
     <None Include="tests\TestInheritance.heron" />
