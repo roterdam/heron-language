@@ -1,4 +1,4 @@
-module TestAutoCtor
+module TestConstructor
 {
     imports
     {
@@ -33,17 +33,17 @@ class BaseClass
 {
 	fields
 	{
-		a : Int = 42;
-		b = 42;
-		c : Int;
-		d;
+		ba : Int = 42;
+		bb = 42;
+		bc : Int;
+		bd;
 	}
 	methods
 	{
 		Constructor()
 		{
-			c = 42;
-			d = 42;
+			bc = 42;
+			bd = 42;
 		}
 	}    
 }
@@ -71,16 +71,16 @@ class TestClass
 			d = 42;
 
             WriteLine("Testing the derived class constructor");
-			Console.WriteLine("42 expected, " + a.ToString());
-			Console.WriteLine("42 expected, " + b.ToString());
-			Console.WriteLine("42 expected, " + c.ToString());
-			Console.WriteLine("42 expected, " + d.ToString());
+			WriteLine("42 expected, " + a.ToString());
+			WriteLine("42 expected, " + b.ToString());
+			WriteLine("42 expected, " + c.ToString());
+			WriteLine("42 expected, " + d.ToString());
 
             WriteLine("Testing the base class constructor");
-			Console.WriteLine("42 expected, " + ba.ToString());
-			Console.WriteLine("42 expected, " + bb.ToString());
-			Console.WriteLine("42 expected, " + bc.ToString());
-			Console.WriteLine("42 expected, " + bd.ToString());
+			WriteLine("42 expected, " + ba.ToString());
+			WriteLine("42 expected, " + bb.ToString());
+			WriteLine("42 expected, " + bc.ToString());
+			WriteLine("42 expected, " + bd.ToString());
 		}
 	}
 }

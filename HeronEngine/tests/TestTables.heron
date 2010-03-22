@@ -1,8 +1,8 @@
 module TestTables
 {
-    inherits
+    imports
     {
-        Heron.Windows.Console;
+        console = new Heron.Windows.Console();
     }
     methods
     {
@@ -62,7 +62,7 @@ module TestTables
             WriteLine("Expect 'cinq'");
             WriteLine(t2["five"].c);  
             
-            t2["five"].c = 'cinqo';
+            t2["five"].c = "cinqo";
             WriteLine("Expect 'cinqo'");
             WriteLine(t2["five"].c);                        
             

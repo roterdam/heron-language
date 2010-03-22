@@ -17,12 +17,12 @@ namespace HeronEngine
     /// </summary>
     public class ParseNode
     {
-        int mnBegin;
-        int mnCount;
-        string msLabel;
-        String msText;
-        ParseNode mpParent;
-        List<ParseNode> mChildren = new List<ParseNode>();
+        public int mnBegin;
+        public int mnCount;
+        public string msLabel;
+        public String msText;
+        public ParseNode mpParent;
+        public List<ParseNode> mChildren = new List<ParseNode>();
 
         public ParseNode(string label, int n, String text, ParseNode p)
         {

@@ -435,6 +435,17 @@ primitive NullExpr
     ToString() : System.String;
   }
 }
+primitive ParanthesizedExpr
+{
+  fields
+  {
+    expr : HeronEngine.Expression;
+  }
+  methods
+  {
+    ToString() : System.String;
+  }
+}
 primitive PostIncExpr
 {
   fields
@@ -474,6 +485,18 @@ primitive ReadAt
     ToString() : System.String;
   }
 }
+primitive RecordExpr
+{
+  fields
+  {
+    fields : HeronEngine.ExpressionList;
+    fielddefs : HeronEngine.FormalArgs;
+  }
+  methods
+  {
+    ToString() : System.String;
+  }
+}
 primitive ReduceExpr
 {
   fields
@@ -505,7 +528,7 @@ primitive SelectExpr
   {
     name : System.String;
     list : HeronEngine.Expression;
-    pred : HeronEngine.Expression;
+    predicate : HeronEngine.Expression;
   }
   methods
   {
@@ -530,6 +553,18 @@ primitive SwitchStatement
     condition : HeronEngine.Expression;
     cases : System.Collections.Generic.List`1[HeronEngine.Statement];
     ondefault : HeronEngine.Statement;
+  }
+  methods
+  {
+    ToString() : System.String;
+  }
+}
+primitive TableExpr
+{
+  fields
+  {
+    rows : System.Collections.Generic.List`1[HeronEngine.ExpressionList];
+    fielddefs : HeronEngine.FormalArgs;
   }
   methods
   {

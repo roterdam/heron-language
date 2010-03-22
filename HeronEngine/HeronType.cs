@@ -198,21 +198,6 @@ namespace HeronEngine
         {
             return name;
         }
-
-        /* TODO: either finish or remove
-        [HeronVisible]
-        public bool CanCastTo(HeronType t)
-        {
-            if (t == this)
-                return true;
-            else if (t == PrimitiveTypes.AnyType)
-                return true;
-            else if (t == PrimitiveTypes.SeqType)
-                return this == PrimitiveTypes.ListType
-                    || this == PrimitiveTypes.RecordType
-                    || this == PrimitiveTypes.TableType;
-            else if (t == 
-        }*/
         #endregion
 
         public virtual int GetHierarchyDepth()

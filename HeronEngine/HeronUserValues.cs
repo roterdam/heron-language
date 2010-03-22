@@ -339,11 +339,11 @@ namespace HeronEngine
     {
         public Dictionary<string, ModuleInstance> imports = new Dictionary<string, ModuleInstance>();
 
-        public ModuleInstance(ModuleDefn m, ModuleInstance i)
-            : base(m, i)
+        public ModuleInstance(ModuleDefn m)
+            : base(m, null)
         {
             if (m == null)
-                throw new Exception("Missing module");
+                throw new Exception("Missing module definition");
         }
 
         public ModuleDefn GetModuleDefn()

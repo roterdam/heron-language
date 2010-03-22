@@ -1,4 +1,4 @@
-﻿module TestForLoop
+﻿module TestControlFlow
 {		
     imports {
         Console = new Heron.Windows.Console();

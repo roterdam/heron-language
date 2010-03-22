@@ -8,16 +8,9 @@
                 return xs;
             
             if (xs.Count() == 2)
-            {
                 if (compare(xs[0], xs[1]) <= 0)
-                {
-                    return xs;
-                }
-                else
-                {
+                    return xs; else
                     return [xs[1], xs[0]];
-                }
-            }
 
             var pivot = xs[0];
             var tail = xs.Slice(1, xs.Count() - 1);

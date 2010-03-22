@@ -227,7 +227,7 @@ namespace HeronEngine
                 if (baseMod == null)
                     throw new Exception("The base type of the module must be a module: " + GetBaseClass().name);
 
-                ModuleInstance baseInst = new ModuleInstance(baseMod, parent);
+                ModuleInstance baseInst = new ModuleInstance(baseMod);
                 baseMod.AddFields(baseInst, parent);
                 inst.AddField("base", baseInst);
             }
@@ -235,13 +235,15 @@ namespace HeronEngine
 
         public override HeronValue Instantiate(VM vm, HeronValue[] args, ModuleInstance m)
         {
-            ModuleInstance r = new ModuleInstance(this, m);
+            if (m != null)
+                throw new Exception("A module cannot belong to a module");
+            ModuleInstance r = new ModuleInstance(this);
             AddFields(r, m);
             foreach (Import i in imports)
             {
                 ModuleDefn importModDef = vm.LookupModuleDefn(i.module);
                 HeronValue[] importArgs = vm.EvalList(i.args).ToArray();
-                ModuleInstance importInstance = importModDef.Instantiate(vm, args, r) as ModuleInstance;
+                ModuleInstance importInstance = importModDef.Instantiate(vm, args, null) as ModuleInstance;
                 if (importInstance == null)
                     throw new Exception("Failed to create loaded module instance");
                 r.imports.Add(i.alias, importInstance);

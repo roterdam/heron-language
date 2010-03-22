@@ -5,11 +5,11 @@ module WideFinder
         sorting = new Heron.Standard.Sorting();
         console = new Heron.Windows.Console();
     }
-	methods
-	{
-		Main()
-		{
-            var lines = File.ReadAllLines(@"C:\dev\heron\HeronEngine\testdata\wide-finder-test-data.txt");
+    methods
+    {
+        Main()
+        {
+            var lines = File.ReadAllLines(@"testdata\wide-finder-test-data.txt");
             var dict = table(url:String, cnt:Int) { };
             var re = new Regex(@"GET /ongoing/When/\d\d\dx/(\d\d\d\d/\d\d/\d\d/[^ \.]+)");
 
@@ -46,6 +46,6 @@ module WideFinder
                 var key = keys[i];
                 Console.WriteLine(key + " = " + dict[key].ToString());
             }
-		}
-	}
+        }
+    }
 }

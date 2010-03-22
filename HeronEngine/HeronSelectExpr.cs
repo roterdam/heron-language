@@ -15,13 +15,13 @@ namespace HeronEngine
     {
         [HeronVisible] public string name;
         [HeronVisible] public Expression list;
-        [HeronVisible] public Expression pred;
+        [HeronVisible] public Expression predicate;
 
         public SelectExpr(string name, Expression list, Expression pred)
         {
             this.name = name;
             this.list = list;
-            this.pred = pred;
+            this.predicate = pred;
         }
 
         public override Expression Optimize(OptimizationParams op)
@@ -55,7 +55,7 @@ namespace HeronEngine
                     lp.op = new OptimizationParams();
                     lp.acc = lp.op.AddNewAccessor(name);
                     lp.vm = vm.Fork();
-                    lp.expr = pred.Optimize(lp.op);
+                    lp.expr = predicate.Optimize(lp.op);
                     return lp;
                 },
                 (Tuple<int, int> range, ParallelLoopState state, LoopParams lp) =>
@@ -80,7 +80,7 @@ namespace HeronEngine
 
         public override string ToString()
         {
-            return "select (" + name + " from " + list.ToString() + ") " + pred.ToString();
+            return "select (" + name + " from " + list.ToString() + ") " + predicate.ToString();
         }
 
         public override HeronType GetHeronType()

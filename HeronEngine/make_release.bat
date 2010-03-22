@@ -1,26 +1,35 @@
 mkdir Release
 mkdir Release\lib
+mkdir Release\Properties
+mkdir Release\samples
+
 mkdir Release\tests
-mkdir Release\src
-mkdir Release\src\lib
-mkdir Release\src\Properties
-mkdir Release\src\Tests
+mkdir Release\testdata
+
 del Release\*.* /Q /S
-copy tests\*.* Release\tests
-copy tests\*.* Release\src\tests
-copy lib\*.* Release\lib
-copy lib\*.* Release\src\lib
-copy Properties\*.cs Release\src\Properties
-copy *.cs Release\src
-copy Properties\*.cs Release\src
-copy *.csproj Release\src
-copy *.resx Release\src
-copy *.sln Release\src
-copy license.txt Release\src
-copy readme.txt Release\src
+
+copy lib\*.* Release\lib\
+copy Properties\*.* Release\Properties\
+
+copy samples\*.* Release\samples\
+copy tests\*.* Release\tests\
+copy testdata\*.* Release\testdata\
+
+
+copy *.config Release\
+copy *.cs Release\
+copy *.csproj Release\
+copy *.resx Release\
+copy *.sln Release\
+copy *.ico Release\
+copy *.bat Release\
+
+copy license.txt Release\
+copy readme.txt Release\
 copy grammar.txt Release\
 copy primitives.txt Release\
 copy codemodel.txt Release\
+
 copy HeronEngine.exe Release\
-copy run_tests.bat Release\
-copy config-release.xml Release\config.xml
+
+copy config.xml Release\config.xml

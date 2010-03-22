@@ -328,6 +328,10 @@ namespace HeronEngine
         /// <returns></returns>
         public override HeronValue GetFieldOrMethod(string name)
         {
+            HeronValue r = base.GetFieldOrMethod(name);
+            if (r != null)
+                return r;
+
             // We have to first look to see if there are static fields
             FieldInfo[] fis = GetSystemType().GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.GetField);
             foreach (FieldInfo fi in fis)
@@ -352,6 +356,17 @@ namespace HeronEngine
         public override int GetHashCode()
         {
             return GetSystemType().GetHashCode();
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.ExternalClass;
+        }
+
+        [HeronVisible]
+        public override string ToString()
+        {
+            return name;
         }
     }
 
@@ -408,6 +423,12 @@ namespace HeronEngine
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.ExternalStaticMethodListType;
+        }
+
+        [HeronVisible]
+        public override string ToString()
+        {
+            return name;
         }
     }
 

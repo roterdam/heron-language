@@ -1,6 +1,6 @@
 module Sort
 {
-    inherits
+    imports
     {
         console = new Heron.Windows.Console();
     }
@@ -19,7 +19,7 @@ module Sort
         }
         Sort(xs : List) : List
         {
-            var n = xs.Length();
+            var n = xs.Count();
             if (n < 2)
                 return xs;
             else if (n == 2)
@@ -38,9 +38,9 @@ module Sort
               var mid = n / 2;
               Swap(xs, 0, mid);
               var pivot = xs[0];
-              ys = select (x from xs) where x < pivot;
-              zs = select (x from xs) where x > pivot;
-              r = ys;
+              var ys = select (x from xs) x < pivot;
+              var zs = select (x from xs) x > pivot;
+              var r = ys;
               r.Add(pivot);
               AddRange(r, zs);
               return r;

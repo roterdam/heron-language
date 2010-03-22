@@ -57,6 +57,23 @@ primitive Char
     Equals(obj : System.Object) : System.Boolean;
   }
 }
+primitive ExternalClass
+{
+  fields
+  {
+    name : System.String;
+  }
+  methods
+  {
+    Equals(obj : System.Object) : System.Boolean;
+    GetHashCode() : System.Int32;
+    ToString() : System.String;
+    GetModule() : HeronEngine.ModuleDefn;
+    GetMethod(name : System.String) : HeronEngine.ExposedMethodValue;
+    GetField(name : System.String) : HeronEngine.FieldDefn;
+    GetName() : System.String;
+  }
+}
 primitive ExternalMethod
 {
   fields

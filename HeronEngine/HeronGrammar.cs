@@ -111,8 +111,10 @@ namespace HeronEngine
         public static Rule AccumulateExpr = Store("accumulate", Token("accumulate") + NoFail(Token("(") + Name + Delay("Initializer", () => Initializer) + Token("forall") + Name + Token("in") +DelayedExpr + Token(")") + DelayedExpr));
         public static Rule ReduceExpr = Store("reduce", Token("reduce") + NoFail(Token("(") + Name + Token(",") + Name + Token("in") + DelayedExpr + Token(")") + NoFail(DelayedExpr)));
         public static Rule MapExpr = Store("map", Token("map") + NoFail(Token("(") + Name + Token("in") + DelayedExpr + Token(")") + NoFail(DelayedExpr)));
-        public static Rule Rows = Store("rows", NoFail(BracedGroup(DelayedExpr + Eos)));
-        public static Rule RecordExpr = Store("record", Token("record") + NoFail(ArgList) + NoFail(Token("{")) + NoFail(DelayedExpr) + NoFail(Token("}")));
+        public static Rule Row = Store("row", CommaList(DelayedExpr) + Eos);
+        public static Rule Rows = Store("rows", NoFail(BracedGroup(Row)));
+        public static Rule RecordFields = Store("recordfields", CommaList(DelayedExpr));
+        public static Rule RecordExpr = Store("record", Token("record") + NoFail(ArgList) + NoFail(Token("{")) + NoFail(RecordFields) + NoFail(Token("}")));
         public static Rule TableExpr = Store("table", Token("table") + NoFail(ArgList) + NoFail(Rows));
         public static Rule BasicExpr = (NewExpr | MapExpr | SelectExpr | AccumulateExpr | ReduceExpr | FunExpr | TableExpr | RecordExpr | SpecialName | Name | Literal | ParanthesizedExpr | BracketedExpr);
         public static Rule CompoundExpr = Store("expr", Plus(BasicExpr));
@@ -164,7 +166,7 @@ namespace HeronEngine
         public static Rule EnumValues = Store("values", BracedGroup(EnumValue));
         public static Rule Enum = Store("enum", Opt(Annotations) + Token("enum") + NoFail(Name + EnumValues));
         public static Rule TypeDefinition = Class | Interface | Enum;
-        public static Rule ModuleBody = Store("modulebody", NoFail(Token("{") + Opt(Imports) + Opt(Inherits) + Opt(Fields) + Opt(Methods) + Token("}")));
+        public static Rule ModuleBody = Store("modulebody", NoFail(Token("{") + Opt(Imports) + Opt(Fields) + Opt(Methods) + Token("}")));
         public static Rule Module = Store("module", Opt(Annotations) + Token("module") + NoFail(TypeName) + ModuleBody + Star(TypeDefinition));
         public static Rule File = Module + NoFail(EndOfInput);
         #endregion

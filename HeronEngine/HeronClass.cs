@@ -30,7 +30,7 @@ namespace HeronEngine
         public ClassDefn(ModuleDefn m, string name)
             : base(m, typeof(ClassDefn), name)
         {
-            autoCtor = new FunctionDefn(this, "_Contructor_");
+            autoCtor = new FunctionDefn(this, "_Constructor_");
         }
 
         public void ResolveTypes(ModuleDefn m)
@@ -80,6 +80,12 @@ namespace HeronEngine
         public void SetBaseClass(HeronType c)
         {
             baseclass = c;
+
+            // If we know we have a base class, we add a call to the base auto-constructor
+            // in our own auto-constructor
+            Expression func = new ChooseField(new Name("base"), "_Constructor_");
+            FunCall fc = new FunCall(func, new ExpressionList());
+            autoCtor.body.statements.Add(new ExpressionStatement(fc));
         }
 
         [HeronVisible]
