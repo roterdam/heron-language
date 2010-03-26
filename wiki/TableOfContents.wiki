@@ -11,6 +11,8 @@ These are the different Wiki topics related to the Heron documentation.
 
 == Basic Topics ==
 
+  # [Expressions Expressions]
+  # [Statements Statements]  
   # [Primitives Primitives] - built-in primitive types
   # [Collections Collections] - Seq, Iterator, List, Tuple, and Range
   # [Variants Any] - the `Any` variant type
@@ -22,7 +24,6 @@ These are the different Wiki topics related to the Heron documentation.
   # [MetaProgramming]
   # [ListOperations List operations] - `map`, `select`, `reduce`, and `accumulate`.
   # [ControlFlow Control flow]
-  # [Expressions Expressions]
 
 == User Defined Types ==
  
