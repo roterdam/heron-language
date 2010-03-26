@@ -12,12 +12,18 @@ These are the different Wiki topics related to the Heron documentation.
 == Basic Topics ==
 
   # [Primitives Primitives] - built-in primitive types
-  # [Collections Collections] - Seq, Iterator, List and Range
-  # [Variants Any] - the Any variant type
+  # [Collections Collections] - Seq, Iterator, List, Tuple, and Range
+  # [Variants Any] - the `Any` variant type
   # [UpcastingAndDowncasting Type casting]
   # [FirstClassFunctions First class functions] 
   # [Closures]
-  
+  # [Records]
+  # [Tables] 
+  # [MetaProgramming]
+  # [ListOperations List operations] - `map`, `select`, `reduce`, and `accumulate`.
+  # [ControlFlow Control flow]
+  # [Expressions Expressions]
+
 == User Defined Types ==
  
   # [Classes Classes]
@@ -30,6 +36,13 @@ These are the different Wiki topics related to the Heron documentation.
   # [HeronDesignGoals Design goals]
   # [ZenOfHeron Zen of Heron (guiding principles)]
 
+== Miscellaneous Topics ==
+
+  # [NoStaticData No static data]
+  # [Parallelism Parallelism in Heron]
+  # [Configuration The configuration file]
+  # [DuckTyping Duck typing] 
+ 
 == Planned Features ==
 
 For planned features see the [http://code.google.com/p/heron-language/issues/list?q=label:Type-Enhancement issues labeled as enhancement].
