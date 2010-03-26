@@ -34,5 +34,3 @@ function StringToInt(s : String) : Int {
   return numbers[s].value;
 }
 }}}
-
-Note in the above example the table is assig
