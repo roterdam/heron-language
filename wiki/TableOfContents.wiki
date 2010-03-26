@@ -43,6 +43,7 @@ These are the different Wiki topics related to the Heron documentation.
   # [Parallelism Parallelism in Heron]
   # [Configuration The configuration file]
   # [DuckTyping Duck typing] 
+  # [OptionalTypes Optional type annotations]
  
 == Planned Features ==
 
