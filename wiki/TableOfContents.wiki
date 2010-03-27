@@ -8,11 +8,13 @@ These are the different Wiki topics related to the Heron documentation.
 == Quick Start ==
 
   # [HelloWorld Hello world] - and other basic programs
+  # [QuickReference Quick Reference]
 
 == Basic Topics ==
 
   # [Expressions Expressions]
-  # [Statements Statements]  
+  # [ControlFlow Control flow]
+  # [Statements Other statements]  
   # [Primitives Primitives] - built-in primitive types
   # [Collections Collections] - Seq, Iterator, List, Tuple, and Range
   # [Variants Any] - the `Any` variant type
@@ -23,7 +25,6 @@ These are the different Wiki topics related to the Heron documentation.
   # [Tables] 
   # [MetaProgramming]
   # [ListOperations List operations] - `map`, `select`, `reduce`, and `accumulate`.
-  # [ControlFlow Control flow]
 
 == User Defined Types ==
  
