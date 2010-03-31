@@ -10,7 +10,23 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Xml;
+using System.Runtime;
 using System.IO;
+using System.Threading.Tasks;
+using System.Deployment;
+using System.Dynamic;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Net.Mail;
+using System.Net.NetworkInformation;
+using System.Reflection.Emit;
+using System.Reflection.Cache;
+using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
+using System.Runtime.Remoting;
+using System.Diagnostics;
 
 namespace HeronEngine
 {
@@ -53,18 +69,35 @@ namespace HeronEngine
             foreach (string s in prims.Keys)
                 global.AddPrimitive(s, prims[s]);
 
-            RegisterDotNetType(typeof(Console));
+            // Math utilities
             RegisterDotNetType(typeof(Math));
+
+            // File system support
             RegisterDotNetType(typeof(File));
             RegisterDotNetType(typeof(Directory));
             RegisterDotNetType(typeof(Path));
 
+            // Low-level OS stuff
             RegisterDotNetType(typeof(Environment));
             RegisterDotNetType(typeof(Environment.SpecialFolder));
             RegisterDotNetType(typeof(Environment.SpecialFolderOption));
             RegisterDotNetType(typeof(EnvironmentVariableTarget));
             RegisterDotNetType(typeof(OperatingSystem));
+            RegisterDotNetType(typeof(ProcessorArchitecture));
+            RegisterDotNetType(typeof(Process));
 
+            // IO functionality 
+            RegisterDotNetType(typeof(Console));
+            RegisterDotNetType(typeof(StreamReader));
+            RegisterDotNetType(typeof(StreamWriter));
+            RegisterDotNetType(typeof(TextReader));
+            RegisterDotNetType(typeof(TextWriter));
+
+            // Concurrency support 
+            RegisterDotNetType(typeof(Thread));
+            RegisterDotNetType(typeof(Task));
+
+            // Regex functionality supported
             RegisterDotNetType(typeof(System.Text.RegularExpressions.Regex));
             RegisterDotNetType(typeof(System.Text.RegularExpressions.Capture));
             RegisterDotNetType(typeof(System.Text.RegularExpressions.CaptureCollection));
@@ -73,6 +106,10 @@ namespace HeronEngine
             RegisterDotNetType(typeof(System.Text.RegularExpressions.Match));
             RegisterDotNetType(typeof(System.Text.RegularExpressions.MatchCollection));
             RegisterDotNetType(typeof(System.Text.RegularExpressions.RegexOptions));
+
+            // Time and TimeSpan
+            RegisterDotNetType(typeof(TimeSpan));
+            RegisterDotNetType(typeof(DateTime));
 
             // Load other libraries specified in the configuration file
             foreach (string lib in Config.libs)

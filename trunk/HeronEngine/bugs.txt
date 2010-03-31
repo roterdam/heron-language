@@ -1,4 +1,18 @@
-﻿Buglist
+﻿Needs Attention
+===============
+- testing of switches.
+- annotations need to be tested. 
+- I am really not crazy about the function syntax.
+- I want an interpreter mode.
+- I want an eval function. 
+- I want a better debugger.
+    - Can I construct a debugger using meta-programming? 
+    - In theory I could add a hidden argument to every function, and then to every function call.
+- Demonstrating AOP would be easy by saying [Trace] in front of every function I want traced. 
+    - Then I run through every function that is labeled trace, and I add a "trace".
+     
+
+Buglist
 =======
 - the action of invoking methods or fields on objects of type "Any" is poorly defined.
 - when outputting compound expressions precedence may not be taken care of 
@@ -17,8 +31,9 @@ Features
 - I want a check that the file name and module name match.
 - Better error catching and reporting.
 - Somehow make localization easy in Heron. (Resource strings?!)
+- Modules should be managed by a module manager (like a Java class loader, or C# assembly loader)
 
-Research Directions
+Research Directions 
 ===================
 - What are the formal semantics of Heron? 
 - What can we prove about Heron? 

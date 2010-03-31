@@ -106,7 +106,7 @@ namespace HeronEngine
         public static Rule FunExpr = Store("funexpr", Token("function") + NoFail(ArgList + Opt(TypeDecl) + CodeBlock));
         public static Rule ParanthesizedExpr = Store("paranexpr", Paranthesized(CommaList(DelayedExpr)));
         public static Rule BracketedExpr = Store("bracketedexpr", Bracketed(CommaList(DelayedExpr)));
-        public static Rule NewExpr = Store("new", Token("new") + NoFail(TypeExpr + ParanthesizedExpr) + Opt(Token("from") + DelayedExpr));
+        public static Rule NewExpr = Store("new", Token("new") + NoFail(TypeExpr + ParanthesizedExpr) + Opt(Token("from") + Name));
         public static Rule SelectExpr = Store("select", Token("select") + NoFail(Token("(") + Name + Token("from") + DelayedExpr + Token(")") + DelayedExpr));
         public static Rule AccumulateExpr = Store("accumulate", Token("accumulate") + NoFail(Token("(") + Name + Delay("Initializer", () => Initializer) + Token("forall") + Name + Token("in") +DelayedExpr + Token(")") + DelayedExpr));
         public static Rule ReduceExpr = Store("reduce", Token("reduce") + NoFail(Token("(") + Name + Token(",") + Name + Token("in") + DelayedExpr + Token(")") + NoFail(DelayedExpr)));
@@ -147,11 +147,11 @@ namespace HeronEngine
         #endregion structural rules
 
         #region structural rules
-        public static Rule Field = Store("field", Name + Opt(TypeDecl) + Opt(Initializer) + Eos);
+        public static Rule Field = Store("field", Opt(Annotations) + Name + Opt(TypeDecl) + Opt(Initializer) + Eos);
         public static Rule FunDecl = Store("fundecl", Name + ArgList + Opt(TypeDecl));
         public static Rule EOSOrCodeBlock = Eos | CodeBlock;
         public static Rule EmptyMethod = Store("method", FunDecl + NoFail(Eos));
-        public static Rule Method = Store("method", FunDecl + NoFail(CodeBlock));
+        public static Rule Method = Store("method", Opt(Annotations) + FunDecl + NoFail(CodeBlock));
         public static Rule Implements = Store("implements", Token("implements") + NoFail(TypeExprList));
         public static Rule Inherits = Store("inherits", Token("inherits") + NoFail(BracedGroup(TypeExpr + NoFail(Eos))));
         public static Rule Fields = Store("fields", Token("fields") + NoFail(BracedGroup(Field)));

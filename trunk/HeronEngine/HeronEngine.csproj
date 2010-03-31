@@ -199,7 +199,8 @@
     <None Include="tests\TestDuckTyping.heron" />
     <None Include="tests\TestField.heron" />
     <None Include="samples\AllSamples.heron" />
-    <None Include="samples\HeronToHTML.heron" />
+    <None Include="samples\HeronToXML.heron" />
+    <None Include="samples\HeronToXMLDemo.heron" />
     <Content Include="tests\TestFileIO.heron" />
     <None Include="tests\TestControlFlow.heron" />
     <None Include="tests\TestInheritance.heron" />
