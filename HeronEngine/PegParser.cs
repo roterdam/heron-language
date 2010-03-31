@@ -256,8 +256,9 @@ namespace HeronEngine
         {
             ParserState state = new ParserState(s, from);
             node = state.Parse(r);
-            if (node != null)
-                output = s.Substring(from, state.GetPos());
+            int n = state.GetPos() - from;
+            if (node != null && n > 0)
+                output = s.Substring(from, n);
             else
                 output = "";
             return node != null;
@@ -278,6 +279,12 @@ namespace HeronEngine
         {
             ParseNode node;
             return Parse(r, s, from, out output, out node);
+        }
+
+        static public bool Parse(Rule r, string s)
+        {
+            ParserState state = new ParserState(s);
+            return state.Parse(r) != null;
         }
     }
 }

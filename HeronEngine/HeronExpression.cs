@@ -1,4 +1,4 @@
-﻿/// Heron language interpreter for Windows in C#
+﻿    /// Heron language interpreter for Windows in C#
 /// http://www.heron-language.com
 /// Copyright (c) 2009 Christopher Diggins
 /// Licenced under the MIT License 1.0 
@@ -387,30 +387,29 @@ namespace HeronEngine
     {
         [HeronVisible] public HeronType type;
         [HeronVisible] public ExpressionList args;
-        [HeronVisible] public Expression modexpr;
+        [HeronVisible] public string module;
 
-        public NewExpr(HeronType type, ExpressionList args, Expression modexpr)
+        public NewExpr(HeronType type, ExpressionList args, string module)
         {
             this.type = type;
             this.args = args;
-            this.modexpr = modexpr;
+            this.module = module;
         }
 
         public override HeronValue Eval(VM vm)
         {
             HeronValue[] argvals = args.Eval(vm);
             
-            if (modexpr == null)
+            if (module == null || module.Length == 0)
             {
                 return type.Instantiate(vm, argvals, vm.CurrentModuleInstance);
             }
             else
             {
-                HeronValue v = vm.Eval(modexpr);
-                ModuleInstance module = v as ModuleInstance;                
+                ModuleInstance mi = vm.FindModule(module);
                 if (module == null)
-                    throw new Exception("Expected a module, from " + modexpr.ToString() + " instead got value of type " + v.GetHeronType().ToString());
-                return type.Instantiate(vm, argvals, module);
+                    throw new Exception("Could not find module " + module);
+                return type.Instantiate(vm, argvals, mi);
             }
         }
 
@@ -421,7 +420,7 @@ namespace HeronEngine
 
         public override Expression Optimize(OptimizationParams op)
         {
-            return new NewExpr(type, args.Optimize(op), modexpr.Optimize(op));
+            return new NewExpr(type, args.Optimize(op), module);
         }
     }
 

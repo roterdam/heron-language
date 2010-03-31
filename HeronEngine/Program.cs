@@ -59,22 +59,7 @@ namespace HeronEngine
             File.WriteAllText(Util.GetExeDir() + "\\codemodel.txt", s);
         }
 
-        /// <summary>
-        /// Loads, parses, and executes a file
-        /// </summary>
-        /// <param name="s"></param>
-        static public void RunFile(string sFile)
-        {
-            VM vm = new VM();
-            vm.InitializeVM();
-            ModuleDefn m = vm.LoadModule(sFile);
-            vm.LoadDependentModules(sFile);
-            vm.ResolveTypesInModules();
-
-            timeStarted = DateTime.Now;
-
-            vm.RunModule(m);
-        }
+        
         
         /// <summary>
         /// Load the config file if specified in the command-line argument list
@@ -132,7 +117,8 @@ namespace HeronEngine
                     return;
                 }
 
-                RunFile(args[0]);
+                timeStarted = DateTime.Now;
+                VM.RunFile(args[0]);
 
                 if (Config.showTiming)
                     PrintTimeElapsed();

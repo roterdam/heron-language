@@ -612,11 +612,11 @@ namespace HeronEngine
             ParseNode args = x.GetChild(1);
             Assure(args, args.Label == "paranexpr", "new operator is missing argument list");
             
-            Expression modexpr = null;
+            string module = null;
             if (x.GetNumChildren() > 2)
-                modexpr = CreateExpr(x.GetChild(2));
+                module = x.GetChild(2).ToString();
 
-            return new NewExpr(new UnresolvedType(GetTypeName(type, "Void")), CreateCompoundExpr(args), modexpr);
+            return new NewExpr(new UnresolvedType(GetTypeName(type, "Void")), CreateCompoundExpr(args), module);
         }
 
         MapExpr CreateMapExpr(ParseNode x)

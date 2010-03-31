@@ -239,6 +239,25 @@ namespace HeronEngine
             }
         }
 
+        #region function for running a program or module
+        /// <summary>
+        /// Loads, parses, and executes a file.
+        /// </summary>
+        /// <param name="s"></param>
+        static public void RunFile(string sFile)
+        {
+            VM vm = new VM();
+            vm.InitializeVM();
+            ModuleDefn m = vm.LoadModule(sFile);
+            vm.LoadDependentModules(sFile);
+            vm.ResolveTypesInModules();
+            vm.RunModule(m);
+        }
+
+        /// <summary>
+        /// Evaluates the "Meta()" function of a module instance.
+        /// </summary>
+        /// <param name="m"></param>
         public void RunMeta(ModuleInstance m)
         {
             HeronValue f = m.GetFieldOrMethod("Meta");
@@ -247,6 +266,10 @@ namespace HeronEngine
             f.Apply(this, new HeronValue[] { program });
         }
 
+        /// <summary>
+        /// Evaluates the "Main()" function of a module instance
+        /// </summary>
+        /// <param name="m"></param>
         public void RunMain(ModuleInstance m)
         {
             HeronValue f = m.GetFieldOrMethod("Main");
@@ -255,12 +278,18 @@ namespace HeronEngine
             f.Apply(this, new HeronValue[] { });
         }
 
+        /// <summary>
+        /// Instantiates a module, evaluates the meta function, then 
+        /// evaluates the main function. 
+        /// </summary>
+        /// <param name="m"></param>
         public void RunModule(ModuleDefn m)
         {
             ModuleInstance mi = m.Instantiate(this, new HeronValue[] { }, null) as ModuleInstance;
             RunMeta(mi);
             RunMain(mi);
         }
+        #endregion 
 
         /// <summary>
         /// Evaluates a list expression, converting it into an IEnumerable&lt;HeronValue&gt;
@@ -721,6 +750,11 @@ namespace HeronEngine
                 if (m.name == s)
                     return m;
             throw new Exception("Could not find module " + s);
+        }
+
+        public ModuleInstance FindModule(string module)
+        {
+            throw new NotImplementedException();
         }
     }
 }
