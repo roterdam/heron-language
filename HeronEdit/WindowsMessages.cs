@@ -5,6 +5,11 @@ using System.Text;
 
 namespace HeronEdit
 {
+    /// <summary>
+    /// This is a set of mnemonics for windows messages. It 
+    /// was taken from http://www.codeproject.com/KB/cs/cswindowsmessages.aspx
+    /// with some additional codes added for scroll bar messages. 
+    /// </summary>
     public enum WindowsMessages : uint
     {
         WM_NULL = 0x0000,

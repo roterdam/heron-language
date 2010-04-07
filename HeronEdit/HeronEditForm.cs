@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -14,15 +15,17 @@ namespace HeronEdit
     public partial class HeronMainForm : Form
     {
         HeronEditor editor;
+        TextEntryForm macroForm = new TextEntryForm();
 
         public HeronMainForm()
         {
             InitializeComponent();
-            editor = new HeronEditor(codeControl, output);
-        }
-
-        private void timer1_Tick(object sender, EventArgs e)
-        {
+            editor = new HeronEditor(codeControl, output, menuStrip1);
+            string[] args = Environment.GetCommandLineArgs();
+            if (args.Length > 1)
+            {
+                editor.Open(args[1]);
+            }
         }
 
         private void HeronMainForm_Shown(object sender, EventArgs e)
@@ -31,7 +34,7 @@ namespace HeronEdit
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            editor.Load(@"C:\dev\Heron\HeronEngine\samples\NQueens.heron");
+            editor.Open();
         }
 
         private void undoToolStripMenuItem_Click(object sender, EventArgs e)
@@ -39,14 +42,9 @@ namespace HeronEdit
             editor.Undo();
         }
 
-        private void menuStrip1_MenuActivate(object sender, EventArgs e)
-        {
-        }
-
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             editor.Save();
-            saveToolStripMenuItem.Enabled = editor.CanSave();
         }
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -76,12 +74,40 @@ namespace HeronEdit
 
         private void runToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            editor.Run();
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            editor.New();
+        }
+
+        private void editToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            editor.LaunchNewEditor(editor.GetMacroFile());
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AboutBox1 ab = new AboutBox1();
+            ab.ShowDialog();
+        }
+
+        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            editor.Delete();
+        }
+
+        private void runMacroToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!macroForm.ShowDialog("Enter macro name"))
+                return;
+            editor.RunMacro(macroForm.EnteredText);
         }
     }
 }

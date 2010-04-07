@@ -10,6 +10,10 @@ using HeronEngine;
 
 namespace HeronEdit
 {
+    /// <summary>
+    /// Converts a block of Heron code to rich text with syntax coloring.
+    /// This contains the coloring scheme hard-coded. 
+    /// </summary>
     class HeronToRtf
     {
         /// <summary>
@@ -32,7 +36,7 @@ namespace HeronEdit
             Number,
             Keyword,
             LineComment,
-            FullComment,
+            BlockComment,
         }
 
         public HeronToRtf()
@@ -83,7 +87,7 @@ namespace HeronEdit
                     return 6;
                 case TokenType.LineComment:
                     return 7;
-                case TokenType.FullComment:
+                case TokenType.BlockComment:
                     return 7;
                 default:
                     return 0;
@@ -176,6 +180,11 @@ namespace HeronEdit
             return AddColor(s, TokenTypeToColorIndex(tt));
         }
 
+        /// <summary>
+        /// Returns true if the string is a Heron keyword.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
         public bool IsKeyword(string s)
         {
             switch (s)
@@ -220,6 +229,11 @@ namespace HeronEdit
             }
         }
 
+        /// <summary>
+        /// Returns a simple RTF header for the editor with Courier New 10pt 
+        /// as the font size.
+        /// </summary>
+        /// <returns></returns>
         public string RtfHeader()
         {
             StringBuilder sb = new StringBuilder();
@@ -232,6 +246,13 @@ namespace HeronEdit
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Converts a text string containing Heron into RTF 
+        /// with a header. This could be assigned to the RTF property 
+        /// of a rich text control.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
         public string ToRtf(string s)
         {
             StringBuilder sb = new StringBuilder();
@@ -240,7 +261,7 @@ namespace HeronEdit
             {
                 string token = "";
 
-                if (ParseIdentifier(s, i, ref token))
+                if (Parser.Parse(HeronGrammar.Ident, s, i, out token))
                 {
                     if (IsKeyword(token))
                         sb.Append(AddColor(token, TokenType.Keyword));
@@ -248,37 +269,37 @@ namespace HeronEdit
                         sb.Append(AddColor(token, TokenType.Identifier));
                     i += token.Length;
                 }
-                else if (ParseWSpace(s, i, ref token))
+                else if (ParseWSpace(s, i, out token))
                 {
                     sb.Append(token);
                     i += token.Length;
                 }
-                else if (ParseNumber(s, i, ref token))
+                else if (Parser.Parse(HeronGrammar.NumLiteral, s, i, out token))
                 {
                     sb.Append(AddColor(token, TokenType.Number));
                     i += token.Length;
                 }
-                else if (ParseLineComment(s, i, ref token))
+                else if (Parser.Parse(HeronGrammar.LineComment, s, i, out token))
                 {
                     sb.Append(AddColor(token, TokenType.LineComment));
                     i += token.Length;
                 }
-                else if (ParseFullComment(s, i, ref token))
+                else if (Parser.Parse(HeronGrammar.BlockComment, s, i, out token))
                 {
-                    sb.Append(AddColor(token, TokenType.FullComment));
+                    sb.Append(AddColor(token, TokenType.BlockComment));
                     i += token.Length;
                 }
-                else if (ParseString(s, i, ref token))
+                else if (Parser.Parse(HeronGrammar.StringLiteral, s, i, out token))
                 {
                     sb.Append(AddColor(token, TokenType.String));
                     i += token.Length;
                 }
-                else if (ParseVerbString(s, i, ref token))
+                else if (Parser.Parse(HeronGrammar.VerbStringLiteral, s, i, out token))
                 {
                     sb.Append(AddColor(token, TokenType.VerbString));
                     i += token.Length;
                 }
-                else if (ParseChar(s, i, ref token))
+                else if (Parser.Parse(HeronGrammar.CharLiteral, s, i, out token))
                 {
                     sb.Append(AddColor(token, TokenType.Char));
                     i += token.Length;
@@ -302,58 +323,16 @@ namespace HeronEdit
             return RtfHeader() + sb.ToString().Replace("\n", "\\par\r\n");
         }
 
-        private bool ParseChar(string s, int i, ref string token)
-        {
-            if (i >= s.Length - 3) return false;
-            if (s[i] != '\'') return false;
-            return Parser.Parse(HeronGrammar.CharLiteral, s, i, out token);
-        }
-
-        private bool ParseVerbString(string s, int i, ref string token)
-        {
-            if (i >= s.Length - 3) return false;
-            if (s[i] != '@') return false;
-            if (s[i + 1] != '"') return false;
-            return Parser.Parse(HeronGrammar.VerbStringLiteral, s, i, out token);
-        }
-
-        private bool ParseString(string s, int i, ref string token)
-        {
-            if (i >= s.Length - 2) return false;
-            if (s[i] != '"') return false;
-            return Parser.Parse(HeronGrammar.StringLiteral, s, i, out token);
-        }
-
-        private bool ParseFullComment(string s, int i, ref string token)
-        {
-            if (i >= s.Length - 4) return false;
-            if (s[i] != '/') return false;
-            if (s[i + 1] != '*') return false;
-            return Parser.Parse(HeronGrammar.BlockComment, s, i, out token);
-        }
-
-        private bool ParseLineComment(string s, int i, ref string token)
-        {
-            if (i >= s.Length - 3) return false;
-            if (s[i] != '/') return false;
-            if (s[i + 1] != '/') return false;
-            return Parser.Parse(HeronGrammar.LineComment, s, i, out token);
-        }
-
-        private bool ParseNumber(string s, int i, ref string token)
-        {
-            if (i >= s.Length - 1) return false;
-            if (!Char.IsDigit(s[i])) return false;
-            return Parser.Parse(HeronGrammar.NumLiteral, s, i, out token);
-        }
-
-        private bool ParseWSpace(string s, int i, ref string token)
+        private bool ParseWSpace(string s, int i, out string token)
         {
             int begin = i;
             while (i < s.Length && Char.IsWhiteSpace(s[i]))
                 ++i;
             if (i == begin)
+            {
+                token = "";
                 return false;
+            }
             token = s.Substring(begin, i - begin);
             return true;
         }

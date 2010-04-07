@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Data;
 using System.Diagnostics;
-using System.Linq;
+using System.Linq;      
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -12,12 +12,37 @@ using System.Windows.Forms;
 
 namespace HeronEdit
 {
+    /// <summary>
+    /// The CodeEditControl is a specialzied RichTextBox control that is intended for use 
+    /// as a code editor. It provides some helper functions for coloring of text, and has some 
+    /// default proeprty values that I find useful when writing text editors of code.
+    /// For example: 
+    /// <list type="unordered">
+    /// <item>tab is replaced by spaces</item>
+    /// <item>when setting rich text (using UpdateRtf()) scrollbars don't move</item>
+    /// <item>when setting rich text (using UpdateRtf()) painting is halted to prevent flicker</item>
+    /// </list>
+    /// </summary>
     public partial class CodeEditControl : RichTextBox
     {
+        #region constants 
+        /// <summary>
+        /// Identifies the horizontal scrollbar to the Windows API.
+        /// </summary>
         const int SB_HORZ = 0;
-        const int SB_VERT = 1;
-        const string TAB = "    ";
 
+        /// <summary>
+        /// Identifies the vertical scrollbar to the Windows API.
+        /// </summary>
+        const int SB_VERT = 1;
+        
+        /// <summary>
+        /// When pressing tab the following string is inserted instead. 
+        /// </summary>
+        const string TAB = "    ";
+        #endregion
+
+        #region Useful Windows API functions and structs not exposed to CLR
         [DllImport("user32", CharSet = CharSet.Auto)]
         static extern bool GetScrollRange(IntPtr hWnd, int nBar, out int lpMinPos, out int lpMaxPos);
 
@@ -45,37 +70,33 @@ namespace HeronEdit
                 this.x = x;
                 this.y = y;
             }
-        } 
+        }
+        #endregion
 
-        public delegate void Proc();
-
+        #region fields
+        /// <summary>
+        /// Manages the undo and redo stack
+        /// </summary>
         UndoSystem undoer = new UndoSystem();
-
-        Range changedRange = new Range(0, 0);
+        
+        /// <summary>
+        /// Used for StartRepaint() and StopRepaint() messages
+        /// </summary>
         IntPtr eventMask;
+        #endregion
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public CodeEditControl()
         {
             InitializeComponent();
         }
 
-        public class TextEventArgs : EventArgs
-        {
-            int begin;
-            int length;
-            string text;
-            
-            public TextEventArgs(int n, int len, string t)
-            {
-                begin = n;
-                length = len;
-                text = t;
-            }
-            public int Begin { get { return begin; } }
-            public int Length { get { return length; } }
-            public string Text { get { return text; } }
-        }
-
+        /// <summary>
+        /// Returns the text of the entire line containing the current
+        /// selection point.
+        /// </summary>
         public string CurrentLine
         {
             get
@@ -86,6 +107,12 @@ namespace HeronEdit
             }
         }
 
+        /// <summary>
+        /// Given a character offset, returns the offset of the first 
+        /// character of the containing line.
+        /// </summary>
+        /// <param name="n"></param>
+        /// <returns></returns>
         public int LineStartFromIndex(int n)
         {
             while (n > 0 && Text[n - 1] != '\n')
@@ -103,7 +130,6 @@ namespace HeronEdit
             POINT pos = new POINT();
             SendMessage(Handle, (uint)WindowsMessages.EM_GETSCROLLPOS, IntPtr.Zero, pos);
             return pos;
-
         }
 
         /// <summary>
@@ -116,6 +142,11 @@ namespace HeronEdit
             SendMessage(Handle, (uint)WindowsMessages.EM_SETSCROLLPOS, IntPtr.Zero, point);
         }
 
+        /// <summary>
+        /// Returns the index of the last character in a line.
+        /// </summary>
+        /// <param name="n"></param>
+        /// <returns></returns>
         public int LineEndFromIndex(int n)
         {
             while (n < TextLength && Text[n] != '\n')
@@ -123,6 +154,9 @@ namespace HeronEdit
             return n;
         }
 
+        /// <summary>
+        /// Returns the index of the beginning of the current line.
+        /// </summary>
         public int CurrentLineStart
         {
             get
@@ -131,6 +165,10 @@ namespace HeronEdit
             }
         }
 
+        /// <summary>
+        /// Returns the character index of the beginning of the 
+        /// next line.
+        /// </summary>
         public int NextLineStart
         {
             get
@@ -139,18 +177,31 @@ namespace HeronEdit
             }
         }
 
-        public string LinesContainingRange(int a, int b)
+        /// <summary>
+        /// Given a start point and an end point returns all lines 
+        /// of text between those two points, inclusively.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public string LinesContainingRange(int start, int end)
         {
-            a = LineStartFromIndex(a);
-            b = LineEndFromIndex(b);
+            int a = LineStartFromIndex(start);
+            int b = LineEndFromIndex(end);
             return Text.Substring(a, b - a);
         }
 
+        /// <summary>
+        /// The line index of the current selection point
+        /// </summary>
         public int CurrentLineIndex 
         {
             get { return GetLineFromCharIndex(SelectionStart); }
         }
 
+        /// <summary>
+        /// Forces windows to prevent painting of the control.
+        /// </summary>
         private void StopRepaint()
         {
             // Stop redrawing: 
@@ -159,6 +210,9 @@ namespace HeronEdit
             eventMask = SendMessage(this.Handle, (uint)WindowsMessages.EM_GETEVENTMASK, IntPtr.Zero, IntPtr.Zero);
         }
 
+        /// <summary>
+        /// Tells windows to allow painting of the control.
+        /// </summary>
         private void StartRepaint()
         {
             // turn on events 
@@ -169,6 +223,15 @@ namespace HeronEdit
             this.Invalidate();
         }
 
+        /// <summary>
+        /// A utility function for counting nested character pairs (e.g. { }).
+        /// It will return 0 if the number of open characters matches the closing 
+        /// character. This is useful for computing how much to indent the next line.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="open"></param>
+        /// <param name="close"></param>
+        /// <returns></returns>
         private int CountNested(string s, char open, char close)
         {
             int r = 0;
@@ -180,14 +243,17 @@ namespace HeronEdit
             return r;
         }
 
+        /// <summary>
+        /// Overrides the behavior of OnKeyDown so that the enter 
+        /// key causes the next line to be indented appropriately
+        /// according to how much indent the previous line has, and 
+        /// how many { and } characters it has.
+        /// </summary>  
+        /// <param name="e"></param>
         protected override void OnKeyDown(KeyEventArgs e)
         {
             switch (e.KeyCode)
             {
-                case Keys.Tab:
-                    SelectedText = TAB;
-                    e.Handled = true;
-                    break;
                 case Keys.Enter:
                     {    
                         string s = CurrentLine;
@@ -199,10 +265,31 @@ namespace HeronEdit
                         e.Handled = true;
                     }
                     break;
+                case Keys.Insert:
+                    if (e.Control)
+                    {
+                        e.Handled = true;
+                        Paste();
+                    }
+                    break;
+                case Keys.V:
+                    if (e.Control)
+                    {
+                        e.Handled = true;
+                        Paste();
+                    }
+                    break;
             }
             base.OnKeyDown(e);
         }
 
+        /// <summary>
+        /// Sets the rich text property (Rtf) of the rich text 
+        /// control, while assuring that the scroll bar doesn't 
+        /// move and that the selection point doesn't change. 
+        /// This is done without flicker.
+        /// </summary>
+        /// <param name="p"></param>
         public void UpdateRtf(string p)
         {
             POINT pt = GetScrollPos();
@@ -211,7 +298,7 @@ namespace HeronEdit
             try
             {
                 LockWindow(Handle);
-                base.Rtf = p;
+                base.Rtf = p.Replace("\t", TAB);
             }
             finally
             {
@@ -222,6 +309,13 @@ namespace HeronEdit
             }
         }
 
+        /// <summary>
+        /// Sets the text property (Text) of the rich text 
+        /// control, while assuring that the scroll bar doesn't 
+        /// move and that the selection point doesn't change. 
+        /// This is done without flicker.
+        /// </summary>
+        /// <param name="p"></param>
         public void UpdateText(string p)
         {
             POINT pt = GetScrollPos();
@@ -231,7 +325,7 @@ namespace HeronEdit
             try
             {
                 LockWindow(Handle);
-                base.Text = p;
+                base.Text = p.Replace("\t", TAB);
             }
             finally
             {
@@ -241,6 +335,17 @@ namespace HeronEdit
                 SelectionLength = len;
                 LockWindow(IntPtr.Zero);
             }
+        }
+    
+        /// <summary>
+        /// Assures that pasting of code only cause plain-text 
+        /// to be inserted, and replaces tab characters with whitespace.
+        /// </summary>
+        public new void Paste()
+        {
+            string s = Clipboard.GetText();
+            s = s.Replace("\t", TAB);
+            SelectedText = s;
         }
     }
 }
