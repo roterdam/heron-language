@@ -14,7 +14,7 @@ namespace HeronEngine
     public class HeronGrammar 
         : Grammar
     {
-        #region new rule functions
+        #region new rule exposedFunctions
         public static Rule AnyCharExcept(Rule r)
         {
             return Star(Not(r) + AnyChar);

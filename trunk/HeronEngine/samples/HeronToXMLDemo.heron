@@ -1,0 +1,18 @@
+﻿module HeronToXMLDemo
+{
+    imports 
+    {
+        console = new Heron.Windows.Console();
+        toXML = new HeronToXML();
+        nqueens = new NQueens();
+    }
+    methods
+    {
+        Meta(p : ProgramDefn)
+        {
+            foreach (m in p.GetModules())
+                if (m.name == "NQueens")
+                    toXML.Output(m);
+        }
+    }
+}

@@ -2,17 +2,17 @@ module Heron.Windows.Console
 {
     fields
     {
-        stdin : StreamReader;
-        oldin : StreamReader;
-        stdout : StreamWriter;
-        oldout : StreamWriter;
+        stdin : TextReader;
+        oldin : TextReader;
+        stdout : TextWriter;
+        oldout : TextWriter;
     }
     methods
     {
         Constructor()
         {
-            stdin = new StreamReader(Console.OpenStandardInput());
-            stdout = new StreamWriter(Console.OpenStandardOutput());
+            stdin = Console.get_In();
+            stdout = Console.get_Out();
             oldin = stdin;
             oldout = stdout;
         }
@@ -40,12 +40,12 @@ module Heron.Windows.Console
         {
             return Path.GetTempFileName();
         }
-        SetIn(in : StreamReader)
+        SetIn(in : TextReader)
         {
             oldin = stdin;
             stdin = in;
         }
-        SetOut(out : StreamWriter)
+        SetOut(out : TextWriter)
         {
             oldout = stdout;
             stdout = out;

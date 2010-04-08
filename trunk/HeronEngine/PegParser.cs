@@ -29,6 +29,10 @@ namespace HeronEngine
         public int end;
     }
 
+    /// <summary>
+    /// Contains detailed information about the locaion
+    /// of a parse error, for constructing useful strings.
+    /// </summary>
     public class ParseExceptionContext
     {
         public ParseLocation location;
@@ -62,6 +66,10 @@ namespace HeronEngine
         }
     }
     
+    /// <summary>
+    /// An exception that provides information about where a parsing error 
+    /// occrured.
+    /// </summary>
     public class ParsingException : Exception
     {
         public ParseExceptionContext context;

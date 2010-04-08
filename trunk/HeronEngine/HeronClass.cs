@@ -16,7 +16,7 @@ namespace HeronEngine
     /// </summary>
     public class ClassDefn : HeronUserType
     {
-        #region fields
+        #region exposedFields
         List<FunctionDefn> methods = new List<FunctionDefn>();
         List<FieldDefn> fields = new List<FieldDefn>();
         HeronType baseclass = null;
@@ -33,14 +33,13 @@ namespace HeronEngine
             autoCtor = new FunctionDefn(this, "_Constructor_");
         }
 
-        public void ResolveTypes(ModuleDefn m)
+        public void ResolveTypes(ModuleDefn global, ModuleDefn m)
         {
             if (baseclass != null)
-                if (baseclass is UnresolvedType)
-                    baseclass = (baseclass as UnresolvedType).Resolve(m);
+                baseclass = baseclass.Resolve(global, m);
             for (int i = 0; i < interfaces.Count; ++i)
             {
-                HeronType t = interfaces[i].Resolve(m);
+                HeronType t = interfaces[i].Resolve(global, m);
                 if (t == null)
                     throw new Exception(interfaces[i].name + " could not be resolved");
                 InterfaceDefn hi = t as InterfaceDefn;
@@ -49,9 +48,9 @@ namespace HeronEngine
                 interfaces[i] = hi;
             }
             foreach (FieldDefn f in GetFields())
-                f.ResolveTypes(m);
+                f.ResolveTypes(global, m);
             foreach (FunctionDefn f in GetAllMethods())
-                f.ResolveTypes(m);
+                f.ResolveTypes(global, m);
         }
 
         public bool VerifyImplements(InterfaceDefn i)
@@ -269,7 +268,7 @@ namespace HeronEngine
         {
             List<FunctionDefn> fs = new List<FunctionDefn>(GetMethods(name));
 
-            // Look for static functions to return
+            // Look for static exposedFunctions to return
             if (fs.Count != 0)
                 return new FunDefnListValue(Null, name, fs);
             return base.GetFieldOrMethod(name);

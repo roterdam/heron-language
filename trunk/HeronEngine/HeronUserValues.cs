@@ -119,7 +119,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Returns all functions sharing the given name at once
+        /// Returns all exposedFunctions sharing the given name at once
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
@@ -252,7 +252,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Returns all functions sharing the given name at once
+        /// Returns all exposedFunctions sharing the given name at once
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
@@ -333,7 +333,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// A moduleDef instance can contain fields and methods just like a class
+    /// A moduleDef instance can contain exposedFields and methods just like a class
     /// </summary>
     public class ModuleInstance : ClassInstance
     {

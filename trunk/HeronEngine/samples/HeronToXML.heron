@@ -1,0 +1,433 @@
+﻿module HeronToXML
+{
+    imports
+    {
+        console = new Heron.Windows.Console();
+    }
+    fields
+    {
+        indent : String;
+        atNewLine : Bool;
+    }
+    methods
+    {        
+        Constructor()
+        {
+            indent = new String();
+            atNewLine = false;
+        }
+        Output(program : ProgramDefn)
+        {
+            foreach (m in program.GetModules())
+                Output(m);
+        }
+        OutputRaw(s : String)
+        {
+            if (atNewLine)
+            {
+                atNewLine = false;
+                WriteLine();
+                Write(indent);
+            } 
+            Write(s);
+        }
+        Output(s : String)
+        {
+            s = Regex.Replace(s, "&", "&amp;");
+            s = Regex.Replace(s, "<", "&lt;");
+            OutputRaw(s);
+        }
+        OutputLine()
+        {
+            OutputLine("");
+        }            
+        OutputLine(s : String)
+        {
+            Output(s);
+            atNewLine = true;
+        }
+        Indent(f : Function)
+        {
+            var old_indent = indent;
+            indent = indent + "  ";
+            f();
+            indent = old_indent;
+        }
+        OpenTag(tag : String)
+        {
+            OutputRaw("<" + tag +">");
+        }
+        OpenNamedTag(tag : String, name : String)
+        {
+            OuputRaw("<" + tag +" name='" + name + "'>\n");
+        }
+        CloseTag(tag : String)
+        {
+            OutputRaw("</" + tag + ">\n");
+        }
+        OutputTaggedFunction(tag : String, f : Function)
+        {
+            OpenTag(tag);
+            Indent(f);
+            CloseTag(tag);
+        }            
+        OutputList(tag : String, xs : List)
+        {
+            OpenTag(tag);
+            OutputAll(xs);
+            CloseTag(tag);
+        }
+        OutputAll(xs : Seq)
+        {
+            foreach (x in xs)
+                Output(x);
+        }
+        OutputTaggedText(tag : String, text : String)
+        {
+            OpenTag(tag);
+            Output(text);
+            CloseTag(tag);
+        }
+        OutputTagged(tag : String, x)
+        {
+            OpenTag(tag);
+            Output(x);
+            CloseTag(tag);
+        }
+        OutputName(s : String)
+        {
+            OutputTaggedText("name", s);
+        }
+        OutputType(s : String)
+        {
+            OutputTaggedText("type", s);
+        }
+        Output(m : ModuleDefn)
+        {
+            OpenTag("module");
+            OutputName(m.name);
+            OutputSection("imports", m.GetImports());
+            OutputSection("fields", m.GetFields());
+            OutputSection("methods", m.GetDeclaredMethods());
+            OpenTag("types");
+            OutputAll(m.GetClasses());
+            OutputAll(m.GetInterfaces());
+            OutputAll(m.GetEnums());
+            CloseTag("types");
+            CloseTag("module");
+        }
+        OutputSection(name : String, xs : Seq)
+        {
+            OpenTag(name);
+            OutputAll(xs);
+            CloseTag(name);
+        }
+        Output(c : ClassDefn)
+        {
+            OpenTag("class");
+            OutputName(c.name);
+            OutputSection("inherits", c.GetInheritedClasses());
+            OutputSection("implements", c.GetImplementedInterfaces());
+            OutputSection("fields", c.GetFields());
+            OutputSection("methods", c.GetDeclaredMethods());
+            CloseTag("class");
+        }
+        Output(i : InterfaceDefn)
+        {
+            OpenTag("interface");
+            OutputName(i.name);
+            OutputSection("inherits", i.GetInheritedInterfaces());
+            OutputSection("methods", i.GetDeclaredMethods());
+            CloseTag("interface");
+        }
+        Output(e : EnumDefn)
+        {
+            OpenTag("enum");
+            OutputName(e.name);
+            // TODO:
+            CloseTag("enum");
+        }
+        Output(f : FieldDefn)
+        {
+            OpenTag("field");
+            OutputName(f.name);
+            OutputType(f.type);
+            if (f.expr != null)
+                Output(f.expr);
+            CloseTag("field");
+        }
+        Output(m : FunctionDefn)
+        {
+            OpenTag("function");
+            OutputName(m.name);
+            OutputList("parameters", m.formals);
+            OutputType(m.rettype);
+            // OutputTagged("body", m.body);
+            CloseTag("function");
+        }
+        Output(i : Import)
+        {
+            OpenTag("import");
+            OutputTaggedText("alias", i.alias);
+            OutputTaggedText("modulename", i.module);
+            OutputList("args", i.args);
+            CloseTag("import");
+        }
+        Output(fa : FormalArg)
+        {
+            OpenTag("param");
+            Write(fa.name);
+            OutputType(fa.type);
+            CloseTag("param");
+        }
+        Output(x : VariableDeclaration)
+        {
+            OpenTag("vardecl");
+            OutputName(x.name);
+            OutputType(x.type);
+            if (x.value != null)
+                Output(x.value);
+            CloseTag("vardecl");
+        }
+        Output(x : DeleteStatement)
+        {
+            OpenTag("delete");
+            Output(x.expression);
+            CloseTag("delete");
+        }
+        Output(x : ExpressionStatement)
+        {
+            OpenTag("exprstatement");
+            Output(x.expression); 
+            CloseTag("exprstatement");
+        }
+        Output(x : ForEachStatement)
+        {
+            OpenTag("foreach");
+            OutputName(x.name);
+            OutputType(x.type);
+            OpenTag("collection");
+            Output(x.collection);
+            CloseTag("collection");
+            OutputTagged("body", x.body);
+            CloseTag("foreach");
+        }
+        Output(x : ForStatement)
+        {
+            Write("for (");
+            Write(x.name);
+            Write(" = ");
+            Output(x.initial);
+            Write("; ");
+            Output(x.condition);
+            Write("; ");
+            Output(x.next);
+            WriteLine(")");
+            OutputIndentedStatement(x.body);
+        }
+        Output(x : CodeBlock)
+        {
+            OpenTag("block");
+            foreach (s in x.statements)
+                Output(s);
+            CloseTag("block");
+        }
+        Output(x : IfStatement)
+        {
+            Write("if (");
+            Output(x.condition);
+            WriteLine(")");
+            OutputIndentedStatement(x.ontrue);
+            if (x.onfalse != null)
+            {
+                WriteLine("else");
+                OutputIndentedStatement(x.onfalse);
+            }
+        }
+        Output(x : WhileStatement)
+        {
+            Write("while (");
+            Output(x.condition);
+            WriteLine(")");
+            OutputIndentedStatement(x.body);
+        }
+        Output(x : ReturnStatement)
+        {
+            Write("return ");
+            if (x.expression != null)
+                Output(x.expression);
+            WriteLine(";");
+        }
+        Output(x : SwitchStatement)
+        {
+            Write("switch (");
+            Output(x.condition);
+            WriteLine(")");
+            WriteLine("{");
+            foreach (x in cases)
+                Output(x);
+            if (x.ondefault != null)
+            {
+                WriteLine("default");
+                Output(x.ondefault);
+            }
+            WriteLine("}");
+        }
+        Output(x : CaseStatement)
+        {
+            OpenTag("case");
+            Output(x.condition);
+            Output(x.statement);
+            CloseTag("case");
+        }
+        Output(x : Assignment)
+        {
+            OpenTag("assignment");
+            OutputTagged("lvalue", x.lvalue);
+            OutputTagged("rvalue", x.rvalue);
+            CloseTag("assignment");
+        }
+        Output(x : ChooseField)
+        {
+            OpenTag("readfield");
+            OutputTagged("self", x.self);
+            OutputTagged("name", x.name);
+            CloseTag("readfield");
+        }
+        Output(x : ReadAt)
+        {
+            OpenTag("readat");
+            OutputTagged("self", x.self);
+            OutputTagged("index", x.index);
+            CloseTag("readat");
+        }
+        Output(x : NewExpr)
+        {
+            OpenTag("new");
+            OutputType(x.type);
+            OutputList("args", x.args);
+            //if (x.module != null)
+                OutputTagged("srcmodule", x.module); 
+            CloseTag("new");
+        }
+        EmptyTag(tag : String)
+        {
+            OutputRaw("<" + tag + "/>");
+        }
+        Output(x : NullExpr)
+        {
+            EmptyTag("null");            
+        }
+        OutputValue(tag : String, value : String)
+        {
+            OutputRaw("<" + tag + " value='" + value + "'/>");
+        }
+        Output(x : IntLiteral)
+        {
+            OutputValue("int", x.ToString());
+        }
+        Output(x : BoolLiteral)
+        {
+            OutputValue("bool", x.ToString());
+        }
+        Output(x : FloatLiteral)
+        {
+            OutputValue("float", x.ToString());
+        }
+        Output(x : CharLiteral)
+        {
+            OutputValue("char", x.ToString());
+        }
+        Output(x : StringLiteral)
+        {
+            OutputValue("string", x.ToString());
+        }
+        Output(x : Name)
+        {
+            OutputValue("name", x.ToString());
+        }
+        Output(x : FunCall)
+        {
+            OpenTag("funcall");
+            OutputTagged("function", x.funexpr);
+            OutputList("args", x.args);
+            CloseTag("funcall");
+        }
+        Output(x : UnaryOperation)
+        {
+            OpenTag("unaryop");
+            OutputTaggedText("operator", x.operation);
+            OutputTagged("operand", x.operand);
+            CloseTag("unaryop");
+        }
+        Output(x : BinaryOperation)
+        {
+            OpenTag("binaryop");
+            OutputTaggedText("operator", x.operation);
+            OutputTagged("loperand", x.operand1);
+            OutputTagged("roperand", x.operand2);
+            CloseTag("binaryop");
+        }
+        Output(x : FunExpr)
+        {
+            OpenTag("closure");
+            OutputList("params", x.formals);
+            OutputType(x.rettype);
+            OutputTagged("body", x.body);
+            CloseTag("closure");
+        }
+        Output(x : PostIncExpr)
+        {
+            OutputTagged("postinc", x.expr);
+        }
+        Output(x : SelectExpr)
+        {
+            OpenTag("select");
+            OutputTagged("name", x.name);
+            OutputTagged("list", x.list);
+            OutputTagged("predicate", x.predicate);
+            CloseTag("select");
+        }
+        Output(x : MapExpr)
+        {
+            OpenTag("map");
+            OutputTagged("name", x.name);
+            OutputTagged("list", x.list);
+            OutputTagged("yield", x.yield);
+            CloseTag("map");
+        }
+        Output(x : AccumulateExpr)
+        {
+            OpenTag("accumulate");
+            OutputTagged("accumulator", x.acc);
+            OutputTagged("initializer", x.init);
+            OutputTagged("each", x.each);
+            OutputTagged("list", x.list);
+            OutputTagged("expression", x.expr);
+            CloseTag("accumulate");
+        }
+        Output(x : TupleExpr)
+        {
+            OutputList("tuple", x.exprs);
+        }
+        Output(x : ParanthesizedExpr)
+        {
+            OutputTagged("paranthesized", x.expr);
+        }
+        Output(x : TableExpr)
+        {
+            OpenTag("table");
+            OutputFormalArgs(x.fielddefs);
+            OutputList("rows", x.rows);
+            CloseTag("table");
+        }
+        Output(x : RecordExpr)
+        {
+            OpenTag("record");
+            OutputFormalArgs(x.fielddefs);
+            OutputList("fields", x.fields);
+            CloseTag("record");
+        }
+    }
+}
+

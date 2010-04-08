@@ -170,7 +170,7 @@ namespace HeronEngine
         {
             Type type = GetSystemType();
 
-            // We have to first look to see if there are static fields
+            // We have to first look to see if there are static exposedFields
             FieldInfo[] fis = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetField);
             foreach (FieldInfo fi in fis)
                 if (fi.Name == name)
@@ -332,7 +332,7 @@ namespace HeronEngine
             if (r != null)
                 return r;
 
-            // We have to first look to see if there are static fields
+            // We have to first look to see if there are static exposedFields
             FieldInfo[] fis = GetSystemType().GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.GetField);
             foreach (FieldInfo fi in fis)
                 if (fi.Name == name)
@@ -400,7 +400,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Very similar to DotNetMethodGroup, except only static functions are bound.
+    /// Very similar to DotNetMethodGroup, except only static exposedFunctions are bound.
     /// </summary>
     public class DotNetStaticMethodGroup : HeronValue
     {

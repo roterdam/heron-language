@@ -1,0 +1,27 @@
+﻿module NegativeTestNullPassing
+{
+    imports
+    {
+        console = new Heron.Windows.Console();
+    }
+    methods
+    {
+        Passes(x : SomeObject?)
+        {
+            WriteLine("Passed");
+        }
+        Fails(x : SomeObject)
+        {
+            WriteLine("Should never happen");
+        }
+        Main()
+        {
+            Passes(null);
+            Fails(null);
+        }
+    }
+}
+
+class SomeObject
+{
+}

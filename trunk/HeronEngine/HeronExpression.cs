@@ -104,13 +104,13 @@ namespace HeronEngine
                             yield return y;
         }
 
-        public void ResolveAllTypes(ModuleDefn m)
+        public void ResolveAllTypes(ModuleDefn global, ModuleDefn m)
         {
             foreach (Expression x in GetExpressionTree())
-                x.ResolveTypes(m);
+                x.ResolveTypes(global, m);
         }
 
-        public virtual void ResolveTypes(ModuleDefn m)
+        public virtual void ResolveTypes(ModuleDefn global, ModuleDefn m)
         {
             foreach (FieldInfo fi in GetInstanceFields())
             {
@@ -121,7 +121,7 @@ namespace HeronEngine
                         throw new Exception("The type field cannot be null");
                     UnresolvedType ut = t as UnresolvedType;
                     if (ut != null)
-                        fi.SetValue(this, ut.Resolve(m));
+                        fi.SetValue(this, ut.Resolve(global, m));
                 }
             }
         }
@@ -159,7 +159,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// A list of expressions, used primarily for passing arguments to functions
+    /// A list of expressions, used primarily for passing arguments to exposedFunctions
     /// </summary>
     public class ExpressionList : List<Expression>
     {
@@ -698,11 +698,11 @@ namespace HeronEngine
 
         private FunctionDefn function;
 
-        public override void ResolveTypes(ModuleDefn m)
+        public override void ResolveTypes(ModuleDefn global, ModuleDefn m)
         {
-            formals.ResolveTypes(m);
-            body.ResolveTypes(m);
-            rettype = rettype.Resolve(m);
+            formals.ResolveTypes(global, m);
+            body.ResolveTypes(global, m);
+            rettype = rettype.Resolve(global, m);
         }
 
         public override Expression Optimize(OptimizationParams op)
@@ -878,12 +878,12 @@ namespace HeronEngine
         {
         }
 
-        public override void ResolveTypes(ModuleDefn m)
+        public override void ResolveTypes(ModuleDefn global, ModuleDefn m)
         {
             foreach (ExpressionList row in rows)
                 foreach (Expression field in row)
-                    field.ResolveTypes(m);
-            fielddefs.ResolveTypes(m);
+                    field.ResolveTypes(global, m);
+            fielddefs.ResolveTypes(global, m);
         }
 
         private RecordLayout ComputeRecordLayout()
@@ -955,11 +955,11 @@ namespace HeronEngine
             return new RecordExpr(fields.Optimize(op), fielddefs);
         }
 
-        public override void ResolveTypes(ModuleDefn m)
+        public override void ResolveTypes(ModuleDefn global, ModuleDefn m)
         {
             foreach (Expression field in fields)
-                field.ResolveTypes(m);
-            fielddefs.ResolveTypes(m);
+                field.ResolveTypes(global, m);
+            fielddefs.ResolveTypes(global, m);
         }
 
         private RecordLayout ComputeRecordLayout()

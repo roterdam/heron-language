@@ -148,6 +148,21 @@ namespace HeronEngine
         {
             return PrimitiveTypes.CharType;
         }
+
+        [HeronVisible]
+        public new HeronValue ToInt()
+        {
+            return new IntValue((int)GetValue());
+        }
+
+        [HeronVisible]
+        public static HeronValue FromInt(HeronValue x)
+        {
+            IntValue iv = x as IntValue;
+            if (iv == null)
+                throw new Exception("Expect IntValue, not " + x.GetHeronType().ToString());
+            return new CharValue((char)iv.GetValue());
+        }
     }
 
     public class FloatValue : PrimitiveTemplate<float>

@@ -375,7 +375,7 @@ namespace HeronEngine
                 RecordValue rec = record as RecordValue;
                 if (rec.GetLayout() == layout)
                     return;
-                // Check then that there are the same fields in "record" that we require. 
+                // Check then that there are the same exposedFields in "record" that we require. 
                 if (layout.IsCompatible(rec))
                     return;
                 throw new Exception("The record layout " + layout.ToString() + " does not contain a super-set of the accepted fields");
