@@ -134,6 +134,8 @@
     <Content Include="Heron.ico" />
     <Content Include="license.txt" />
     <Content Include="readme.txt" />
+    <None Include="tests\NegativeTestArgumentType.heron" />
+    <None Include="tests\NegativeTestNullPassing.heron" />
     <None Include="tests\TestSort.heron" />
     <None Include="tests\TestLists.heron" />
   </ItemGroup>

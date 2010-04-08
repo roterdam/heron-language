@@ -9,7 +9,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Reflection;
+using System.Windows.Forms;
 
 namespace HeronEngine
 {
@@ -63,7 +67,7 @@ namespace HeronEngine
             }
         }
         
-        #region fields
+        #region exposedFields
         /// <summary>
         /// The current result value
         /// </summary>
@@ -75,9 +79,14 @@ namespace HeronEngine
         private List<Frame> frames = new List<Frame>();
 
         /// <summary>
-        /// Currently executing program. It contains global names.
+        /// Currently executing program..
         /// </summary>
         private ProgramDefn program;
+
+        /// <summary>
+        /// A single global module that contains the primitives.
+        /// </summary>
+        private ModuleDefn globalModule;
 
         /// <summary>
         /// A flag that is set to true when a return statement occurs. 
@@ -103,13 +112,11 @@ namespace HeronEngine
         /// <summary>
         /// Returns the global moduleDef definition
         /// </summary>
-        public ModuleDefn GlobalModuleDef
+        public ModuleDefn GlobalModule
         {
             get
             {
-                if (program == null)
-                    return null;
-                return program.GetGlobal();
+                return globalModule;
             }
         }
 
@@ -153,7 +160,9 @@ namespace HeronEngine
 
         public void InitializeVM()
         {
-            program = new ProgramDefn("_program_");
+            globalModule = new ModuleDefn(null, "_global_", "_internal_");
+            RegisterPrimitives();
+            program = new ProgramDefn("_program_", globalModule);
 
             // Clear all the frames
             frames.Clear();
@@ -163,13 +172,144 @@ namespace HeronEngine
             PushNewFrame(null, null);
             PushScope();
         }
+
+        /// <summary>
+        /// This exposes a set of globally recognized Heron and .NET 
+        /// types to the environment (essentially global variables).
+        /// A simple way to extend the scope of Heron is to introduce
+        /// new types in this function.
+        /// </summary>
+        private void RegisterPrimitives()
+        {
+            SortedDictionary<string, HeronType> prims = PrimitiveTypes.GetTypes();
+            foreach (string s in prims.Keys)
+                GlobalModule.AddPrimitive(s, prims[s]);
+
+            // Math utilities
+            RegisterDotNetType(typeof(Math));
+
+            // File system support
+            RegisterDotNetType(typeof(File));
+            RegisterDotNetType(typeof(Directory));
+            RegisterDotNetType(typeof(Path));
+
+            // Low-level OS stuff
+            RegisterDotNetType(typeof(Environment));
+            RegisterDotNetType(typeof(Environment.SpecialFolder));
+            RegisterDotNetType(typeof(Environment.SpecialFolderOption));
+            RegisterDotNetType(typeof(EnvironmentVariableTarget));
+            RegisterDotNetType(typeof(OperatingSystem));
+            RegisterDotNetType(typeof(ProcessorArchitecture));
+            RegisterDotNetType(typeof(Process));
+
+            // IO functionality 
+            RegisterDotNetType(typeof(Console));
+            RegisterDotNetType(typeof(StreamReader));
+            RegisterDotNetType(typeof(StreamWriter));
+            RegisterDotNetType(typeof(TextReader));
+            RegisterDotNetType(typeof(TextWriter));
+
+            // Concurrency support 
+            RegisterDotNetType(typeof(Thread));
+            RegisterDotNetType(typeof(Task));
+
+            // Regex functionality supported
+            RegisterDotNetType(typeof(System.Text.RegularExpressions.Regex));
+            RegisterDotNetType(typeof(System.Text.RegularExpressions.Capture));
+            RegisterDotNetType(typeof(System.Text.RegularExpressions.CaptureCollection));
+            RegisterDotNetType(typeof(System.Text.RegularExpressions.Group));
+            RegisterDotNetType(typeof(System.Text.RegularExpressions.GroupCollection));
+            RegisterDotNetType(typeof(System.Text.RegularExpressions.Match));
+            RegisterDotNetType(typeof(System.Text.RegularExpressions.MatchCollection));
+            RegisterDotNetType(typeof(System.Text.RegularExpressions.RegexOptions));
+
+            // Time and TimeSpan
+            RegisterDotNetType(typeof(TimeSpan));
+            RegisterDotNetType(typeof(DateTime));
+
+            // Load other libraries specified in the configuration file
+            foreach (string lib in Config.libs)
+                RegisterAssemblyFile(lib);
+
+            // Load the standard library types
+            RegisterDotNetType(typeof(HeronStandardLibrary.Viewport), "Viewport");
+            RegisterDotNetType(typeof(HeronStandardLibrary.Util), "Util");
+        }
+        public void RegisterCommonWinFormTypes()
+        {
+            RegisterDotNetType(typeof(Form));
+            RegisterDotNetType(typeof(MessageBox));
+            RegisterDotNetType(typeof(Button));
+            RegisterDotNetType(typeof(RichTextBox));
+            RegisterDotNetType(typeof(MenuStrip));
+            RegisterDotNetType(typeof(StatusStrip));
+            RegisterDotNetType(typeof(TextBox));
+            RegisterDotNetType(typeof(TreeView));
+            RegisterDotNetType(typeof(ListView));
+            RegisterDotNetType(typeof(ComboBox));
+            RegisterDotNetType(typeof(RadioButton));
+            RegisterDotNetType(typeof(Label));
+            RegisterDotNetType(typeof(Panel));
+            RegisterDotNetType(typeof(Splitter));
+            RegisterDotNetType(typeof(Control));
+            RegisterDotNetType(typeof(Keys));
+        }
+        public void RegisterDotNetType(Type t, string name)
+        {
+            GlobalModule.AddDotNetType(name, t);
+        }
+        [HeronVisible]
+        public void RegisterDotNetType(Type t)
+        {
+            GlobalModule.AddDotNetType(t.Name, t);
+        }
+        [HeronVisible]
+        public void RegisterAssemblyFile(string s)
+        {
+            Assembly a = null;
+            foreach (String tmp in Config.inputPath)
+            {
+                string path = tmp + "\\" + s;
+                if (File.Exists(path))
+                {
+                    a = Assembly.LoadFrom(path);
+                    break;
+                }
+                path += ".dll";
+                if (File.Exists(path))
+                {
+                    a = Assembly.LoadFrom(path);
+                    break;
+                }
+            }
+            if (a == null)
+                throw new Exception("Could not find assembly " + s);
+            RegisterAssembly(a);
+        }
+
+        [HeronVisible]
+        public void RegisterAssembly(Assembly a)
+        {
+            foreach (Type t in a.GetExportedTypes())
+                RegisterDotNetType(t);
+        }
+
+        static public void RedirectStdIn(TextReader tr)
+        {
+            Console.SetIn(tr);
+        }
+
+        static public void RedirectStdOut(TextWriter tw)
+        {
+            Console.SetOut(tw);
+        }
         #endregion
 
-        #region evaluation functions
+        #region evaluation exposedFunctions
         public HeronValue EvalString(string s)
         {
             Expression x = HeronCodeModelBuilder.ParseExpr(program, s);
-            x.ResolveAllTypes(program.GetGlobal());
+            x.ResolveAllTypes(globalModule, globalModule);
             return Eval(x); ;
         }
 
@@ -233,7 +373,7 @@ namespace HeronEngine
         {
             foreach (ModuleDefn md in program.GetModules())
             {
-                md.ResolveTypes();
+                md.ResolveTypes(program, globalModule);
                 foreach (ClassDefn c in md.GetClasses())
                     c.VerifyInterfaces();
             }
@@ -367,7 +507,7 @@ namespace HeronEngine
 
         /// <summary>
         /// Creates a new scope, with a predefined set of variable names. Useful for function arguments
-        /// or class fields.
+        /// or class exposedFields.
         /// </summary>
         /// <param name="scope"></param>
         public void PushScope(Scope scope)
@@ -491,7 +631,7 @@ namespace HeronEngine
         }
         #endregion
 
-        #region variables, fields, and name management
+        #region variables, exposedFields, and name management
         /// <summary>
         /// Assigns a value a variable name in the current environment.
         /// The name must already exist
@@ -566,8 +706,8 @@ namespace HeronEngine
                     if (t.name == s)
                         return t;
 
-            if (GlobalModuleDef != null)
-                foreach (HeronType t in GlobalModuleDef.GetTypes())
+            if (GlobalModule != null)
+                foreach (HeronType t in GlobalModule.GetTypes())
                     if (t.name == s)
                         return t;
 
@@ -606,7 +746,7 @@ namespace HeronEngine
         }        
         #endregion 
 
-        #region utility functions
+        #region utility exposedFunctions
         /// <summary>
         /// Throw an exception if condition is not true. However, not an assertion. 
         /// This is used to check for exceptional run-time condition.

@@ -37,17 +37,17 @@ namespace HeronEngine
         List<EnumDefn> enums = new List<EnumDefn>();
         Dictionary<string, HeronType> types = new Dictionary<string, HeronType>();
         List<Import> imports = new List<Import>();
-        ProgramDefn program;
         string fileName = "no file";
+        ProgramDefn program;
 
         public ModuleDefn(ProgramDefn prog, string name, string sFileName)
             : base(null, name)
         {
-            program = prog;
             this.name = name;
             this.module = this;
             types.Add(name, this);
             this.fileName = sFileName;
+            this.program = prog;
         }
 
         public string FileName
@@ -63,19 +63,7 @@ namespace HeronEngine
             return PrimitiveTypes.ModuleType;
         }
 
-        #region heron visible functions
-        [HeronVisible]
-        public ProgramDefn GetProgram()
-        {
-            return program;
-        }
-
-        [HeronVisible]
-        public ModuleDefn GetGlobal()
-        {
-            return program.GetGlobal();
-        }
-
+        #region heron visible exposedFunctions
         [HeronVisible]
         public ClassDefn FindClass(string s)
         {
@@ -285,21 +273,21 @@ namespace HeronEngine
             return null;
         }
 
-        public void ResolveTypes()
+        public void ResolveTypes(ProgramDefn prog, ModuleDefn global)
         {
             if (HasBaseClass())
             {
                 string s = GetInheritedClassName();
-                ModuleDefn baseModule = program.GetModule(s);
+                ModuleDefn baseModule = prog.GetModule(s);
                 SetBaseClass(baseModule);
             }
 
             foreach (InterfaceDefn i in GetInterfaces())
-                i.ResolveTypes(this);
+                i.ResolveTypes(global, this);
             foreach (ClassDefn c in GetClasses())
-                c.ResolveTypes(this);
+                c.ResolveTypes(global, this);
 
-            base.ResolveTypes(this);
+            base.ResolveTypes(global, this);
         }
 
         [HeronVisible]

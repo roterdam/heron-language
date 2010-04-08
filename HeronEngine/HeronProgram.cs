@@ -42,119 +42,17 @@ namespace HeronEngine
         [HeronVisible]
         public string name;
 
-        public ProgramDefn(string name)
+        public ProgramDefn(string name, ModuleDefn global)
         {
             this.name = name;
-            global = new ModuleDefn(this, "_global_", "_internal_");
-            RegisterPrimitives();
-        }
-        public void RegisterDotNetType(Type t, string name)
-        {
-            global.AddDotNetType(name, t);
-        }
-        public void RegisterDotNetType(Type t)
-        {
-            global.AddDotNetType(t.Name, t);
-        }
-
-        /// <summary>
-        /// This exposes a set of globally recognized Heron and .NET 
-        /// types to the environment (essentially global variables).
-        /// A simple way to extend the scope of Heron is to introduce
-        /// new types in this function.
-        /// </summary>
-        private void RegisterPrimitives()
-        {
-            SortedDictionary<string, HeronType> prims = PrimitiveTypes.GetTypes();
-            foreach (string s in prims.Keys)
-                global.AddPrimitive(s, prims[s]);
-
-            // Math utilities
-            RegisterDotNetType(typeof(Math));
-
-            // File system support
-            RegisterDotNetType(typeof(File));
-            RegisterDotNetType(typeof(Directory));
-            RegisterDotNetType(typeof(Path));
-
-            // Low-level OS stuff
-            RegisterDotNetType(typeof(Environment));
-            RegisterDotNetType(typeof(Environment.SpecialFolder));
-            RegisterDotNetType(typeof(Environment.SpecialFolderOption));
-            RegisterDotNetType(typeof(EnvironmentVariableTarget));
-            RegisterDotNetType(typeof(OperatingSystem));
-            RegisterDotNetType(typeof(ProcessorArchitecture));
-            RegisterDotNetType(typeof(Process));
-
-            // IO functionality 
-            RegisterDotNetType(typeof(Console));
-            RegisterDotNetType(typeof(StreamReader));
-            RegisterDotNetType(typeof(StreamWriter));
-            RegisterDotNetType(typeof(TextReader));
-            RegisterDotNetType(typeof(TextWriter));
-
-            // Concurrency support 
-            RegisterDotNetType(typeof(Thread));
-            RegisterDotNetType(typeof(Task));
-
-            // Regex functionality supported
-            RegisterDotNetType(typeof(System.Text.RegularExpressions.Regex));
-            RegisterDotNetType(typeof(System.Text.RegularExpressions.Capture));
-            RegisterDotNetType(typeof(System.Text.RegularExpressions.CaptureCollection));
-            RegisterDotNetType(typeof(System.Text.RegularExpressions.Group));
-            RegisterDotNetType(typeof(System.Text.RegularExpressions.GroupCollection));
-            RegisterDotNetType(typeof(System.Text.RegularExpressions.Match));
-            RegisterDotNetType(typeof(System.Text.RegularExpressions.MatchCollection));
-            RegisterDotNetType(typeof(System.Text.RegularExpressions.RegexOptions));
-
-            // Time and TimeSpan
-            RegisterDotNetType(typeof(TimeSpan));
-            RegisterDotNetType(typeof(DateTime));
-
-            // Load other libraries specified in the configuration file
-            foreach (string lib in Config.libs)
-                LoadAssembly(lib);
-
-            // Load the standard library types
-            RegisterDotNetType(typeof(HeronStandardLibrary.Viewport), "Viewport");
-            RegisterDotNetType(typeof(HeronStandardLibrary.Util), "Util");
+            this.global = global;
         }
 
         public override HeronType GetHeronType()
         {
             return PrimitiveTypes.ProgramType;
         }
-        #region heron visible functions
-        [HeronVisible]
-        public void LoadAssembly(string s)
-        {
-            Assembly a = null;
-            foreach (String tmp in Config.inputPath)
-            {
-                string path = tmp + "\\" + s;
-                if (File.Exists(path))
-                {
-                    a = Assembly.LoadFrom(path);
-                    break;
-                }
-                path += ".dll";
-                if (File.Exists(path))
-                {
-                    a = Assembly.LoadFrom(path);
-                    break;
-                }
-            }
-            if (a == null)
-                throw new Exception("Could not find assembly " + s);
-            LoadAssembly(a);
-        }
-
-        public void LoadAssembly(Assembly a)
-        {
-            foreach (Type t in a.GetExportedTypes())
-                RegisterDotNetType(t);
-        }
-
+        #region heron visible exposedFunctions
         /// <summary>
         /// Adds the module, and tracks dependencies on other modules.
         /// </summary>

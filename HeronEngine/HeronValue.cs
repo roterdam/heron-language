@@ -15,7 +15,7 @@ namespace HeronEngine
 {
     /// <summary>
     /// An attribute used to identify methods and properties on a HeronValue derived type 
-    /// which are to be exposed automatically to Heron. The exposed functions are managed by PrimitiveType.
+    /// which are to be exposed automatically to Heron. The exposed exposedFunctions are managed by PrimitiveType.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property)]    
     public sealed class HeronVisible : Attribute

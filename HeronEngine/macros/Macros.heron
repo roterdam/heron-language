@@ -1,0 +1,14 @@
+module Macros
+{
+    fields
+    {
+         
+    }
+    methods
+    {
+        RunMacro(editor : HeronEditor, macro : String)
+        { 
+            MessageBox.Show(macro);
+       }
+    }
+}

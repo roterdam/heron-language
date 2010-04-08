@@ -20,14 +20,12 @@ namespace HeronEngine
     {
         [HeronVisible] public string name = "anonymous_type";
         
-        // I tried to make the next two variables [HeronVisible] that caused an infinite loop.
-        // StoreExposedFunctionsAndFields
         public HeronType baseType = null;
         public ModuleDefn module = null;
         
         Type type;
-        Dictionary<string, ExposedMethodValue> functions = new Dictionary<string, ExposedMethodValue>();
-        Dictionary<string, ExposedField> fields = new Dictionary<string, ExposedField>();
+        Dictionary<string, ExposedMethodValue> exposedFunctions = new Dictionary<string, ExposedMethodValue>();
+        Dictionary<string, ExposedField> exposedFields = new Dictionary<string, ExposedField>();
 
         static Dictionary<string, Type> allTypes = new Dictionary<string,Type>();
 
@@ -87,7 +85,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Iterates over 'HeronVisible' labeled fields and values 
+        /// Iterates over 'HeronVisible' labeled exposedFields and values 
         /// of the target object and exposes them. 
         /// </summary>
         private void StoreExposedFunctionsAndFields()
@@ -99,7 +97,7 @@ namespace HeronEngine
             if (!typeof(HeronValue).IsAssignableFrom(type))
                 return;
 
-            foreach (MethodInfo mi in type.GetMethods(BindingFlags.Instance | BindingFlags.Public))
+            foreach (MethodInfo mi in type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public))
             {
                 object[] attrs = mi.GetCustomAttributes(typeof(HeronVisible), true);
                 if (attrs.Length > 0)
@@ -117,23 +115,23 @@ namespace HeronEngine
         private void StoreExposedFunction(MethodInfo mi)
         {
             ExposedMethodValue m = new ExposedMethodValue(mi);
-            functions.Add(m.Name, m);
+            exposedFunctions.Add(m.Name, m);
         }
 
         private void StoreExposedField(FieldInfo fi)
         {
             ExposedField f = new ExposedField(fi);
-            fields.Add(f.name, f);
+            exposedFields.Add(f.name, f);
         }
 
         public IEnumerable<ExposedField> GetExposedFields()
         {
-            return fields.Values;
+            return exposedFields.Values;
         }
 
         public IEnumerable<ExposedMethodValue> GetExposedMethods()
         {
-            return functions.Values; 
+            return exposedFunctions.Values; 
         }
 
         /// <summary>
@@ -156,21 +154,21 @@ namespace HeronEngine
             return r as HeronValue;
         }
 
-        #region heron visible functions
+        #region heron visible exposedFunctions
         [HeronVisible]
         public virtual ExposedMethodValue GetMethod(string name)
         {
-            if (!functions.ContainsKey(name))
+            if (!exposedFunctions.ContainsKey(name))
                 return null;
-            return functions[name];
+            return exposedFunctions[name];
         }
 
         [HeronVisible]
         public virtual FieldDefn GetField(string name)
         {
-            if (!fields.ContainsKey(name))
+            if (!exposedFields.ContainsKey(name))
                 return null;
-            return fields[name];
+            return exposedFields[name];
         }
 
         [HeronVisible]
@@ -205,7 +203,7 @@ namespace HeronEngine
             return 1;
         }
 
-        public virtual HeronType Resolve(ModuleDefn m)
+        public virtual HeronType Resolve(ModuleDefn global, ModuleDefn m)
         {
             return this;
         }
@@ -239,11 +237,11 @@ namespace HeronEngine
             throw new Exception("Type '" + name + "' was not resolved.");
         }
 
-        public override HeronType Resolve(ModuleDefn m)
+        public override HeronType Resolve(ModuleDefn global, ModuleDefn m)
         {
             HeronType r = m.FindType(name);
             if (r == null)
-                r = m.GetGlobal().FindType(name);
+                r = global.FindType(name);
             if (r == null)
                 throw new Exception("Could not resolve type " + name);
             if (r.name != name)

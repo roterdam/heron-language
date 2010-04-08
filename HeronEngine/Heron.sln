@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeronEngine", "HeronEngine.csproj", "{E3C7F929-5004-4403-8C10-0B20645D2D27}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeronEdit", "..\HeronEdit\HeronEdit.csproj", "{5C143DF3-7452-4155-B5A9-0A32ACD29941}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E3C7F929-5004-4403-8C10-0B20645D2D27} = {E3C7F929-5004-4403-8C10-0B20645D2D27}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

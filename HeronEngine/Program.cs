@@ -49,7 +49,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Outputs all of the primitive types with their fields and methods.
+        /// Outputs all of the primitive types with their exposedFields and methods.
         /// </summary>
         static public void OutputPrimitives()
         {

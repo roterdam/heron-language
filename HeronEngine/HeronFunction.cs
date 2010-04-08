@@ -36,14 +36,11 @@ namespace HeronEngine
     /// </summary>
     public class FormalArgs : List<FormalArg>
     {
-        public void ResolveTypes(ModuleDefn m)
+        public void ResolveTypes(ModuleDefn global, ModuleDefn m)
         {
             foreach (FormalArg a in this)
             {
-                if (a.type is UnresolvedType)
-                {
-                    a.type = (a.type as UnresolvedType).Resolve(m);
-                }
+                a.type = a.type.Resolve(global, m);
             }
         }
     }
@@ -155,20 +152,18 @@ namespace HeronEngine
             return parent;
         }
 
-        public void ResolveTypes(ModuleDefn m)
+        public void ResolveTypes(ModuleDefn global, ModuleDefn m)
         {
             // ResolveType the return type
-            if (rettype is UnresolvedType)
-                rettype = (rettype as UnresolvedType).Resolve(m);
+            rettype = rettype.Resolve(global, m);
 
             // ResolveType the argument types
             foreach (FormalArg arg in formals)
-                if (arg.type is UnresolvedType)
-                    arg.type = (arg.type as UnresolvedType).Resolve(m);
+                arg.type = arg.type.Resolve(global, m);
 
             // Resolve the types of body
             foreach (Statement st in body.GetStatementTree())
-                st.ResolveTypes(m);
+                st.ResolveTypes(global, m);
         }
 
         public string GetSignature()

@@ -98,6 +98,9 @@ namespace HeronEngine
                 HeronValue newArg = xs[i].As(t);
                 if (newArg == null)
                     throw new Exception("Failed to convert argument " + i + " from a " + xs[i].GetHeronType().name + " to a " + t.name);
+                if (newArg is NullValue)
+                    if (!IsNullable(i))
+                        throw new Exception("Passing null to a non-nullable type");
                 xs[i] = newArg;
             }
         }
@@ -105,6 +108,11 @@ namespace HeronEngine
         public HeronType GetFormalType(int n)
         {
             return fun.formals[n].type;
+        }
+
+        public bool IsNullable(int n)
+        {
+            return fun.formals[n].nullable;
         }
 
         public override HeronValue Apply(VM vm, HeronValue[] args)
@@ -149,7 +157,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents a group of similiar functions. 
+    /// Represents a group of similiar exposedFunctions. 
     /// In most cases these would all have the same name. 
     /// This is class is used for dynamic resolution of overloaded function
     /// names.
@@ -242,7 +250,7 @@ namespace HeronEngine
 
             Debug.Assert(tmp.Count > 1);
             
-            // There are multiple functions
+            // There are multiple exposedFunctions
             // Choose the function which is the most derived type.
             // This is a pretty awful hack to make up for a bad design. 
             int n = 0;

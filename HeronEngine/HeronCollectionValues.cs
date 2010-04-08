@@ -40,7 +40,7 @@ namespace HeronEngine
             return PrimitiveTypes.IteratorType;
         }
 
-        #region iterator functions
+        #region iterator exposedFunctions
         [HeronVisible]
         public abstract bool MoveNext();
         [HeronVisible]
@@ -49,7 +49,7 @@ namespace HeronEngine
         public abstract IteratorValue Restart();
         #endregion 
 
-        #region sequence functions 
+        #region sequence exposedFunctions 
         public override IteratorValue GetIterator()
         {
             return Restart();

@@ -23,16 +23,16 @@ namespace HeronEngine
             : base(m, typeof(InterfaceDefn), name)
         {
         }
-        public void ResolveTypes(ModuleDefn m)
+        public void ResolveTypes(ModuleDefn global, ModuleDefn m)
         {
             for (int i = 0; i < basetypes.Count; ++i)
             {
                 HeronType t = basetypes[i];
-                basetypes[i] = t.Resolve(m);
+                basetypes[i] = t.Resolve(global, m);
             }
 
             foreach (FunctionDefn f in GetAllMethods())
-                f.ResolveTypes(m);
+                f.ResolveTypes(global, m);
         }
         public void AddBaseInterface(HeronType t)
         {
