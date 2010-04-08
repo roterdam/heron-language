@@ -47,16 +47,15 @@
             this.selectAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.heronToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.runToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.clearConsoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.macrosToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.codeControl = new HeronEdit.CodeEditControl();
             this.output = new System.Windows.Forms.RichTextBox();
             this.runMacroToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.codeControl = new HeronEdit.CodeEditControl();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -213,8 +212,7 @@
             // heronToolStripMenuItem
             // 
             this.heronToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.runToolStripMenuItem,
-            this.clearConsoleToolStripMenuItem});
+            this.runToolStripMenuItem});
             this.heronToolStripMenuItem.Name = "heronToolStripMenuItem";
             this.heronToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
             this.heronToolStripMenuItem.Text = "&Heron";
@@ -223,16 +221,9 @@
             // 
             this.runToolStripMenuItem.Name = "runToolStripMenuItem";
             this.runToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F5;
-            this.runToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+            this.runToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.runToolStripMenuItem.Text = "&Run";
             this.runToolStripMenuItem.Click += new System.EventHandler(this.runToolStripMenuItem_Click);
-            // 
-            // clearConsoleToolStripMenuItem
-            // 
-            this.clearConsoleToolStripMenuItem.Name = "clearConsoleToolStripMenuItem";
-            this.clearConsoleToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F6;
-            this.clearConsoleToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
-            this.clearConsoleToolStripMenuItem.Text = "&Clear console";
             // 
             // macrosToolStripMenuItem
             // 
@@ -263,7 +254,7 @@
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
             this.aboutToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F1;
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.aboutToolStripMenuItem.Text = "&About ...";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
@@ -290,29 +281,15 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.output);
             this.splitContainer1.Size = new System.Drawing.Size(368, 266);
-            this.splitContainer1.SplitterDistance = 223;
+            this.splitContainer1.SplitterDistance = 211;
             this.splitContainer1.TabIndex = 2;
-            // 
-            // codeControl
-            // 
-            this.codeControl.AcceptsTab = true;
-            this.codeControl.AutoWordSelection = true;
-            this.codeControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.codeControl.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.codeControl.HideSelection = false;
-            this.codeControl.Location = new System.Drawing.Point(0, 0);
-            this.codeControl.Name = "codeControl";
-            this.codeControl.Size = new System.Drawing.Size(368, 223);
-            this.codeControl.TabIndex = 0;
-            this.codeControl.Text = "";
-            this.codeControl.WordWrap = false;
             // 
             // output
             // 
             this.output.Dock = System.Windows.Forms.DockStyle.Fill;
             this.output.Location = new System.Drawing.Point(0, 0);
             this.output.Name = "output";
-            this.output.Size = new System.Drawing.Size(368, 39);
+            this.output.Size = new System.Drawing.Size(368, 51);
             this.output.TabIndex = 0;
             this.output.Text = "";
             // 
@@ -323,6 +300,20 @@
             this.runMacroToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.runMacroToolStripMenuItem.Text = "&Run macro ...";
             this.runMacroToolStripMenuItem.Click += new System.EventHandler(this.runMacroToolStripMenuItem_Click);
+            // 
+            // codeControl
+            // 
+            this.codeControl.AcceptsTab = true;
+            this.codeControl.AutoWordSelection = true;
+            this.codeControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.codeControl.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.codeControl.HideSelection = false;
+            this.codeControl.Location = new System.Drawing.Point(0, 0);
+            this.codeControl.Name = "codeControl";
+            this.codeControl.Size = new System.Drawing.Size(368, 211);
+            this.codeControl.TabIndex = 0;
+            this.codeControl.Text = "";
+            this.codeControl.WordWrap = false;
             // 
             // HeronMainForm
             // 
@@ -373,7 +364,6 @@
         private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem clearConsoleToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem macrosToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
