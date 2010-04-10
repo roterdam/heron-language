@@ -102,6 +102,7 @@
     <Compile Include="HeronStandardLibrary.cs" />
     <Compile Include="HeronStatements.cs" />
     <Compile Include="HeronUserValues.cs" />
+    <Compile Include="HeronVarDesc.cs" />
     <Compile Include="HeronVM.cs" />
     <Compile Include="HeronValue.cs" />
     <Compile Include="HeronTests.cs">
@@ -134,8 +135,10 @@
     <Content Include="Heron.ico" />
     <Content Include="license.txt" />
     <Content Include="readme.txt" />
+    <None Include="tests\NegativeTestNullAssignment.heron" />
     <None Include="tests\NegativeTestArgumentType.heron" />
     <None Include="tests\NegativeTestNullPassing.heron" />
+    <None Include="tests\NegativeTestTypeAssignment.heron" />
     <None Include="tests\TestSort.heron" />
     <None Include="tests\TestLists.heron" />
   </ItemGroup>

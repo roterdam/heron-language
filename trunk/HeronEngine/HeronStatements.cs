@@ -104,11 +104,12 @@ namespace HeronEngine
                 if (fi.FieldType.Equals(typeof(HeronType)))
                 {
                     HeronType t = fi.GetValue(this) as HeronType;
-                    if (t == null)
-                        throw new Exception("The type field cannot be null, expected an UnresolvedType");
-                    UnresolvedType ut = t as UnresolvedType;
-                    if (ut != null)
-                        fi.SetValue(this, ut.Resolve(global, m));
+                    fi.SetValue(this, t.Resolve(global, m));
+                }
+                else if (fi.FieldType.Equals(typeof(VarDesc)))
+                {
+                    VarDesc vd = fi.GetValue(this) as VarDesc;
+                    vd.ResolveTypes(global, m);
                 }
             }
 
@@ -119,8 +120,7 @@ namespace HeronEngine
 
     public class VariableDeclaration : Statement
     {
-        [HeronVisible] public string name;
-        [HeronVisible] public HeronType type;
+        [HeronVisible] public VarDesc vardesc;
         [HeronVisible] public Expression value;
 
         internal VariableDeclaration(ParseNode node)
@@ -131,14 +131,19 @@ namespace HeronEngine
         public override void Eval(VM vm)
         {
             if (value != null)
-                vm.AddVar(name, vm.Eval(value));
+            {
+                HeronValue v = vm.Eval(value);
+                vm.AddVar(vardesc, v);
+            }
             else
-                vm.AddVar(name, HeronValue.Null);
+            {
+                vm.AddVar(vardesc);
+            }
         }
 
         public override string ToString()
         {
-            string r = "var " + name + " : " + type;
+            string r = "var " + vardesc.name + " : " + vardesc.type;
             if (value != null)
                 r += " = " + value.ToString();
             return r;
@@ -146,7 +151,7 @@ namespace HeronEngine
 
         public override IEnumerable<string> GetLocallyDefinedNames()
         {
-            yield return name;
+            yield return vardesc.name;
         }
 
         public override HeronType GetHeronType()
@@ -229,11 +234,12 @@ namespace HeronEngine
 
         public override void Eval(VM vm)
         {
+            VarDesc desc = new VarDesc(name);
             foreach (HeronValue x in vm.EvalListAsDotNet(collection))
             {
                 using (vm.CreateScope())
                 {
-                    vm.AddVar(name, x);
+                    vm.AddVar(desc, x);
                     vm.Eval(body);
                     if (vm.ShouldExitScope())
                         return;
@@ -274,9 +280,10 @@ namespace HeronEngine
         public override void Eval(VM vm)
         {
             HeronValue initVal = initial.Eval(vm);
+            VarDesc desc = new VarDesc(name);
             using (vm.CreateScope())
             {
-                vm.AddVar(name, initVal);
+                vm.AddVar(desc, initVal);
                 while (true)
                 {
                     HeronValue condVal = vm.Eval(condition);

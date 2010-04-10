@@ -1,0 +1,22 @@
+﻿module NegativeTestNullAssignment
+{
+    imports
+    {
+        console = new Heron.Windows.Console();
+    }
+    methods
+    {
+        Main()
+        {
+            // Should pass
+            var x : SomeObject? = null;
+
+            // Should fail
+            var y : SomeObject = null;
+        }
+    }
+}
+
+class SomeObject
+{
+}

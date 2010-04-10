@@ -193,11 +193,19 @@ namespace HeronEngine
             return false;
         }
 
-        public void AddVar(string s, HeronValue o)
+        public void SetVar(int n, HeronValue o)
         {
-            if (scopes.Peek().HasName(s))
-                throw new Exception(s + " is already declared in the scope");
-            scopes.Peek().Add(s, o);
+            scopes.Peek()[n] = o;
+        }
+
+        public void AddVar(VarDesc v)
+        {
+            scopes.Peek().Add(v);
+        }
+
+        public void AddVar(VarDesc v, HeronValue x)
+        {
+            scopes.Peek().Add(v, x);
         }
 
         public bool HasField(string s)

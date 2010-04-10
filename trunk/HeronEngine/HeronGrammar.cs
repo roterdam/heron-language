@@ -87,7 +87,7 @@ namespace HeronEngine
         #region type expression rules
         public static Rule TypeArgs = Store("typeargs", (CharSeq("<") + NoFail(Delay("TypeExpr", () => TypeExpr) + Token(">"))));
         public static Rule TypeName = Store("name", (Ident + Star(Token(".") + NoFail(Ident)))) + WS;
-        public static Rule Nullable = Store("nullable", CharSeq("?"));
+        public static Rule Nullable = Store("nullable", CharSeq("?")) + WS;
         public static Rule TypeExpr = Store("typeexpr", (TypeName + WS + Opt(TypeArgs)));
         public static Rule TypeDecl = Store("typedecl", (Token(":") + NoFail(TypeExpr) + Opt(Nullable)));
         public static Rule TypeExprList = Token("{") + Star(TypeExpr + NoFail(Eos)) + NoFail(Token("}"));

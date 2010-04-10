@@ -39,22 +39,13 @@ namespace HeronEngine
     /// Represents the definition of a member field of a Heron class. 
     /// Like "MethodInfo" in C#.
     /// </summary>
-    public class FieldDefn : HeronValue
+    public class FieldDefn : VarDesc
     {
-        [HeronVisible] public string name;
-        [HeronVisible] public HeronType type = PrimitiveTypes.AnyType;
-        [HeronVisible] public bool nullable = false;
         [HeronVisible] public Expression expr;
-
-        public void ResolveTypes(ModuleDefn global, ModuleDefn m)
-        {
-            if (type is UnresolvedType)
-                type = (type as UnresolvedType).Resolve(global, m);
-        }
 
         public virtual HeronValue GetValue(HeronValue self)
         {
-            return self.GetFieldOrMethod(name);        
+            return self.GetFieldOrMethod(name);
         }
 
         public virtual void SetValue(HeronValue self, HeronValue x)

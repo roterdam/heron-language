@@ -133,10 +133,21 @@ namespace HeronEngine
         /// </summary>
         /// <param name="name"></param>
         /// <param name="val"></param>
-        public void AddField(string name, HeronValue val)
+        public void AddField(VarDesc v, HeronValue val)
         {
-            AssureFieldDoesntExist(name);
-            fields.Add(name, val);
+            AssureFieldDoesntExist(v.name);
+            fields.Add(v, val);
+        }
+
+        /// <summary>
+        /// Adds a field. FieldDefn must not already exist. 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="val"></param>
+        public void AddField(VarDesc v)
+        {
+            AssureFieldDoesntExist(v.name);
+            fields.Add(v);
         }
 
         /// <summary>
@@ -209,6 +220,14 @@ namespace HeronEngine
                     return null;
 
                 return GetBase().As(t);
+            }
+            else if (t == PrimitiveTypes.AnyType)
+            {
+                return new AnyValue(this);
+            }
+            else if (t == PrimitiveTypes.UnknownType)
+            {
+                return this;
             }
             return null;
         }

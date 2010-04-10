@@ -20,18 +20,23 @@ Buglist
 - There are missing some basic interfaces. Heron should know what the ISequence, IIterator, and IList interfaces are
 - The types should not be resolved before interpretation. That may be a mistake. 
 - Forgetting a semicolon after a statement can cause weird expression parsing errors.
+- "this" and "base" can be assigned to.
 
 Features
 ========
 - There could be an "IsEmpty()" method on sequences if we changed the iterator model slightly.
 - I would like to explore implementing persistent structures in Heron
-- I really want hash-tables.
 - Annotations is getting bumped to 1.1
 - I may want modules (and maybe classes to) to have multiple base classes
 - I want a check that the file name and module name match.
 - Better error catching and reporting.
 - Somehow make localization easy in Heron. (Resource strings?!)
 - Modules should be managed by a module manager (like a Java class loader, or C# assembly loader)
+     - Currently this is managed by the HeronProgram.
+- I am not happy with how much work it is to define a function. 
+    - It would be nice to have a shorthand.
+    - For example passing a code block would be nice if I could just write "f { }. Instead of f(function() { })
+    - Or perhaps f <- { } or f => { } or f -> { } or f . { } () 
 
 Research Directions 
 ===================

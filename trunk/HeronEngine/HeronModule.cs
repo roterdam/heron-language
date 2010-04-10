@@ -204,10 +204,10 @@ namespace HeronEngine
 
         public void AddFields(ModuleInstance inst, ModuleInstance parent)
         {
-            inst.AddField("this", inst);
+            inst.AddField(new VarDesc("this"), inst);
 
             foreach (FieldDefn field in GetFields())
-                inst.AddField(field.name, HeronValue.Null);
+                inst.AddField(field);
 
             if (GetBaseClass() != null)
             {
@@ -217,7 +217,7 @@ namespace HeronEngine
 
                 ModuleInstance baseInst = new ModuleInstance(baseMod);
                 baseMod.AddFields(baseInst, parent);
-                inst.AddField("base", baseInst);
+                inst.AddField(new VarDesc("base"), baseInst);
             }
         }
 

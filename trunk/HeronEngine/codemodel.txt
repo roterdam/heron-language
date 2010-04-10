@@ -171,10 +171,10 @@ primitive FieldDefn
 {
   fields
   {
+    expr : HeronEngine.Expression;
     name : System.String;
     type : HeronEngine.HeronType;
     nullable : System.Boolean;
-    expr : HeronEngine.Expression;
   }
   methods
   {
@@ -358,8 +358,6 @@ primitive ModuleDefn
   }
   methods
   {
-    GetProgram() : HeronEngine.ProgramDefn;
-    GetGlobal() : HeronEngine.ModuleDefn;
     FindClass(s : System.String) : HeronEngine.ClassDefn;
     ContainsClass(s : System.String) : System.Boolean;
     FindInterface(s : System.String) : HeronEngine.InterfaceDefn;
@@ -418,7 +416,7 @@ primitive NewExpr
   {
     type : HeronEngine.HeronType;
     args : HeronEngine.ExpressionList;
-    modexpr : HeronEngine.Expression;
+    module : System.String;
   }
   methods
   {
@@ -465,7 +463,6 @@ primitive ProgramDefn
   }
   methods
   {
-    LoadAssembly(s : System.String) : System.Void;
     AddModule(m : HeronEngine.ModuleDefn) : System.Void;
     GetGlobal() : HeronEngine.ModuleDefn;
     GetModules() : System.Collections.Generic.IEnumerable`1[HeronEngine.ModuleDefn];
@@ -594,12 +591,24 @@ primitive UnaryOperation
     ToString() : System.String;
   }
 }
-primitive VariableDeclaration
+primitive VarDesc
 {
   fields
   {
     name : System.String;
     type : HeronEngine.HeronType;
+    nullable : System.Boolean;
+  }
+  methods
+  {
+    ToString() : System.String;
+  }
+}
+primitive VariableDeclaration
+{
+  fields
+  {
+    vardesc : HeronEngine.VarDesc;
     value : HeronEngine.Expression;
   }
   methods

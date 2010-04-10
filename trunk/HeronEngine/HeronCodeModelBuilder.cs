@@ -306,7 +306,7 @@ namespace HeronEngine
         {
             FieldDefn r = new FieldDefn();
             r.name = x.GetChild("name").ToString();
-            r.type = new UnresolvedType(GetTypeName(x, "Any"));
+            r.type = new UnresolvedType(GetTypeName(x, "Unknown"));
             r.nullable = IsNullable(x.GetChild("typedecl"));
             if (x.HasChild("expr"))
                 r.expr = CreateExpr(x.GetChild("expr"));
@@ -315,11 +315,10 @@ namespace HeronEngine
 
         public FormalArg CreateFormalArg(ParseNode x)
         {
-            FormalArg r = new FormalArg();
-            r.name = x.GetChild("name").ToString();
-            r.type = new UnresolvedType(GetTypeName(x, "Any"));
-            r.nullable = IsNullable(x.GetChild("typedecl"));
-            return r;            
+            string name = x.GetChild("name").ToString();
+            HeronType type = new UnresolvedType(GetTypeName(x, "Unknown"));
+            bool nullable = IsNullable(x.GetChild("typedecl"));
+            return new FormalArg(name, type, nullable);
         }
 
         public FormalArgs CreateFormalArgs(ParseNode x)
@@ -390,9 +389,12 @@ namespace HeronEngine
         public VariableDeclaration CreateVarDecl(ParseNode x)
         {
             VariableDeclaration r = new VariableDeclaration(x);
-            r.name = x.GetChild("name").ToString();
-            r.type = new UnresolvedType(GetTypeName(x, "Any"));
+            string name = x.GetChild("name").ToString();
+            HeronType type = new UnresolvedType(GetTypeName(x, "Unknown"));
             ParseNode tmp = x.GetChild("expr");
+            ParseNode typedecl = x.GetChild("typedecl");
+            bool nullable = typedecl != null ? IsNullable(typedecl) : false;
+            r.vardesc = new VarDesc(name, type, nullable);
             if (tmp != null)
                 r.value = CreateExpr(tmp);
             return r;
@@ -469,7 +471,7 @@ namespace HeronEngine
             {
                 // This is a foreach without a type declaration
                 r.name = x.GetChild(0).ToString();
-                r.type = new UnresolvedType("Any");
+                r.type = new UnresolvedType("Unknown");
                 r.collection = CreateExpr(x.GetChild(1));
                 r.body = CreateStatement(x.GetChild(2));
             }
@@ -477,7 +479,7 @@ namespace HeronEngine
             {
                 // This is a foreach with a type declaration
                 r.name = x.GetChild(0).ToString();
-                r.type = new UnresolvedType(GetTypeName(x.GetChild(1), "Any"));
+                r.type = new UnresolvedType(GetTypeName(x.GetChild(1), "Unknown"));
                 r.nullable = IsNullable(x.GetChild(1));
                 r.collection = CreateExpr(x.GetChild(2));
                 r.body = CreateStatement(x.GetChild(3));

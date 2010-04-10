@@ -1,0 +1,29 @@
+﻿module NegativeTestTypeAssignment
+{
+    imports
+    {
+        console = new Heron.Windows.Console();
+    }
+    methods
+    {
+        Main()
+        {
+            // Should work
+            var x = new SomeObject();
+            
+            // Should work
+            var y : SomeObject = new SomeObject();
+            
+            // Should fail
+            var z : OtherObject = new SomeObject();
+        }
+    }
+}
+
+class SomeObject
+{
+}
+
+class OtherObject
+{
+}
