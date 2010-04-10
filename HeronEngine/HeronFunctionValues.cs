@@ -63,8 +63,8 @@ namespace HeronEngine
                 if (!boundVars.Contains(name) && !result.HasName(name))
                 {
                     // Throws an exception if the name is not found
-                    HeronValue val = vm.LookupName(name);
-                    result.Add(name, val);
+                    HeronValue v = vm.LookupName(name);
+                    result.Add(new VarDesc(name), v);
                 }
             }
 
@@ -82,7 +82,9 @@ namespace HeronEngine
             int n = fun.formals.Count;
             Debug.Assert(n == args.Length);
             for (int i = 0; i < n; ++i)
-                vm.AddVar(fun.formals[i].name, args[i]);
+            {
+                vm.AddVar(fun.formals[i], args[i]);
+            }
         }
 
         public ClassInstance GetSelfAsInstance()
@@ -90,19 +92,10 @@ namespace HeronEngine
             return self as ClassInstance;
         }
 
-        public void PerformConversions(HeronValue[] xs)
+        public void PerformCoercions(HeronValue[] xs)
         {
             for (int i = 0; i < xs.Length; ++i)
-            {
-                HeronType t = GetFormalType(i);
-                HeronValue newArg = xs[i].As(t);
-                if (newArg == null)
-                    throw new Exception("Failed to convert argument " + i + " from a " + xs[i].GetHeronType().name + " to a " + t.name);
-                if (newArg is NullValue)
-                    if (!IsNullable(i))
-                        throw new Exception("Passing null to a non-nullable type");
-                xs[i] = newArg;
-            }
+                xs[i] = fun.formals[i].Coerce(xs[i]);
         }
 
         public HeronType GetFormalType(int n)
@@ -123,7 +116,7 @@ namespace HeronEngine
                 try
                 {
                     // Convert the arguments into appropriate types
-                    PerformConversions(args);
+                    PerformCoercions(args);
 
                     // Push the arguments into the current scope
                     PushArgs(vm, args);

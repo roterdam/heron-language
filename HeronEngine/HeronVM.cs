@@ -646,6 +646,17 @@ namespace HeronEngine
         }
 
         /// <summary>
+        /// Assigns a value to the "nth" variable.
+        /// </summary>
+        /// <param name="n"></param>
+        /// <param name="o"></param>
+        public void SetVar(int n, HeronValue o)
+        {
+            Debug.Assert(o != null);
+            frames.Peek().SetVar(n, o);
+        }
+
+        /// <summary>
         /// Returns true if the name is that of a variable in the local scope
         /// </summary>
         /// <param name="name"></param>
@@ -720,19 +731,19 @@ namespace HeronEngine
         /// <param name="s"></param>
         /// <param name="o"></param>
         [HeronVisible]
-        public void AddVar(string s, HeronValue o)
+        public void AddVar(VarDesc v)
         {
-            Assure(o != null, "Null is not an acceptable value");
-            frames.Peek().AddVar(s, o);
+            frames.Peek().AddVar(v);
         }
 
         /// <summary>
         /// Creates a new variable name in the current scope.
         /// </summary>
         /// <param name="s"></param>
-        public void AddVar(string s)
+        /// <param name="o"></param>
+        public void AddVar(VarDesc v, HeronValue x)
         {
-            AddVar(s, HeronValue.Null);
+            frames.Peek().AddVar(v, x);
         }
 
         /// <summary>
@@ -742,7 +753,7 @@ namespace HeronEngine
         public void AddVars(Scope vars)
         {
             for (int i=0; i < vars.Count; ++i)
-                AddVar(vars.GetName(i), vars.GetValue(i));
+                AddVar(vars.GetVar(i), vars.GetValue(i));
         }        
         #endregion 
 
@@ -894,7 +905,13 @@ namespace HeronEngine
 
         public ModuleInstance FindModule(string module)
         {
-            throw new NotImplementedException();
+            HeronValue v = LookupName(module);
+            if (v == null)
+                throw new Exception("Could not find module " + module);
+            ModuleInstance r = v as ModuleInstance;
+            if (r == null)
+                throw new Exception("Value " + module + " is not a module");
+            return r;
         }
     }
 }

@@ -12,8 +12,7 @@ module TestDuckTyping
 			var m = new Man();
 			var d = new Duck();
 			DoWhatDucksDo(d);
-			DoWhatDucksDo(m as IDuck);
-			// DoWhatDucksDo(m); // fails
+			DoWhatDucksDo(m);
 		}
 	}
 }

@@ -810,8 +810,8 @@ namespace HeronEngine
         {
             using (vm.CreateScope())
             {
-                vm.AddVar(acc, vm.Eval(init));
-                vm.AddVar(each, HeronValue.Null);
+                vm.AddVar(new VarDesc(acc), vm.Eval(init));
+                vm.AddVar(new VarDesc(each), HeronValue.Null);
 
                 foreach (HeronValue x in vm.EvalListAsDotNet(list))
                 {

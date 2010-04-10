@@ -16,18 +16,16 @@ namespace HeronEngine
     /// <summary>
     /// Represents the formal argument to a function
     /// </summary>
-    public class FormalArg : HeronValue
+    public class FormalArg : VarDesc
     {
-        [HeronVisible]
-        public string name;
-        [HeronVisible]
-        public HeronType type = PrimitiveTypes.AnyType;
-        [HeronVisible]
-        public bool nullable = false;
+        public FormalArg(string name, HeronType type, bool nullable)
+            : base(name, type, nullable)
+        {
+        }
 
         public override HeronType GetHeronType()
         {
-            return PrimitiveTypes.FormalArg;
+            return PrimitiveTypes.FormalArgType;
         }
     }
 

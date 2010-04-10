@@ -51,6 +51,8 @@ primitive Char
   }
   methods
   {
+    ToInt() : HeronEngine.HeronValue;
+    FromInt(x : HeronEngine.HeronValue) : HeronEngine.HeronValue;
     ToString() : System.String;
     AsString() : HeronEngine.HeronValue;
     GetHashCode() : System.Int32;
@@ -301,6 +303,16 @@ primitive Type
     GetName() : System.String;
   }
 }
+primitive Unknown
+{
+  fields
+  {
+  }
+  methods
+  {
+    ToString() : System.String;
+  }
+}
 primitive VM
 {
   fields
@@ -308,10 +320,13 @@ primitive VM
   }
   methods
   {
+    RegisterDotNetType(t : System.Type) : System.Void;
+    RegisterAssemblyFile(s : System.String) : System.Void;
+    RegisterAssembly(a : System.Reflection.Assembly) : System.Void;
     SetVar(s : System.String, o : HeronEngine.HeronValue) : System.Void;
     HasVar(name : System.String) : System.Boolean;
     LookupName(s : System.String) : HeronEngine.HeronValue;
-    AddVar(s : System.String, o : HeronEngine.HeronValue) : System.Void;
+    AddVar(v : HeronEngine.VarDesc) : System.Void;
     ToString() : System.String;
   }
 }

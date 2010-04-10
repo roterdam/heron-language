@@ -19,7 +19,7 @@ namespace HeronEngine
     public class Scope 
     {
         Dictionary<string, int> lookup = new Dictionary<string, int>();
-        List<string> names = new List<string>();
+        List<VarDesc> vars = new List<VarDesc>();
         List<HeronValue> values = new List<HeronValue>();
 
         public int Count
@@ -27,11 +27,21 @@ namespace HeronEngine
             get { return values.Count; }
         }
 
-        public void Add(string name, HeronValue value)
+        public void Add(VarDesc v)
         {
-            lookup.Add(name, Count);
-            names.Add(name);
-            values.Add(value);
+            int n = Count;
+            vars.Add(v);
+            values.Add(HeronValue.Null);
+            lookup.Add(v.name, n);
+        }
+
+        public void Add(VarDesc v, HeronValue x)
+        {
+            x = v.Coerce(x);
+            int n = Count;
+            vars.Add(v);
+            values.Add(x);
+            lookup.Add(v.name, n);
         }
 
         public HeronValue GetValue(int n)
@@ -39,9 +49,19 @@ namespace HeronEngine
             return values[n];
         }
 
+        public HeronValue GetType(int n)
+        {
+            return GetVar(n).type;
+        }
+
         public string GetName(int n)
         {
-            return names[n];
+            return GetVar(n).name;
+        }
+
+        public VarDesc GetVar(int n)
+        {
+            return vars[n];
         }
 
         public bool HasName(string s)
@@ -65,7 +85,9 @@ namespace HeronEngine
             }
             set
             {
-                values[Lookup(s)] = value;
+                int n = Lookup(s);
+                HeronValue tmp = vars[n].Coerce(value);
+                values[n] = tmp;
             }
         }
 
@@ -77,7 +99,8 @@ namespace HeronEngine
             }
             set
             {
-                values[n] = value;
+                HeronValue tmp = vars[n].Coerce(value);
+                values[n] = tmp;
             }
         }
 
@@ -86,7 +109,7 @@ namespace HeronEngine
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < Count; ++i)
             {
-                sb.AppendLine(names[i] + " = " + values[i].ToString());
+                sb.AppendLine(GetName(i) + " = " + GetValue(i).ToString());
             }
             return sb.ToString();
         }

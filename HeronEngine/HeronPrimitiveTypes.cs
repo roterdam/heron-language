@@ -17,12 +17,14 @@ namespace HeronEngine
     {
         // The VM is only available when in the REPL.
         // This is not an official feature of Heron.
-        public static HeronType VMType = new HeronType(null, typeof(VM), "VM");        
+        public static HeronType VMType = new HeronType(null, typeof(VM), "VM");
 
-        // The specials
+        // Special types
         public static HeronType VoidType = new HeronType(null, typeof(VoidValue), "Void");
         public static HeronType NullType = new HeronType(null, typeof(NullValue), "Null");
-        //public static HeronType UnknownType = new HeronType(null, typeof(VoidValue), "Unknown"); 
+        public static HeronType TypeType = new HeronType(null, typeof(HeronType), "Type");
+        public static HeronType AnyType = new HeronType(null, typeof(AnyValue), "Any");
+        public static HeronType UnknownType = new HeronType(null, typeof(VoidValue), "Unknown"); 
         public static HeronType OptimizedExpressionType = new HeronType(null, typeof(OptimizedExpression), "Optimized");
 
         // Usual suspects 
@@ -40,10 +42,6 @@ namespace HeronEngine
         public static HeronType RecordType = new HeronType(SeqType, null, typeof(RecordValue), "Record");
         public static HeronType TableType = new HeronType(SeqType, null, typeof(TableValue), "Table");
         public static HeronType SliceType = new HeronType(SeqType, null, typeof(SliceValue), "Slice");
-
-        // Misc types
-        public static HeronType TypeType = new HeronType(null, typeof(HeronType), "Type");
-        public static HeronType AnyType = new HeronType(null, typeof(AnyValue), "Any");
 
         // Function types
         public static HeronType FunctionType = new HeronType(null, typeof(FunctionValue), "Function");
@@ -66,7 +64,8 @@ namespace HeronEngine
         public static HeronCodeModelType FieldDefnType = new HeronCodeModelType(typeof(FieldDefn));
         public static HeronCodeModelType ImportType = new HeronCodeModelType(typeof(ModuleDefn.Import));
         public static HeronCodeModelType FunctionDefnType = new HeronCodeModelType(typeof(FunctionDefn));
-        public static HeronCodeModelType FormalArg = new HeronCodeModelType(typeof(FormalArg));
+        public static HeronCodeModelType FormalArgType = new HeronCodeModelType(typeof(FormalArg));
+        public static HeronCodeModelType VarDescType = new HeronCodeModelType(typeof(VarDesc));
 
         // Code model statement types
         public static HeronCodeModelType VariableDeclaration = new HeronCodeModelType(typeof(VariableDeclaration));

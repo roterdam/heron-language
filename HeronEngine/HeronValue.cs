@@ -168,6 +168,8 @@ namespace HeronEngine
                 return this;
             if (t == PrimitiveTypes.AnyType)
                 return new AnyValue(this);
+            if (t == PrimitiveTypes.UnknownType)
+                return this;
             return null;
         }
 

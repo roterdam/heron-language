@@ -116,16 +116,16 @@ namespace HeronEngine
 
         public void AddFields(ClassInstance i, ModuleInstance m)
         {
-            i.AddField("this", i);
+            i.AddField(new VarDesc("this"), i);
 
             foreach (FieldDefn field in fields)
-                i.AddField(field.name, HeronValue.Null);
+                i.AddField(field);
 
             if (GetBaseClass() != null)
             {
                 ClassInstance b = new ClassInstance(GetBaseClass(), m);
                 GetBaseClass().AddFields(b, m);
-                i.AddField("base", b);
+                i.AddField(new VarDesc("base"), b);
             }
         }
 
@@ -136,16 +136,23 @@ namespace HeronEngine
             return false;
         }
 
+        public bool ImplementsMethod(FunctionDefn f)
+        {
+            List<FunctionDefn> matches = new List<FunctionDefn>(GetMethods(f.name));
+            foreach (FunctionDefn fd in matches)
+                if (fd.Matches(f))
+                    return true;
+            return false;
+        }
+
         [HeronVisible]
         public bool Implements(InterfaceDefn i)
         {
-            string s = i.name;
-            foreach (InterfaceDefn i2 in interfaces)
-                if (i2.name == s)
-                    return true;
-            if (GetBaseClass() != null)
-                return GetBaseClass().Implements(i);
-            return false;
+            foreach (FunctionDefn fd in i.GetAllMethods())
+                if (!ImplementsMethod(fd))
+                    return false;
+            
+            return true;
         }
 
         [HeronVisible]
