@@ -316,6 +316,7 @@ primitive InterfaceDefn
     GetInheritedInterfaces() : System.Collections.Generic.IEnumerable`1[HeronEngine.InterfaceDefn];
     GetDeclaredMethods() : System.Collections.Generic.IEnumerable`1[HeronEngine.FunctionDefn];
     GetInheritedMethods() : System.Collections.Generic.IEnumerable`1[HeronEngine.FunctionDefn];
+    Implements(i : HeronEngine.InterfaceDefn) : System.Boolean;
     GetMethods(name : System.String) : System.Collections.Generic.IEnumerable`1[HeronEngine.FunctionDefn];
     GetModule() : HeronEngine.ModuleDefn;
     GetMethod(name : System.String) : HeronEngine.ExposedMethodValue;

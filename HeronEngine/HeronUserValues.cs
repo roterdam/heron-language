@@ -216,10 +216,7 @@ namespace HeronEngine
                 if (cls.Implements(t as InterfaceDefn))
                     return new InterfaceInstance(this, t as InterfaceDefn);
 
-                if (GetBase() == null)
-                    return null;
-
-                return GetBase().As(t);
+                return null;
             }
             else if (t == PrimitiveTypes.AnyType)
             {
@@ -304,11 +301,11 @@ namespace HeronEngine
 
         public override HeronValue As(HeronType t)
         {
-            InterfaceDefn i = t as InterfaceDefn;
-            if (i == null)
+            InterfaceDefn id = t as InterfaceDefn;
+            if (id == null)
                 return null;
-            if (hinterface.InheritsFrom(i))
-                return obj;
+            if (hinterface.Implements(id))
+                return new InterfaceInstance(obj, id);
             return null;
         }
 
