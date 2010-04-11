@@ -5,10 +5,10 @@
         <path relative="true">samples</path>
     </pathlist>
     <bool name="rununittests">false</bool>
-    <bool name="outputgrammar">true</bool>
-    <bool name="outputprimitives">true</bool>
+    <bool name="outputgrammar">false</bool>
+    <bool name="outputprimitives">false</bool>
     <int name="maxthreads">-1</int>
     <bool name="showtiming">false</bool>
     <bool name="waitforkeypress">true</bool>
-    <bool name="optimize">true</bool>
+    <bool name="optimize">false</bool>
 </cfgxml>

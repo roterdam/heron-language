@@ -73,6 +73,26 @@ namespace HeronEngine
                     yield return f;
         }
 
+        public bool ImplementsMethod(FunctionDefn f)
+        {
+            List<FunctionDefn> matches = new List<FunctionDefn>(GetMethods(f.name));
+            foreach (FunctionDefn fd in matches)
+                if (fd.Matches(f))
+                    return true;
+            return false;
+        }
+
+        [HeronVisible]
+        public bool Implements(InterfaceDefn i)
+        {
+            foreach (FunctionDefn fd in i.GetAllMethods())
+                if (!ImplementsMethod(fd))
+                    return false;
+
+            return true;
+        }
+
+
         // TODO: see if I can remove all "HasMethod" calls.
         public bool HasMethod(string name)
         {
