@@ -1,0 +1,20 @@
+﻿module TestAll
+{
+    imports
+    {
+        NegativeTestArgumentType = new NegativeTestArgumentType();
+        NegativeTestNullAssignment = new NegativeTestNullAssignment();
+        NegativeTestNullPassing = new NegativeTestNullPassing();
+        NegativeTestTypeAssignment = new NegativeTestTypeAssignment();
+    }
+    methods
+    {
+        Main()
+        {
+            NegativeTestArgumentType.Main();
+            NegativeTestNullAssignment.Main();
+            NegativeTestNullPassing.Main();
+            NegativeTestTypeAssignment.Main();
+        }
+    }
+}

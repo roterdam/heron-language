@@ -12,6 +12,7 @@
         }
         Main()
         {
+            WriteLine("Expect exception: failed to cast from a OtherObject to a SomeObject");
             var x = new OtherObject();
             Fails(x);
         }

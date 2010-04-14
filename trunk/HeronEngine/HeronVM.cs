@@ -321,9 +321,7 @@ namespace HeronEngine
             sFileNameAsModuleName = Path.GetFileNameWithoutExtension(sFileNameAsModuleName);
             int n = sFileNameAsModuleName.IndexOf(m.name);
             if (n + m.name.Length != sFileNameAsModuleName.Length)
-            {
                 throw new Exception("The module name '" + m.name + "' does not correspond to the file name '" + sFileName + "'");
-            }
             return m;
         }
 
@@ -412,7 +410,7 @@ namespace HeronEngine
         /// <param name="m"></param>
         public void RunMain(ModuleInstance m)
         {
-            HeronValue f = m.GetFieldOrMethod("Main");
+            HeronValue f = m.GetExportedFieldOrMethod("Main");
             if (f == null)
                 throw new Exception("Could not find a 'Main' method to run");
             f.Apply(this, new HeronValue[] { });

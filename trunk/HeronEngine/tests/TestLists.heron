@@ -25,13 +25,13 @@
             WriteLine(ys.ToString());
             first.AddRange(first);
             WriteLine("Expect [1, 1]");
-            WriteLine(first);
+            WriteLine(first.ToString());
             var evens = select (x from xs) IsEven(x);
             WriteLine("Expect [2, 4]");
-            WriteLine(evens);
+            WriteLine(evens.ToString());
             var odds = select (x from xs) !IsEven(x);
             WriteLine("Expect [1, 3, 5]");
-            WriteLine(odds);
+            WriteLine(odds.ToString());
         }
     }
 }

@@ -375,6 +375,13 @@ namespace HeronEngine
             return base.GetFieldOrMethod(name);
         }
 
+        /// <summary>
+        /// Returns local fields or methods declared, inherited, or 
+        /// even those imported. Consumers of a module should only
+        /// ever call "GetExportedFieldOrMethod"
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public override HeronValue GetFieldOrMethod(string name)
         {
             if (imports.ContainsKey(name))

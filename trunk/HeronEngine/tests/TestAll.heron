@@ -3,6 +3,7 @@ module TestAll
     imports
     {
         AllSamples = new AllSamples();
+
         TestClosures = new TestClosures();
         TestConstructor = new TestConstructor();
         TestControlFlow = new TestControlFlow();
@@ -20,9 +21,7 @@ module TestAll
         TestSort = new TestSort();
         TestStatic = new TestStatic();
         TestTables = new TestTables();
-        
-        // Not currently run.
-        // TestViewport = new TestViewport();
+        TestViewport = new TestViewport();
     }
     methods
     {
@@ -46,6 +45,7 @@ module TestAll
             TestSort.Main();
             TestStatic.Main();
             TestTables.Main();
+            TestViewport.Main();
 
             AllSamples.Main();
         }

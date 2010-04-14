@@ -30,7 +30,7 @@ namespace HeronEngine
         }
         public static Rule Word(string s) 
         {
-            return (CharSeq(s) + EOW + WS);
+            return (CharSeq(s) + EOW);
         }
         
         public static Rule CommaList(Rule r)
@@ -96,8 +96,8 @@ namespace HeronEngine
         #region expression rules
         public static Rule DelayedBasicExpr = Delay("basicexpr", () => BasicExpr);
         public static Rule DelayedExpr = Delay("expr", () => CompoundExpr);
-        public static Rule SpecialDelimiter = Token("forall");
-        public static Rule SpecialName = Token(Store("specialname", CharSeq("null") | CharSeq("true") | CharSeq("false")));
+        public static Rule SpecialDelimiter = Word("forall") + WS;
+        public static Rule SpecialName = Store("specialname", Word("null") | Word("true") | Word("false")) + WS;
         public static Rule Name = Store("name", Not(SpecialDelimiter) + (Symbol | Ident)) + WS;
         public static Rule Arg = Store("arg", Name + Opt(TypeDecl));
         public static Rule ArgList = Store("arglist", (Token("(") + CommaList(Arg) + NoFail(Token(")"))));

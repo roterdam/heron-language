@@ -294,6 +294,14 @@ namespace HeronEngine
     {
         static Dictionary<Type, DotNetClass> types = new Dictionary<Type, DotNetClass>();
 
+        /// <summary>
+        /// Assures that only one DotNetClass instance is created for each 
+        /// exposed type. Calling Create multiple times with the same arguments, will return 
+        /// a previously created DotNetClass.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="t"></param>
+        /// <returns></returns>
         public static DotNetClass Create(string name, Type t)
         {
             if (!types.ContainsKey(t))
@@ -309,6 +317,8 @@ namespace HeronEngine
         private DotNetClass(string name, Type type)
             : base(null, type, name)
         {
+            if (type.BaseType != null)
+                baseType = DotNetClass.Create(type.BaseType);
         }
 
         public override HeronValue Instantiate(VM vm, HeronValue[] args, ModuleInstance m)
