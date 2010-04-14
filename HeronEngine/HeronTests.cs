@@ -43,7 +43,7 @@ namespace HeronEngine
             Console.WriteLine("testing expression: " + s);
             try
             {
-                Expression x = HeronCodeModelBuilder.ParseExpr(vm.Program, s);
+                Expression x = CodeModelBuilder.ParseExpr(vm.Program, s);
                 if (x != null)
                 {
                     Console.WriteLine("test passed");
@@ -63,7 +63,7 @@ namespace HeronEngine
             Console.WriteLine("testing statement: " + s);
             try
             {
-                Statement x = HeronCodeModelBuilder.ParseStatement(vm.Program, s);
+                Statement x = CodeModelBuilder.ParseStatement(vm.Program, s);
                 if (x != null)
                     Console.WriteLine("test passed");
                 else
