@@ -308,14 +308,14 @@ namespace HeronEngine
         #region evaluation exposedFunctions
         public HeronValue EvalString(string s)
         {
-            Expression x = HeronCodeModelBuilder.ParseExpr(program, s);
+            Expression x = CodeModelBuilder.ParseExpr(program, s);
             x.ResolveAllTypes(globalModule, globalModule);
             return Eval(x); ;
         }
 
         public ModuleDefn LoadModule(string sFileName)
         {
-            ModuleDefn m = HeronCodeModelBuilder.ParseFile(program, sFileName);
+            ModuleDefn m = CodeModelBuilder.ParseFile(program, sFileName);
             program.AddModule(m);
             string sFileNameAsModuleName = sFileName.Replace('/', '.').Replace('\\', '.');
             sFileNameAsModuleName = Path.GetFileNameWithoutExtension(sFileNameAsModuleName);
