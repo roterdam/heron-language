@@ -59,7 +59,7 @@
         }
         OpenNamedTag(tag : String, name : String)
         {
-            OuputRaw("<" + tag +" name='" + name + "'>\n");
+            OutputRaw("<" + tag +" name='" + name + "'>\n");
         }
         CloseTag(tag : String)
         {
@@ -82,25 +82,24 @@
             foreach (x in xs)
                 Output(x);
         }
-        OutputTaggedText(tag : String, text : String)
-        {
-            OpenTag(tag);
-            Output(text);
-            CloseTag(tag);
-        }
         OutputTagged(tag : String, x)
         {
             OpenTag(tag);
             Output(x);
             CloseTag(tag);
         }
+        OutputEmptyTag(tag : String)
+        {
+            OutputRaw("<" + tag + "/>");
+        }
         OutputName(s : String)
         {
-            OutputTaggedText("name", s);
+            OutputTagged("name", s);
         }
-        OutputType(s : String)
+        OutputType(t : Type)
         {
-            OutputTaggedText("type", s);
+            var s : String = t.name;
+            OutputTagged("type", s);
         }
         Output(m : ModuleDefn)
         {
@@ -144,14 +143,21 @@
         {
             OpenTag("enum");
             OutputName(e.name);
-            // TODO:
+            foreach (v in e.GetValues())
+                OutputTagged("value", v.GetValue());
             CloseTag("enum");
+        }
+        OutputVarDesc(v : VarDesc)
+        {
+            OutputName(v.name);
+            OutputType(v.type);
+            if (v.nullable)
+                OutputEmptyTag("nullable");
         }
         Output(f : FieldDefn)
         {
             OpenTag("field");
-            OutputName(f.name);
-            OutputType(f.type);
+            OutputVarDesc(f);
             if (f.expr != null)
                 Output(f.expr);
             CloseTag("field");
@@ -168,23 +174,21 @@
         Output(i : Import)
         {
             OpenTag("import");
-            OutputTaggedText("alias", i.alias);
-            OutputTaggedText("modulename", i.module);
+            OutputTagged("alias", i.alias);
+            OutputTagged("modulename", i.module);
             OutputList("args", i.args);
             CloseTag("import");
         }
         Output(fa : FormalArg)
         {
             OpenTag("param");
-            Write(fa.name);
-            OutputType(fa.type);
+            OutputVarDesc(fa);
             CloseTag("param");
         }
         Output(x : VariableDeclaration)
         {
             OpenTag("vardecl");
-            OutputName(x.name);
-            OutputType(x.type);
+            OutputVarDesc(x.vardesc);
             if (x.value != null)
                 Output(x.value);
             CloseTag("vardecl");
@@ -206,72 +210,57 @@
             OpenTag("foreach");
             OutputName(x.name);
             OutputType(x.type);
-            OpenTag("collection");
-            Output(x.collection);
-            CloseTag("collection");
+            OutputTagged("collection", x.collection);
             OutputTagged("body", x.body);
             CloseTag("foreach");
         }
         Output(x : ForStatement)
         {
-            Write("for (");
-            Write(x.name);
-            Write(" = ");
-            Output(x.initial);
-            Write("; ");
-            Output(x.condition);
-            Write("; ");
-            Output(x.next);
-            WriteLine(")");
-            OutputIndentedStatement(x.body);
+            OpenTag("for");
+            OutputName(x.name);
+            OutputType(x.type);
+            OutputTagged("initial", x.initial);
+            OutputTagged("condition", x.condition);
+            OutputTagged("next", x.next);
+            OutputTagged("collection", x.collection);
+            OutputTagged("body", x.body);
+            CloseTag("for");
         }
         Output(x : CodeBlock)
         {
-            OpenTag("block");
-            foreach (s in x.statements)
-                Output(s);
-            CloseTag("block");
+            OutputList("block", x.statements);
         }
         Output(x : IfStatement)
         {
-            Write("if (");
-            Output(x.condition);
-            WriteLine(")");
-            OutputIndentedStatement(x.ontrue);
+            OpenTag("if");
+            OutputTagged("condition", x.condition);
+            OutputTagged("ontrue", x.ontrue);
             if (x.onfalse != null)
-            {
-                WriteLine("else");
-                OutputIndentedStatement(x.onfalse);
-            }
+                OutputTagged("onfalse", x.onfalse);
+            CloseTag("if");
         }
         Output(x : WhileStatement)
         {
-            Write("while (");
-            Output(x.condition);
-            WriteLine(")");
-            OutputIndentedStatement(x.body);
+            OpenTag("while");
+            OutputTagged("condition", x.condition);
+            OutputTagged("body", x.body);
+            CloseTag("while");
         }
         Output(x : ReturnStatement)
         {
-            Write("return ");
+            OpenTag("return");
             if (x.expression != null)
-                Output(x.expression);
-            WriteLine(";");
+                OutputTagged("value", x.expression);
+            CloseTag("return");
         }
         Output(x : SwitchStatement)
         {
-            Write("switch (");
-            Output(x.condition);
-            WriteLine(")");
-            WriteLine("{");
-            foreach (x in cases)
-                Output(x);
+            OpenTag("switch");
+            OutputTagged("condition", x.condition);
+            OutputLists("cases", x.cases);
             if (x.ondefault != null)
-            {
-                WriteLine("default");
-                Output(x.ondefault);
-            }
-            WriteLine("}");
+                OutputTagged("default", x.ondefault);
+            CloseTag("switch");
         }
         Output(x : CaseStatement)
         {
@@ -306,13 +295,9 @@
             OpenTag("new");
             OutputType(x.type);
             OutputList("args", x.args);
-            //if (x.module != null)
+            if (x.module != null)
                 OutputTagged("srcmodule", x.module); 
             CloseTag("new");
-        }
-        EmptyTag(tag : String)
-        {
-            OutputRaw("<" + tag + "/>");
         }
         Output(x : NullExpr)
         {
@@ -356,14 +341,14 @@
         Output(x : UnaryOperation)
         {
             OpenTag("unaryop");
-            OutputTaggedText("operator", x.operation);
+            OutputTagged("operator", x.operation);
             OutputTagged("operand", x.operand);
             CloseTag("unaryop");
         }
         Output(x : BinaryOperation)
         {
             OpenTag("binaryop");
-            OutputTaggedText("operator", x.operation);
+            OutputTagged("operator", x.operation);
             OutputTagged("loperand", x.operand1);
             OutputTagged("roperand", x.operand2);
             CloseTag("binaryop");

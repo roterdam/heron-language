@@ -1,4 +1,4 @@
-﻿module NegativeTestNullPassing
+module NegativeTestTypePassing
 {
     imports
     {
@@ -16,13 +16,16 @@
         }
         Main()
         {
-            Passes(null);
-            WriteLine("Expect exception: passing null to a non-nullable variable");
-            Fails(null);
+            Passes(new SomeObject());
+            Fails(new OtherObject());
         }
     }
 }
 
 class SomeObject
+{
+}
+
+class OtherObject
 {
 }

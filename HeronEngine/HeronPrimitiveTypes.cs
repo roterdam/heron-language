@@ -56,16 +56,16 @@ namespace HeronEngine
         public static HeronType ExternalClass = new HeronType(null, typeof(DotNetClass), "ExternalClass");
 
         // Code model types
+        public static HeronCodeModelType VarDescType = new HeronCodeModelType(typeof(VarDesc));
         public static HeronCodeModelType ProgramType = new HeronCodeModelType(typeof(ProgramDefn));
-        public static HeronCodeModelType ModuleType = new HeronCodeModelType(typeof(ModuleDefn));
-        public static HeronCodeModelType ClassType = new HeronCodeModelType(typeof(ClassDefn));
-        public static HeronCodeModelType InterfaceType = new HeronCodeModelType(typeof(InterfaceDefn));
-        public static HeronCodeModelType EnumType = new HeronCodeModelType(typeof(EnumDefn));
-        public static HeronCodeModelType FieldDefnType = new HeronCodeModelType(typeof(FieldDefn));
+        public static HeronCodeModelType ModuleType = new HeronCodeModelType(TypeType, typeof(ModuleDefn));
+        public static HeronCodeModelType ClassType = new HeronCodeModelType(TypeType, typeof(ClassDefn));
+        public static HeronCodeModelType InterfaceType = new HeronCodeModelType(TypeType, typeof(InterfaceDefn));
+        public static HeronCodeModelType EnumType = new HeronCodeModelType(TypeType, typeof(EnumDefn));
+        public static HeronCodeModelType FieldDefnType = new HeronCodeModelType(VarDescType, typeof(FieldDefn));
         public static HeronCodeModelType ImportType = new HeronCodeModelType(typeof(ModuleDefn.Import));
         public static HeronCodeModelType FunctionDefnType = new HeronCodeModelType(typeof(FunctionDefn));
-        public static HeronCodeModelType FormalArgType = new HeronCodeModelType(typeof(FormalArg));
-        public static HeronCodeModelType VarDescType = new HeronCodeModelType(typeof(VarDesc));
+        public static HeronCodeModelType FormalArgType = new HeronCodeModelType(VarDescType, typeof(FormalArg));
 
         // Code model statement types
         public static HeronCodeModelType VariableDeclaration = new HeronCodeModelType(typeof(VariableDeclaration));

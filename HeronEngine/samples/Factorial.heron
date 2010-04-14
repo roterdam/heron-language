@@ -21,7 +21,7 @@ module Factorial
 		Main() 
 		{
 			foreach (i in 0..max)
-				Console.WriteLine(Fact(i));
+				WriteLine(Fact(i).ToString());
 		}
 	}
 }

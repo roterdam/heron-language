@@ -33,26 +33,31 @@ namespace HeronEngine
             throw new Exception("Cannot instantiate an enumeration");
         }
 
+        [HeronVisible]
         public void AddValue(string s)
         {
             values.Add(s);
         }
 
+        [HeronVisible]
         public string GetValue(int n)
         {
             return values[n];
         }
 
+        [HeronVisible]
         public int GetNumValues()
         {
             return values.Count;
         }
 
+        [HeronVisible]
         public bool HasValue(string s)
         {
             return values.IndexOf(s) >= 0;
         }
 
+        [HeronVisible]
         public IEnumerable<string> GetValues()
         {
             return values;

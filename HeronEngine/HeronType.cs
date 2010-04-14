@@ -210,7 +210,8 @@ namespace HeronEngine
 
         public bool IsAssignableFrom(HeronType type)
         {
-            if (Equals(type)) return true;
+            if (Equals(type)) 
+                return true;
             if (type.baseType != null)
                 return IsAssignableFrom(type.baseType);
             else
@@ -257,6 +258,11 @@ namespace HeronEngine
     {
         public HeronCodeModelType(Type t)
             : base(null, t, t.Name)
+        {
+        }
+
+        public HeronCodeModelType(HeronType basetype, Type t)
+            : base(basetype, null, t, t.Name)
         {
         }
     }

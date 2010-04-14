@@ -11,6 +11,8 @@
             // Should pass
             var x : SomeObject? = null;
 
+            WriteLine("Expect exception: passing null to a non-nullable type");
+
             // Should fail
             var y : SomeObject = null;
         }

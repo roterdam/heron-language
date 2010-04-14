@@ -48,15 +48,19 @@ namespace HeronEngine
         public HeronValue Coerce(HeronValue x)
         {
             HeronValue r = x;
-            if (type != null)
+            if (r is NullValue)
+            {
+                if (!nullable)
+                    throw new Exception("Passing null to a non-nullable variable " + name); 
+                else
+                    return r;
+            }
+            else if (type != null)
             {
                 r = x.As(type);
                 if (r == null)
                     throw new Exception("Failed to convert variable " + x + " from a " + x.GetHeronType().name + " to " + type.name);
             }
-            if (r is NullValue)
-                if (!nullable)
-                    throw new Exception("Passing null to a non-nullable variable " + name);
             return r;
         }
     }

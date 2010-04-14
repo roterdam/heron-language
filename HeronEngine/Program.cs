@@ -73,7 +73,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Ouputs the time elapsed since the beginning of the program.
+        /// Outputs the time elapsed since the beginning of the program.
         /// </summary>
         static public void PrintTimeElapsed()
         {
@@ -82,7 +82,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Ouputs the time elapsed since the beginning of the program.
+        /// Outputs the time elapsed since the beginning of the program.
         /// </summary>
         static public void PrintTimeElapsed(string s)
         {
@@ -97,7 +97,7 @@ namespace HeronEngine
         static public void Main(string[] args)
         {
             //GC
-           //GCCollectionMode mode = GCCollectionMode.
+            //GCCollectionMode mode = GCCollectionMode.
             try
             {
                 LoadConfig();

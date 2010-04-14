@@ -1,5 +1,9 @@
 module Fibonacci
 {
+    imports
+    {
+        Console = new Heron.Windows.Console();
+    }
 	fields
 	{
 		max = 10;
@@ -19,7 +23,7 @@ module Fibonacci
 		Main() 
 		{
 			foreach (i in 0..max)
-				Console.WriteLine(Fib(i));
+				WriteLine(Fib(i).ToString());
 		}
 	}
 }
