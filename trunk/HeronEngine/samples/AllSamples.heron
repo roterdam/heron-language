@@ -1,30 +1,32 @@
 ﻿module AllSamples
 {
-	imports
-	{
+    imports
+    {
         Factorial = new Factorial();
         Fibonacci = new Fibonacci();
         HelloWorld = new HelloWorld();
+        HeronToXMLDemo = new HeronToXMLDemo();
         NQueens = new NQueens();
         PrettyPrinting = new PrettyPrinting();
         Sieve = new Sieve();
         Sort = new Sort();
         Squares = new Squares();
         WideFinder = new WideFinder();
-	}
-	methods
-	{
-		Main()
-		{
+    }
+    methods
+    {
+        Main()
+        {
             Factorial.Main();
-			Fibonacci.Main();
-			HelloWorld.Main();
-			NQueens.Main();
-			PrettyPrinting.Main();
+            Fibonacci.Main();
+            HelloWorld.Main();
+            HeronToXMLDemo.Main();
+            NQueens.Main();
+            PrettyPrinting.Main();
             Sieve.Main();
-			Sort.Main();
-			Squares.Main();
+            Sort.Main();
+            Squares.Main();
             WideFinder.Main();
-		}
-	}
+        }
+    }
 }

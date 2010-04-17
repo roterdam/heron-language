@@ -4,7 +4,7 @@
         <path relative="true">tests</path>
         <path relative="true">samples</path>
     </pathlist>
-    <bool name="rununittests">false</bool>
+    <bool name="rununittests">true</bool>
     <bool name="outputgrammar">false</bool>
     <bool name="outputprimitives">false</bool>
     <int name="maxthreads">-1</int>

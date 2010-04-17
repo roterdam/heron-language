@@ -15,7 +15,7 @@ namespace HeronEngine
 {
     /// <summary>
     /// An attribute used to identify methods and properties on a HeronValue derived type 
-    /// which are to be exposed automatically to Heron. The exposed exposedFunctions are managed by PrimitiveType.
+    /// which are to be exposed automatically to Heron. The exposed functions are managed by PrimitiveType.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property)]    
     public sealed class HeronVisible : Attribute
@@ -31,10 +31,10 @@ namespace HeronEngine
         public static NullValue Null = new NullValue();
 
         public HeronValue()
-        {            
+        {
         }
 
-        public virtual Object ToSystemObject()
+        public virtual Object Unmarshal()
         {
             return this;
         }
@@ -230,6 +230,33 @@ namespace HeronEngine
         public override int GetHashCode()
         {
             return base.GetHashCode();
+        }
+    }
+
+    public class TypeValue : HeronValue
+    {
+        HeronType type;
+
+        public TypeValue(HeronType t)
+        {
+            type = t;
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.TypeValueType;
+        }
+
+        public override HeronValue GetFieldOrMethod(string name)
+        {
+            HeronValue v = type.GetFieldOrMethod(name);
+            if (v != null)
+                return v;
+
+            ExposedMethodValue m = type.GetMethod(name);
+            if (m != null)
+                return m.CreateBoundMethod(this);
+            throw new Exception("The function '" + name + "' is not available on " + type.name);
         }
     }
     #endregion

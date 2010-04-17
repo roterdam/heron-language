@@ -105,7 +105,7 @@
     <Compile Include="HeronVarDesc.cs" />
     <Compile Include="HeronVM.cs" />
     <Compile Include="HeronValue.cs" />
-    <Compile Include="HeronTests.cs">
+    <Compile Include="UnitTests.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="HeronType.cs" />
@@ -135,6 +135,8 @@
     <Content Include="Heron.ico" />
     <Content Include="license.txt" />
     <Content Include="readme.txt" />
+    <None Include="lib\Heron.Standard.Metaprogramming.heron" />
+    <None Include="tests\TestMetaProgramming.heron" />
     <None Include="tests\NegativeTestAll.heron" />
     <None Include="tests\NegativeTestNullAssignment.heron" />
     <None Include="tests\NegativeTestArgumentType.heron" />

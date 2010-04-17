@@ -1,44 +1,44 @@
 ﻿module TestClosures
 {
-	fields
-	{
-		mTestInt : Int;
-	}
-	methods
-	{		
-		Main()
-		{
-			mTestInt = 2;
-			Console.Write("Expect 1 : ");
-			Console.WriteLine(1);
-			Console.Write("Expect 2 : ");
-			Console.WriteLine(mTestInt);
-			mTestInt = mTestInt + 1;
-			Console.Write("Expect 3 : ");
-			Console.WriteLine(mTestInt);
-			mTestInt++;
-			Console.Write("Expect 4 : ");
-			Console.WriteLine(mTestInt);
-			Console.Write("Expect 5 : ");
-			mTestInt += 1;				
-			Console.WriteLine(mTestInt);
-			Console.Write("Expect 5 : ");
-			Console.WriteLine(mTestInt++);
-			Console.Write("Expect 6 : ");
-			Console.WriteLine(mTestInt);
-			
-			var f = function() {
-				Console.WriteLine(mTestInt++);
-			};
-			Console.Write("Expect 6 : ");
-			f();
-			Console.Write("Expect 7 : ");
-			f();
-			Console.Write("Expect 6 : ");
-			Console.WriteLine(mTestInt++);
-			Console.Write("Expect 8 : ");
-			f();
-		}
-	}
+    fields
+    {
+        mTestInt : Int;
+    }
+    methods
+    {        
+        Main()
+        {
+            mTestInt = 2;
+            Console.Write("Expect 1 : ");
+            Console.WriteLine(1);
+            Console.Write("Expect 2 : ");
+            Console.WriteLine(mTestInt);
+            mTestInt = mTestInt + 1;
+            Console.Write("Expect 3 : ");
+            Console.WriteLine(mTestInt);
+            mTestInt++;
+            Console.Write("Expect 4 : ");
+            Console.WriteLine(mTestInt);
+            Console.Write("Expect 5 : ");
+            mTestInt += 1;                
+            Console.WriteLine(mTestInt);
+            Console.Write("Expect 5 : ");
+            Console.WriteLine(mTestInt++);
+            Console.Write("Expect 6 : ");
+            Console.WriteLine(mTestInt);
+            
+            var f = function() {
+                Console.WriteLine(mTestInt++);
+            };
+            Console.Write("Expect 6 : ");
+            f();
+            Console.Write("Expect 7 : ");
+            f();
+            Console.Write("Expect 6 : ");
+            Console.WriteLine(mTestInt++);
+            Console.Write("Expect 8 : ");
+            f();
+        }
+    }
 }
 

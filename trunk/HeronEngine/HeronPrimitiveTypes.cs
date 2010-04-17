@@ -15,14 +15,16 @@ namespace HeronEngine
 {
     static class PrimitiveTypes
     {
-        // The VM is only available when in the REPL.
         // This is not an official feature of Heron.
         public static HeronType VMType = new HeronType(null, typeof(VM), "VM");
+
+        // Compiler services
+        public static HeronType CodeModelBuilderType = new HeronType(null, typeof(CodeModelBuilder), "CodeModelBuilder");
 
         // Special types
         public static HeronType VoidType = new HeronType(null, typeof(VoidValue), "Void");
         public static HeronType NullType = new HeronType(null, typeof(NullValue), "Null");
-        public static HeronType TypeType = new HeronType(null, typeof(HeronType), "Type");
+        public static HeronType TypeValueType = new HeronType(null, typeof(TypeValue), "Type");
         public static HeronType AnyType = new HeronType(null, typeof(AnyValue), "Any");
         public static HeronType UnknownType = new HeronType(null, typeof(VoidValue), "Unknown"); 
         public static HeronType OptimizedExpressionType = new HeronType(null, typeof(OptimizedExpression), "Optimized");
@@ -50,61 +52,63 @@ namespace HeronEngine
         public static HeronType ExposedMethodType = new HeronType(null, typeof(ExposedMethodValue), "PrimitiveMethod");
 
         // FFI types
+        public static HeronType ExternalListType = new HeronType(null, typeof(DotNetList), "ExternalList");
         public static HeronType ExternalMethodType = new HeronType(null, typeof(DotNetMethod), "ExternalMethod");
         public static HeronType ExternalStaticMethodListType = new HeronType(null, typeof(DotNetStaticMethodGroup), "ExternalStaticMethodList");
         public static HeronType ExternalMethodListType = new HeronType(null, typeof(DotNetMethodGroup), "ExternalMethodList");
         public static HeronType ExternalClass = new HeronType(null, typeof(DotNetClass), "ExternalClass");
 
         // Code model types
-        public static HeronCodeModelType VarDescType = new HeronCodeModelType(typeof(VarDesc));
-        public static HeronCodeModelType ProgramType = new HeronCodeModelType(typeof(ProgramDefn));
-        public static HeronCodeModelType ModuleType = new HeronCodeModelType(TypeType, typeof(ModuleDefn));
-        public static HeronCodeModelType ClassType = new HeronCodeModelType(TypeType, typeof(ClassDefn));
-        public static HeronCodeModelType InterfaceType = new HeronCodeModelType(TypeType, typeof(InterfaceDefn));
-        public static HeronCodeModelType EnumType = new HeronCodeModelType(TypeType, typeof(EnumDefn));
-        public static HeronCodeModelType FieldDefnType = new HeronCodeModelType(VarDescType, typeof(FieldDefn));
-        public static HeronCodeModelType ImportType = new HeronCodeModelType(typeof(ModuleDefn.Import));
-        public static HeronCodeModelType FunctionDefnType = new HeronCodeModelType(typeof(FunctionDefn));
-        public static HeronCodeModelType FormalArgType = new HeronCodeModelType(VarDescType, typeof(FormalArg));
+        public static CodeModelType VarDescType = new CodeModelType(typeof(VarDesc));
+        public static CodeModelType ProgramType = new CodeModelType(typeof(ProgramDefn));
+        public static CodeModelType TypeType = new CodeModelType(TypeType, typeof(HeronType));
+        public static CodeModelType ModuleType = new CodeModelType(TypeType, typeof(ModuleDefn));
+        public static CodeModelType ClassType = new CodeModelType(TypeType, typeof(ClassDefn));
+        public static CodeModelType InterfaceType = new CodeModelType(TypeType, typeof(InterfaceDefn));
+        public static CodeModelType EnumType = new CodeModelType(TypeType, typeof(EnumDefn));
+        public static CodeModelType FieldDefnType = new CodeModelType(VarDescType, typeof(FieldDefn));
+        public static CodeModelType ImportType = new CodeModelType(typeof(ModuleDefn.Import));
+        public static CodeModelType FunctionDefnType = new CodeModelType(typeof(FunctionDefn));
+        public static CodeModelType FormalArgType = new CodeModelType(VarDescType, typeof(FormalArg));
 
         // Code model statement types
-        public static HeronCodeModelType VariableDeclaration = new HeronCodeModelType(typeof(VariableDeclaration));
-        public static HeronCodeModelType DeleteStatement = new HeronCodeModelType(typeof(DeleteStatement));
-        public static HeronCodeModelType ExpressionStatement = new HeronCodeModelType(typeof(ExpressionStatement));
-        public static HeronCodeModelType ForEachStatement = new HeronCodeModelType(typeof(ForEachStatement));
-        public static HeronCodeModelType ForStatement = new HeronCodeModelType(typeof(ForStatement));
-        public static HeronCodeModelType CodeBlock = new HeronCodeModelType(typeof(CodeBlock));
-        public static HeronCodeModelType IfStatement = new HeronCodeModelType(typeof(IfStatement));
-        public static HeronCodeModelType WhileStatement = new HeronCodeModelType(typeof(WhileStatement));
-        public static HeronCodeModelType ReturnStatement = new HeronCodeModelType(typeof(ReturnStatement));
-        public static HeronCodeModelType SwitchStatement = new HeronCodeModelType(typeof(SwitchStatement));
-        public static HeronCodeModelType CaseStatement = new HeronCodeModelType(typeof(CaseStatement));
+        public static CodeModelType VariableDeclaration = new CodeModelType(typeof(VariableDeclaration));
+        public static CodeModelType DeleteStatement = new CodeModelType(typeof(DeleteStatement));
+        public static CodeModelType ExpressionStatement = new CodeModelType(typeof(ExpressionStatement));
+        public static CodeModelType ForEachStatement = new CodeModelType(typeof(ForEachStatement));
+        public static CodeModelType ForStatement = new CodeModelType(typeof(ForStatement));
+        public static CodeModelType CodeBlock = new CodeModelType(typeof(CodeBlock));
+        public static CodeModelType IfStatement = new CodeModelType(typeof(IfStatement));
+        public static CodeModelType WhileStatement = new CodeModelType(typeof(WhileStatement));
+        public static CodeModelType ReturnStatement = new CodeModelType(typeof(ReturnStatement));
+        public static CodeModelType SwitchStatement = new CodeModelType(typeof(SwitchStatement));
+        public static CodeModelType CaseStatement = new CodeModelType(typeof(CaseStatement));
 
         // Code model expresssion types
-        public static HeronCodeModelType Assignment = new HeronCodeModelType(typeof(Assignment));
-        public static HeronCodeModelType ChooseField = new HeronCodeModelType(typeof(ChooseField));
-        public static HeronCodeModelType ReadAt = new HeronCodeModelType(typeof(ReadAt));
-        public static HeronCodeModelType NewExpr = new HeronCodeModelType(typeof(NewExpr));
-        public static HeronCodeModelType NullExpr = new HeronCodeModelType(typeof(NullExpr));
-        public static HeronCodeModelType IntLiteral = new HeronCodeModelType(typeof(IntLiteral));
-        public static HeronCodeModelType BoolLiteral = new HeronCodeModelType(typeof(BoolLiteral));
-        public static HeronCodeModelType FloatLiteral = new HeronCodeModelType(typeof(FloatLiteral));
-        public static HeronCodeModelType CharLiteral = new HeronCodeModelType(typeof(CharLiteral));
-        public static HeronCodeModelType StringLiteral = new HeronCodeModelType(typeof(StringLiteral));
-        public static HeronCodeModelType Name = new HeronCodeModelType(typeof(Name));
-        public static HeronCodeModelType FunCall = new HeronCodeModelType(typeof(FunCall));
-        public static HeronCodeModelType UnaryOperation = new HeronCodeModelType(typeof(UnaryOperation));
-        public static HeronCodeModelType BinaryOperation = new HeronCodeModelType(typeof(BinaryOperation));
-        public static HeronCodeModelType FunExpr = new HeronCodeModelType(typeof(FunExpr));
-        public static HeronCodeModelType PostIncExpr = new HeronCodeModelType(typeof(PostIncExpr));
-        public static HeronCodeModelType SelectExpr = new HeronCodeModelType(typeof(SelectExpr));
-        public static HeronCodeModelType MapExpr = new HeronCodeModelType(typeof(MapExpr));
-        public static HeronCodeModelType AccumulateExpr = new HeronCodeModelType(typeof(AccumulateExpr));
-        public static HeronCodeModelType ReduceExpr = new HeronCodeModelType(typeof(ReduceExpr));
-        public static HeronCodeModelType TupleExpr = new HeronCodeModelType(typeof(TupleExpr));
-        public static HeronCodeModelType TableExpr = new HeronCodeModelType(typeof(TableExpr));
-        public static HeronCodeModelType RecordExpr = new HeronCodeModelType(typeof(RecordExpr));
-        public static HeronCodeModelType ParanthesizedExpr = new HeronCodeModelType(typeof(ParanthesizedExpr));
+        public static CodeModelType Assignment = new CodeModelType(typeof(Assignment));
+        public static CodeModelType ChooseField = new CodeModelType(typeof(ChooseField));
+        public static CodeModelType ReadAt = new CodeModelType(typeof(ReadAt));
+        public static CodeModelType NewExpr = new CodeModelType(typeof(NewExpr));
+        public static CodeModelType NullExpr = new CodeModelType(typeof(NullExpr));
+        public static CodeModelType IntLiteral = new CodeModelType(typeof(IntLiteral));
+        public static CodeModelType BoolLiteral = new CodeModelType(typeof(BoolLiteral));
+        public static CodeModelType FloatLiteral = new CodeModelType(typeof(FloatLiteral));
+        public static CodeModelType CharLiteral = new CodeModelType(typeof(CharLiteral));
+        public static CodeModelType StringLiteral = new CodeModelType(typeof(StringLiteral));
+        public static CodeModelType Name = new CodeModelType(typeof(Name));
+        public static CodeModelType FunCall = new CodeModelType(typeof(FunCall));
+        public static CodeModelType UnaryOperation = new CodeModelType(typeof(UnaryOperation));
+        public static CodeModelType BinaryOperation = new CodeModelType(typeof(BinaryOperation));
+        public static CodeModelType FunExpr = new CodeModelType(typeof(FunExpr));
+        public static CodeModelType PostIncExpr = new CodeModelType(typeof(PostIncExpr));
+        public static CodeModelType SelectExpr = new CodeModelType(typeof(SelectExpr));
+        public static CodeModelType MapExpr = new CodeModelType(typeof(MapExpr));
+        public static CodeModelType AccumulateExpr = new CodeModelType(typeof(AccumulateExpr));
+        public static CodeModelType ReduceExpr = new CodeModelType(typeof(ReduceExpr));
+        public static CodeModelType TupleExpr = new CodeModelType(typeof(TupleExpr));
+        public static CodeModelType TableExpr = new CodeModelType(typeof(TableExpr));
+        public static CodeModelType RecordExpr = new CodeModelType(typeof(RecordExpr));
+        public static CodeModelType ParanthesizedExpr = new CodeModelType(typeof(ParanthesizedExpr));
 
         static SortedDictionary<string, HeronType> types = null;
 
@@ -150,7 +154,7 @@ namespace HeronEngine
             StringBuilder sb = new StringBuilder();
             foreach (HeronType t in GetTypes().Values)
             {
-                if (!(t is HeronCodeModelType))
+                if (!(t is CodeModelType))
                 {
                     sb.AppendLine("primitive " + t.name);
                     sb.AppendLine("{");
@@ -167,7 +171,7 @@ namespace HeronEngine
             StringBuilder sb = new StringBuilder();
             foreach (HeronType t in GetTypes().Values)
             {
-                if (t is HeronCodeModelType)
+                if (t is CodeModelType)
                 {
                     sb.AppendLine("primitive " + t.name);
                     sb.AppendLine("{");

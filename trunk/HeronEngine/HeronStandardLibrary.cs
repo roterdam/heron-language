@@ -122,7 +122,7 @@ namespace HeronStandardLibrary
         }
         #endregion
 
-        #region window exposedFunctions
+        #region window functions
         public void CloseWindow()
         {
             mutex.WaitOne();
@@ -146,7 +146,7 @@ namespace HeronStandardLibrary
         }
         #endregion
 
-        #region non-published exposedFunctions
+        #region non-published functions
         internal void NullifyWindow()
         {
             mutex.WaitOne();
@@ -164,7 +164,7 @@ namespace HeronStandardLibrary
         }
         #endregion
 
-        #region private exposedFunctions
+        #region private functions
         private static void LaunchWindow(Object o)
         {
             Viewport vp = o as Viewport;

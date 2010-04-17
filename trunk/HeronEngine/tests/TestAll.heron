@@ -14,6 +14,7 @@ module TestAll
         TestInterfaces = new TestInterfaces();
         TestLists = new TestLists();
         TestMap = new TestMap();
+        TestMetaProgramming = new TestMetaProgramming();
         TestOutput = new TestOutput();
         TestRandom = new TestRandom();
         TestReduce = new TestReduce();
@@ -38,6 +39,7 @@ module TestAll
             TestInterfaces.Main();
             TestLists.Main();
             TestMap.Main();
+            TestMetaProgramming.Main();
             TestOutput.Main();
             TestRandom.Main();
             TestReduce.Main();

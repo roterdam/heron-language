@@ -4,24 +4,24 @@ module Factorial
     {
         Console = new Heron.Windows.Console();
     }
-	fields
-	{
-		max = 10;
-	}
-	methods
-	{
-		Fact(n : Int) : Int
-		{
-			if (n <= 1)
-				return 1;
-			else 
-				return n * Fact(n - 1);
-		}
+    fields
+    {
+        max = 10;
+    }
+    methods
+    {
+        Fact(n : Int) : Int
+        {
+            if (n <= 1)
+                return 1;
+            else 
+                return n * Fact(n - 1);
+        }
 
-		Main() 
-		{
-			foreach (i in 0..max)
-				WriteLine(Fact(i).ToString());
-		}
-	}
+        Main() 
+        {
+            foreach (i in 0..max)
+                WriteLine(Fact(i).ToString());
+        }
+    }
 }

@@ -106,7 +106,7 @@ namespace HeronEngine
                 if (Config.outputPrimitives)
                     OutputPrimitives();
                 if (Config.runUnitTests)
-                    HeronTests.MainTest();
+                    UnitTests.MainTest();
 
                 if (args.Length != 1)
                 {
