@@ -19,7 +19,7 @@ namespace HeronEngine
     /// </summary>
     public class Grammar
     {
-        #region rule creating exposedFunctions
+        #region rule creating functions
         public static Rule Delay(string name, RuleDelegate r) { return new RecursiveRule(name, r); }
         public static Rule SingleChar(char c) { return new SingleCharRule(c); }
         public static Rule CharSeq(string s) { return new CharSeqRule(s); }
@@ -64,7 +64,7 @@ namespace HeronEngine
         public static Rule EOW = Not(IdentNextChar);
         #endregion
 
-        #region miscellaneous grammar exposedFunctions
+        #region miscellaneous grammar functions
         /// <summary>
         /// This function loops through all static rule exposedFields in a class
         /// and assigns a name to them, which is the same as the field name.

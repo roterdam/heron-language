@@ -63,7 +63,7 @@ namespace HeronEngine
             return PrimitiveTypes.ModuleType;
         }
 
-        #region heron visible exposedFunctions
+        #region heron visible functions
         [HeronVisible]
         public ClassDefn FindClass(string s)
         {

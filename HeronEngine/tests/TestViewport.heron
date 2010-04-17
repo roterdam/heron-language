@@ -1,33 +1,33 @@
 ﻿module TestViewport
 {
-	fields
-	{
-		v : Viewport;
-	}
-	methods
-	{				
-		Main()
-		{
-			v = new Viewport(300, 300);
-			DrawBox(100, 100, 100, 100);
-			
-			while (v.IsOpen()) 
-				Util.Sleep(100);
-		}
-					
-		DrawBox(x : Int, y : Int, w : Int, h : Int)
-		{
-			// Upper-Left to upper-right
-			v.Line(x, y, x + w, y);	
-			
-			// Upper-right to lower-right
-			v.Line(x + w, y, x + w, y + h);
-			
-			// Lower-right to lower-left
-			v.Line(x + w, y + h, x, y + h);
-			
-			// lower-left to upper-left
-			v.Line(x, y + h, x, y);
-		}
-	}
+    fields
+    {
+        v : Viewport;
+    }
+    methods
+    {                
+        Main()
+        {
+            v = new Viewport(300, 300);
+            DrawBox(100, 100, 100, 100);
+            
+            while (v.IsOpen()) 
+                Util.Sleep(100);
+        }
+                    
+        DrawBox(x : Int, y : Int, w : Int, h : Int)
+        {
+            // Upper-Left to upper-right
+            v.Line(x, y, x + w, y);    
+            
+            // Upper-right to lower-right
+            v.Line(x + w, y, x + w, y + h);
+            
+            // Lower-right to lower-left
+            v.Line(x + w, y + h, x, y + h);
+            
+            // lower-left to upper-left
+            v.Line(x, y + h, x, y);
+        }
+    }
 }

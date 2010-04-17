@@ -40,7 +40,7 @@ namespace HeronEngine
             return PrimitiveTypes.IteratorType;
         }
 
-        #region iterator exposedFunctions
+        #region iterator functions
         [HeronVisible]
         public abstract bool MoveNext();
         [HeronVisible]
@@ -49,7 +49,7 @@ namespace HeronEngine
         public abstract IteratorValue Restart();
         #endregion 
 
-        #region sequence exposedFunctions 
+        #region sequence functions 
         public override IteratorValue GetIterator()
         {
             return Restart();
@@ -212,7 +212,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents a sequence, which is a collection which can only be
+    /// Represents a sequence, which is a collection that can only be
     /// iterated over once. It is constructed from a Heron enumerator
     /// </summary>
     public abstract class SeqValue
@@ -280,24 +280,26 @@ namespace HeronEngine
     public class ListValue
         : SeqValue, IInternalIndexable
     {
-        List<HeronValue> list = new List<HeronValue>();
+        List<HeronValue> list;
 
         public ListValue()
         {
+            list = new List<HeronValue>();
         }
 
         public ListValue(IEnumerable<HeronValue> xs)
         {
-            list.AddRange(xs);
+            list = new List<HeronValue>(xs);
         }
 
         public ListValue(List<HeronValue> xs)
         {
-            list.AddRange(xs);
+            list = xs;
         }
 
         public ListValue(IteratorValue val)
         {
+            list = new List<HeronValue>();
             while (val.MoveNext())
             {
                 list.Add(val.GetValue());
@@ -306,6 +308,7 @@ namespace HeronEngine
 
         public ListValue(IList xs)
         {
+            list = new List<HeronValue>();
             foreach (Object x in xs) 
                 list.Add(DotNetObject.Marshal(x));
         }
@@ -327,6 +330,18 @@ namespace HeronEngine
         public void Add(HeronValue v)
         {
             list.Add(v);
+        }
+
+        [HeronVisible]
+        public void Prepend(HeronValue v)
+        {
+            list.Insert(0, v);
+        }
+
+        [HeronVisible]
+        public void Insert(HeronValue n, HeronValue v)
+        {
+            list.Insert((n as IntValue).GetValue(), v);
         }
 
         [HeronVisible]
@@ -598,6 +613,80 @@ namespace HeronEngine
             if (iv == null)
                 throw new Exception("Can only index slices using integers");
             list.SetAtIndex(new IntValue(iv.GetValue() + from), val);
+        }
+    }
+
+    public class ListToIterValue
+        : IteratorValue, IInternalIndexable
+    {
+        List<HeronValue> list;
+        int current;
+
+        public ListToIterValue(List<HeronValue> list)
+        {
+            this.list = list;
+            current = 0;
+        }
+
+        public ListToIterValue(IEnumerable<HeronValue> iter)
+        {
+            list = new List<HeronValue>(iter);
+            current = 0;
+        }
+
+        public ListToIterValue(IEnumerable iter)
+        {
+            list = new List<HeronValue>();
+            foreach (Object o in iter)
+                list.Add(HeronDotNet.Marshal(o));
+            current = 0;
+        }
+
+        public override bool MoveNext()
+        {
+            if (current >= list.Count)
+                return false;
+            current++;
+            return true;
+        }
+
+        public override HeronValue GetValue()
+        {
+            return list[current - 1];
+        }
+
+        public override IteratorValue Restart()
+        {
+            return new ListToIterValue(list);
+        }
+
+        public override ListValue ToList()
+        {
+            return new ListValue(list);
+        }
+
+        public override HeronValue[] ToArray()
+        {
+            return list.ToArray();
+        }
+
+        #region IInternalIndexable Members
+
+        public int InternalCount()
+        {
+            return list.Count;
+        }
+
+        public HeronValue InternalAt(int n)
+        {
+            return list[n];
+        }
+
+        #endregion
+
+        public override IInternalIndexable GetIndexable()
+        {
+            return this;
         }
     }
 }

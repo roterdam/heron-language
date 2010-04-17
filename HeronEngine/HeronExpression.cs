@@ -159,7 +159,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// A list of expressions, used primarily for passing arguments to exposedFunctions
+    /// A list of expressions, used primarily for passing arguments to functions
     /// </summary>
     public class ExpressionList : List<Expression>
     {

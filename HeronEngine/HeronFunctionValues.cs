@@ -150,7 +150,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Represents a group of similiar exposedFunctions. 
+    /// Represents a group of similiar functions. 
     /// In most cases these would all have the same name. 
     /// This is class is used for dynamic resolution of overloaded function
     /// names.
@@ -243,7 +243,7 @@ namespace HeronEngine
 
             Debug.Assert(tmp.Count > 1);
             
-            // There are multiple exposedFunctions
+            // There are multiple functions
             // Choose the function which is the most derived type.
             // This is a pretty awful hack to make up for a bad design. 
             int n = 0;

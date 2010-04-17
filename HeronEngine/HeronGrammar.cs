@@ -14,7 +14,7 @@ namespace HeronEngine
     public class HeronGrammar 
         : Grammar
     {
-        #region new rule exposedFunctions
+        #region new rule functions
         public static Rule AnyCharExcept(Rule r)
         {
             return Star(Not(r) + AnyChar);
@@ -99,8 +99,8 @@ namespace HeronEngine
         public static Rule SpecialDelimiter = Word("forall") + WS;
         public static Rule SpecialName = Store("specialname", Word("null") | Word("true") | Word("false")) + WS;
         public static Rule Name = Store("name", Not(SpecialDelimiter) + (Symbol | Ident)) + WS;
-        public static Rule Arg = Store("arg", Name + Opt(TypeDecl));
-        public static Rule ArgList = Store("arglist", (Token("(") + CommaList(Arg) + NoFail(Token(")"))));
+        public static Rule Param = Store("arg", Name + Opt(TypeDecl));
+        public static Rule ArgList = Store("arglist", (Token("(") + CommaList(Param) + NoFail(Token(")"))));
         public static Rule DelayedStatement = Delay("Statement", () => Statement);
         public static Rule CodeBlock = Store("codeblock", BracedGroup(DelayedStatement));
         public static Rule FunExpr = Store("funexpr", Token("function") + NoFail(ArgList + Opt(TypeDecl) + CodeBlock));
@@ -124,21 +124,21 @@ namespace HeronEngine
         public static Rule Initializer = (Token("=") + NoFail(CompoundExpr));
         public static Rule DeleteStatement = Store("delete", Token("delete") + NoFail(CompoundExpr + Eos));
         public static Rule VarDecl = Store("vardecl", Token("var") + NoFail(Name + Opt(TypeDecl) + Opt(Initializer) + Eos));
-	    public static Rule ElseStatement = (Token("else") + NoFail(DelayedStatement));
+        public static Rule ElseStatement = (Token("else") + NoFail(DelayedStatement));
         public static Rule IfStatement= Store("if", Token("if") + NoFail(ParanthesizedExpr + DelayedStatement + Opt(ElseStatement)));
         public static Rule ForEachParams = NoFail(Token("(") + Name + Opt(TypeDecl) + Token("in") + CompoundExpr + Token(")"));
-	    public static Rule ForEachStatement = Store("foreach", Token("foreach") + NoFail(ForEachParams + DelayedStatement));
+        public static Rule ForEachStatement = Store("foreach", Token("foreach") + NoFail(ForEachParams + DelayedStatement));
         public static Rule ForParams = NoFail(Token("(") + Name + Initializer + Eos + CompoundExpr + Eos + CompoundExpr + Token(")"));
         public static Rule ForStatement = Store("for", Token("for") + NoFail(ForParams + DelayedStatement));
-	    public static Rule ExprStatement = Store("exprstatement", CompoundExpr + Eos);
+        public static Rule ExprStatement = Store("exprstatement", CompoundExpr + Eos);
         public static Rule ReturnStatement = Store("return", Token("return") + NoFail(Opt(CompoundExpr) + Eos));
-	    public static Rule CaseStatement = Store("case", Token("case") + NoFail(ParanthesizedExpr + CodeBlock));
-	    public static Rule DefaultStatement = Store("default", (Token("default") + NoFail(CodeBlock)));
+        public static Rule CaseStatement = Store("case", Token("case") + NoFail(ParanthesizedExpr + CodeBlock));
+        public static Rule DefaultStatement = Store("default", (Token("default") + NoFail(CodeBlock)));
         public static Rule CaseGroup = Store("casegroup", Star(CaseStatement));
         public static Rule SwitchStatement = Store("switch", Token("switch") + NoFail(ParanthesizedExpr + Token("{") + CaseGroup + Opt(DefaultStatement) + Token("}")));
-	    public static Rule WhileStatement = Store("while", Token("while") + NoFail(ParanthesizedExpr + DelayedStatement));
-	    public static Rule EmptyStatement = Store("empty", Eos);
-	    public static Rule Statement = (CodeBlock | VarDecl | IfStatement | SwitchStatement | ForEachStatement | ForStatement | WhileStatement | ReturnStatement | DeleteStatement | ExprStatement | EmptyStatement);
+        public static Rule WhileStatement = Store("while", Token("while") + NoFail(ParanthesizedExpr + DelayedStatement));
+        public static Rule EmptyStatement = Store("empty", Eos);
+        public static Rule Statement = (CodeBlock | VarDecl | IfStatement | SwitchStatement | ForEachStatement | ForStatement | WhileStatement | ReturnStatement | DeleteStatement | ExprStatement | EmptyStatement);
         #endregion
 
         #region meta-information rules
@@ -167,8 +167,8 @@ namespace HeronEngine
         public static Rule Enum = Store("enum", Opt(Annotations) + Token("enum") + NoFail(Name + EnumValues));
         public static Rule TypeDefinition = Class | Interface | Enum;
         public static Rule ModuleBody = Store("modulebody", NoFail(Token("{") + Opt(Imports) + Opt(Fields) + Opt(Methods) + Token("}")));
-        public static Rule Module = Store("module", Opt(Annotations) + Token("module") + NoFail(TypeName) + ModuleBody + Star(TypeDefinition));
-        public static Rule File = Module + NoFail(EndOfInput);
+        public static Rule Module = Store("module", Opt(Annotations) + Token("module") + NoFail(TypeName) + NoFail(ModuleBody) + Star(TypeDefinition));
+        public static Rule File = NoFail(Module) + NoFail(EndOfInput);
         #endregion
 
         static HeronGrammar()

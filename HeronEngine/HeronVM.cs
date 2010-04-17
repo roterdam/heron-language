@@ -305,10 +305,10 @@ namespace HeronEngine
         }
         #endregion
 
-        #region evaluation exposedFunctions
+        #region evaluation functions
         public HeronValue EvalString(string s)
         {
-            Expression x = CodeModelBuilder.ParseExpr(program, s);
+            Expression x = CodeModelBuilder.CreateExpr(s);
             x.ResolveAllTypes(globalModule, globalModule);
             return Eval(x); ;
         }
@@ -713,12 +713,12 @@ namespace HeronEngine
             if (CurrentModuleDef != null)
                 foreach (HeronType t in CurrentModuleDef.GetTypes())
                     if (t.name == s)
-                        return t;
+                        return new TypeValue(t);
 
             if (GlobalModule != null)
                 foreach (HeronType t in GlobalModule.GetTypes())
                     if (t.name == s)
-                        return t;
+                        return new TypeValue(t);
 
             throw new Exception("Could not find '" + s + "' in the environment");
         }
@@ -755,7 +755,7 @@ namespace HeronEngine
         }        
         #endregion 
 
-        #region utility exposedFunctions
+        #region utility functions
         /// <summary>
         /// Throw an exception if condition is not true. However, not an assertion. 
         /// This is used to check for exceptional run-time condition.

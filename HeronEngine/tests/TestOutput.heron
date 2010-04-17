@@ -1,12 +1,12 @@
 ﻿module TestOutput
 {
-	methods {
-		Main() {
-			Console.WriteLine(42);
-			Console.WriteLine("42");
-			Console.WriteLine(6 * 7);
-			Console.WriteLine(6 * 5 + 12);
-			Console.WriteLine(6 * (3 + 4));
-		}
-	}
+    methods {
+        Main() {
+            Console.WriteLine(42);
+            Console.WriteLine("42");
+            Console.WriteLine(6 * 7);
+            Console.WriteLine(6 * 5 + 12);
+            Console.WriteLine(6 * (3 + 4));
+        }
+    }
 }

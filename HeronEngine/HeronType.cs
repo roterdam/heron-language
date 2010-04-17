@@ -14,7 +14,9 @@ using System.Diagnostics;
 namespace HeronEngine
 {
     /// <summary>
-    /// See also: ClassDefn. Note types are also values in Heron. 
+    /// See also: ClassDefn. Note types are also values in Heron because
+    /// they are part of the CodeModel, a TypeValue is different in that 
+    /// it wraps a type that was requested at run-time.
     /// </summary>
     public class HeronType : HeronValue 
     {
@@ -154,7 +156,7 @@ namespace HeronEngine
             return r as HeronValue;
         }
 
-        #region heron visible exposedFunctions
+        #region heron visible functions
         [HeronVisible]
         public virtual ExposedMethodValue GetMethod(string name)
         {
@@ -254,14 +256,14 @@ namespace HeronEngine
     /// <summary>
     /// Used to identify the type of values that are part of the code model
     /// </summary>
-    public class HeronCodeModelType : HeronType
+    public class CodeModelType : HeronType
     {
-        public HeronCodeModelType(Type t)
+        public CodeModelType(Type t)
             : base(null, t, t.Name)
         {
         }
 
-        public HeronCodeModelType(HeronType basetype, Type t)
+        public CodeModelType(HeronType basetype, Type t)
             : base(basetype, null, t, t.Name)
         {
         }

@@ -4,11 +4,11 @@
     {
         console = new Heron.Windows.Console();
     }
-	methods
-	{
-		Main()			
-		{
-			WriteLine("Hello World");
-		}
-	}
+    methods
+    {
+        Main()            
+        {
+            WriteLine("Hello World");
+        }
+    }
 }

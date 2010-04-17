@@ -52,7 +52,7 @@ namespace HeronEngine
         {
             return PrimitiveTypes.ProgramType;
         }
-        #region heron visible exposedFunctions
+        #region heron visible functions
         /// <summary>
         /// Adds the module, and tracks dependencies on other modules.
         /// </summary>

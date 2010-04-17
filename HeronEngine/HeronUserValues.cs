@@ -119,7 +119,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Returns all exposedFunctions sharing the given name at once
+        /// Returns all functions sharing the given name at once
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
@@ -268,7 +268,7 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Returns all exposedFunctions sharing the given name at once
+        /// Returns all functions sharing the given name at once
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>

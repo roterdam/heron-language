@@ -4,48 +4,48 @@ module TestConstructor
     {
         Console = new Heron.Windows.Console();
     }
-	fields
-	{
-		a : Int = 42;
-		b = 42;
-		c : Int;
-		d;
-	}
-	methods
-	{
-		Main()
-		{
-			c = 42;
-			d = 42;
+    fields
+    {
+        a : Int = 42;
+        b = 42;
+        c : Int;
+        d;
+    }
+    methods
+    {
+        Main()
+        {
+            c = 42;
+            d = 42;
             
             WriteLine("Testing the module constructor");
-			WriteLine("42 expected, " + a.ToString());
-		    WriteLine("42 expected, " + b.ToString());
-			WriteLine("42 expected, " + c.ToString());
-			WriteLine("42 expected, " + d.ToString());
-			
+            WriteLine("42 expected, " + a.ToString());
+            WriteLine("42 expected, " + b.ToString());
+            WriteLine("42 expected, " + c.ToString());
+            WriteLine("42 expected, " + d.ToString());
+            
             new TestClass();
-		}
-	}
+        }
+    }
 }
 
 class BaseClass 
 {
-	fields
-	{
-		ba : Int = 42;
-		bb = 42;
-		bc : Int;
-		bd;
-	}
-	methods
-	{
-		Constructor()
-		{
-			bc = 42;
-			bd = 42;
-		}
-	}    
+    fields
+    {
+        ba : Int = 42;
+        bb = 42;
+        bc : Int;
+        bd;
+    }
+    methods
+    {
+        Constructor()
+        {
+            bc = 42;
+            bd = 42;
+        }
+    }    
 }
 
 class TestClass
@@ -54,33 +54,33 @@ class TestClass
     {
         BaseClass;
     }
-	fields
-	{
-		a : Int = 42;
-		b = 42;
-		c : Int;
-		d;
-	}
-	methods
-	{
-		Constructor()
-		{
+    fields
+    {
+        a : Int = 42;
+        b = 42;
+        c : Int;
+        d;
+    }
+    methods
+    {
+        Constructor()
+        {
             base.Constructor();
 
-			c = 42;
-			d = 42;
+            c = 42;
+            d = 42;
 
             WriteLine("Testing the derived class constructor");
-			WriteLine("42 expected, " + a.ToString());
-			WriteLine("42 expected, " + b.ToString());
-			WriteLine("42 expected, " + c.ToString());
-			WriteLine("42 expected, " + d.ToString());
+            WriteLine("42 expected, " + a.ToString());
+            WriteLine("42 expected, " + b.ToString());
+            WriteLine("42 expected, " + c.ToString());
+            WriteLine("42 expected, " + d.ToString());
 
             WriteLine("Testing the base class constructor");
-			WriteLine("42 expected, " + ba.ToString());
-			WriteLine("42 expected, " + bb.ToString());
-			WriteLine("42 expected, " + bc.ToString());
-			WriteLine("42 expected, " + bd.ToString());
-		}
-	}
+            WriteLine("42 expected, " + ba.ToString());
+            WriteLine("42 expected, " + bb.ToString());
+            WriteLine("42 expected, " + bc.ToString());
+            WriteLine("42 expected, " + bd.ToString());
+        }
+    }
 }

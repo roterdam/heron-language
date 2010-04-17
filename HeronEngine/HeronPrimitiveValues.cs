@@ -20,7 +20,7 @@ namespace HeronEngine
             return val.ToString();
         }
 
-        public override object ToSystemObject()
+        public override object Unmarshal()
         {
             return val;
         }

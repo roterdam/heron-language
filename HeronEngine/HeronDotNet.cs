@@ -15,80 +15,6 @@ using System.Reflection;
 namespace HeronEngine
 {
 
-    public class ListToIterValue
-        : IteratorValue, IInternalIndexable
-    {
-        List<HeronValue> list;
-        int current;
-
-        public ListToIterValue(List<HeronValue> list)
-        {
-            this.list = list;
-            current = 0;
-        }
-
-        public ListToIterValue(IEnumerable<HeronValue> iter)
-        {
-            list = new List<HeronValue>(iter);
-            current = 0;
-        }
-
-        public ListToIterValue(IEnumerable iter)
-        {
-            list = new List<HeronValue>();
-            foreach (Object o in iter)
-                list.Add(HeronDotNet.Marshal(o));
-            current = 0;
-        }
-
-        public override bool MoveNext()
-        {
-            if (current >= list.Count)
-                return false;
-            current++;
-            return true;
-        }
-
-        public override HeronValue GetValue()
-        {
-            return list[current - 1];
-        }
-
-        public override IteratorValue Restart()
-        {
-            return new ListToIterValue(list);
-        }
-
-        public override ListValue ToList()
-        {
-            return new ListValue(list);
-        }
-
-        public override HeronValue[] ToArray()
-        {
-            return list.ToArray();
-        }
-
-        #region IInternalIndexable Members
-
-        public int InternalCount()
-        {
-            return list.Count;
-        }
-
-        public HeronValue InternalAt(int n)
-        {
-            return list[n];
-        }
-
-        #endregion
-
-        public override IInternalIndexable GetIndexable()
-        {
-            return this;
-        }
-    }
-
     public class DotNetMethod : HeronValue
     {
         MethodInfo mi;
@@ -139,9 +65,15 @@ namespace HeronEngine
             return HeronDotNet.Marshal(o);
         }
 
+        /// <summary>
+        /// Converts from a HeronValue to a specific System.Net type
+        /// </summary>
+        /// <param name="t"></param>
+        /// <param name="v"></param>
+        /// <returns></returns>
         public static Object Unmarshal(Type t, HeronValue v)
         {
-            Object o = v.ToSystemObject();
+            Object o = v.Unmarshal();
             Debug.Assert(o.GetType().Equals(t));
             return o;
         }
@@ -151,7 +83,7 @@ namespace HeronEngine
             return new DotNetObject(o);
         }
 
-        public override Object ToSystemObject()
+        public override Object Unmarshal()
         {
             return obj;
         }
@@ -207,7 +139,7 @@ namespace HeronEngine
                 case "bool": return "Bool";
                 case "string": return "String";
                 case "Object": return "Unknown";
-                default: return s;                    
+                default: return s;
             }
         }
 
@@ -265,7 +197,7 @@ namespace HeronEngine
                 default:
                     IList ilist = o as IList;
                     if (ilist != null)
-                        return new ListValue(ilist);
+                        return new DotNetList(ilist);
                     IEnumerable ie = o as IEnumerable;
                     if (ie != null)
                         return new ListToIterValue(ie);
@@ -281,7 +213,7 @@ namespace HeronEngine
                 if (array[i] == null)
                     r[i] = null;
                 else
-                    r[i] = array[i].ToSystemObject();
+                    r[i] = array[i].Unmarshal();
             }
             return r;
         }
@@ -399,7 +331,7 @@ namespace HeronEngine
         public override HeronValue Apply(VM vm, HeronValue[] args)
         {
             Object[] os = HeronDotNet.ObjectsToDotNetArray(args);
-            Object o = self.GetSystemType().InvokeMember(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod, null, self.ToSystemObject(), os);
+            Object o = self.GetSystemType().InvokeMember(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod, null, self.Unmarshal(), os);
             return DotNetObject.Marshal(o);
         }
 
@@ -410,7 +342,7 @@ namespace HeronEngine
     }
 
     /// <summary>
-    /// Very similar to DotNetMethodGroup, except only static exposedFunctions are bound.
+    /// Very similar to DotNetMethodGroup, except only static functions are bound.
     /// </summary>
     public class DotNetStaticMethodGroup : HeronValue
     {
@@ -474,17 +406,26 @@ namespace HeronEngine
             int nParams = method.GetParameters().Length;
             if (nParams != args.Length)
                 throw new Exception("Incorrect number of arguments " + args.Length + " expected " + nParams);
+
+            Object[] newArgs = new Object[args.Length];
             for (int i = 0; i < nParams; ++i )
             {
                 ParameterInfo pi = method.GetParameters()[i];
-                if (!pi.ParameterType.IsAssignableFrom(args[i].GetType()))
+                Type pt = pi.ParameterType;
+                Type at = args[i].GetType();
+                HeronValue hv = args[i] as HeronValue;
+                if (!pt.IsAssignableFrom(at))
                 {
-                    String msg = "Cannot convert parameter " + i + " from a " 
-                        + pi.ParameterType.Name + " to a " + args[i].GetType().Name;
-                    throw new Exception(msg);
+                    if (hv == null)
+                        throw new Exception("Could not cast parameter " + i + " from " + at + " to " + pt);
+                    newArgs[i] = hv.Unmarshal();
+                }
+                else
+                {
+                    newArgs[i] = hv; 
                 }
             }
-            return DotNetObject.Marshal(method.Invoke(self, args));
+            return DotNetObject.Marshal(method.Invoke(self, newArgs));
         }
 
         public override string ToString()
@@ -508,4 +449,157 @@ namespace HeronEngine
             return method;
         }
     }
+
+    /// <summary>
+    /// Represents a collection which can be iterated over multiple times.
+    /// </summary>
+    public class DotNetList
+        : SeqValue, IInternalIndexable
+    {
+        IList list;
+
+        class DotNetListIteratorValue
+            : IteratorValue
+        {
+            int n;
+            DotNetList list;
+
+            public DotNetListIteratorValue(DotNetList list)
+            {
+                n = -1;
+                this.list = list;
+            }
+
+            public override bool MoveNext()
+            {
+                if (n >= list.InternalCount() - 1)
+                    return false;
+                n += 1;
+                return true;
+            }
+
+            public override HeronValue GetValue()
+            {
+                return list.InternalAt(n);
+            }
+
+            public override IteratorValue Restart()
+            {
+                n = 0;
+                return this;
+            }
+
+            public override HeronValue[] ToArray()
+            {
+                return list.ToArray();
+            }
+
+            public override IInternalIndexable GetIndexable()
+            {
+                return list.GetIndexable();
+            }
+        }
+
+        public DotNetList(IList list)
+        {
+            this.list = list;
+        }
+
+        [HeronVisible]
+        public void Add(HeronValue v)
+        {
+            list.Add(v.Unmarshal());
+        }
+
+        [HeronVisible]
+        public void Prepend(HeronValue v)
+        {
+            list.Insert(0, v.Unmarshal());
+        }
+
+        [HeronVisible]
+        public void Insert(HeronValue n, HeronValue v)
+        {
+            list.Insert((n as IntValue).GetValue(), v.Unmarshal());
+        }
+
+        [HeronVisible]
+        public HeronValue Count()
+        {
+            return new IntValue(list.Count);
+        }
+
+        public override HeronType GetHeronType()
+        {
+            return PrimitiveTypes.ExternalListType;
+        }
+
+        public override HeronValue GetAtIndex(HeronValue index)
+        {
+            IntValue iv = index as IntValue;
+            if (iv == null)
+                throw new Exception("Can only use index lists using integers");
+            return DotNetObject.Marshal(list[iv.GetValue()]);
+        }
+
+        public override void SetAtIndex(HeronValue index, HeronValue val)
+        {
+            IntValue iv = index as IntValue;
+            if (iv == null)
+                throw new Exception("Can only use index lists using integers");
+            list[iv.GetValue()] = val.Unmarshal();
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append('[');
+            for (int i = 0; i < list.Count; ++i)
+            {
+                if (i > Config.maxListPrintableSize)
+                {
+                    sb.Append("...");
+                    break;
+                }
+                if (i > 0) sb.Append(", ");
+                sb.Append(list[i].ToString());
+            }
+            sb.Append(']');
+            return sb.ToString();
+        }
+
+        public override HeronValue[] ToArray()
+        {
+            HeronValue[] r = new HeronValue[list.Count];
+            for (int i=0; i < list.Count; ++i)
+                r[i] = DotNetObject.Marshal(list[i]);
+            return r;
+        }
+
+        public override IteratorValue GetIterator()
+        {
+            return new DotNetListIteratorValue(this);
+        }
+
+        public override IInternalIndexable GetIndexable()
+        {
+            return this;
+        }
+
+        #region IInternalIndexable Members
+
+        public int InternalCount()
+        {
+            return list.Count;
+        }
+
+        public HeronValue InternalAt(int n)
+        {
+            return DotNetObject.Marshal(list[n]);
+        }
+
+        #endregion
+    }
+
+
 }

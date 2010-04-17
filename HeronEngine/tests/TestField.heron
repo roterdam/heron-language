@@ -1,27 +1,27 @@
 ﻿module TestField
 {
-	methods {
-		Main() {
-			new SomeClass();
-		}
-	}
+    methods {
+        Main() {
+            new SomeClass();
+        }
+    }
 }
 
 class OtherClass {
-	methods {
-		Constructor() {
-			Console.WriteLine("Hello World");
-		}
-	}
+    methods {
+        Constructor() {
+            Console.WriteLine("Hello World");
+        }
+    }
 }
 
 class SomeClass {
-	fields {
-		x : OtherClass;
-	}
-	methods {
-		Constructor() {
-			x = new OtherClass();
-		}
-	}
+    fields {
+        x : OtherClass;
+    }
+    methods {
+        Constructor() {
+            x = new OtherClass();
+        }
+    }
 }

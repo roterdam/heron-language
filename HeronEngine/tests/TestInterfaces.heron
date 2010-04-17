@@ -4,296 +4,296 @@
     {
         console = new Heron.Windows.Console(); 
     }
-	methods 
-	{
-		Main()
-		{
-			var a = new ColoredPoint(10, 10, Color.Red);
+    methods 
+    {
+        Main()
+        {
+            var a = new ColoredPoint(10, 10, Color.Red);
             TestColoredPoint(a);
-			TestPoint(a);
-			TestIColoredPoint(a);
-			TestIPoint(a);
-			TestIGetX(a);
-		}
+            TestPoint(a);
+            TestIColoredPoint(a);
+            TestIPoint(a);
+            TestIGetX(a);
+        }
 
-		TestColoredPoint(a : ColoredPoint) 
-		{		
-			WriteLine("Testing the ColoredPoint");
-			
-			if (a.x == 10)
-				WriteLine("SUCCESS"); else 
-				WriteLine("FAILURE");
-						
-			if (a.c == Color.Red)
-				WriteLine("SUCCESS"); else
-				WriteLine("FAILURE");
-				
-			a.x = 9;
-			a.y = 9;
-			a.c = Color.Green;
-						
-			WriteLine("Testing conversions");
+        TestColoredPoint(a : ColoredPoint) 
+        {        
+            WriteLine("Testing the ColoredPoint");
+            
+            if (a.x == 10)
+                WriteLine("SUCCESS"); else 
+                WriteLine("FAILURE");
+                        
+            if (a.c == Color.Red)
+                WriteLine("SUCCESS"); else
+                WriteLine("FAILURE");
+                
+            a.x = 9;
+            a.y = 9;
+            a.c = Color.Green;
+                        
+            WriteLine("Testing conversions");
 
-			if (a is ColoredPoint) 
-				WriteLine("SUCCESS"); else 
-				WriteLine("FAILURE");
+            if (a is ColoredPoint) 
+                WriteLine("SUCCESS"); else 
+                WriteLine("FAILURE");
 
-			if (a is Point) 
-				WriteLine("SUCCESS"); else 
-				WriteLine("FAILURE");
+            if (a is Point) 
+                WriteLine("SUCCESS"); else 
+                WriteLine("FAILURE");
 
-			if (a is IPoint) 
-				WriteLine("SUCCESS"); else 
-				WriteLine("FAILURE");		
-			
-			if (a is IColoredPoint) 
-				WriteLine("SUCCESS"); else 
-				WriteLine("FAILURE");		
-			
-			if (a is IColoredPoint) 
-				WriteLine("SUCCESS"); else 
-				WriteLine("FAILURE");						
+            if (a is IPoint) 
+                WriteLine("SUCCESS"); else 
+                WriteLine("FAILURE");        
+            
+            if (a is IColoredPoint) 
+                WriteLine("SUCCESS"); else 
+                WriteLine("FAILURE");        
+            
+            if (a is IColoredPoint) 
+                WriteLine("SUCCESS"); else 
+                WriteLine("FAILURE");                        
 
-			if (a is IGetX) 
-				WriteLine("SUCCESS"); else 
-				WriteLine("FAILURE");						
-		}
-		
-		TestPoint(a : Point) 
-		{
-			WriteLine("Testing the Point");
-					
-			if (a.x == 9)
-				WriteLine("SUCCESS"); else
-				WriteLine("FAILURE");
-											
-			a.x = 8;
-			a.y = 8;
-			
-			WriteLine("Testing conversions");
+            if (a is IGetX) 
+                WriteLine("SUCCESS"); else 
+                WriteLine("FAILURE");                        
+        }
+        
+        TestPoint(a : Point) 
+        {
+            WriteLine("Testing the Point");
+                    
+            if (a.x == 9)
+                WriteLine("SUCCESS"); else
+                WriteLine("FAILURE");
+                                            
+            a.x = 8;
+            a.y = 8;
+            
+            WriteLine("Testing conversions");
 
-			if (a is ColoredPoint) 
-				WriteLine("FAILURE"); else 
-				WriteLine("SUCCESS");
+            if (a is ColoredPoint) 
+                WriteLine("FAILURE"); else 
+                WriteLine("SUCCESS");
 
-			if (a is Point) 
-				WriteLine("SUCCESS"); else 
-				WriteLine("FAILURE");
+            if (a is Point) 
+                WriteLine("SUCCESS"); else 
+                WriteLine("FAILURE");
 
-			if (a is IPoint) 
-				WriteLine("SUCCESS"); else 
-				WriteLine("FAILURE");		
-			
-			if (a is IColoredPoint) 
-				WriteLine("FAILURE"); else 
-				WriteLine("SUCCESS");		
-			
-			if (a is IColoredPoint) 
-				WriteLine("FAILURE"); else 
-				WriteLine("SUCCESS");						
+            if (a is IPoint) 
+                WriteLine("SUCCESS"); else 
+                WriteLine("FAILURE");        
+            
+            if (a is IColoredPoint) 
+                WriteLine("FAILURE"); else 
+                WriteLine("SUCCESS");        
+            
+            if (a is IColoredPoint) 
+                WriteLine("FAILURE"); else 
+                WriteLine("SUCCESS");                        
 
-			if (a is IGetX) 
-				WriteLine("SUCCESS"); else 
-				WriteLine("FAILURE");						
-		}
-		
-		TestIColoredPoint(a : IColoredPoint) 
-		{
-			WriteLine("Testing the IColoredPoint");
-					
-			if (a.get_X() == 8)
-				WriteLine("SUCCESS"); else
-				WriteLine("FAILURE");
-						
-			if (a.get_Color() == Color.Green)
-				WriteLine("SUCCESS"); else
-				WriteLine("FAILURE");
-				
-			a.set_X(7);
-			a.set_Y(7);
-			a.set_Color(Color.Blue);
+            if (a is IGetX) 
+                WriteLine("SUCCESS"); else 
+                WriteLine("FAILURE");                        
+        }
+        
+        TestIColoredPoint(a : IColoredPoint) 
+        {
+            WriteLine("Testing the IColoredPoint");
+                    
+            if (a.get_X() == 8)
+                WriteLine("SUCCESS"); else
+                WriteLine("FAILURE");
+                        
+            if (a.get_Color() == Color.Green)
+                WriteLine("SUCCESS"); else
+                WriteLine("FAILURE");
+                
+            a.set_X(7);
+            a.set_Y(7);
+            a.set_Color(Color.Blue);
 
-			WriteLine("Testing conversions");
+            WriteLine("Testing conversions");
 
-			if (a is ColoredPoint) 
-				WriteLine("FAILURE"); else 
-				WriteLine("SUCCESS");
+            if (a is ColoredPoint) 
+                WriteLine("FAILURE"); else 
+                WriteLine("SUCCESS");
 
-			if (a is Point) 
-				WriteLine("FAILURE"); else 
-				WriteLine("SUCCESS");
+            if (a is Point) 
+                WriteLine("FAILURE"); else 
+                WriteLine("SUCCESS");
 
-			if (a is IPoint) 
-				WriteLine("SUCCESS"); else 
-				WriteLine("FAILURE");		
-			
-			if (a is IColoredPoint) 
-				WriteLine("SUCCESS"); else 
-				WriteLine("FAILURE");		
-			
-			if (a is IColoredPoint) 
-				WriteLine("SUCCESS"); else 
-				WriteLine("FAILURE");						
+            if (a is IPoint) 
+                WriteLine("SUCCESS"); else 
+                WriteLine("FAILURE");        
+            
+            if (a is IColoredPoint) 
+                WriteLine("SUCCESS"); else 
+                WriteLine("FAILURE");        
+            
+            if (a is IColoredPoint) 
+                WriteLine("SUCCESS"); else 
+                WriteLine("FAILURE");                        
 
-			if (a is IGetX) 
-				WriteLine("SUCCESS"); else 
-				WriteLine("FAILURE");						
-		} 
-					
-		TestIPoint(a : IPoint) 
-		{
-			WriteLine("Testing the IPoint");
-					
-			if (a.get_X() == 7)
-				WriteLine("SUCCESS"); else
-				WriteLine("FAILURE");
-						
-			a.set_X(6);
-			
-			WriteLine("Testing conversions");
+            if (a is IGetX) 
+                WriteLine("SUCCESS"); else 
+                WriteLine("FAILURE");                        
+        } 
+                    
+        TestIPoint(a : IPoint) 
+        {
+            WriteLine("Testing the IPoint");
+                    
+            if (a.get_X() == 7)
+                WriteLine("SUCCESS"); else
+                WriteLine("FAILURE");
+                        
+            a.set_X(6);
+            
+            WriteLine("Testing conversions");
 
-			if (a is ColoredPoint) 
-				WriteLine("FAILURE"); else 
-				WriteLine("SUCCESS");
+            if (a is ColoredPoint) 
+                WriteLine("FAILURE"); else 
+                WriteLine("SUCCESS");
 
-			if (a is Point) 
-				WriteLine("FAILURE"); else 
-				WriteLine("SUCCESS");
+            if (a is Point) 
+                WriteLine("FAILURE"); else 
+                WriteLine("SUCCESS");
 
-			if (a is IPoint) 
-				WriteLine("SUCCESS"); else 
-				WriteLine("FAILURE");		
-			
-			if (a is IColoredPoint) 
-				WriteLine("FAILURE"); else 
-				WriteLine("SUCCESS");		
-			
-			if (a is IColoredPoint) 
-				WriteLine("FAILURE"); else 
-				WriteLine("SUCCESS");						
+            if (a is IPoint) 
+                WriteLine("SUCCESS"); else 
+                WriteLine("FAILURE");        
+            
+            if (a is IColoredPoint) 
+                WriteLine("FAILURE"); else 
+                WriteLine("SUCCESS");        
+            
+            if (a is IColoredPoint) 
+                WriteLine("FAILURE"); else 
+                WriteLine("SUCCESS");                        
 
-			if (a is IGetX) 
-				WriteLine("SUCCESS"); else 
-				WriteLine("FAILURE");						
-		}			
-					
-		TestIGetX(a : IGetX) 
-		{
-			WriteLine("Testing the IGetX");
-					
-			if (a.get_X() == 6)
-				WriteLine("SUCCESS"); else
-				WriteLine("FAILURE");
-						
-			WriteLine("Testing conversions");
-			
-			if (a is ColoredPoint) 
-				WriteLine("FAILURE"); else 
-				WriteLine("SUCCESS");
+            if (a is IGetX) 
+                WriteLine("SUCCESS"); else 
+                WriteLine("FAILURE");                        
+        }            
+                    
+        TestIGetX(a : IGetX) 
+        {
+            WriteLine("Testing the IGetX");
+                    
+            if (a.get_X() == 6)
+                WriteLine("SUCCESS"); else
+                WriteLine("FAILURE");
+                        
+            WriteLine("Testing conversions");
+            
+            if (a is ColoredPoint) 
+                WriteLine("FAILURE"); else 
+                WriteLine("SUCCESS");
 
-			if (a is Point) 
-				WriteLine("FAILURE"); else 
-				WriteLine("SUCCESS");
+            if (a is Point) 
+                WriteLine("FAILURE"); else 
+                WriteLine("SUCCESS");
 
-			if (a is IPoint) 
-				WriteLine("FAILURE"); else 
-				WriteLine("SUCCESS");		
-			
-			if (a is IColoredPoint) 
-				WriteLine("FAILURE"); else 
-				WriteLine("SUCCESS");		
-			
-			if (a is IColoredPoint) 
-				WriteLine("FAILURE"); else 
-				WriteLine("SUCCESS");						
+            if (a is IPoint) 
+                WriteLine("FAILURE"); else 
+                WriteLine("SUCCESS");        
+            
+            if (a is IColoredPoint) 
+                WriteLine("FAILURE"); else 
+                WriteLine("SUCCESS");        
+            
+            if (a is IColoredPoint) 
+                WriteLine("FAILURE"); else 
+                WriteLine("SUCCESS");                        
 
-			if (a is IGetX) 
-				WriteLine("SUCCESS"); else 
-				WriteLine("FAILURE");						
-		}			
-	}
+            if (a is IGetX) 
+                WriteLine("SUCCESS"); else 
+                WriteLine("FAILURE");                        
+        }            
+    }
 }
 
 interface IPoint {
-	methods {
-		get_X() : Int;
-		get_Y() : Int;
-		set_X(v : Int);
-		set_Y(v : Int);
-	}
+    methods {
+        get_X() : Int;
+        get_Y() : Int;
+        set_X(v : Int);
+        set_Y(v : Int);
+    }
 }
 
 interface IGetX {
-	methods {
-		get_X() : Int;
-	}
+    methods {
+        get_X() : Int;
+    }
 }
 
 interface IColoredPoint {
-	inherits {
-		IPoint;
-	}
-	methods {
-		get_Color() : Color;
-		set_Color(x : Color);
-	}
-}	
+    inherits {
+        IPoint;
+    }
+    methods {
+        get_Color() : Color;
+        set_Color(x : Color);
+    }
+}    
 
 enum Color {
-	Red;
-	Blue;
-	Green;
+    Red;
+    Blue;
+    Green;
 }
 
 class Point {
-	implements {
-		IPoint;
-		IGetX;
-	}
-	fields {
-		x : Int;
-		y : Int;
-	}
-	methods {
-		get_X() : Int {
-			return x;
-		}
-		get_Y() : Int  {
-			return y;
-		}
-		set_X(v : Int) {
-			x = v;				
-		}
-		set_Y(v : Int) {
-			y = v;
-		}
-	}
+    implements {
+        IPoint;
+        IGetX;
+    }
+    fields {
+        x : Int;
+        y : Int;
+    }
+    methods {
+        get_X() : Int {
+            return x;
+        }
+        get_Y() : Int  {
+            return y;
+        }
+        set_X(v : Int) {
+            x = v;                
+        }
+        set_Y(v : Int) {
+            y = v;
+        }
+    }
 }
 
 class ColoredPoint {
-	inherits {
-		Point;
-	}
-	implements {
-		// Notice: does not explicitly implement IGetX, 
-		// but inherits Point which implements IGetX
-		IColoredPoint;
-	}
-	fields {
-		c : Color;
-	}
-	methods {
-		Constructor(x : Int, y : Int, c : Color) {
-			this.x = x;
-			this.y = y;
-			this.c = c;
-		}
-		get_Color() : Color {
-			return c;
-		}
-		set_Color(v : Color) {
-			c = v;
-		}
-	}		
-}	
+    inherits {
+        Point;
+    }
+    implements {
+        // Notice: does not explicitly implement IGetX, 
+        // but inherits Point which implements IGetX
+        IColoredPoint;
+    }
+    fields {
+        c : Color;
+    }
+    methods {
+        Constructor(x : Int, y : Int, c : Color) {
+            this.x = x;
+            this.y = y;
+            this.c = c;
+        }
+        get_Color() : Color {
+            return c;
+        }
+        set_Color(v : Color) {
+            c = v;
+        }
+    }        
+}    
 
