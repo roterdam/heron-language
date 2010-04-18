@@ -56,10 +56,10 @@ namespace HeronEngine
         public class DisposableFrame : IDisposable
         {
             VM vm;
-            public DisposableFrame(VM vm, FunctionDefn def, ClassInstance ci)
+            public DisposableFrame(VM vm, FunctionDefn def, ClassInstance ci, ModuleInstance mi)
             {
                 this.vm = vm;
-                vm.PushNewFrame(def, ci);
+                vm.PushNewFrame(def, ci, mi);
             }
             public void Dispose()
             {
@@ -169,7 +169,7 @@ namespace HeronEngine
             result = null;
 
             // Push an empty first frame and scope
-            PushNewFrame(null, null);
+            PushNewFrame(null, null, null);
             PushScope();
         }
 
@@ -558,9 +558,9 @@ namespace HeronEngine
         /// </summary>
         /// <param name="f"></param>
         /// <param name="self"></param>
-        public void PushNewFrame(FunctionDefn f, ClassInstance self)
+        public void PushNewFrame(FunctionDefn f, ClassInstance self, ModuleInstance mi)
         {
-            frames.Add(new Frame(f, self));
+            frames.Add(new Frame(f, self, mi));
         }
 
         /// <summary>
@@ -579,9 +579,9 @@ namespace HeronEngine
         /// <param name="fun"></param>
         /// <param name="classInstance"></param>
         /// <returns></returns>
-        public DisposableFrame CreateFrame(FunctionDefn fun, ClassInstance classInstance)
+        public DisposableFrame CreateFrame(FunctionDefn fun, ClassInstance classInstance, ModuleInstance mi)
         {
-            return new DisposableFrame(this, fun, classInstance);
+            return new DisposableFrame(this, fun, classInstance, mi);
         }
 
         /// <summary>
@@ -589,7 +589,7 @@ namespace HeronEngine
         /// </summary>
         public DisposableFrame CreateFrame()
         {
-            return new DisposableFrame(this, CurrentFrame.function, CurrentFrame.self);
+            return new DisposableFrame(this, CurrentFrame.function, CurrentFrame.self, CurrentFrame.moduleInstance);
         }
         #endregion
 

@@ -1,0 +1,33 @@
+﻿module TestMetaProgramming
+{
+    imports
+    {
+        console = new Heron.Windows.Console();
+        meta = new Heron.Standard.Metaprogramming();
+    }
+    methods
+    {
+        Meta(p : ProgramDefn)
+        {
+            var m : ModuleDefn = p.GetModule("TestMetaProgramming");
+            foreach (f in m.GetDeclaredMethods())
+            {
+                if (f.name != "Meta")
+                {
+                    var st = CodeModelBuilder.CreateStatement("WriteLine(\"At function " + f.name + "()\");");
+                    f.body.statements.Prepend(st);
+                }
+            }
+        }
+
+        Main()
+        {
+            f();
+        }
+
+        f()
+        {
+            WriteLine("Nothing to see here, carry on");
+        }
+    }
+}

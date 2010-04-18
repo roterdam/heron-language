@@ -1,0 +1,12 @@
+﻿module Heron.Standard.Metaprogramming
+{
+    methods
+    {
+        GetAllDeclareMethods(x : ClassDefn) : Seq
+        {
+            foreach (f in c.GetDeclaredMethods())
+                xs.Add(f);
+            return xs;
+        }
+    }
+}

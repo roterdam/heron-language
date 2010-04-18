@@ -1,0 +1,58 @@
+
+// A module class
+public class $name : IModule $base
+{ 
+    // Constructor
+    public $name($ctorargs)
+    {
+        // Call the base constructor
+        $constructbase()
+
+        // create the imported modules and all of the fields
+        $constructimports
+        $constructfields
+
+        // Call the user-define constructor
+        _user_$name()
+    }
+
+    // The user defined module constructor
+    public _user_$name()
+    {
+        // 
+    }
+
+    // Public module fields
+    $modulefields 
+
+    // Public module methods (excluding 'Meta')
+    $modulemethods 
+
+    // Private imported methods
+    $importedmethods
+
+    // Private imported fields (as properties)
+    $importedfields
+
+    // Private imported modules as fields
+    $importedmodules
+};
+
+// A Heron class
+class $name 
+{
+    $name(IModule $ownermodule $ctorparams)
+    {
+        $autoctor();
+        $userctor($ctorargs);        
+    } 
+
+    $autoctor() { }
+
+    $userctor($ctorparams) 
+    {
+        $userctorbody
+    }
+}
+
+
