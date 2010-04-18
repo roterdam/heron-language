@@ -146,6 +146,11 @@ primitive EnumDefn
   methods
   {
     GetAllMethods() : System.Collections.Generic.IEnumerable`1[HeronEngine.FunctionDefn];
+    AddValue(s : System.String) : System.Void;
+    GetValue(n : System.Int32) : System.String;
+    GetNumValues() : System.Int32;
+    HasValue(s : System.String) : System.Boolean;
+    GetValues() : System.Collections.Generic.IEnumerable`1[System.String];
     Equals(obj : System.Object) : System.Boolean;
     GetHashCode() : System.Int32;
     GetMethods(name : System.String) : System.Collections.Generic.IEnumerable`1[HeronEngine.FunctionDefn];
@@ -578,6 +583,23 @@ primitive TupleExpr
   methods
   {
     ToString() : System.String;
+  }
+}
+primitive TypeType
+{
+  fields
+  {
+    name : System.String;
+  }
+  methods
+  {
+    Equals(obj : System.Object) : System.Boolean;
+    GetHashCode() : System.Int32;
+    ToString() : System.String;
+    GetModule() : HeronEngine.ModuleDefn;
+    GetMethod(name : System.String) : HeronEngine.ExposedMethodValue;
+    GetField(name : System.String) : HeronEngine.FieldDefn;
+    GetName() : System.String;
   }
 }
 primitive UnaryOperation

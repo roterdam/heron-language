@@ -59,6 +59,24 @@ primitive Char
     Equals(obj : System.Object) : System.Boolean;
   }
 }
+primitive CodeModelBuilder
+{
+  fields
+  {
+  }
+  methods
+  {
+    CreateClass(m : HeronEngine.ModuleDefn, s : System.String) : HeronEngine.ClassDefn;
+    CreateInterface(m : HeronEngine.ModuleDefn, s : System.String) : HeronEngine.InterfaceDefn;
+    CreateEnum(m : HeronEngine.ModuleDefn, s : System.String) : HeronEngine.EnumDefn;
+    CreateField(s : System.String) : HeronEngine.FieldDefn;
+    CreateFormalArg(s : System.String) : HeronEngine.FormalArg;
+    CreateFormalArgs(s : System.String) : HeronEngine.FormalArgs;
+    CreateMethod(s : System.String, parent : HeronEngine.HeronType) : HeronEngine.FunctionDefn;
+    CreateStatement(s : System.String) : HeronEngine.Statement;
+    ToString() : System.String;
+  }
+}
 primitive ExternalClass
 {
   fields
@@ -74,6 +92,22 @@ primitive ExternalClass
     GetMethod(name : System.String) : HeronEngine.ExposedMethodValue;
     GetField(name : System.String) : HeronEngine.FieldDefn;
     GetName() : System.String;
+  }
+}
+primitive ExternalList
+{
+  fields
+  {
+  }
+  methods
+  {
+    Add(v : HeronEngine.HeronValue) : System.Void;
+    Prepend(v : HeronEngine.HeronValue) : System.Void;
+    Insert(n : HeronEngine.HeronValue, v : HeronEngine.HeronValue) : System.Void;
+    Count() : HeronEngine.HeronValue;
+    ToString() : System.String;
+    GetIterator() : HeronEngine.IteratorValue;
+    ToList() : HeronEngine.ListValue;
   }
 }
 primitive ExternalMethod
@@ -176,6 +210,8 @@ primitive List
   {
     Slice(from : HeronEngine.IntValue, cnt : HeronEngine.IntValue) : HeronEngine.HeronValue;
     Add(v : HeronEngine.HeronValue) : System.Void;
+    Prepend(v : HeronEngine.HeronValue) : System.Void;
+    Insert(n : HeronEngine.HeronValue, v : HeronEngine.HeronValue) : System.Void;
     AddRange(v : HeronEngine.HeronValue) : System.Void;
     Remove() : System.Void;
     Count() : HeronEngine.HeronValue;
@@ -286,21 +322,14 @@ primitive Table
     ToString() : System.String;
   }
 }
-primitive Type
+primitive TypeValue
 {
   fields
   {
-    name : System.String;
   }
   methods
   {
-    GetModule() : HeronEngine.ModuleDefn;
-    GetMethod(name : System.String) : HeronEngine.ExposedMethodValue;
-    GetField(name : System.String) : HeronEngine.FieldDefn;
-    Equals(obj : System.Object) : System.Boolean;
-    GetHashCode() : System.Int32;
     ToString() : System.String;
-    GetName() : System.String;
   }
 }
 primitive Unknown
