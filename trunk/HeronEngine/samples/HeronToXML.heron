@@ -71,7 +71,7 @@
             Indent(f);
             CloseTag(tag);
         }            
-        OutputList(tag : String, xs : List)
+        OutputList(tag : String, xs : Seq)
         {
             OpenTag(tag);
             OutputAll(xs);
@@ -96,7 +96,7 @@
         {
             OutputTagged("name", s);
         }
-        OutputType(t : Type)
+        OutputType(t : TypeType)
         {
             var s : String = t.name;
             OutputTagged("type", s);

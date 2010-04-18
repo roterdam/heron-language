@@ -24,7 +24,7 @@ namespace HeronEngine
         // Special types
         public static HeronType VoidType = new HeronType(null, typeof(VoidValue), "Void");
         public static HeronType NullType = new HeronType(null, typeof(NullValue), "Null");
-        public static HeronType TypeValueType = new HeronType(null, typeof(TypeValue), "Type");
+        public static HeronType TypeValueType = new HeronType(null, typeof(TypeValue), "TypeValue");
         public static HeronType AnyType = new HeronType(null, typeof(AnyValue), "Any");
         public static HeronType UnknownType = new HeronType(null, typeof(VoidValue), "Unknown"); 
         public static HeronType OptimizedExpressionType = new HeronType(null, typeof(OptimizedExpression), "Optimized");
@@ -52,7 +52,7 @@ namespace HeronEngine
         public static HeronType ExposedMethodType = new HeronType(null, typeof(ExposedMethodValue), "PrimitiveMethod");
 
         // FFI types
-        public static HeronType ExternalListType = new HeronType(null, typeof(DotNetList), "ExternalList");
+        public static HeronType ExternalListType = new HeronType(SeqType, null, typeof(DotNetList), "ExternalList");
         public static HeronType ExternalMethodType = new HeronType(null, typeof(DotNetMethod), "ExternalMethod");
         public static HeronType ExternalStaticMethodListType = new HeronType(null, typeof(DotNetStaticMethodGroup), "ExternalStaticMethodList");
         public static HeronType ExternalMethodListType = new HeronType(null, typeof(DotNetMethodGroup), "ExternalMethodList");
@@ -61,7 +61,7 @@ namespace HeronEngine
         // Code model types
         public static CodeModelType VarDescType = new CodeModelType(typeof(VarDesc));
         public static CodeModelType ProgramType = new CodeModelType(typeof(ProgramDefn));
-        public static CodeModelType TypeType = new CodeModelType(TypeType, typeof(HeronType));
+        public static CodeModelType TypeType = new CodeModelType(typeof(HeronType), "TypeType");
         public static CodeModelType ModuleType = new CodeModelType(TypeType, typeof(ModuleDefn));
         public static CodeModelType ClassType = new CodeModelType(TypeType, typeof(ClassDefn));
         public static CodeModelType InterfaceType = new CodeModelType(TypeType, typeof(InterfaceDefn));

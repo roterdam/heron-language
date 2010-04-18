@@ -263,6 +263,11 @@ namespace HeronEngine
         {
         }
 
+        public CodeModelType(Type t, string name)
+            : base(null, t, name)
+        {
+        }
+
         public CodeModelType(HeronType basetype, Type t)
             : base(basetype, null, t, t.Name)
         {
