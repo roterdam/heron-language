@@ -56,12 +56,11 @@ namespace HeronEngine
         /// </summary>
         /// <param name="f"></param>
         /// <param name="self"></param>
-        public Frame(FunctionDefn f, ClassInstance self)
+        public Frame(FunctionDefn f, ClassInstance self, ModuleInstance mi)
         {
             this.function = f;
             this.self = self;
-            if (self != null)
-                moduleInstance = self.GetModuleInstance();
+            moduleInstance = mi;
             if (self != null)
                 moduleDef = self.GetHeronType().GetModule();
             AddScope(new Scope());
@@ -269,9 +268,8 @@ namespace HeronEngine
         /// <returns></returns>
         public Frame Fork()
         {
-            Frame f = new Frame(function, self);
+            Frame f = new Frame(function, self, moduleInstance);
             f.moduleDef = moduleDef;
-            f.moduleInstance = moduleInstance;
             foreach (Scope s in scopes)
                 f.AddScope(s);
             return f;

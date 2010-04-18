@@ -451,7 +451,7 @@ namespace HeronEngine
     public class SwitchStatement : Statement
     {
         [HeronVisible] public Expression condition;
-        [HeronVisible] public List<Statement> cases;
+        [HeronVisible] public List<Statement> cases = new List<Statement>();
         [HeronVisible] public Statement ondefault;
         
         internal SwitchStatement(ParseNode node)

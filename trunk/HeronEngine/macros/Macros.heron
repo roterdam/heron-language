@@ -2,13 +2,65 @@ module Macros
 {
     fields
     {
-         
+        editor : HeronEditor;
     }
     methods
     {
+        GetSelBegin() : Int {
+            return editor.get_EditControl().get_SelectionStart();
+        }
+        GetSelLength() : Int {
+            return editor.get_EditControl().get_SelectionLength();
+        }
+        GetSelEnd() : Int {
+            return editor.get_EditControl().get_SelectionStart();
+        }
+        GetLineFromOffset(n : Int) : Int {
+            return editor.get_EditControl().GetLineFromCharIndex(n);
+        }
+        GetLineBegin(nLine : Int) : Int {
+            return editor.get_EditControl().GetFirstCharIndexFromLine(nLine);
+        }
+        GetSelLineBegin() : Int {
+            return GetLineBegin(GetLineFromOffset(GetSelBegin()));
+        }
+        GetSelLineEnd() : Int {
+            return GetLineEnd(GetLineFromOffset(GetSelEnd()));
+        }
+        SetSelection(begin : Int, length : Int) {
+            editor.get_EditControl().set_SelectionStart(begin);
+            editor.get_EditControl().set_SelectionLength(length);
+        }
+        GetSelectedText() : String {
+            return editor.get_EditControl().get_SelectedText();
+        }
+        SetSelectedText(s : String) {
+            editor.get_EditControl().set_SelectedText(s);
+        }
+        CommentSelectedBlock() {
+            var n = GetSelBegin() - GetSelLineBegin();
+            SetSelection(GetSelBegin() - n, GetSelLength() + n);
+            var s = GetSelectedText();
+            s = "//" + s;
+            var re = new Regex("\n");
+            s = re.Replace(s, "\n//");
+            SetSelectedText(s);
+        }
         RunMacro(editor : HeronEditor, macro : String)
         { 
-            MessageBox.Show(macro);
+            thismodule.editor = editor;
+
+            switch (macro)
+            {
+                case ("comment")
+                {
+                    CommentSelectedBlock();
+                }
+                default
+                {
+                    MessageBox.Show("Unrecognized macro " + macro);
+                }
+            }
        }
     }
 }

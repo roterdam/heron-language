@@ -136,6 +136,7 @@
     <Content Include="license.txt" />
     <Content Include="readme.txt" />
     <None Include="lib\Heron.Standard.Metaprogramming.heron" />
+    <None Include="macros\Macros.heron" />
     <None Include="tests\TestMetaProgramming.heron" />
     <None Include="tests\NegativeTestAll.heron" />
     <None Include="tests\NegativeTestNullAssignment.heron" />

@@ -12,11 +12,11 @@ using System.IO;
 
 namespace HeronEngine
 {
-    public class HeronTests
+    public class UnitTests
     {
         static VM vm = new VM();
 
-        static HeronTests()
+        static UnitTests()
         {
             vm.InitializeVM();
         }
@@ -43,7 +43,7 @@ namespace HeronEngine
             Console.WriteLine("testing expression: " + s);
             try
             {
-                Expression x = CodeModelBuilder.ParseExpr(vm.Program, s);
+                Expression x = CodeModelBuilder.CreateExpr(s);
                 if (x != null)
                 {
                     Console.WriteLine("test passed");
@@ -63,7 +63,7 @@ namespace HeronEngine
             Console.WriteLine("testing statement: " + s);
             try
             {
-                Statement x = CodeModelBuilder.ParseStatement(vm.Program, s);
+                Statement x = CodeModelBuilder.CreateStatement(s);
                 if (x != null)
                     Console.WriteLine("test passed");
                 else

@@ -87,9 +87,22 @@ namespace HeronEngine
             }
         }
 
-        public ClassInstance GetSelfAsInstance()
+        public ClassInstance GetClassInstance()
         {
             return self as ClassInstance;
+        }
+
+        public ModuleInstance GetModuleInstance()
+        {
+            ModuleInstance mi = self as ModuleInstance;
+            if (mi != null)
+                return mi;
+
+            ClassInstance ci = GetClassInstance();
+            if (ci != null)
+                return ci.GetModuleInstance();
+
+            return null;
         }
 
         public void PerformCoercions(HeronValue[] xs)
@@ -111,7 +124,7 @@ namespace HeronEngine
         public override HeronValue Apply(VM vm, HeronValue[] args)
         {
             // Create a stack frame 
-            using (vm.CreateFrame(fun, GetSelfAsInstance()))
+            using (vm.CreateFrame(fun, GetClassInstance(), GetModuleInstance()))
             {
                 try
                 {

@@ -204,7 +204,7 @@ namespace HeronEngine
 
         public void AddFields(ModuleInstance inst, ModuleInstance parent)
         {
-            inst.AddField(new VarDesc("this"), inst);
+            inst.AddField(new VarDesc("thismodule"), inst);
 
             foreach (FieldDefn field in GetFields())
                 inst.AddField(field);
@@ -217,7 +217,7 @@ namespace HeronEngine
 
                 ModuleInstance baseInst = new ModuleInstance(baseMod);
                 baseMod.AddFields(baseInst, parent);
-                inst.AddField(new VarDesc("base"), baseInst);
+                inst.AddField(new VarDesc("basemodule"), baseInst);
             }
         }
 
