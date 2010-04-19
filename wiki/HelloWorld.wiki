@@ -7,17 +7,55 @@ The obligatory _Hello world_ program, which prints the string "Hello World" to t
 {{{
 module HelloWorld 
 {
+  imports
+  {
+    console = new Heron.Windows.Console();
+  }
   methods 
   {
     Main() 
     {
-      Console.WriteLine("Hello World");
+      WriteLine("Hello World");
     }
   }
 }
 }}}
 
-In this case we are lazily relying on the fact that the Heron interpreter imports some libraries from .NET. As the standard libraries are developed, a proper IO module will be added.  
+= Fibonacci =
+
+This program prints out the first 10 numbers in the Fibonacci sequence. It demonstrates functions signatures and the if statement.
+
+{{{
+module Fibonacci
+{
+    imports
+    {
+        Console = new Heron.Windows.Console();
+    }
+    fields
+    {
+        max = 10;
+    }
+    methods
+    {
+        Fib(n : Int) : Int
+        {
+            if (n <= 0) 
+                return 0;
+            else if (n == 1)
+                return 1;
+            else
+                return Fib(n - 1) + Fib(n - 2);
+        }
+
+        Main() 
+        {
+            foreach (i in 0..max)
+                WriteLine(Fib(i).ToString());
+        }
+    }
+}
+}}}
 
 = Sieve of Eratosthenes =
 
@@ -26,6 +64,10 @@ This program prints out the prime numbers up to 100. It demonstrates ranges and 
 {{{
 module Sieve
 {
+  imports
+  {
+    console = new Heron.Windows.Console();
+  }
   fields 
   {
     max = 10;
