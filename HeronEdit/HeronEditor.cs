@@ -83,6 +83,10 @@ namespace HeronEdit
             get { return undoer; }
             set { undoer = value; }
         }
+        /// <summary>
+        /// Exposes the editor control
+        /// </summary>
+        public CodeEditControl EditControl { get { return code; } }
         #endregion
 
         #region editor controls
@@ -260,6 +264,9 @@ namespace HeronEdit
                 code.SelectedText = t1;
             };
 
+            modified = true;
+            backedUp = false;
+            previousText = Text;
             undoer.AddUndo("text change", actionDo, actionUndo);
         }
 
@@ -345,11 +352,8 @@ namespace HeronEdit
         {
             if (bSuspendNotifications)
                 return;
-            modified = true;
             idleChecked = true;
-            backedUp = false;
             ComputeUndo();
-            previousText = Text;
         }
         #endregion
 
@@ -515,11 +519,15 @@ namespace HeronEdit
         public void Open(string sFile)
         {
             string s = File.ReadAllText(sFile);
+            filename = sFile;
+            bSuspendNotifications = true;
+            code.Text = s;
+            bSuspendNotifications = false;
+            ColorSyntax();
             backedUp = true;
             modified = false;
-            filename = sFile;
-            code.Text = s;
-            ColorSyntax();
+            previousText = Text;
+            undoer.Clear();
         }
 
         /// <summary>
@@ -541,8 +549,9 @@ namespace HeronEdit
             if (!SaveIfModified())
                 return;
             Process p = new Process();
-            p.StartInfo.FileName = "HeronEngine.exe";
-            p.StartInfo.Arguments = filename;
+            p.StartInfo.WorkingDirectory = GetAppDirectory(); 
+            p.StartInfo.FileName = GetAppDirectory() + "\\HeronEngine.exe";
+            p.StartInfo.Arguments = "\"" + filename + "\"";
             p.Start();
         }
 
@@ -690,7 +699,8 @@ namespace HeronEdit
                 VM vm = new VM();
                 vm.InitializeVM();
                 vm.RegisterDotNetType(typeof (HeronEditor));
-                vm.RegisterDotNetType(typeof (Preferences));
+                vm.RegisterDotNetType(typeof(CodeEditControl));
+                vm.RegisterDotNetType(typeof(Preferences));
                 
                 //vm.RegisterAssembly(Assembly.GetExecutingAssembly());
                 vm.RegisterCommonWinFormTypes();
@@ -699,7 +709,7 @@ namespace HeronEdit
                 vm.ResolveTypesInModules();
                 ModuleInstance mi = m.Instantiate(vm, new HeronValue[] { }, null) as ModuleInstance;
                 vm.RunMeta(mi);
-                HeronValue f = m.GetFieldOrMethod("RunMacro");
+                HeronValue f = mi.GetFieldOrMethod("RunMacro");
                 if (f == null)
                     throw new Exception("Could not find a 'Main' method to run");
                 f.Apply(vm, new HeronValue[] { DotNetObject.Marshal(this), DotNetObject.Marshal(s) });
@@ -719,7 +729,7 @@ namespace HeronEdit
         {
             Process p = new Process();
             p.StartInfo.FileName = Application.ExecutablePath;
-            p.StartInfo.Arguments = file;
+            p.StartInfo.Arguments = "\"" + file + "\"";
             p.Start();
         }
         #endregion
@@ -748,7 +758,7 @@ namespace HeronEdit
             get { return autoParse; }
             set { autoParse = value; }
         }
-        int idleBeforeReparse = 1000;
+        int idleBeforeReparse = 500;
 
         public int IdleBeforeReparse
         {
