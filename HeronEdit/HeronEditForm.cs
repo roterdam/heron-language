@@ -142,5 +142,11 @@ namespace HeronEdit
                 e.Effect = DragDropEffects.All; else
                 e.Effect = DragDropEffects.None;
         }
+
+        private void HeronMainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (!editor.SaveIfModified())
+                e.Cancel = true;
+        }
     }
 }
