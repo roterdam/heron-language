@@ -26,6 +26,14 @@ namespace HeronEdit
             {
                 editor.Open(args[1]);
             }
+
+            codeControl.AllowDrop = true;
+            codeControl.DragDrop += new DragEventHandler(HeronMainForm_DragDrop);
+            codeControl.DragEnter += new DragEventHandler(HeronMainForm_DragEnter);
+
+            output.AllowDrop = true;
+            output.DragDrop += new DragEventHandler(HeronMainForm_DragDrop);
+            output.DragEnter += new DragEventHandler(HeronMainForm_DragEnter);
         }
 
         private void HeronMainForm_Shown(object sender, EventArgs e)
@@ -108,6 +116,31 @@ namespace HeronEdit
             if (!macroForm.ShowDialog("Enter macro name"))
                 return;
             editor.RunMacro(macroForm.EnteredText);
+        }
+
+        private void HeronMainForm_DragDrop(object sender, DragEventArgs e)
+        {
+            string[] files = (string[]) e.Data.GetData(DataFormats.FileDrop, false);
+            if (files.Length == 0)
+                return;
+
+            if (files.Length > 1)
+            {
+                MessageBox.Show("You can only drag and drop one file at a time");
+                return;
+            }
+
+            if (!editor.SaveIfModified())
+                return;
+
+            editor.Open(files[0]);
+        }
+
+        private void HeronMainForm_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                e.Effect = DragDropEffects.All; else
+                e.Effect = DragDropEffects.None;
         }
     }
 }

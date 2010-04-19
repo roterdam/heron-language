@@ -49,12 +49,12 @@
             this.runToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.macrosToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.runMacroToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.output = new System.Windows.Forms.RichTextBox();
-            this.runMacroToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.codeControl = new HeronEdit.CodeEditControl();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -221,7 +221,7 @@
             // 
             this.runToolStripMenuItem.Name = "runToolStripMenuItem";
             this.runToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F5;
-            this.runToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.runToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
             this.runToolStripMenuItem.Text = "&Run";
             this.runToolStripMenuItem.Click += new System.EventHandler(this.runToolStripMenuItem_Click);
             // 
@@ -242,6 +242,14 @@
             this.editToolStripMenuItem1.Text = "&Edit macro ...";
             this.editToolStripMenuItem1.Click += new System.EventHandler(this.editToolStripMenuItem1_Click);
             // 
+            // runMacroToolStripMenuItem
+            // 
+            this.runMacroToolStripMenuItem.Name = "runMacroToolStripMenuItem";
+            this.runMacroToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.M)));
+            this.runMacroToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.runMacroToolStripMenuItem.Text = "&Run macro ...";
+            this.runMacroToolStripMenuItem.Click += new System.EventHandler(this.runMacroToolStripMenuItem_Click);
+            // 
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -254,7 +262,7 @@
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
             this.aboutToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F1;
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
             this.aboutToolStripMenuItem.Text = "&About ...";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
@@ -293,14 +301,6 @@
             this.output.TabIndex = 0;
             this.output.Text = "";
             // 
-            // runMacroToolStripMenuItem
-            // 
-            this.runMacroToolStripMenuItem.Name = "runMacroToolStripMenuItem";
-            this.runMacroToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.M)));
-            this.runMacroToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.runMacroToolStripMenuItem.Text = "&Run macro ...";
-            this.runMacroToolStripMenuItem.Click += new System.EventHandler(this.runMacroToolStripMenuItem_Click);
-            // 
             // codeControl
             // 
             this.codeControl.AcceptsTab = true;
@@ -317,6 +317,7 @@
             // 
             // HeronMainForm
             // 
+            this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(368, 312);
@@ -328,6 +329,8 @@
             this.Name = "HeronMainForm";
             this.Text = "Heron Editor";
             this.Shown += new System.EventHandler(this.HeronMainForm_Shown);
+            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.HeronMainForm_DragDrop);
+            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.HeronMainForm_DragEnter);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);

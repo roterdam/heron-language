@@ -257,6 +257,8 @@ namespace HeronEdit
         {
             StringBuilder sb = new StringBuilder();
             int i = 0;
+            s = s.Replace("{", "\\{");
+            s = s.Replace("}", "\\}");
             while (i < s.Length)
             {
                 string token = "";
@@ -304,23 +306,14 @@ namespace HeronEdit
                     sb.Append(AddColor(token, TokenType.Char));
                     i += token.Length;
                 }
-                else if (s[i] == '{')
-                {
-                    sb.Append(@"\{");
-                    ++i;
-                }
-                else if (s[i] == '}')
-                {
-                    sb.Append(@"\}");
-                    ++i;
-                }
                 else
                 {
                     sb.Append(s[i++]);
                 }
             }
-            //sb.Append('}');
-            return RtfHeader() + sb.ToString().Replace("\n", "\\par\r\n");
+            s = sb.ToString();
+            s = s.Replace("\n", "\\par\r\n");
+            return RtfHeader() + s;
         }
 
         private bool ParseWSpace(string s, int i, out string token)

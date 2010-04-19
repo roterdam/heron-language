@@ -75,6 +75,11 @@ namespace HeronEdit
 
         #region fields
         /// <summary>
+        /// Prevents TextChanged events from firing.
+        /// </summary>
+        bool bSuspendNotifications = false;
+
+        /// <summary>
         /// Manages the undo and redo stack
         /// </summary>
         UndoSystem undoer = new UndoSystem();
@@ -84,6 +89,28 @@ namespace HeronEdit
         /// </summary>
         IntPtr eventMask;
         #endregion
+
+        #region property overrides 
+        public override string Text
+        {
+            get
+            {
+                return base.Text;
+            }
+            set
+            {
+                try
+                {
+                    bSuspendNotifications = true;
+                    base.Text = value;
+                }
+                finally
+                {
+                    bSuspendNotifications = false;
+                }
+            }
+        }
+        #endregion 
 
         /// <summary>
         /// Constructor
@@ -297,6 +324,7 @@ namespace HeronEdit
             int b = SelectionLength;
             try
             {
+                bSuspendNotifications = true;
                 LockWindow(Handle);
                 base.Rtf = p.Replace("\t", TAB);
             }
@@ -306,6 +334,7 @@ namespace HeronEdit
                 SelectionLength = b;
                 SetScrollPos(pt);
                 LockWindow(IntPtr.Zero);
+                bSuspendNotifications = false;
             }
         }
 
@@ -324,6 +353,7 @@ namespace HeronEdit
             int len = this.SelectionLength;
             try
             {
+                bSuspendNotifications = true;
                 LockWindow(Handle);
                 base.Text = p.Replace("\t", TAB);
             }
@@ -334,6 +364,7 @@ namespace HeronEdit
                 SelectionStart = n;
                 SelectionLength = len;
                 LockWindow(IntPtr.Zero);
+                bSuspendNotifications = false;
             }
         }
     
@@ -346,6 +377,33 @@ namespace HeronEdit
             string s = Clipboard.GetText();
             s = s.Replace("\t", TAB);
             SelectedText = s;
+        }
+
+        /// <summary>
+        /// Triggers the TextChanged message.
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnTextChanged(EventArgs e)
+        {
+            if (!bSuspendNotifications)
+                base.OnTextChanged(e);
+        }
+
+        /// <summary>
+        /// Triggers a DragDrop message.
+        /// </summary>
+        /// <param name="drgevent"></param>
+        protected override void OnDragDrop(DragEventArgs drgevent)
+        {
+            bSuspendNotifications = true;
+            try 
+            { 
+                base.OnDragDrop(drgevent); 
+            }
+            finally 
+            { 
+                bSuspendNotifications = false; 
+            }
         }
     }
 }
