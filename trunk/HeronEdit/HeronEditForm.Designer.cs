@@ -328,6 +328,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "HeronMainForm";
             this.Text = "Heron Editor";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.HeronMainForm_FormClosing);
             this.Shown += new System.EventHandler(this.HeronMainForm_Shown);
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.HeronMainForm_DragDrop);
             this.DragEnter += new System.Windows.Forms.DragEventHandler(this.HeronMainForm_DragEnter);

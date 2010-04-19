@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeronEdit", "..\HeronEdit\H
 		{E3C7F929-5004-4403-8C10-0B20645D2D27} = {E3C7F929-5004-4403-8C10-0B20645D2D27}
 	EndProjectSection
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "HeronSetup", "..\HeronSetup\HeronSetup.vdproj", "{C1E906E1-3196-4A1D-98B6-561B9E6D206D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -68,6 +70,38 @@ Global
 		{5C143DF3-7452-4155-B5A9-0A32ACD29941}.Release|x86.ActiveCfg = Release|Any CPU
 		{5C143DF3-7452-4155-B5A9-0A32ACD29941}.Release|Xbox 360.ActiveCfg = Release|Any CPU
 		{5C143DF3-7452-4155-B5A9-0A32ACD29941}.Release|Zune.ActiveCfg = Release|Any CPU
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Debug|Any CPU.ActiveCfg = Debug
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Debug|Any CPU.Build.0 = Debug
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Debug|AnyOS.ActiveCfg = Debug
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Debug|AnyOS.Build.0 = Debug
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Debug|Mixed Platforms.ActiveCfg = Debug
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Debug|Mixed Platforms.Build.0 = Debug
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Debug|Win32.ActiveCfg = Debug
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Debug|Win32.Build.0 = Debug
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Debug|Win64.ActiveCfg = Debug
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Debug|Win64.Build.0 = Debug
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Debug|x86.ActiveCfg = Debug
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Debug|x86.Build.0 = Debug
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Debug|Xbox 360.ActiveCfg = Debug
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Debug|Xbox 360.Build.0 = Debug
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Debug|Zune.ActiveCfg = Debug
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Debug|Zune.Build.0 = Debug
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Release|Any CPU.ActiveCfg = Release
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Release|Any CPU.Build.0 = Release
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Release|AnyOS.ActiveCfg = Release
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Release|AnyOS.Build.0 = Release
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Release|Mixed Platforms.ActiveCfg = Release
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Release|Mixed Platforms.Build.0 = Release
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Release|Win32.ActiveCfg = Release
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Release|Win32.Build.0 = Release
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Release|Win64.ActiveCfg = Release
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Release|Win64.Build.0 = Release
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Release|x86.ActiveCfg = Release
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Release|x86.Build.0 = Release
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Release|Xbox 360.ActiveCfg = Release
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Release|Xbox 360.Build.0 = Release
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Release|Zune.ActiveCfg = Release
+		{C1E906E1-3196-4A1D-98B6-561B9E6D206D}.Release|Zune.Build.0 = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
