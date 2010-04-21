@@ -257,8 +257,10 @@ namespace HeronEdit
         {
             StringBuilder sb = new StringBuilder();
             int i = 0;
+            s = s.Replace(@"\", @"\\");
             s = s.Replace("{", "\\{");
             s = s.Replace("}", "\\}");
+
             while (i < s.Length)
             {
                 string token = "";
