@@ -23,7 +23,7 @@ These are the different Wiki topics related to the Heron documentation.
   # [Closures]
   # [Records]
   # [Tables] 
-  # [MetaProgramming]
+  # [Metaprogramming]
   # [ListOperations List operations] - `map`, `select`, `reduce`, and `accumulate`.
 
 == User Defined Types ==
