@@ -26,19 +26,24 @@ namespace HeronEngine
                 this.args = args;
             }
 
-            public override HeronType GetHeronType()
+            public override HeronType Type
             {
-                return PrimitiveTypes.ImportType;
+                get { return PrimitiveTypes.ImportType; }
             }
         }
 
-        List<ClassDefn> classes = new List<ClassDefn>();
-        List<InterfaceDefn> interfaces = new List<InterfaceDefn>();
-        List<EnumDefn> enums = new List<EnumDefn>();
+        #region exposed fields
+        [HeronVisible] List<ClassDefn> classes = new List<ClassDefn>();
+        [HeronVisible] List<InterfaceDefn> interfaces = new List<InterfaceDefn>();
+        [HeronVisible] List<EnumDefn> enums = new List<EnumDefn>();
+        [HeronVisible] List<Import> imports = new List<Import>();
+        [HeronVisible] string fileName = "no file";
+        [HeronVisible] ProgramDefn program;
+        #endregion 
+
+        #region unexposed fields
         Dictionary<string, HeronType> types = new Dictionary<string, HeronType>();
-        List<Import> imports = new List<Import>();
-        string fileName = "no file";
-        ProgramDefn program;
+        #endregion
 
         public ModuleDefn(ProgramDefn prog, string name, string sFileName)
             : base(null, name)
@@ -58,9 +63,9 @@ namespace HeronEngine
             }
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.ModuleType;
+            get { return PrimitiveTypes.ModuleType; }
         }
 
         #region heron visible functions

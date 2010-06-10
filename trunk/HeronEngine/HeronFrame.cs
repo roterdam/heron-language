@@ -62,7 +62,7 @@ namespace HeronEngine
             this.self = self;
             moduleInstance = mi;
             if (self != null)
-                moduleDef = self.GetHeronType().GetModule();
+                moduleDef = self.Type.GetModule();
             AddScope(new Scope());
         }
 

@@ -112,9 +112,9 @@ namespace HeronEngine
             }
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.IntType;
+            get { return PrimitiveTypes.IntType; }
         }
     }
 
@@ -144,9 +144,9 @@ namespace HeronEngine
             }
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.CharType;
+            get { return PrimitiveTypes.CharType; }
         }
 
         [HeronVisible]
@@ -160,7 +160,7 @@ namespace HeronEngine
         {
             IntValue iv = x as IntValue;
             if (iv == null)
-                throw new Exception("Expect IntValue, not " + x.GetHeronType().ToString());
+                throw new Exception("Expect IntValue, not " + x.Type.ToString());
             return new CharValue((char)iv.GetValue());
         }
     }
@@ -212,9 +212,9 @@ namespace HeronEngine
             }
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.FloatType;
+            get { return PrimitiveTypes.FloatType; }
         }
     }
 
@@ -259,9 +259,9 @@ namespace HeronEngine
             return GetValue();
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.BoolType;
+            get { return PrimitiveTypes.BoolType; }
         }
 
         public override string ToString()
@@ -303,9 +303,9 @@ namespace HeronEngine
             }
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.StringType;
+            get { return PrimitiveTypes.StringType; }
         }
 
         [HeronVisible]

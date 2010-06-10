@@ -367,7 +367,7 @@ namespace HeronEngine
             }
         }
 
-        public void ResolveTypesInModules()
+        public void ResolveTypes()
         {
             foreach (ModuleDefn md in program.GetModules())
             {
@@ -388,7 +388,7 @@ namespace HeronEngine
             vm.InitializeVM();
             ModuleDefn m = vm.LoadModule(sFile);
             vm.LoadDependentModules(sFile);
-            vm.ResolveTypesInModules();
+            vm.ResolveTypes();
             vm.RunModule(m);
         }
 
@@ -396,12 +396,13 @@ namespace HeronEngine
         /// Evaluates the "Meta()" function of a module instance.
         /// </summary>
         /// <param name="m"></param>
-        public void RunMeta(ModuleInstance m)
+        public bool RunMeta(ModuleInstance m)
         {
             HeronValue f = m.GetFieldOrMethod("Meta");
             if (f == null)
-                return;
+                return false;
             f.Apply(this, new HeronValue[] { program });
+            return true;
         }
 
         /// <summary>
@@ -424,7 +425,11 @@ namespace HeronEngine
         public void RunModule(ModuleDefn m)
         {
             ModuleInstance mi = m.Instantiate(this, new HeronValue[] { }, null) as ModuleInstance;
-            RunMeta(mi);
+            if (RunMeta(mi))
+            {
+                // Re-instantiate, 
+                mi = m.Instantiate(this, new HeronValue[] { }, null) as ModuleInstance;
+            }
             RunMain(mi);
         }
         #endregion 
@@ -706,7 +711,7 @@ namespace HeronEngine
         [HeronVisible]
         public HeronValue LookupName(string s)
         {            
-            HeronValue r = CurrentFrame.LookupName(s);
+           HeronValue r = CurrentFrame.LookupName(s);
             if (r != null)
                 return r;
 
@@ -816,9 +821,9 @@ namespace HeronEngine
             return Invoke(self, s, new HeronValue[] { });
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.VMType;
+            get { return PrimitiveTypes.VMType; }
         }
 
         public HeronValue MakeTemporary(bool x)

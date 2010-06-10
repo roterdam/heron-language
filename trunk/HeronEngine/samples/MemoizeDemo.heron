@@ -1,0 +1,95 @@
+﻿module MemoizeDemo
+{
+    imports
+    {
+        console = new Heron.Windows.Console();
+        meta = new Heron.Standard.Metaprogramming();
+        printing = new PrettyPrinting();
+    }
+    methods
+    {
+        Meta(p : ProgramDefn)
+        {
+            foreach (m in p.GetModules()) 
+            {
+                foreach (f in m.GetDeclaredMethods())
+                {
+                    if (HasAnnotation(f, "memoize"))
+                    {
+                        MemoizeFunction(m, f);
+                    }
+                }
+            }
+
+            // After making any changes to the parse tree, types have to be resolved. 
+            p.ResolveTypes();   
+
+            // Print the modified AST
+            var pp = new PrettyPrinter();
+            pp.Output(p.GetModule("MemoizeDemo"));
+        }
+
+        RenameMethod(f : FunctionDefn, s : String)
+        {
+            f.name = s;
+        }
+
+        MemoizeFunction(m : ModuleDefn, f : FunctionDefn)
+        {
+            if (f.formals.Count() != 1) {
+                WriteLine("Can only memoize functions that have exactly one argument");
+                return;
+            }
+
+            var sArgType = f.formals[0].type.ToString();
+
+            // Create a lookup table for memoized results
+            var sTableName = f.name + "_memo_table_"; 
+            AddField(m, sTableName);
+
+            // Create a new statement in the module constructor for initializing the table
+            var sTableInitString = "table(arg : Int, result : Int) { }";
+            var sTableInitStatement = CodeModelBuilder.CreateStatement(sTableName + " = " + sTableInitString + ";");
+            AddStatementToCtor(m, sTableInitStatement);
+            
+            // The name of the unmemoized function.
+            var sUnmemoized = "_nonmemoized_" + f.name;
+
+            // Note that this function has the name of the original
+            var g = CodeModelBuilder.CreateMethod(
+                f.name + @"(x) {
+                    if (!" + sTableName + @".HasKey(x))
+                        " + sTableName + @".Add([x, " + sUnmemoized + @"(x)]);
+                    return " + sTableName + @"[x].result;
+                }", m);
+
+            // Add the function to the module 
+            m.AddMethod(g);
+
+            // Rename the original, to mark it as the unmemoized version.
+            RenameMethod(f, sUnmemoized);
+        }
+
+        Main()
+        {
+            WriteLine("Fib(0) = " + Fib(1).ToString());
+            WriteLine("Fib(1) = " + Fib(1).ToString());
+            WriteLine("Fib(2) = " + Fib(2).ToString());
+            WriteLine("Fib(3) = " + Fib(3).ToString());
+            WriteLine("Fib(4) = " + Fib(4).ToString());
+            WriteLine("Fib(5) = " + Fib(5).ToString());
+            WriteLine("Fib(6) = " + Fib(6).ToString());
+        }
+
+        [memoize]
+        Fib(n : Int) : Int
+        {
+            if (n <= 0) 
+                return 0;
+            else if (n == 1)
+                return 1;
+            else
+                return Fib(n - 1) + Fib(n - 2);
+        }
+    }
+}

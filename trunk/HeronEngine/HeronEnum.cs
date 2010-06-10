@@ -83,9 +83,9 @@ namespace HeronEngine
             return name.GetHashCode();
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.EnumType;
+            get { return PrimitiveTypes.EnumType; }
         }
     }
 }

@@ -151,9 +151,9 @@ namespace HeronEngine
             return vm.GetAndResetResult();
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.FunctionType;
+            get { return PrimitiveTypes.FunctionType; }
         }
 
         public FunctionDefn GetDefn()
@@ -238,7 +238,7 @@ namespace HeronEngine
                 if (arg is AnyValue)
                     argType = (arg as AnyValue).GetHeldType();
                 else
-                    argType = arg.GetHeronType();
+                    argType = arg.Type;
                 for (int i = 0; i < list.Count; ++i)
                 {
                     FunctionValue fo = list[i];
@@ -303,9 +303,9 @@ namespace HeronEngine
             return r;
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.FunctionListType;
+            get { return PrimitiveTypes.FunctionListType; }
         }
 
         public List<FunctionDefn> GetDefns()
@@ -335,9 +335,9 @@ namespace HeronEngine
             return method.Invoke(vm, self, args);
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.BoundMethodType;
+            get { return PrimitiveTypes.BoundMethodType; }
         }
     }
 }

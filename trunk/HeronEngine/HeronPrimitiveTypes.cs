@@ -26,7 +26,8 @@ namespace HeronEngine
         public static HeronType NullType = new HeronType(null, typeof(NullValue), "Null");
         public static HeronType TypeValueType = new HeronType(null, typeof(TypeValue), "TypeValue");
         public static HeronType AnyType = new HeronType(null, typeof(AnyValue), "Any");
-        public static HeronType UnknownType = new HeronType(null, typeof(VoidValue), "Unknown"); 
+        public static HeronType UnknownType = new HeronType(null, typeof(VoidValue), "Unknown");
+        public static HeronType UnresolvedType = new HeronType(null, typeof(VoidValue), "Unresolved");
         public static HeronType OptimizedExpressionType = new HeronType(null, typeof(OptimizedExpression), "Optimized");
 
         // Usual suspects 
@@ -53,7 +54,6 @@ namespace HeronEngine
 
         // FFI types
         public static HeronType ExternalListType = new HeronType(SeqType, null, typeof(DotNetList), "ExternalList");
-        public static HeronType ExternalMethodType = new HeronType(null, typeof(DotNetMethod), "ExternalMethod");
         public static HeronType ExternalStaticMethodListType = new HeronType(null, typeof(DotNetStaticMethodGroup), "ExternalStaticMethodList");
         public static HeronType ExternalMethodListType = new HeronType(null, typeof(DotNetMethodGroup), "ExternalMethodList");
         public static HeronType ExternalClass = new HeronType(null, typeof(DotNetClass), "ExternalClass");
@@ -62,8 +62,8 @@ namespace HeronEngine
         public static CodeModelType VarDescType = new CodeModelType(typeof(VarDesc));
         public static CodeModelType ProgramType = new CodeModelType(typeof(ProgramDefn));
         public static CodeModelType TypeType = new CodeModelType(typeof(HeronType), "TypeType");
-        public static CodeModelType ModuleType = new CodeModelType(TypeType, typeof(ModuleDefn));
         public static CodeModelType ClassType = new CodeModelType(TypeType, typeof(ClassDefn));
+        public static CodeModelType ModuleType = new CodeModelType(ClassType, typeof(ModuleDefn));
         public static CodeModelType InterfaceType = new CodeModelType(TypeType, typeof(InterfaceDefn));
         public static CodeModelType EnumType = new CodeModelType(TypeType, typeof(EnumDefn));
         public static CodeModelType FieldDefnType = new CodeModelType(VarDescType, typeof(FieldDefn));
@@ -72,43 +72,45 @@ namespace HeronEngine
         public static CodeModelType FormalArgType = new CodeModelType(VarDescType, typeof(FormalArg));
 
         // Code model statement types
-        public static CodeModelType VariableDeclaration = new CodeModelType(typeof(VariableDeclaration));
-        public static CodeModelType DeleteStatement = new CodeModelType(typeof(DeleteStatement));
-        public static CodeModelType ExpressionStatement = new CodeModelType(typeof(ExpressionStatement));
-        public static CodeModelType ForEachStatement = new CodeModelType(typeof(ForEachStatement));
-        public static CodeModelType ForStatement = new CodeModelType(typeof(ForStatement));
-        public static CodeModelType CodeBlock = new CodeModelType(typeof(CodeBlock));
-        public static CodeModelType IfStatement = new CodeModelType(typeof(IfStatement));
-        public static CodeModelType WhileStatement = new CodeModelType(typeof(WhileStatement));
-        public static CodeModelType ReturnStatement = new CodeModelType(typeof(ReturnStatement));
-        public static CodeModelType SwitchStatement = new CodeModelType(typeof(SwitchStatement));
-        public static CodeModelType CaseStatement = new CodeModelType(typeof(CaseStatement));
+        public static CodeModelType Statement = new CodeModelType(typeof(Statement));
+        public static CodeModelType VariableDeclaration = new CodeModelType(Statement, typeof(VariableDeclaration));
+        public static CodeModelType DeleteStatement = new CodeModelType(Statement, typeof(DeleteStatement));
+        public static CodeModelType ExpressionStatement = new CodeModelType(Statement, typeof(ExpressionStatement));
+        public static CodeModelType ForEachStatement = new CodeModelType(Statement, typeof(ForEachStatement));
+        public static CodeModelType ForStatement = new CodeModelType(Statement, typeof(ForStatement));
+        public static CodeModelType CodeBlock = new CodeModelType(Statement, typeof(CodeBlock));
+        public static CodeModelType IfStatement = new CodeModelType(Statement, typeof(IfStatement));
+        public static CodeModelType WhileStatement = new CodeModelType(Statement, typeof(WhileStatement));
+        public static CodeModelType ReturnStatement = new CodeModelType(Statement, typeof(ReturnStatement));
+        public static CodeModelType SwitchStatement = new CodeModelType(Statement, typeof(SwitchStatement));
+        public static CodeModelType CaseStatement = new CodeModelType(Statement, typeof(CaseStatement));
 
         // Code model expresssion types
-        public static CodeModelType Assignment = new CodeModelType(typeof(Assignment));
-        public static CodeModelType ChooseField = new CodeModelType(typeof(ChooseField));
-        public static CodeModelType ReadAt = new CodeModelType(typeof(ReadAt));
-        public static CodeModelType NewExpr = new CodeModelType(typeof(NewExpr));
-        public static CodeModelType NullExpr = new CodeModelType(typeof(NullExpr));
-        public static CodeModelType IntLiteral = new CodeModelType(typeof(IntLiteral));
-        public static CodeModelType BoolLiteral = new CodeModelType(typeof(BoolLiteral));
-        public static CodeModelType FloatLiteral = new CodeModelType(typeof(FloatLiteral));
-        public static CodeModelType CharLiteral = new CodeModelType(typeof(CharLiteral));
-        public static CodeModelType StringLiteral = new CodeModelType(typeof(StringLiteral));
-        public static CodeModelType Name = new CodeModelType(typeof(Name));
-        public static CodeModelType FunCall = new CodeModelType(typeof(FunCall));
-        public static CodeModelType UnaryOperation = new CodeModelType(typeof(UnaryOperation));
-        public static CodeModelType BinaryOperation = new CodeModelType(typeof(BinaryOperation));
-        public static CodeModelType FunExpr = new CodeModelType(typeof(FunExpr));
-        public static CodeModelType PostIncExpr = new CodeModelType(typeof(PostIncExpr));
-        public static CodeModelType SelectExpr = new CodeModelType(typeof(SelectExpr));
-        public static CodeModelType MapExpr = new CodeModelType(typeof(MapExpr));
-        public static CodeModelType AccumulateExpr = new CodeModelType(typeof(AccumulateExpr));
-        public static CodeModelType ReduceExpr = new CodeModelType(typeof(ReduceExpr));
-        public static CodeModelType TupleExpr = new CodeModelType(typeof(TupleExpr));
-        public static CodeModelType TableExpr = new CodeModelType(typeof(TableExpr));
-        public static CodeModelType RecordExpr = new CodeModelType(typeof(RecordExpr));
-        public static CodeModelType ParanthesizedExpr = new CodeModelType(typeof(ParanthesizedExpr));
+        public static CodeModelType Expression = new CodeModelType(typeof(Expression));
+        public static CodeModelType Assignment = new CodeModelType(Expression, typeof(Assignment));
+        public static CodeModelType ChooseField = new CodeModelType(Expression, typeof(ChooseField));
+        public static CodeModelType ReadAt = new CodeModelType(Expression, typeof(ReadAt));
+        public static CodeModelType NewExpr = new CodeModelType(Expression, typeof(NewExpr));
+        public static CodeModelType NullExpr = new CodeModelType(Expression, typeof(NullExpr));
+        public static CodeModelType IntLiteral = new CodeModelType(Expression, typeof(IntLiteral));
+        public static CodeModelType BoolLiteral = new CodeModelType(Expression, typeof(BoolLiteral));
+        public static CodeModelType FloatLiteral = new CodeModelType(Expression, typeof(FloatLiteral));
+        public static CodeModelType CharLiteral = new CodeModelType(Expression, typeof(CharLiteral));
+        public static CodeModelType StringLiteral = new CodeModelType(Expression, typeof(StringLiteral));
+        public static CodeModelType Name = new CodeModelType(Expression, typeof(Name));
+        public static CodeModelType FunCall = new CodeModelType(Expression, typeof(FunCall));
+        public static CodeModelType UnaryOperation = new CodeModelType(Expression, typeof(UnaryOperation));
+        public static CodeModelType BinaryOperation = new CodeModelType(Expression, typeof(BinaryOperation));
+        public static CodeModelType FunExpr = new CodeModelType(Expression, typeof(FunExpr));
+        public static CodeModelType PostIncExpr = new CodeModelType(Expression, typeof(PostIncExpr));
+        public static CodeModelType SelectExpr = new CodeModelType(Expression, typeof(SelectExpr));
+        public static CodeModelType MapExpr = new CodeModelType(Expression, typeof(MapExpr));
+        public static CodeModelType AccumulateExpr = new CodeModelType(Expression, typeof(AccumulateExpr));
+        public static CodeModelType ReduceExpr = new CodeModelType(Expression, typeof(ReduceExpr));
+        public static CodeModelType TupleExpr = new CodeModelType(Expression, typeof(TupleExpr));
+        public static CodeModelType TableExpr = new CodeModelType(Expression, typeof(TableExpr));
+        public static CodeModelType RecordExpr = new CodeModelType(Expression, typeof(RecordExpr));
+        public static CodeModelType ParanthesizedExpr = new CodeModelType(Expression, typeof(ParanthesizedExpr));
 
         static SortedDictionary<string, HeronType> types = null;
 

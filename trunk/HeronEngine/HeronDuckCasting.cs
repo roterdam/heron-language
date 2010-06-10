@@ -21,7 +21,7 @@ namespace HeronEngine
         public DuckValue(ClassInstance obj, InterfaceDefn i)
             : base(obj, i)
         {
-            HeronType t = obj.GetHeronType();
+            HeronType t = obj.Type;
             foreach (FunctionDefn f in i.GetAllMethods())
             {
                 if (!obj.SupportsFunction(f))

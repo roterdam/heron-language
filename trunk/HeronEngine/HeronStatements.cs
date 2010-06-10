@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
+using Peg;
 
 namespace HeronEngine
 {
@@ -120,6 +121,7 @@ namespace HeronEngine
 
     public class VariableDeclaration : Statement
     {
+        [HeronVisible] public ExpressionList annotations = new ExpressionList();
         [HeronVisible] public VarDesc vardesc;
         [HeronVisible] public Expression value;
 
@@ -154,9 +156,9 @@ namespace HeronEngine
             yield return vardesc.name;
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.VariableDeclaration;
+            get { return PrimitiveTypes.VariableDeclaration; }
         }
     }
 
@@ -182,9 +184,9 @@ namespace HeronEngine
             return "delete " + expression.ToString();
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.DeleteStatement;
+            get { return PrimitiveTypes.DeleteStatement; }
         }
     }
 
@@ -213,9 +215,9 @@ namespace HeronEngine
             return expression.ToString();
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.ExpressionStatement;
+            get { return PrimitiveTypes.ExpressionStatement; }
         }
     }
 
@@ -258,9 +260,9 @@ namespace HeronEngine
             yield return name;
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.ForEachStatement;
+            get { return PrimitiveTypes.ForEachStatement; }
         }
     }
 
@@ -312,9 +314,9 @@ namespace HeronEngine
             yield return name;
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.ForStatement;
+            get { return PrimitiveTypes.ForStatement; }
         }
     }
 
@@ -357,9 +359,9 @@ namespace HeronEngine
             return sb.ToString();
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.CodeBlock;
+            get { return PrimitiveTypes.CodeBlock; }
         }
     }
 
@@ -384,9 +386,9 @@ namespace HeronEngine
                     vm.Eval(onfalse);
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.IfStatement;
+            get { return PrimitiveTypes.IfStatement; }
         }
     }
 
@@ -414,9 +416,9 @@ namespace HeronEngine
             }
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.WhileStatement;
+            get { return PrimitiveTypes.WhileStatement; }
         }
     }
 
@@ -442,9 +444,9 @@ namespace HeronEngine
             }
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.ReturnStatement;
+           get {  return PrimitiveTypes.ReturnStatement; }
         }
     }
 
@@ -477,9 +479,9 @@ namespace HeronEngine
             }
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.SwitchStatement;
+            get { return PrimitiveTypes.SwitchStatement; }
         }
     }
 
@@ -498,9 +500,9 @@ namespace HeronEngine
             vm.Eval(statement);
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.CaseStatement;
+            get { return PrimitiveTypes.CaseStatement; }
         }
     }
 }

@@ -48,9 +48,9 @@ namespace HeronEngine
             this.global = global;
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.ProgramType;
+            get { return PrimitiveTypes.ProgramType; }
         }
         #region heron visible functions
         /// <summary>
@@ -138,5 +138,16 @@ namespace HeronEngine
             return dependencies[s];
         }
         #endregion
+
+        [HeronVisible]
+        public void ResolveTypes()
+        {
+            foreach (ModuleDefn md in GetModules())
+            {
+                md.ResolveTypes(this, global);
+                foreach (ClassDefn c in md.GetClasses())
+                    c.VerifyInterfaces();
+            }
+        }
     }
 }

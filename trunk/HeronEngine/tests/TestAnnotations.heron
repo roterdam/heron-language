@@ -1,0 +1,44 @@
+﻿module TestAnnotations
+{
+    imports
+    {
+        console = new Heron.Windows.Console();
+        meta = new Heron.Standard.Metaprogramming();
+    }
+    methods
+    {
+        Meta(p : ProgramDefn)
+        {
+            var m : ModuleDefn = p.GetModule("TestAnnotations");
+            foreach (f in m.GetDeclaredMethods())
+            {
+                if (ShouldTrace(f))
+                {
+                    PrependStatement(f, "WriteLine(\"At function " + f.name + "()\");");
+                }
+            }
+        }
+
+        Main()
+        {
+            f();
+            g();
+        }
+
+        ShouldTrace(x) : Bool
+        {
+            return HasAnnotation(x, "Trace");
+        }
+
+        [Trace]
+        f()
+        {
+            WriteLine("Hello");
+        }
+
+        g()
+        {
+            WriteLine("World");
+        }
+    }
+}

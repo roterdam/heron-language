@@ -100,9 +100,9 @@ namespace HeronEngine
             return "reduce (" + a + ", " + b + " in " + list.ToString() + ") " + yield.ToString();
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.ReduceExpr;
+            get { return PrimitiveTypes.ReduceExpr; }
         }
     }
 }

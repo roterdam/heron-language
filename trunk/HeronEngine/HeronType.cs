@@ -26,10 +26,10 @@ namespace HeronEngine
         public ModuleDefn module = null;
         
         Type type;
-        Dictionary<string, ExposedMethodValue> exposedFunctions = new Dictionary<string, ExposedMethodValue>();
+        Dictionary<string, ExposedMethodValue> exposedMethods = new Dictionary<string, ExposedMethodValue>();
         Dictionary<string, ExposedField> exposedFields = new Dictionary<string, ExposedField>();
 
-        static Dictionary<string, Type> allTypes = new Dictionary<string,Type>();
+        static Dictionary<string, HeronType> allTypes = new Dictionary<string,HeronType>();
 
         public HeronType(ModuleDefn m, Type t, string name)
         {
@@ -81,9 +81,9 @@ namespace HeronEngine
             module = m;
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.TypeType;
+            get { return PrimitiveTypes.TypeType; }
         }
 
         /// <summary>
@@ -106,18 +106,30 @@ namespace HeronEngine
                     StoreExposedFunction(mi);
             }
 
-            foreach (FieldInfo fi in type.GetFields(BindingFlags.Instance | BindingFlags.Public))
+            foreach (FieldInfo fi in type.GetFields(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public))
             {
                 object[] attrs = fi.GetCustomAttributes(typeof(HeronVisible), true);
                 if (attrs.Length > 0)
                     StoreExposedField(fi);
             }
+
+            // Add the exposed fields and methods from the base class 
+            if (baseType != null)
+            {
+                foreach (ExposedField xf in baseType.GetExposedFields())
+                    if (!exposedFields.ContainsKey(xf.name))
+                        exposedFields.Add(xf.name, xf);
+
+                foreach (ExposedMethodValue xmv in baseType.GetExposedMethods())
+                    if (!exposedMethods.ContainsKey(xmv.Name))
+                        exposedMethods.Add(xmv.Name, xmv);
+            }
         }
 
         private void StoreExposedFunction(MethodInfo mi)
         {
-            ExposedMethodValue m = new ExposedMethodValue(mi);
-            exposedFunctions.Add(m.Name, m);
+            ExposedMethodValue m = new DotNetMethodValue(mi);
+            exposedMethods.Add(m.Name, m);
         }
 
         private void StoreExposedField(FieldInfo fi)
@@ -133,7 +145,7 @@ namespace HeronEngine
 
         public IEnumerable<ExposedMethodValue> GetExposedMethods()
         {
-            return exposedFunctions.Values; 
+            return exposedMethods.Values; 
         }
 
         /// <summary>
@@ -160,9 +172,9 @@ namespace HeronEngine
         [HeronVisible]
         public virtual ExposedMethodValue GetMethod(string name)
         {
-            if (!exposedFunctions.ContainsKey(name))
+            if (!exposedMethods.ContainsKey(name))
                 return null;
-            return exposedFunctions[name];
+            return exposedMethods[name];
         }
 
         [HeronVisible]
@@ -251,6 +263,15 @@ namespace HeronEngine
                 throw new Exception("Internal error during type resolution of " + name);
             return r;
         }
+
+        public override HeronType Type
+        {
+            get
+            {
+                return PrimitiveTypes.UnresolvedType;
+            }
+        }
+       
     }
 
     /// <summary>

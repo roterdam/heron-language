@@ -127,6 +127,11 @@ namespace HeronEngine
         }
 
         public abstract Expression Optimize(OptimizationParams op);
+
+        public override HeronType Type
+        {
+            get { return PrimitiveTypes.Expression; }
+        }
     }
 
     /// <summary>
@@ -147,9 +152,9 @@ namespace HeronEngine
             return e(vm);
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.OptimizedExpressionType;
+            get { return PrimitiveTypes.OptimizedExpressionType; }
         }
 
         public override Expression Optimize(OptimizationParams op)
@@ -296,9 +301,9 @@ namespace HeronEngine
             return lvalue.ToString() + " = " + rvalue.ToString();
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.Assignment;
+           get { return PrimitiveTypes.Assignment; }
         }
     }
 
@@ -323,7 +328,7 @@ namespace HeronEngine
                 throw new Exception("Cannot select field '" + name + "' from a null object: " + self.ToString());
             HeronValue r = x.GetFieldOrMethod(name);
             if (r == null)
-                throw new Exception("Could not resolve name " + name + " on expression " + self.ToString());
+                throw new Exception("Could not resolve name " + name + " on expression '" + self.ToString() + "'");
             return r;
         }
 
@@ -337,9 +342,9 @@ namespace HeronEngine
             return "(" + self.ToString() + "." + name + ")";
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.ChooseField;
+            get { return PrimitiveTypes.ChooseField; }
         }
     }
 
@@ -369,9 +374,9 @@ namespace HeronEngine
             return self + "[" + index.ToString() + "]";
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.ReadAt;
+            get { return PrimitiveTypes.ReadAt; }
         }
 
         public override Expression Optimize(OptimizationParams op)
@@ -413,9 +418,9 @@ namespace HeronEngine
             }
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.NewExpr;
+            get { return PrimitiveTypes.NewExpr; }
         }
 
         public override Expression Optimize(OptimizationParams op)
@@ -438,9 +443,9 @@ namespace HeronEngine
             return HeronValue.Null;
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.NullExpr;
+            get { return PrimitiveTypes.NullExpr; }
         }
 
         public override Expression Optimize(OptimizationParams op)
@@ -494,9 +499,9 @@ namespace HeronEngine
         {
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.IntLiteral;
+            get { return PrimitiveTypes.IntLiteral; }
         }
     }
 
@@ -510,9 +515,9 @@ namespace HeronEngine
         {
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.BoolLiteral;
+            get { return PrimitiveTypes.BoolLiteral; }
         }
     }
 
@@ -526,9 +531,9 @@ namespace HeronEngine
         {
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.FloatLiteral;
+            get { return PrimitiveTypes.FloatLiteral; }
         }
     }
 
@@ -542,9 +547,9 @@ namespace HeronEngine
         {
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.CharLiteral;
+            get { return PrimitiveTypes.CharLiteral; }
         }
 
         public override string ToString()
@@ -563,9 +568,9 @@ namespace HeronEngine
         {
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.StringLiteral;
+            get { return PrimitiveTypes.StringLiteral; }
         }
 
         public override string ToString()
@@ -596,9 +601,9 @@ namespace HeronEngine
             return name;
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.Name;
+            get { return PrimitiveTypes.Name; }
         }
 
         public override Expression Optimize(OptimizationParams op)
@@ -641,9 +646,9 @@ namespace HeronEngine
             return funexpr.ToString() + args.ToString();
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.FunCall;
+            get { return PrimitiveTypes.FunCall; }
         }
     }
 
@@ -678,9 +683,9 @@ namespace HeronEngine
             return "(" + operation + "  " + operand.ToString() + ")";
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.UnaryOperation;
+            get { return PrimitiveTypes.UnaryOperation; }
         }
     }
 
@@ -734,9 +739,9 @@ namespace HeronEngine
             return function;            
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.FunExpr;
+            get { return PrimitiveTypes.FunExpr; }
         }
     }
 
@@ -773,9 +778,9 @@ namespace HeronEngine
             return expr.ToString() + "++";
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.PostIncExpr;
+            get { return PrimitiveTypes.PostIncExpr; }
         }
     }
 
@@ -828,9 +833,9 @@ namespace HeronEngine
             return "accumulate (" + acc + " = " + init.ToString() + " forall " + each + " in " + list.ToString() + ") " + expr.ToString();
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.AccumulateExpr;
+            get { return PrimitiveTypes.AccumulateExpr; }
         }
     }
 
@@ -859,9 +864,9 @@ namespace HeronEngine
             return list;
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.TupleExpr;
+            get { return PrimitiveTypes.TupleExpr; }
         }
     }
 
@@ -925,9 +930,9 @@ namespace HeronEngine
             return r;
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.TableExpr;
+            get { return PrimitiveTypes.TableExpr; }
         }
     }
 
@@ -983,9 +988,9 @@ namespace HeronEngine
             return new RecordValue(layout, vals);            
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.RecordExpr;
+            get { return PrimitiveTypes.RecordExpr; }
         }
     }
 
@@ -1009,9 +1014,9 @@ namespace HeronEngine
             return new ParanthesizedExpr(expr.Optimize(op));
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.ParanthesizedExpr;
+            get { return PrimitiveTypes.ParanthesizedExpr; }
         }
 
         public override string ToString()

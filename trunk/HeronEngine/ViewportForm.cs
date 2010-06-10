@@ -23,6 +23,11 @@ namespace HeronStandardLibrary
         public ViewportForm()
         {
             InitializeComponent();
+
+            // *
+            Action<Object, EventArgs> f = (Object o, EventArgs ea) => { MessageBox.Show("Hello"); };
+            Delegate d = Delegate.CreateDelegate(typeof(EventHandler), f.Method);
+            this.Click += d as EventHandler;
         }
 
         internal void SetViewport(Viewport vp)

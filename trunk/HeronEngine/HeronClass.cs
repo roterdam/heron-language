@@ -17,8 +17,11 @@ namespace HeronEngine
     public class ClassDefn : HeronUserType
     {
         #region exposedFields
-        List<FunctionDefn> methods = new List<FunctionDefn>();
-        List<FieldDefn> fields = new List<FieldDefn>();
+        [HeronVisible] public List<FunctionDefn> methods = new List<FunctionDefn>();
+        [HeronVisible] public List<FieldDefn> fields = new List<FieldDefn>();
+        #endregion
+
+        #region functions
         HeronType baseclass = null;
         List<HeronType> interfaces = new List<HeronType>();
         FunDefnListValue ctors;
@@ -186,7 +189,7 @@ namespace HeronEngine
         protected void CallConstructor(VM vm, HeronValue[] args, ModuleInstance mi, ClassInstance ci)
         {
             // First we are going to invoke the auto-constructor
-            GetAutoContructor().Invoke(ci, vm, new HeronValue[] { });
+            GetAutoConstructor().Invoke(ci, vm, new HeronValue[] { });
 
             List<FunctionDefn> ctorlist = new List<FunctionDefn>(GetMethods("Constructor"));
 
@@ -266,19 +269,9 @@ namespace HeronEngine
                     yield return f;
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.ClassType;
-        }
-
-        public override HeronValue GetFieldOrMethod(string name)
-        {
-            List<FunctionDefn> fs = new List<FunctionDefn>(GetMethods(name));
-
-            // Look for static functions to return
-            if (fs.Count != 0)
-                return new FunDefnListValue(Null, name, fs);
-            return base.GetFieldOrMethod(name);
+            get { return PrimitiveTypes.ClassType; }
         }
 
         public bool HasBaseClass()
@@ -299,7 +292,8 @@ namespace HeronEngine
                 return 1;
         }
 
-        public FunctionDefn GetAutoContructor()
+        [HeronVisible]
+        public FunctionDefn GetAutoConstructor()
         {
             return autoCtor;
         }

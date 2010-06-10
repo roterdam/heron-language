@@ -116,9 +116,9 @@ namespace HeronEngine
             return false;
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.InterfaceType;
+            get { return PrimitiveTypes.InterfaceType; }
         }
 
         public override int GetHierarchyDepth()

@@ -44,7 +44,7 @@ namespace HeronEngine
         /// </summary>
         static public void OutputGrammar()
         {
-            string s = Grammar.ToString(typeof(HeronGrammar));
+            string s = HeronGrammar.ToString(typeof(HeronGrammar));
             File.WriteAllText(Util.GetExeDir() + "\\grammar.txt", s);
         }
 

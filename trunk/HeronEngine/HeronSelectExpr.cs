@@ -83,9 +83,9 @@ namespace HeronEngine
             return "select (" + name + " from " + list.ToString() + ") " + predicate.ToString();
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.SelectExpr;
+            get { return PrimitiveTypes.SelectExpr; }
         }
     }
 }

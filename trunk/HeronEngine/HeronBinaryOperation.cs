@@ -87,10 +87,10 @@ namespace HeronEngine
                     return new BoolValue(!a.Equals(b));
                 case OpCode.opIs:
                     {
-                        HeronType t = b as HeronType;
-                        if (t == null)
+                        TypeValue tv = b as TypeValue;
+                        if (tv == null)
                             throw new Exception("The second argument of the 'is' operator must be a type");
-                        return new BoolValue(a.Is(t));
+                        return new BoolValue(a.Is(tv.Type));
                     }
                 case OpCode.opAs:
                     {
@@ -105,7 +105,7 @@ namespace HeronEngine
                             DuckValue dv = new DuckValue(a as ClassInstance, t as InterfaceDefn);
                             return dv;
                         }
-                        throw new Exception("Failed to convert " + a.GetHeronType().name + " to a " + t.name);
+                        throw new Exception("Failed to convert " + a.Type.name + " to a " + t.name);
                     };
             }
 
@@ -117,9 +117,9 @@ namespace HeronEngine
             return "(" + operand1.ToString() + " " + operation + " " + operand2.ToString() + ")";
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.BinaryOperation;
+            get { return PrimitiveTypes.BinaryOperation; }
         }
 
         public override Expression Optimize(OptimizationParams op)
