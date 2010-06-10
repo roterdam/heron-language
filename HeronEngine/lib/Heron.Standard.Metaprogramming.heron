@@ -8,5 +8,31 @@
                 xs.Add(f);
             return xs;
         }
+
+        HasAnnotation(x, a : String) : Bool
+        {
+            foreach (y in x.annotations)
+                if (y.ToString() == a)
+                    return true;
+            return false;
+        }
+
+        AddField(class : ClassDefn, name : String)
+        {
+            var field = CodeModelBuilder.CreateField(name);
+            class.fields.Add(field);
+        }
+
+        PrependStatement(f : FunctionDefn, s : String)
+        {
+            var st = CodeModelBuilder.CreateStatement(s);
+            f.body.statements.Prepend(st);
+        }
+
+        AddStatementToCtor(class : ClassDefn, st : Statement) 
+        {
+            var ctor = class.GetAutoConstructor();
+            ctor.body.statements.Add(st);
+        }
     }
 }

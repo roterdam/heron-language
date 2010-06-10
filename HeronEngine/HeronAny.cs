@@ -27,7 +27,7 @@ namespace HeronEngine
             else
             {
                 this.obj = obj;
-                this.type = obj.GetHeronType();
+                this.type = obj.Type;
             }
         }
 
@@ -74,9 +74,9 @@ namespace HeronEngine
             return null;
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.AnyType;
+            get { return PrimitiveTypes.AnyType; }
         }
 
         public HeronType GetHeldType()

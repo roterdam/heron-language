@@ -96,9 +96,9 @@ namespace HeronEngine
             return "map (" + name + " in " + list.ToString() + ") to " + yield.ToString();
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.MapExpr;
+            get { return PrimitiveTypes.MapExpr; }
         }
     }
 }

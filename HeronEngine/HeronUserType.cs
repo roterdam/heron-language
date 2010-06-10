@@ -41,6 +41,7 @@ namespace HeronEngine
     /// </summary>
     public class FieldDefn : VarDesc
     {
+        [HeronVisible] public ExpressionList annotations = new ExpressionList();
         [HeronVisible] public Expression expr;
 
         public virtual HeronValue GetValue(HeronValue self)
@@ -58,9 +59,9 @@ namespace HeronEngine
             return name + " : " + type.ToString();
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.FieldDefnType;
+            get { return PrimitiveTypes.FieldDefnType; }
         }
     }
 

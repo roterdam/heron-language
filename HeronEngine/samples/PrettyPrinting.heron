@@ -4,7 +4,7 @@
     {
         Meta(p : ProgramDefn)
         {
-            new PrettyPrinter(p);
+            pp = new PrettyPrinter();
         }
         Main()
         {
@@ -70,9 +70,13 @@ class PrettyPrinter
     }
     methods
     {                    
-        Constructor(program : ProgramDefn)
+        Constructor()
         {
             base.Constructor();
+        }
+        
+        Output(program : ProgramDefn)
+        {
             foreach (m in program.GetModules())
                 Output(m);
             WriteLine("");
@@ -146,11 +150,11 @@ class PrettyPrinter
             OutputTypeDecl(f.type);
             WriteLine(";");
         }
-        Output(t : Type)
+        Output(t : TypeType)
         {
             Write(t.ToString());
         }
-        OutputTypeDecl(t : Type)
+        OutputTypeDecl(t : TypeType)
         {
             if (t != null && t.name != "Void")
                 Write(" : " + t.name); 
@@ -198,9 +202,9 @@ class PrettyPrinter
         Output(x : VariableDeclaration)
         {
             Write("var ");
-            Write(x.name);
+            Write(x.vardesc.name);
             Write(" ");
-            OutputTypeDecl(x.type);
+            OutputTypeDecl(x.vardesc.type);
             if (x.value != null)
             {
                 Write(" = ");
@@ -321,7 +325,7 @@ class PrettyPrinter
         Output(x : NewExpr)
         {
             Write("new ");
-            Output(x.type);
+            OutputTypeDecl(x.type);
         }
         Output(x : NullExpr)
         {

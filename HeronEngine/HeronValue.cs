@@ -87,7 +87,7 @@ namespace HeronEngine
         /// <returns></returns>
         public virtual HeronValue GetFieldOrMethod(string name)
         {
-            HeronType t = GetHeronType();
+            HeronType t = Type;
             ExposedMethodValue m = t.GetMethod(name); 
             if (m != null)
                 return m.CreateBoundMethod(this);
@@ -104,7 +104,7 @@ namespace HeronEngine
         /// <param name="val"></param>
         public virtual void SetField(string name, HeronValue val)
         {
-            HeronType t = GetHeronType();
+            HeronType t = Type;
             FieldDefn fi = t.GetField(name);
             fi.SetValue(this, val);
         }
@@ -119,7 +119,7 @@ namespace HeronEngine
             throw new Exception("binary operator '" + Enum.GetName(typeof(OpCode), opcode) + "' not supported on " + ToString());
         }
 
-        public abstract HeronType GetHeronType();
+        public abstract HeronType Type { get; }
 
         [HeronVisible]
         public override string ToString()
@@ -145,9 +145,9 @@ namespace HeronEngine
             if (v == null)
                 return false;
 
-            if (v is ExposedMethodValue)
+            if (v is DotNetMethodValue)
             {
-                var emv = v as ExposedMethodValue;
+                var emv = v as DotNetMethodValue;
                 return f.Matches(emv.GetMethodInfo());
             }
             else if (v is FunDefnListValue)
@@ -164,7 +164,7 @@ namespace HeronEngine
 
         public virtual HeronValue As(HeronType t)
         {
-            if (t.IsAssignableFrom(GetHeronType()))
+            if (t.IsAssignableFrom(Type))
                 return this;
             if (t == PrimitiveTypes.AnyType)
                 return new AnyValue(this);
@@ -200,9 +200,9 @@ namespace HeronEngine
             return "Void";
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.VoidType;
+            get { return PrimitiveTypes.VoidType; }
         }
     }
 
@@ -216,9 +216,9 @@ namespace HeronEngine
             return "null";
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.NullType;
+            get { return PrimitiveTypes.NullType; }
         }
 
         public override bool Equals(Object x)
@@ -242,20 +242,20 @@ namespace HeronEngine
             type = t;
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.TypeValueType;
+            get { return PrimitiveTypes.TypeValueType; }
         }
 
         public override HeronValue GetFieldOrMethod(string name)
         {
-            HeronValue v = type.GetFieldOrMethod(name);
+            HeronValue v = type.GetField(name);
             if (v != null)
                 return v;
 
             ExposedMethodValue m = type.GetMethod(name);
             if (m != null)
-                return m.CreateBoundMethod(this);
+                return m.CreateBoundMethod(null);
             throw new Exception("The function '" + name + "' is not available on " + type.name);
         }
     }

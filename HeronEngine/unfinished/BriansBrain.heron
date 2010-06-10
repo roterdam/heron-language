@@ -1,0 +1,130 @@
+module BriansBrain
+{
+    fields 
+    {
+        v : ViewPort;
+        b : Board;
+    }   
+    methods
+    { 
+        Main() 
+        {
+            v = new Viewport(300, 300);
+            b = new Board(30, 30);
+        }   
+        DrawSquare(col : Int, row : Int) {
+            width = v.GetWidth() / b.GetNumCols();
+            height = v.GetHeight() / b.GetNumRows();
+        }    
+        DrawBoard()
+        {
+            foreach (r in 0..b.GetNumRows())
+                foreach (c in 0..b.GetNumCols())
+                    DrawSquare(r, c);
+        }
+    }        
+}
+
+enum State
+{
+    on;
+    dying;
+    off;
+}
+
+class Board
+{
+    fields
+    {
+        states : List;
+        rows : Int;
+    }
+    methods
+    {
+        Constructor(cols : Int, rows : Int) {
+            states = new List();
+            foreach (i in 0..cols*rows)
+                states.Add(off);
+        }               
+        Constructor(states : List, rows : Int) {
+            this.states = states;
+            this.rows = rows;
+        }
+        GetNeighbours(n : Int) : Seq {
+            var row = RowOf(n);
+            var col = ColOf(n);
+            return [
+                StateOf(col - 1, row - 1), StateOf(col, row - 1), StateOf(col + 1, row - 1), 
+                StateOf(col - 1, row), StateOf(col + 1, row), // Note: StateOf(corl, row) is ignored
+                StateOf(col - 1, row + 1), StateOf(col, row + 1), StateOf(col + 1, row + 1)]; 
+        }
+        StatesOf(ns : Seq) : Seq {
+            return map (n in ns) StateOf(n);
+        }    
+        StateOf(n : Int) : Seq {            
+            return states[n];
+        }   
+        IndexOf(col : Int, row : Int) : Int {
+            if (col < 0) col += RowSize();
+            if (row < 0) row += rows;
+            col %= RowSize();
+            row %= rows; 
+            return rows * RowSize() + col; 
+        }    
+        StateOf(col : Int, row : Int) : State {
+            return StateOf(IndexOf(col, row));                
+        }    
+        RowOf(n : Int) : Seq {
+            return n / RowSize();
+        }    
+        ColOf(n : Int) : Seq {
+            return n % RowSize();
+        }      
+        RowSize() : Int {
+            return states.Count() / rows;
+        }
+        NumRows() : Int {
+            return rols;
+        }    
+        NextStateList() : Seq {
+            for (i = 0; i < states.Count(); ++i)
+                if (states[i] == on)
+                    yield dying;
+                else if (states[i] == dying)
+                    yield off;
+                else // states[i] == off
+                    yield AreTwoOn(Neighbors(i));                             
+        }         
+        NextBoard() : Board {
+            return new Board(NextStateList(), rows);
+        }           
+        CountIf(xs : Seq, f : Function) {
+            return (select (x from xs) f(x)).Count();
+        }        
+        AreTwoOn(xs : Seq) {
+            return CountIf(xs, function(x) { return x == On; }) == 2;
+        }
+        SetState(n : Int, s : State) { 
+            states[n] = s;
+        }    
+        SetState(col : Int, row : Int, s : State) {
+            SetState(IndexOf(col, row), s);
+        }    
+        SmallSquare(col : Int, row : Int) {
+            SetState(col, row, on);
+            SetState(col + 1, row, on);
+            SetState(col, row + 1, on);
+            SetState(col + 1, row + 1, on);
+        }    
+        SmallLeftGlider(col : Int, row : Int) {
+            SetState(col + 2, row, on);
+            SetState(col + 3, row, dying);    
+            SetState(col, row + 1, on);
+            SetState(col + 1, row + 1, dying);    
+            SetState(col, row + 2, on);
+            SetState(col + 1, row + 2, dying);    
+            SetState(col + 2, row + 3, on);
+            SetState(col + 3, row + 3, dying);    
+        }    
+    }
+}   

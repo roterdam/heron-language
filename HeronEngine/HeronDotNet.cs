@@ -14,31 +14,6 @@ using System.Reflection;
 
 namespace HeronEngine
 {
-
-    public class DotNetMethod : HeronValue
-    {
-        MethodInfo mi;
-        HeronValue self;
-
-        public DotNetMethod(MethodInfo mi, HeronValue self)
-        {
-            this.mi = mi;
-            this.self = self;
-        }
-
-        public override HeronValue Apply(VM vm, HeronValue[] args)
-        {
-            Object[] objs = HeronDotNet.ObjectsToDotNetArray(args);
-            Object r = mi.Invoke(self, objs);
-            return DotNetObject.Marshal(r);
-        }
-
-        public override HeronType GetHeronType()
-        {
-            return PrimitiveTypes.ExternalMethodType;
-        }
-    }
-
     public class DotNetObject : HeronValue
     {
         Object obj;
@@ -117,9 +92,9 @@ namespace HeronEngine
         }
 
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return type;
+            get { return type; }
         }
     }
 
@@ -264,22 +239,12 @@ namespace HeronEngine
         }
 
         /// <summary>
-        /// Returns the value of a static field, or a method group.
+        /// Returns the value of a static method group.
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public override HeronValue GetFieldOrMethod(string name)
+        public override ExposedMethodValue GetMethod(string name)
         {
-            HeronValue r = base.GetFieldOrMethod(name);
-            if (r != null)
-                return r;
-
-            // We have to first look to see if there are static exposedFields
-            FieldInfo[] fis = GetSystemType().GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.GetField);
-            foreach (FieldInfo fi in fis)
-                if (fi.Name == name)
-                    return DotNetObject.Marshal(fi.GetValue(null));
-
             // Look for methods
             MethodInfo[] mis = GetSystemType().GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.InvokeMethod);
             if (mis.Length != 0)
@@ -300,9 +265,9 @@ namespace HeronEngine
             return GetSystemType().GetHashCode();
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.ExternalClass;
+            get { return PrimitiveTypes.ExternalClass; }
         }
 
         [HeronVisible]
@@ -335,16 +300,16 @@ namespace HeronEngine
             return DotNetObject.Marshal(o);
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.ExternalMethodListType;
+            get { return PrimitiveTypes.ExternalMethodListType; }
         }
     }
 
     /// <summary>
     /// Very similar to DotNetMethodGroup, except only static functions are bound.
     /// </summary>
-    public class DotNetStaticMethodGroup : HeronValue
+    public class DotNetStaticMethodGroup : ExposedMethodValue
     {
         DotNetClass self;
         string name;
@@ -355,16 +320,22 @@ namespace HeronEngine
             this.name = name;
         }
 
-        public override HeronValue Apply(VM vm, HeronValue[] args)
+        public override string Name
         {
+            get { return name; }
+        }
+
+        public override HeronValue Invoke(VM vm, HeronValue self, HeronValue[] args)
+        {
+            Trace.Assert(self == null);
             Object[] os = HeronDotNet.ObjectsToDotNetArray(args);
-            Object o = self.GetSystemType().InvokeMember(name, BindingFlags.Public | BindingFlags.Static | BindingFlags.InvokeMethod, null, null, os);
+            Object o = this.self.GetSystemType().InvokeMember(name, BindingFlags.Public | BindingFlags.Static | BindingFlags.InvokeMethod, null, null, os);
             return DotNetObject.Marshal(o);
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.ExternalStaticMethodListType;
+            get { return PrimitiveTypes.ExternalStaticMethodListType; }
         }
 
         [HeronVisible]
@@ -377,31 +348,38 @@ namespace HeronEngine
     /// <summary>
     /// Exposes a method from a Heron primitive type to Heron
     /// </summary>
-    public class ExposedMethodValue : HeronValue
+    public abstract class ExposedMethodValue : HeronValue
     {
-        MethodInfo method;
-
-        public ExposedMethodValue(MethodInfo mi)
-        {
-            method = mi;
-        }
-
-        public String Name
-        {
-            get { return method.Name; }
-        }
-
-        public override HeronType GetHeronType()
-        {
-            return PrimitiveTypes.ExposedMethodType;
-        }
-
+        public abstract string Name { get; }
+        
         public BoundMethodValue CreateBoundMethod(HeronValue self)
         {
             return new BoundMethodValue(self, this);
         }
 
-        public HeronValue Invoke(VM vm, HeronValue self, HeronValue[] args)
+        public override HeronType Type
+        {
+            get { return PrimitiveTypes.ExposedMethodType; }
+        }
+
+        public abstract HeronValue Invoke(VM vm, HeronValue self, HeronValue[] args);
+    }
+
+    public class DotNetMethodValue : ExposedMethodValue
+    {
+        MethodInfo method;
+
+        public DotNetMethodValue(MethodInfo mi)
+        {
+            method = mi;
+        }
+
+        public override String Name
+        {
+            get { return method.Name; }
+        }
+
+        public override HeronValue Invoke(VM vm, HeronValue self, HeronValue[] args)
         {
             int nParams = method.GetParameters().Length;
             if (nParams != args.Length)
@@ -529,9 +507,9 @@ namespace HeronEngine
             return new IntValue(list.Count);
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.ExternalListType;
+            get { return PrimitiveTypes.ExternalListType; }
         }
 
         public override HeronValue GetAtIndex(HeronValue index)
@@ -600,6 +578,4 @@ namespace HeronEngine
 
         #endregion
     }
-
-
 }

@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Diagnostics;
 using System.Reflection;
+using Peg;
 
 namespace HeronEngine
 {
@@ -23,9 +24,9 @@ namespace HeronEngine
         {
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.FormalArgType;
+            get { return PrimitiveTypes.FormalArgType; }
         }
     }
 
@@ -56,6 +57,7 @@ namespace HeronEngine
         [HeronVisible] public HeronType parent = null;
         [HeronVisible] public HeronType rettype = new UnresolvedType("Void");
         [HeronVisible] public bool nullable = false;
+        [HeronVisible] public ExpressionList annotations = new ExpressionList();
 
         public ParseNode node;
 
@@ -140,9 +142,9 @@ namespace HeronEngine
             return true;
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.FunctionDefnType;
+            get { return PrimitiveTypes.FunctionDefnType; }
         }
 
         public HeronType GetContainingType()

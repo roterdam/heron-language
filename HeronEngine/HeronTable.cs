@@ -139,9 +139,9 @@ namespace HeronEngine
         }
 
         [HeronVisible]
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.RecordType;
+            get { return PrimitiveTypes.RecordType; }
         }
 
         public override IteratorValue GetIterator()
@@ -297,9 +297,9 @@ namespace HeronEngine
         }
 
         [HeronVisible]
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.TableType;
+            get { return PrimitiveTypes.TableType; }
         }
 
         public override IteratorValue GetIterator()

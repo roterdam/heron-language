@@ -11,6 +11,7 @@ using System.Text;
 using System.IO;
 using System.Diagnostics;
 using System.Xml;
+using Peg;
 
 namespace HeronEngine
 {
@@ -207,7 +208,9 @@ namespace HeronEngine
                 foreach (ParseNode node in fields.Children)
                 {
                     FieldDefn fd = CreateField(node);
+                    fd.annotations = CreateAnnotations(node);
                     defn.AddField(fd);
+
                     ParseNode exprNode = node.GetChild("expr");
                     if (exprNode != null)
                     {
@@ -221,7 +224,7 @@ namespace HeronEngine
             {
                 Assignment ass = new Assignment(new Name(s), initializers[s]);
                 ExpressionStatement st = new ExpressionStatement(ass);
-                defn.GetAutoContructor().body.statements.Add(st);
+                defn.GetAutoConstructor().body.statements.Add(st);
             }
         }
 
@@ -327,6 +330,11 @@ namespace HeronEngine
         [HeronVisible]
         public static FieldDefn CreateField(string s)
         {
+            s = s.Trim();
+            if (s.Length == 0)
+                return null;
+            if (s[s.Length - 1] != ';')
+                s = s + ";";
             return Create<FieldDefn>(s, HeronGrammar.Field, (ParseNode node) => CreateField(node));
         }
 
@@ -375,12 +383,24 @@ namespace HeronEngine
             return Create<FunctionDefn>(s, HeronGrammar.Method, (ParseNode node) => CreateMethod(node, parent));
         }
 
+        public static ExpressionList CreateAnnotations(ParseNode x)
+        {
+            ParseNode anns = x.GetChild("annotations");
+            ExpressionList r = new ExpressionList();
+            if (anns == null)
+                return r;
+            foreach (ParseNode y in anns.Children)
+                r.Add(CreateExpr(y));
+            return r;
+        }
+
         public static FunctionDefn CreateMethod(ParseNode x, HeronType parent)
         {
             ModuleDefn module = parent.GetModule();
             FunctionDefn r = new FunctionDefn(parent);
+            r.annotations = CreateAnnotations(x);
             r.node = x;
-            ParseNode fundecl = x.GetChild("fundecl");            
+            ParseNode fundecl = x.GetChild("fundecl");
             r.name = fundecl.GetChild("name").ToString();
             r.formals = CreateFormalArgs(fundecl.GetChild("arglist"));
             ParseNode rt = x.GetChild("typedecl");
@@ -441,6 +461,7 @@ namespace HeronEngine
         public static VariableDeclaration CreateVarDecl(ParseNode x)
         {
             VariableDeclaration r = new VariableDeclaration(x);
+            r.annotations = CreateAnnotations(x);
             string name = x.GetChild("name").ToString();
             HeronType type = new UnresolvedType(GetTypeName(x, "Unknown"));
             ParseNode tmp = x.GetChild("expr");
@@ -1224,9 +1245,9 @@ namespace HeronEngine
         #endregion
 
         #region overrides
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.CodeModelBuilderType;
+            get { return PrimitiveTypes.CodeModelBuilderType; }
         }
         #endregion
     }

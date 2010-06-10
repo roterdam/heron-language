@@ -35,18 +35,15 @@ namespace HeronEngine
     public abstract class IteratorValue
         : SeqValue
     {
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.IteratorType;
+            get { return PrimitiveTypes.IteratorType; }
         }
 
         #region iterator functions
-        [HeronVisible]
-        public abstract bool MoveNext();
-        [HeronVisible]
-        public abstract HeronValue GetValue();
-        [HeronVisible]
-        public abstract IteratorValue Restart();
+        [HeronVisible] public abstract bool MoveNext();
+        [HeronVisible] public abstract HeronValue GetValue();
+        [HeronVisible] public abstract IteratorValue Restart();
         #endregion 
 
         #region sequence functions 
@@ -89,9 +86,9 @@ namespace HeronEngine
             return new IntValue(cur);
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.SeqType;
+            get { return PrimitiveTypes.SeqType; }
         }
         
         public override string ToString()
@@ -218,9 +215,9 @@ namespace HeronEngine
     public abstract class SeqValue
         : HeronValue
     {
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.SeqType;
+            get { return PrimitiveTypes.SeqType; }
         }
 
         public IEnumerable<HeronValue> ToDotNetEnumerable(VM vm)
@@ -272,6 +269,13 @@ namespace HeronEngine
         }
 
         public abstract IInternalIndexable GetIndexable();
+
+        public override HeronValue As(HeronType t)
+        {
+            if (t == PrimitiveTypes.ListType)
+                return ToList();
+            return base.As(t);
+        }
     }
    
     /// <summary>
@@ -375,9 +379,9 @@ namespace HeronEngine
             return new IntValue(InternalCount());
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.ListType;
+            get { return PrimitiveTypes.ListType; }
         }
 
         public override IteratorValue GetIterator()
@@ -459,9 +463,9 @@ namespace HeronEngine
             return new IntValue(array.Length);
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.ArrayType;
+            get { return PrimitiveTypes.ArrayType; }
         }
 
         public override IteratorValue GetIterator()
@@ -592,9 +596,9 @@ namespace HeronEngine
             return new IntValue(InternalCount());
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.SliceType;
+            get { return PrimitiveTypes.SliceType; }
         }
 
         #endregion

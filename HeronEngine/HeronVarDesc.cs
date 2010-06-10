@@ -29,9 +29,9 @@ namespace HeronEngine
             this.nullable = true;
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return PrimitiveTypes.VarDescType;
+            get { return PrimitiveTypes.VarDescType; }
         }
 
         public void ResolveTypes(ModuleDefn global, ModuleDefn m)
@@ -59,7 +59,7 @@ namespace HeronEngine
             {
                 r = x.As(type);
                 if (r == null)
-                    throw new Exception("Failed to convert variable " + x + " from a " + x.GetHeronType().name + " to " + type.name);
+                    throw new Exception("Failed to convert variable " + x + " from a " + x.Type.name + " to " + type.name);
             }
             return r;
         }

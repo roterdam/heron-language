@@ -171,9 +171,9 @@ namespace HeronEngine
             return "{" + cls.name + "}";
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return cls;
+            get { return cls; }
         }
 
         /// <summary>
@@ -289,9 +289,9 @@ namespace HeronEngine
             return "{" + hinterface.name + "}";
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return hinterface;
+            get { return hinterface; }
         }
 
         public ClassInstance GetObject()
@@ -329,9 +329,9 @@ namespace HeronEngine
             name = s;
         }
 
-        public override HeronType GetHeronType()
+        public override HeronType Type
         {
-            return henum;
+            get { return henum; }
         }
 
         public override bool Equals(object obj)
@@ -364,7 +364,7 @@ namespace HeronEngine
 
         public ModuleDefn GetModuleDefn()
         {
-            ModuleDefn m = GetHeronType() as ModuleDefn;
+            ModuleDefn m = Type as ModuleDefn;
             if (m == null)
                 throw new Exception("Missing module");
             return m;

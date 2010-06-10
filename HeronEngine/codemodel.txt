@@ -88,6 +88,8 @@ primitive ClassDefn
 {
   fields
   {
+    methods : System.Collections.Generic.List`1[HeronEngine.FunctionDefn];
+    fields : System.Collections.Generic.List`1[HeronEngine.FieldDefn];
     name : System.String;
   }
   methods
@@ -106,6 +108,7 @@ primitive ClassDefn
     GetAllMethods() : System.Collections.Generic.IEnumerable`1[HeronEngine.FunctionDefn];
     GetDeclaredMethods() : System.Collections.Generic.IEnumerable`1[HeronEngine.FunctionDefn];
     GetInheritedMethods() : System.Collections.Generic.IEnumerable`1[HeronEngine.FunctionDefn];
+    GetAutoConstructor() : HeronEngine.FunctionDefn;
     GetMethods(name : System.String) : System.Collections.Generic.IEnumerable`1[HeronEngine.FunctionDefn];
     GetModule() : HeronEngine.ModuleDefn;
     GetMethod(name : System.String) : HeronEngine.ExposedMethodValue;
@@ -161,6 +164,16 @@ primitive EnumDefn
     GetName() : System.String;
   }
 }
+primitive Expression
+{
+  fields
+  {
+  }
+  methods
+  {
+    ToString() : System.String;
+  }
+}
 primitive ExpressionStatement
 {
   fields
@@ -176,6 +189,7 @@ primitive FieldDefn
 {
   fields
   {
+    annotations : HeronEngine.ExpressionList;
     expr : HeronEngine.Expression;
     name : System.String;
     type : HeronEngine.HeronType;
@@ -262,6 +276,7 @@ primitive FunctionDefn
     parent : HeronEngine.HeronType;
     rettype : HeronEngine.HeronType;
     nullable : System.Boolean;
+    annotations : HeronEngine.ExpressionList;
   }
   methods
   {
@@ -360,6 +375,8 @@ primitive ModuleDefn
 {
   fields
   {
+    methods : System.Collections.Generic.List`1[HeronEngine.FunctionDefn];
+    fields : System.Collections.Generic.List`1[HeronEngine.FieldDefn];
     name : System.String;
   }
   methods
@@ -396,6 +413,7 @@ primitive ModuleDefn
     GetAllMethods() : System.Collections.Generic.IEnumerable`1[HeronEngine.FunctionDefn];
     GetDeclaredMethods() : System.Collections.Generic.IEnumerable`1[HeronEngine.FunctionDefn];
     GetInheritedMethods() : System.Collections.Generic.IEnumerable`1[HeronEngine.FunctionDefn];
+    GetAutoConstructor() : HeronEngine.FunctionDefn;
     GetMethods(name : System.String) : System.Collections.Generic.IEnumerable`1[HeronEngine.FunctionDefn];
     GetModule() : HeronEngine.ModuleDefn;
     GetMethod(name : System.String) : HeronEngine.ExposedMethodValue;
@@ -538,6 +556,16 @@ primitive SelectExpr
     ToString() : System.String;
   }
 }
+primitive Statement
+{
+  fields
+  {
+  }
+  methods
+  {
+    ToString() : System.String;
+  }
+}
 primitive StringLiteral
 {
   fields
@@ -593,11 +621,11 @@ primitive TypeType
   }
   methods
   {
+    GetMethod(name : System.String) : HeronEngine.ExposedMethodValue;
     Equals(obj : System.Object) : System.Boolean;
     GetHashCode() : System.Int32;
     ToString() : System.String;
     GetModule() : HeronEngine.ModuleDefn;
-    GetMethod(name : System.String) : HeronEngine.ExposedMethodValue;
     GetField(name : System.String) : HeronEngine.FieldDefn;
     GetName() : System.String;
   }
@@ -631,6 +659,7 @@ primitive VariableDeclaration
 {
   fields
   {
+    annotations : HeronEngine.ExpressionList;
     vardesc : HeronEngine.VarDesc;
     value : HeronEngine.Expression;
   }

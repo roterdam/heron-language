@@ -109,11 +109,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="HeronType.cs" />
-    <Compile Include="PegRuleTypes.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="PegParseTree.cs" />
-    <Compile Include="PegBaseGrammar.cs" />
-    <Compile Include="PegParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -137,6 +133,8 @@
     <Content Include="readme.txt" />
     <None Include="lib\Heron.Standard.Metaprogramming.heron" />
     <None Include="macros\Macros.heron" />
+    <None Include="samples\MemoizeDemo.heron" />
+    <None Include="tests\TestAnnotations.heron" />
     <None Include="tests\TestMetaProgramming.heron" />
     <None Include="tests\NegativeTestAll.heron" />
     <None Include="tests\NegativeTestNullAssignment.heron" />
@@ -191,7 +189,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="heron.bat" />
     <None Include="lib\Heron.Windows.Console.heron" />
     <None Include="samples\Factorial.heron" />
     <None Include="samples\Fibonacci.heron" />
@@ -223,6 +220,12 @@
     <None Include="tests\TestStatic.heron" />
     <None Include="tests\TestTables.heron" />
     <None Include="tests\TestViewport.heron" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Peg\Peg.csproj">
+      <Project>{7AD4B7CC-B499-441B-9296-0EAFF6DA2EB0}</Project>
+      <Name>Peg</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

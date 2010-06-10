@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using Peg;
 
 namespace HeronEngine
 {
@@ -25,12 +26,29 @@ namespace HeronEngine
         {
             try
             {
-                Console.WriteLine("Trying to parse input " + s);
+                Console.WriteLine("Trying to parse input '" + s + "' according to rule " + r.ToString());
                 ParseNode node = ParserState.Parse(r, s);
                 if (node == null)
                     Console.WriteLine("Test failed"); 
                 else
-                    Console.WriteLine("Test succeed, node = " + node.ToString());
+                    Console.WriteLine("Test succeeded, node = " + node.ToString());
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Test failed with exception: " + e.Message);
+            }
+        }
+
+        static public void NegativeTestPeg(Rule r, string s)
+        {
+            try
+            {
+                Console.WriteLine("Trying to assure input '" + s + "' does not parse according to rule " + r.ToString());
+                ParseNode node = ParserState.Parse(r, s);
+                if (node == null)
+                    Console.WriteLine("Test passed");
+                else
+                    Console.WriteLine("Test failed");
             }
             catch (Exception e)
             {
@@ -194,6 +212,10 @@ namespace HeronEngine
             TestPeg(HeronGrammar.SpecialName, "null");
             TestPeg(HeronGrammar.SpecialName, "true");
             TestPeg(HeronGrammar.SpecialName, "false");
+            NegativeTestPeg(HeronGrammar.Name, "null");
+            NegativeTestPeg(HeronGrammar.Name, "true");
+            NegativeTestPeg(HeronGrammar.Name, "false");
+            NegativeTestPeg(HeronGrammar.Name, "forall");
         }
 
         static void PegStatementTests()
