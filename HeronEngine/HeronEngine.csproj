@@ -84,6 +84,7 @@
     <Compile Include="HeronInterface.cs" />
     <Compile Include="HeronPrimitiveValues.cs" />
     <Compile Include="HeronTable.cs" />
+    <Compile Include="HeronTypeRef.cs" />
     <Compile Include="HeronUserType.cs" />
     <Compile Include="HeronCollectionValues.cs" />
     <Compile Include="HeronConfig.cs" />
@@ -134,6 +135,8 @@
     <None Include="lib\Heron.Standard.Metaprogramming.heron" />
     <None Include="macros\Macros.heron" />
     <None Include="samples\MemoizeDemo.heron" />
+    <None Include="samples\MetaVisitorDemo.heron" />
+    <None Include="samples\VisitorDemo.heron" />
     <None Include="tests\TestAnnotations.heron" />
     <None Include="tests\TestMetaProgramming.heron" />
     <None Include="tests\NegativeTestAll.heron" />

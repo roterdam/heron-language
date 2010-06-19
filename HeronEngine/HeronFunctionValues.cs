@@ -113,12 +113,7 @@ namespace HeronEngine
 
         public HeronType GetFormalType(int n)
         {
-            return fun.formals[n].type;
-        }
-
-        public bool IsNullable(int n)
-        {
-            return fun.formals[n].nullable;
+            return fun.formals[n].type.type;
         }
 
         public override HeronValue Apply(VM vm, HeronValue[] args)

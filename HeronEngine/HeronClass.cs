@@ -21,9 +21,9 @@ namespace HeronEngine
         [HeronVisible] public List<FieldDefn> fields = new List<FieldDefn>();
         #endregion
 
-        #region functions
-        HeronType baseclass = null;
-        List<HeronType> interfaces = new List<HeronType>();
+        #region fields
+        TypeRef baseclass = null;
+        List<TypeRef> interfaces = new List<TypeRef>();
         FunDefnListValue ctors;
         FunctionDefn autoCtor;
         #endregion
@@ -39,16 +39,14 @@ namespace HeronEngine
         public void ResolveTypes(ModuleDefn global, ModuleDefn m)
         {
             if (baseclass != null)
-                baseclass = baseclass.Resolve(global, m);
+                baseclass.Resolve(global, m);
             for (int i = 0; i < interfaces.Count; ++i)
             {
-                HeronType t = interfaces[i].Resolve(global, m);
-                if (t == null)
-                    throw new Exception(interfaces[i].name + " could not be resolved");
-                InterfaceDefn hi = t as InterfaceDefn;
-                if (hi == null)
+                interfaces[i].Resolve(global, m);
+                HeronType t = interfaces[i].type;
+                InterfaceDefn id = t as InterfaceDefn;
+                if (id == null)
                     throw new Exception(t.name + " is not an interface");
-                interfaces[i] = hi;
             }
             foreach (FieldDefn f in GetFields())
                 f.ResolveTypes(global, m);
@@ -66,7 +64,7 @@ namespace HeronEngine
 
         public void VerifyInterfaces()
         {
-            foreach (InterfaceDefn i in interfaces)
+            foreach (InterfaceDefn i in GetImplementedInterfaces())
                 if (!VerifyImplements(i))
                     throw new Exception("Class '" + name + "' does not implement the interface '" + i.name + "'");
         }
@@ -79,9 +77,9 @@ namespace HeronEngine
             return false;
         }
 
-        public void SetBaseClass(HeronType c)
+        public void SetBaseClass(TypeRef tr)
         {
-            baseclass = c;
+            baseclass = tr;
 
             // If we know we have a base class, we add a call to the base auto-constructor
             // in our own auto-constructor
@@ -90,27 +88,39 @@ namespace HeronEngine
             autoCtor.body.statements.Add(new ExpressionStatement(fc));
         }
 
+        /// <summary>
+        /// Returns a list of all base classes. Currently only single inheritance of classes is supported.
+        /// </summary>
+        /// <returns></returns>
         [HeronVisible]
         public IEnumerable<ClassDefn> GetInheritedClasses()
         {
-            if (baseclass != null)
-                yield return baseclass as ClassDefn;
+            if (baseclass != null && baseclass.type != null)
+                yield return baseclass.type as ClassDefn;
         }
 
         [HeronVisible]
-        public IEnumerable<HeronType> GetImplementedInterfaces()
+        public IEnumerable<InterfaceDefn> GetImplementedInterfaces()
         {
-            return interfaces;
+            foreach (TypeRef tr in interfaces)
+            {
+                InterfaceDefn id = tr.type as InterfaceDefn;
+                if (id == null)
+                    throw new Exception("Illegal type as implemented interface ");
+                yield return id;
+            }
         }
 
         [HeronVisible]
         public ClassDefn GetBaseClass()
         {
-            return baseclass as ClassDefn;
+            if (baseclass == null)
+                return null;
+            return baseclass.type as ClassDefn;
         }
 
         [HeronVisible]
-        public void AddImplementedInterface(HeronType i)
+        public void AddImplementedInterface(TypeRef i)
         {
             if (i == null)
                 throw new Exception("Cannot add 'null' as an interface");
@@ -249,8 +259,8 @@ namespace HeronEngine
             yield return autoCtor;
             foreach (FunctionDefn f in GetDeclaredMethods())
                 yield return f;
-            if (baseclass != null)
-                foreach (FunctionDefn f in (baseclass as ClassDefn).GetAllMethods())
+            if (baseclass != null && baseclass.type != null)
+                foreach (FunctionDefn f in (baseclass.type as ClassDefn).GetAllMethods())
                     yield return f;
         }
 
@@ -265,7 +275,7 @@ namespace HeronEngine
         public IEnumerable<FunctionDefn> GetInheritedMethods()
         {
             if (baseclass != null)
-                foreach (FunctionDefn f in (baseclass as ClassDefn).GetAllMethods())
+                foreach (FunctionDefn f in (baseclass.type as ClassDefn).GetAllMethods())
                     yield return f;
         }
 

@@ -5,7 +5,7 @@ http://www.heron-language.com
 --------
 Overview
 --------
-This is an interpreter and C# source for the Heron language.
+This is an interpreter with C# source code for the Heron language.
 
 -----
 Usage
@@ -19,20 +19,23 @@ to construct your own interpreters or compilers for Heron, or any other
 language.
 
 If you have a file "config.xml" in your root directory, this can be used 
-to control additional options of the interpreter. 
+to control additional options of the interpreter.
+
+If Heron is installed via MSI the installer will creates a file association
+for files with the extension .heron. 
 
 ------------------------
 About the Heron language
 ------------------------
 Heron is a simple general-purpose programming language that 
-is designed to be used both for large software development projects
-and small scripting tasks.
+is designed to be used for small scripting tasks, but that 
+can scale up easily to large software development projects.
 
-It is an object-oriented language influenced heavily by C++, C#,
-and Java. Other influential languages include Scala, Pascal, JavScript,
-ActionScript, Eiffel. 
+Heron is an object-oriented language influenced heavily by C++, C#,
+and Java. Other influential languages include Scala, Pascal, JavaScript,
+and Eiffel. 
 
-The language syntax is officially defined programmatically in the 
+The language syntax is officially defined in the 
 file grammar.txt as a parsing expression grammar (PEG). 
 
 ---------------------

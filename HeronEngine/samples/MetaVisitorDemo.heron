@@ -1,0 +1,48 @@
+﻿module VisitorDemo
+{
+    imports 
+    {
+        console = new Heron.Windows.Console();
+        meta = new Heron.Standard.Metaprogramming();
+    }
+    methods
+    {
+        Meta(p : ProgramDefn)
+        {
+        }
+        Main() 
+        {
+            var car : Car;
+            var visitor = new CarVisitor();
+            var traversal = new CarTraversal();
+            traversal.Traverse(visitor, car);        
+        }
+    }
+}
+
+[Visitable]
+class Car
+{
+    fields
+    {
+        wheels : List<Wheels>;
+        engine : Engine;
+        body : Body;
+    }
+}
+
+[Visitable] class Wheel { }
+[Visitable] class Engine { }
+[Visitable] class Body { }
+
+class CarVisitor
+{
+    methods
+    {
+        Visit(car : Car) { WriteLine("Visiting a car"); }
+        Visit(wheel : Wheel) { WriteLine("Visiting a wheel"); }
+        Visit(body : Body) { WriteLine("Visiting the body");  }
+        Visit(engine : Engine) { WriteLine("Visiting the engine"); }
+    }
+}
+

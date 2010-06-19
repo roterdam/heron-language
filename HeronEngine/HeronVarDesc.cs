@@ -8,25 +8,22 @@ namespace HeronEngine
     public class VarDesc : HeronValue
     {
         [HeronVisible] public string name;
-        [HeronVisible] public HeronType type;
-        [HeronVisible] public bool nullable;
+        [HeronVisible] public TypeRef type;
 
         public VarDesc()
         {
         }
 
-        public VarDesc(string name, HeronType type, bool nullable)
+        public VarDesc(string name, TypeRef type)
         {
             this.name = name;
             this.type = type;
-            this.nullable = nullable;
         }
 
         public VarDesc(string name)
         {
             this.name = name;
-            this.type = PrimitiveTypes.UnknownType;
-            this.nullable = true;
+            this.type = new TypeRef("Void", true);
         }
 
         public override HeronType Type
@@ -36,7 +33,7 @@ namespace HeronEngine
 
         public void ResolveTypes(ModuleDefn global, ModuleDefn m)
         {
-            type = type.Resolve(global, m);
+            type.Resolve(global, m);
         }
 
         /// <summary>
@@ -50,14 +47,14 @@ namespace HeronEngine
             HeronValue r = x;
             if (r is NullValue)
             {
-                if (!nullable)
+                if (!type.nullable)
                     throw new Exception("Passing null to a non-nullable variable " + name); 
                 else
                     return r;
             }
             else if (type != null)
             {
-                r = x.As(type);
+                r = x.As(type.type);
                 if (r == null)
                     throw new Exception("Failed to convert variable " + x + " from a " + x.Type.name + " to " + type.name);
             }

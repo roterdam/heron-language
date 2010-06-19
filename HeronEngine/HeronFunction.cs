@@ -19,8 +19,8 @@ namespace HeronEngine
     /// </summary>
     public class FormalArg : VarDesc
     {
-        public FormalArg(string name, HeronType type, bool nullable)
-            : base(name, type, nullable)
+        public FormalArg(string name, TypeRef type)
+            : base(name, type)
         {
         }
 
@@ -38,9 +38,7 @@ namespace HeronEngine
         public void ResolveTypes(ModuleDefn global, ModuleDefn m)
         {
             foreach (FormalArg a in this)
-            {
-                a.type = a.type.Resolve(global, m);
-            }
+                a.type.Resolve(global, m);
         }
     }
 
@@ -55,8 +53,7 @@ namespace HeronEngine
         [HeronVisible] public CodeBlock body = new CodeBlock();
         [HeronVisible] public FormalArgs formals = new FormalArgs();
         [HeronVisible] public HeronType parent = null;
-        [HeronVisible] public HeronType rettype = new UnresolvedType("Void");
-        [HeronVisible] public bool nullable = false;
+        [HeronVisible] public TypeRef rettype = new TypeRef("Void", false);
         [HeronVisible] public ExpressionList annotations = new ExpressionList();
 
         public ParseNode node;
@@ -155,11 +152,11 @@ namespace HeronEngine
         public void ResolveTypes(ModuleDefn global, ModuleDefn m)
         {
             // ResolveType the return type
-            rettype = rettype.Resolve(global, m);
+            rettype.Resolve(global, m);
 
             // ResolveType the argument types
             foreach (FormalArg arg in formals)
-                arg.type = arg.type.Resolve(global, m);
+                arg.type.Resolve(global, m);
 
             // Resolve the types of body
             foreach (Statement st in body.GetStatementTree())

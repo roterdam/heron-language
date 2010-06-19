@@ -114,14 +114,12 @@ namespace HeronEngine
         {
             foreach (FieldInfo fi in GetInstanceFields())
             {
-                if (fi.FieldType.Equals(typeof(HeronType)))
+                if (fi.FieldType.Equals(typeof(TypeRef)))
                 {
-                    HeronType t = fi.GetValue(this) as HeronType;
-                    if (t == null)
-                        throw new Exception("The type field cannot be null");
-                    UnresolvedType ut = t as UnresolvedType;
-                    if (ut != null)
-                        fi.SetValue(this, ut.Resolve(global, m));
+                    TypeRef tr = fi.GetValue(this) as TypeRef;
+                    if (tr == null)
+                        throw new Exception("The type-reference field cannot be null");
+                    tr.Resolve(global, m);
                 }
             }
         }
@@ -390,11 +388,11 @@ namespace HeronEngine
     /// </summary>
     public class NewExpr : Expression
     {
-        [HeronVisible] public HeronType type;
+        [HeronVisible] public TypeRef type;
         [HeronVisible] public ExpressionList args;
         [HeronVisible] public string module;
 
-        public NewExpr(HeronType type, ExpressionList args, string module)
+        public NewExpr(TypeRef type, ExpressionList args, string module)
         {
             this.type = type;
             this.args = args;
@@ -407,14 +405,14 @@ namespace HeronEngine
             
             if (module == null || module.Length == 0)
             {
-                return type.Instantiate(vm, argvals, vm.CurrentModuleInstance);
+                return type.type.Instantiate(vm, argvals, vm.CurrentModuleInstance);
             }
             else
             {
                 ModuleInstance mi = vm.FindModule(module);
                 if (module == null)
                     throw new Exception("Could not find module " + module);
-                return type.Instantiate(vm, argvals, mi);
+                return type.type.Instantiate(vm, argvals, mi);
             }
         }
 
@@ -698,8 +696,7 @@ namespace HeronEngine
     {       
         [HeronVisible] public FormalArgs formals;
         [HeronVisible] public CodeBlock body;
-        [HeronVisible] public HeronType rettype;
-        [HeronVisible] public bool nullable;
+        [HeronVisible] public TypeRef rettype;
 
         private FunctionDefn function;
 
@@ -707,7 +704,7 @@ namespace HeronEngine
         {
             formals.ResolveTypes(global, m);
             body.ResolveTypes(global, m);
-            rettype = rettype.Resolve(global, m);
+            rettype.Resolve(global, m);
         }
 
         public override Expression Optimize(OptimizationParams op)
@@ -897,8 +894,8 @@ namespace HeronEngine
             List<HeronType> types = new List<HeronType>();
             foreach (FormalArg arg in fielddefs)
             {
-                names.Add(arg.name);
-                types.Add(arg.type);
+                names.Add(arg.type.name);
+                types.Add(arg.type.type);
             }
             return new RecordLayout(names, types);
         }
@@ -973,8 +970,8 @@ namespace HeronEngine
             List<HeronType> types = new List<HeronType>();
             foreach (FormalArg arg in fielddefs)
             {
-                names.Add(arg.name);
-                types.Add(arg.type);
+                names.Add(arg.type.name);
+                types.Add(arg.type.type);
             }
             return new RecordLayout(names, types);
         }

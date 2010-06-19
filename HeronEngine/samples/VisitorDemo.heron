@@ -1,0 +1,76 @@
+﻿module VisitorDemo
+{
+    methods
+    {
+        Main()
+        {
+            var car : Car;
+            var visitor = new CarVisitor();
+            var traversal = new CarTraversal();
+            traversal.Traverse(visitor, car);
+        }
+    }
+}
+
+class Car
+{
+    fields
+    {
+        wheels : List<Wheel>;
+        engine : Engine;
+        body : Body;
+    }
+}
+
+class Wheel { }
+class Engine { }
+class Body { }
+
+interface ICarVisitor
+{
+    methods 
+    {
+        Visit(car : Car);
+        Visit(wheel : Wheel);
+        Visit(body : Body);
+        Visit(engine : Engine);
+    }
+}
+
+class CarVisitor
+{
+    methods
+    {
+        Visit(car : Car) { WriteLine("Visiting a car"); }
+        Visit(wheel : Wheel) { WriteLine("Visiting a wheel"); }
+        Visit(body : Body) { WriteLine("Visiting the body");  }
+        Visit(engine : Engine) { WriteLine("Visiting the engine"); }
+    }
+}
+
+class CarTraversal
+{
+    methods 
+    {
+        Traverse(v : ICarVisitor, car : Car)
+        {
+            v.Visit(car);
+            Traverse(car.wheels[0], v);
+            Traverse(car.wheels[1], v);
+            Traverse(car.wheels[2], v);
+            Traverse(car.wheels[3], v);
+            Traverse(car.body, v);
+            Traverse(car.engine, v);
+        }
+
+        Traverse(v : ICarVisitor, wheel : Wheel)
+        {
+            v.Visit(wheel);
+        }
+
+        Traverse(v : ICarVisitor, body : Body)
+        {
+            v.Visit(body);
+        }
+    } 
+}

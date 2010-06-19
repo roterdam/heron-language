@@ -284,7 +284,7 @@ namespace HeronEngine
             {
                 string s = GetInheritedClassName();
                 ModuleDefn baseModule = prog.GetModule(s);
-                SetBaseClass(baseModule);
+                SetBaseClass(new TypeRef(baseModule));
             }
 
             foreach (InterfaceDefn i in GetInterfaces())

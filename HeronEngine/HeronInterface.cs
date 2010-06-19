@@ -17,7 +17,7 @@ namespace HeronEngine
     public class InterfaceDefn : HeronUserType
     {
         List<FunctionDefn> methods = new List<FunctionDefn>();
-        List<HeronType> basetypes = new List<HeronType>();
+        List<TypeRef> basetypes = new List<TypeRef>();
 
         public InterfaceDefn(ModuleDefn m, string name)
             : base(m, typeof(InterfaceDefn), name)
@@ -25,16 +25,13 @@ namespace HeronEngine
         }
         public void ResolveTypes(ModuleDefn global, ModuleDefn m)
         {
-            for (int i = 0; i < basetypes.Count; ++i)
-            {
-                HeronType t = basetypes[i];
-                basetypes[i] = t.Resolve(global, m);
-            }
+            foreach (TypeRef tr in basetypes)
+                tr.Resolve(global, m);
 
             foreach (FunctionDefn f in GetAllMethods())
                 f.ResolveTypes(global, m);
         }
-        public void AddBaseInterface(HeronType t)
+        public void AddBaseInterface(TypeRef t)
         {
             basetypes.Add(t);
         }
@@ -55,8 +52,13 @@ namespace HeronEngine
         [HeronVisible]
         public IEnumerable<InterfaceDefn> GetInheritedInterfaces()
         {
-            foreach (InterfaceDefn i in basetypes)
-                yield return i;
+            foreach (TypeRef tr in basetypes)
+            {
+                InterfaceDefn id = tr.type as InterfaceDefn;
+                if (id == null)
+                    throw new Exception("Interface has an illegal base type");
+                yield return id;
+            }
         }
 
         [HeronVisible]
@@ -110,9 +112,14 @@ namespace HeronEngine
             string s = i.name;
             if (s == name)
                 return true;
-            foreach (InterfaceDefn bi in basetypes)
-                if (bi.InheritsFrom(i))
+            foreach (TypeRef tr in basetypes)
+            {
+                InterfaceDefn id = tr.type as InterfaceDefn;
+                if (id == null)
+                    throw new Exception("Could not find base interface type " + tr.name);
+                if (id.InheritsFrom(i))
                     return true;
+            }
             return false;
         }
 
@@ -124,8 +131,9 @@ namespace HeronEngine
         public override int GetHierarchyDepth()
         {
             int r = 1;
-            foreach (HeronType t in basetypes)
+            foreach (TypeRef tr in basetypes)
             {
+                HeronType t = tr.type;
                 int tmp = t.GetHierarchyDepth() + 1;
                 if (tmp > r)
                     r = tmp;
