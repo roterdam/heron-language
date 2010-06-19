@@ -94,8 +94,6 @@ namespace HeronEngine
         {
             if (type == null)
                 return;
-            if (type == typeof(UnresolvedType))
-                return;
             if (!typeof(HeronValue).IsAssignableFrom(type))
                 return;
 
@@ -231,47 +229,6 @@ namespace HeronEngine
             else
                 return false;
         }
-    }
-
-    /// <summary>
-    /// A place-holder for types after parsing. Once parsing is complete, any occurence of an
-    /// instance of UnresolvedType should be replaced with the correct type. To do this, requires
-    /// all modules to be parsed, so it has to be done after parsing. There are probably more 
-    /// elegant solutions available, but this is the best I could come up with. It does not 
-    /// require a lot of code, and errors are easy to detect.
-    /// </summary>
-    public class UnresolvedType : HeronType
-    {
-        public UnresolvedType(string name)
-            : base(null, typeof(UnresolvedType), name)
-        {
-        }
-
-        public override HeronValue Instantiate(VM vm, HeronValue[] args, ModuleInstance m)
-        {
-            throw new Exception("Type '" + name + "' was not resolved.");
-        }
-
-        public override HeronType Resolve(ModuleDefn global, ModuleDefn m)
-        {
-            HeronType r = m.FindType(name);
-            if (r == null)
-                r = global.FindType(name);
-            if (r == null)
-                throw new Exception("Could not resolve type " + name);
-            if (r.name != name)
-                throw new Exception("Internal error during type resolution of " + name);
-            return r;
-        }
-
-        public override HeronType Type
-        {
-            get
-            {
-                return PrimitiveTypes.UnresolvedType;
-            }
-        }
-       
     }
 
     /// <summary>

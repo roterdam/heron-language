@@ -1,0 +1,20 @@
+module PEG
+{
+    methods
+    {
+        Star(r : Rule) : Rule;
+        Plus(r : Rule) : Rule;
+        Seq(r : Rule, r2 : Rule) : Rule;
+        Choice(r : Rule, r2 : Rule) : Rule;
+    }
+}
+
+class AddExpr
+{
+    fields
+    {
+        left : AddExpr;
+        op : "+" | "-";
+        right : MulExpr; 
+    }
+}

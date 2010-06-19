@@ -72,13 +72,7 @@ namespace HeronEngine
             {
                 if (inherits.GetNumChildren() != 1)
                     throw new Exception("A module can only inherit from exactly one other module");
-                ParseNode type = inherits.GetChild(0);
-                if (type.Label != "typeexpr")
-                    throw new Exception("Can only inherit type expressions");
-                string s = GetTypeName(type, null);
-                if (s == null)
-                    throw new Exception("Could not get the inherited type name");
-                m.SetBaseClass(new UnresolvedType(s));
+                m.SetBaseClass(CreateTypeRef(inherits.GetChild(0)));
             }
 
             ParseNode methods = x.GetChild("methods");
@@ -161,27 +155,13 @@ namespace HeronEngine
                 if (inherits.GetNumChildren() != 1)
                     throw new Exception("A class can only inherit from exactly one other class");
                 ParseNode type = inherits.GetChild(0);
-                if (type.Label != "typeexpr")
-                    throw new Exception("Can only inherit type expressions");
-                string s = GetTypeName(type, null);
-                if (s == null)
-                    throw new Exception("Could not get the inherited type name");
-                r.SetBaseClass(new UnresolvedType(s));
+                r.SetBaseClass(CreateTypeRef(type));
             }
 
             ParseNode implements = x.GetChild("implements");
             if (implements != null)
-            {
                 foreach (ParseNode node in implements.Children)
-                {
-                    if (node.Label != "typeexpr")
-                        throw new Exception("Can only implement type expression");
-                    string s = GetTypeName(node, null);
-                    if (s == null)
-                        throw new Exception("Could not get the inherited type name");
-                    r.AddImplementedInterface(new UnresolvedType(s));
-                }
-            }
+                    r.AddImplementedInterface(CreateTypeRef(node));
 
             ParseNode methods = x.GetChild("methods");
             if (methods != null)
@@ -241,15 +221,8 @@ namespace HeronEngine
 
             ParseNode inherits = x.GetChild("inherits");
             if (inherits != null)
-            {
                 foreach (ParseNode node in inherits.Children)
-                {
-                    string s = GetTypeName(node, null);
-                    if (s == null)
-                        throw new Exception("Could not get the type name");
-                    r.AddBaseInterface(new UnresolvedType(s));
-                }                    
-            }
+                    r.AddBaseInterface(CreateTypeRef(node));
 
             ParseNode methods = x.GetChild("methods");
             if (methods != null)
@@ -289,44 +262,6 @@ namespace HeronEngine
             return r;
         }
 
-        public static string TypeToTypeName(ParseNode x)
-        {
-            string r = x.GetChild("name").ToString();
-            ParseNode typeargs = x.GetChild("typeargs");
-            if (typeargs == null) return r;
-            r += "<";
-            foreach (ParseNode y in typeargs.Children)
-                r += TypeToTypeName(y) + ";";
-            return r + ">";
-        }
-
-        public static string GetTypeName(ParseNode x, string def)
-        {
-            if (x == null)
-                return def;
-
-            if (x.Label == "typeexpr")
-                return TypeToTypeName(x);
-
-            ParseNode typedecl = x.GetChild("typedecl");
-            if (typedecl != null)
-                x = typedecl;
-
-            ParseNode type = x.GetChild("typeexpr");
-            if (type != null)
-                return TypeToTypeName(type);
-
-            return def;
-        }
-
-        public static bool IsNullable(ParseNode x)
-        {
-            if (x == null)
-                return false;
-            Debug.Assert(x.Label == "typedecl");
-            return x.GetChild("nullable") != null; 
-        }
-
         [HeronVisible]
         public static FieldDefn CreateField(string s)
         {
@@ -342,8 +277,7 @@ namespace HeronEngine
         {
             FieldDefn r = new FieldDefn();
             r.name = x.GetChild("name").ToString();
-            r.type = new UnresolvedType(GetTypeName(x, "Unknown"));
-            r.nullable = IsNullable(x.GetChild("typedecl"));
+            r.type = CreateTypeRef(x.GetChild("typedecl")); 
             if (x.HasChild("expr"))
                 r.expr = CreateExpr(x.GetChild("expr"));
             return r;
@@ -358,9 +292,7 @@ namespace HeronEngine
         public static FormalArg CreateFormalArg(ParseNode x)
         {
             string name = x.GetChild("name").ToString();
-            HeronType type = new UnresolvedType(GetTypeName(x, "Unknown"));
-            bool nullable = IsNullable(x.GetChild("typedecl"));
-            return new FormalArg(name, type, nullable);
+            return new FormalArg(name, CreateTypeRef(x.GetChild("typedecl")));
         }
 
         [HeronVisible]
@@ -404,11 +336,46 @@ namespace HeronEngine
             r.name = fundecl.GetChild("name").ToString();
             r.formals = CreateFormalArgs(fundecl.GetChild("arglist"));
             ParseNode rt = x.GetChild("typedecl");
-            r.rettype = new UnresolvedType(GetTypeName(rt, "Void"));
-            r.nullable = IsNullable(rt);
+            r.rettype = CreateTypeRef(rt);
             ParseNode codeblock = x.GetChild("codeblock");
             r.body = CreateCodeBlock(codeblock);
             return r;
+        }
+
+        public static TypeRef CreateTypeRef(ParseNode x)
+        {
+            if (x == null)
+                return new TypeRef();
+
+            bool bNullable = false;
+
+            if (x.Label == "typedecl")
+            {
+                bNullable = x.GetChild("nullable") != null;
+                x = x.GetChild("typeexpr");
+                if (x == null)
+                    throw new Exception("Type declaration is missing type expression");
+            }
+
+            if (x.Label != "typeexpr")
+                throw new Exception("Expected a type-expression or type-declaration");
+
+            ParseNode name = x.GetChild(0);
+            if (name.Label != "name")
+                throw new Exception("Expected a name child node of a type-expression");
+
+            string sName = name != null ? name.ToString() : "Void";
+
+            List<TypeRef> args = new List<TypeRef>();
+            for (int i = 1; i < x.GetNumChildren(); ++i)
+            {
+                ParseNode arg = x.GetChild(i);
+                if (arg.Label != "typeexpr")
+                    throw new Exception("Expected child nodes to be type-expressions");
+                args.Add(CreateTypeRef(arg));
+            }
+
+            return new TypeRef(sName, bNullable, args);
         }
         #endregion 
 
@@ -463,11 +430,9 @@ namespace HeronEngine
             VariableDeclaration r = new VariableDeclaration(x);
             r.annotations = CreateAnnotations(x);
             string name = x.GetChild("name").ToString();
-            HeronType type = new UnresolvedType(GetTypeName(x, "Unknown"));
             ParseNode tmp = x.GetChild("expr");
-            ParseNode typedecl = x.GetChild("typedecl");
-            bool nullable = typedecl != null ? IsNullable(typedecl) : false;
-            r.vardesc = new VarDesc(name, type, nullable);
+            TypeRef tr = CreateTypeRef(x.GetChild("typedecl"));    
+            r.vardesc = new VarDesc(name, tr);
             if (tmp != null)
                 r.value = CreateExpr(tmp);
             return r;
@@ -544,7 +509,7 @@ namespace HeronEngine
             {
                 // This is a foreach without a type declaration
                 r.name = x.GetChild(0).ToString();
-                r.type = new UnresolvedType("Unknown");
+                r.type = new TypeRef("Unknown");
                 r.collection = CreateExpr(x.GetChild(1));
                 r.body = CreateStatement(x.GetChild(2));
             }
@@ -552,8 +517,7 @@ namespace HeronEngine
             {
                 // This is a foreach with a type declaration
                 r.name = x.GetChild(0).ToString();
-                r.type = new UnresolvedType(GetTypeName(x.GetChild(1), "Unknown"));
-                r.nullable = IsNullable(x.GetChild(1));
+                r.type = CreateTypeRef(x.GetChild(1));
                 r.collection = CreateExpr(x.GetChild(2));
                 r.body = CreateStatement(x.GetChild(3));
             }
@@ -690,7 +654,7 @@ namespace HeronEngine
             if (x.GetNumChildren() > 2)
                 module = x.GetChild(2).ToString();
 
-            return new NewExpr(new UnresolvedType(GetTypeName(type, "Void")), CreateCompoundExpr(args), module);
+            return new NewExpr(CreateTypeRef(type), CreateCompoundExpr(args), module);
         }
 
         public static MapExpr CreateMapExpr(ParseNode x)
@@ -1039,8 +1003,7 @@ namespace HeronEngine
                 ++i;
                 FunExpr r = new FunExpr();
                 r.formals = CreateFormalArgs(child.GetChild("arglist"));
-                r.rettype = new UnresolvedType(GetTypeName(child, "Void"));
-                r.nullable = (child.GetChild("typedecl") != null && child.GetChild("typedecl").GetChild("nullable") != null);
+                r.rettype = CreateTypeRef(child.GetChild("typedecl")); 
                 r.body = CreateCodeBlock(child.GetChild("codeblock"));
                 return r;
             }
@@ -1250,5 +1213,7 @@ namespace HeronEngine
             get { return PrimitiveTypes.CodeModelBuilderType; }
         }
         #endregion
+
+
     }
 }

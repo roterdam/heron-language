@@ -27,7 +27,6 @@ namespace HeronEngine
         public static HeronType TypeValueType = new HeronType(null, typeof(TypeValue), "TypeValue");
         public static HeronType AnyType = new HeronType(null, typeof(AnyValue), "Any");
         public static HeronType UnknownType = new HeronType(null, typeof(VoidValue), "Unknown");
-        public static HeronType UnresolvedType = new HeronType(null, typeof(VoidValue), "Unresolved");
         public static HeronType OptimizedExpressionType = new HeronType(null, typeof(OptimizedExpression), "Optimized");
 
         // Usual suspects 
@@ -62,6 +61,7 @@ namespace HeronEngine
         public static CodeModelType VarDescType = new CodeModelType(typeof(VarDesc));
         public static CodeModelType ProgramType = new CodeModelType(typeof(ProgramDefn));
         public static CodeModelType TypeType = new CodeModelType(typeof(HeronType), "TypeType");
+        public static CodeModelType TypeRefType = new CodeModelType(typeof(TypeRef));
         public static CodeModelType ClassType = new CodeModelType(TypeType, typeof(ClassDefn));
         public static CodeModelType ModuleType = new CodeModelType(ClassType, typeof(ModuleDefn));
         public static CodeModelType InterfaceType = new CodeModelType(TypeType, typeof(InterfaceDefn));

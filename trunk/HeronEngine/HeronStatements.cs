@@ -226,8 +226,7 @@ namespace HeronEngine
         [HeronVisible] public string name;
         [HeronVisible] public Expression collection;
         [HeronVisible] public Statement body;
-        [HeronVisible] public HeronType type;
-        [HeronVisible] public bool nullable;
+        [HeronVisible] public TypeRef type;
 
         internal ForEachStatement(ParseNode node)
             : base(node)
