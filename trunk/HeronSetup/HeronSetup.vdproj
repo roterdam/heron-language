@@ -15,7 +15,7 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_0869F44512994EBCB25AAD95876EC12B"
+        "MsmKey" = "8:_00FED1035DC648E281258DC1E8B4F8E7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -27,19 +27,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_111B898221A94EBCA5F5501154D73BA4"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_14552709471F47D4B2073523751723B2"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_18321BFF796D4495977C6EBC1E2F66CF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -81,31 +69,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_2EB524991D0B45F89DB77D58088BCF50"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_34305217227F48D5BCF001212FEED01F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_375CBBA569F04324B1CBD63317A265C8"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_376B6177772344328A35AC8C16559A9E"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_38EFFC34CD464ED5BF051E0CA2F74A2A"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_3A44417BA9284201B1679110EBDBF6F3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -129,6 +105,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_45A1FA8AC43F4B71A2FFDFFCDEA25FD2"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_4B165D3818CF478AB15AF17B5BD86946"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -147,31 +129,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_5947C88E95F64FA3BEF6389BCEF53C60"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_6092CEF8B2E64AF08AB7A2ABD9369315"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_68414BF768924FDD93BEA6F12C4CD6CA"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_6B77DE32BB3149A2B3F4FEAAA3891393"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_6CC960F59FAF49B98A189673702EC842"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -189,7 +153,19 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_85FD067AEEC441D0B35E078051984CAD"
+        "MsmKey" = "8:_756D04D3E57047679C7006715E2E5098"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_78F825F3A8034666B7BD8EA8B467DEEF"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8291E0C8458B49639C6C29F0E14B1681"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -225,13 +201,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_B42B089E413049CBB64DC28624C6E054"
+        "MsmKey" = "8:_B3071233DD9C4EE59ACA066DD03988EF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_B5F424A894B34951B759324B35B14D8B"
+        "MsmKey" = "8:_B42B089E413049CBB64DC28624C6E054"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -256,6 +232,18 @@
         "Entry"
         {
         "MsmKey" = "8:_C3F784D068B44FDBA1CACB3A8A06A750"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_CA9F83F58D7740AEBE2D2828482633F6"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_CAFB0AF447DE43D49A3B5A4A422C20AF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -291,6 +279,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_D19F343DEE6847D09548B2526AEC8BE1"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_D1A3D2F6387441809E1CC4DE398EA776"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -309,13 +303,19 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_D851EE8285F240A0AE675280518686CB"
+        "MsmKey" = "8:_DF84890F5B9D492CA3A769E0F3C6E31D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_E992EA3830124B89B9534EE03E41CA97"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_EF5B5EB7BB774EDBABCED78AB70214C9"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -448,12 +448,12 @@
         }
         "File"
         {
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0869F44512994EBCB25AAD95876EC12B"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_00FED1035DC648E281258DC1E8B4F8E7"
             {
-            "SourcePath" = "8:..\\HeronEngine\\samples\\HeronToXMLDemo.heron"
-            "TargetName" = "8:HeronToXMLDemo.heron"
+            "SourcePath" = "8:..\\HeronEngine\\samples\\HelloWorld.heron"
+            "TargetName" = "8:HelloWorld.heron"
             "Tag" = "8:"
-            "Folder" = "8:_E788C95EA2F24378B5545FDBA7773858"
+            "Folder" = "8:_0CE86F5FCBCE4DA6A16F9AF0F36C6927"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -488,52 +488,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_111B898221A94EBCA5F5501154D73BA4"
-            {
-            "SourcePath" = "8:..\\HeronEngine\\samples\\HeronToXML.heron"
-            "TargetName" = "8:HeronToXML.heron"
-            "Tag" = "8:"
-            "Folder" = "8:_E788C95EA2F24378B5545FDBA7773858"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_14552709471F47D4B2073523751723B2"
             {
             "SourcePath" = "8:..\\HeronEngine\\codemodel.txt"
             "TargetName" = "8:codemodel.txt"
             "Tag" = "8:"
             "Folder" = "8:_61C1D9A1612F4E97949010E21031074B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_18321BFF796D4495977C6EBC1E2F66CF"
-            {
-            "SourcePath" = "8:..\\HeronEngine\\samples\\HelloWorld.heron"
-            "TargetName" = "8:HelloWorld.heron"
-            "Tag" = "8:"
-            "Folder" = "8:_E788C95EA2F24378B5545FDBA7773858"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -668,6 +628,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2EB524991D0B45F89DB77D58088BCF50"
+            {
+            "SourcePath" = "8:..\\HeronEngine\\samples\\WideFinder.heron"
+            "TargetName" = "8:WideFinder.heron"
+            "Tag" = "8:"
+            "Folder" = "8:_0CE86F5FCBCE4DA6A16F9AF0F36C6927"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_34305217227F48D5BCF001212FEED01F"
             {
             "SourcePath" = "8:..\\HeronEngine\\tests\\TestField.heron"
@@ -688,72 +668,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_375CBBA569F04324B1CBD63317A265C8"
-            {
-            "SourcePath" = "8:..\\HeronEngine\\samples\\Fibonacci.heron"
-            "TargetName" = "8:Fibonacci.heron"
-            "Tag" = "8:"
-            "Folder" = "8:_E788C95EA2F24378B5545FDBA7773858"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_376B6177772344328A35AC8C16559A9E"
-            {
-            "SourcePath" = "8:..\\HeronEngine\\samples\\Sort.heron"
-            "TargetName" = "8:Sort.heron"
-            "Tag" = "8:"
-            "Folder" = "8:_E788C95EA2F24378B5545FDBA7773858"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_38EFFC34CD464ED5BF051E0CA2F74A2A"
             {
             "SourcePath" = "8:..\\HeronEngine\\tests\\TestFileIO.heron"
             "TargetName" = "8:TestFileIO.heron"
             "Tag" = "8:"
             "Folder" = "8:_571AA5D8B3ED4DECAB0A36CB2EF32E9E"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3A44417BA9284201B1679110EBDBF6F3"
-            {
-            "SourcePath" = "8:..\\HeronEngine\\samples\\NQueens.heron"
-            "TargetName" = "8:NQueens.heron"
-            "Tag" = "8:"
-            "Folder" = "8:_E788C95EA2F24378B5545FDBA7773858"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -794,6 +714,26 @@
             "TargetName" = "8:TestControlFlow.heron"
             "Tag" = "8:"
             "Folder" = "8:_571AA5D8B3ED4DECAB0A36CB2EF32E9E"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_45A1FA8AC43F4B71A2FFDFFCDEA25FD2"
+            {
+            "SourcePath" = "8:..\\HeronEngine\\samples\\HeronToXML.heron"
+            "TargetName" = "8:HeronToXML.heron"
+            "Tag" = "8:"
+            "Folder" = "8:_0CE86F5FCBCE4DA6A16F9AF0F36C6927"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -868,26 +808,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5947C88E95F64FA3BEF6389BCEF53C60"
-            {
-            "SourcePath" = "8:..\\HeronEngine\\samples\\PrettyPrinting.heron"
-            "TargetName" = "8:PrettyPrinting.heron"
-            "Tag" = "8:"
-            "Folder" = "8:_E788C95EA2F24378B5545FDBA7773858"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6092CEF8B2E64AF08AB7A2ABD9369315"
             {
             "SourcePath" = "8:..\\HeronEngine\\tests\\NegativeTestTypePassing.heron"
@@ -908,52 +828,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_68414BF768924FDD93BEA6F12C4CD6CA"
-            {
-            "SourcePath" = "8:..\\HeronEngine\\samples\\AllSamples.heron"
-            "TargetName" = "8:AllSamples.heron"
-            "Tag" = "8:"
-            "Folder" = "8:_E788C95EA2F24378B5545FDBA7773858"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6B77DE32BB3149A2B3F4FEAAA3891393"
             {
             "SourcePath" = "8:..\\HeronEngine\\tests\\TestOutput.heron"
             "TargetName" = "8:TestOutput.heron"
             "Tag" = "8:"
             "Folder" = "8:_571AA5D8B3ED4DECAB0A36CB2EF32E9E"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6CC960F59FAF49B98A189673702EC842"
-            {
-            "SourcePath" = "8:..\\HeronEngine\\samples\\Factorial.heron"
-            "TargetName" = "8:Factorial.heron"
-            "Tag" = "8:"
-            "Folder" = "8:_E788C95EA2F24378B5545FDBA7773858"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1008,12 +888,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_85FD067AEEC441D0B35E078051984CAD"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_756D04D3E57047679C7006715E2E5098"
             {
             "SourcePath" = "8:..\\HeronEngine\\samples\\Sieve.heron"
             "TargetName" = "8:Sieve.heron"
             "Tag" = "8:"
-            "Folder" = "8:_E788C95EA2F24378B5545FDBA7773858"
+            "Folder" = "8:_0CE86F5FCBCE4DA6A16F9AF0F36C6927"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_78F825F3A8034666B7BD8EA8B467DEEF"
+            {
+            "SourcePath" = "8:..\\HeronEngine\\samples\\Sort.heron"
+            "TargetName" = "8:Sort.heron"
+            "Tag" = "8:"
+            "Folder" = "8:_0CE86F5FCBCE4DA6A16F9AF0F36C6927"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8291E0C8458B49639C6C29F0E14B1681"
+            {
+            "SourcePath" = "8:..\\HeronEngine\\samples\\Squares.heron"
+            "TargetName" = "8:Squares.heron"
+            "Tag" = "8:"
+            "Folder" = "8:_0CE86F5FCBCE4DA6A16F9AF0F36C6927"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1128,12 +1048,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B42B089E413049CBB64DC28624C6E054"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B3071233DD9C4EE59ACA066DD03988EF"
             {
-            "SourcePath" = "8:..\\HeronEngine\\tests\\TestReduce.heron"
-            "TargetName" = "8:TestReduce.heron"
+            "SourcePath" = "8:..\\HeronEngine\\samples\\Factorial.heron"
+            "TargetName" = "8:Factorial.heron"
             "Tag" = "8:"
-            "Folder" = "8:_571AA5D8B3ED4DECAB0A36CB2EF32E9E"
+            "Folder" = "8:_0CE86F5FCBCE4DA6A16F9AF0F36C6927"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1148,12 +1068,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B5F424A894B34951B759324B35B14D8B"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B42B089E413049CBB64DC28624C6E054"
             {
-            "SourcePath" = "8:..\\HeronEngine\\samples\\WideFinder.heron"
-            "TargetName" = "8:WideFinder.heron"
+            "SourcePath" = "8:..\\HeronEngine\\tests\\TestReduce.heron"
+            "TargetName" = "8:TestReduce.heron"
             "Tag" = "8:"
-            "Folder" = "8:_E788C95EA2F24378B5545FDBA7773858"
+            "Folder" = "8:_571AA5D8B3ED4DECAB0A36CB2EF32E9E"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1234,6 +1154,46 @@
             "TargetName" = "8:config.xml"
             "Tag" = "8:"
             "Folder" = "8:_61C1D9A1612F4E97949010E21031074B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CA9F83F58D7740AEBE2D2828482633F6"
+            {
+            "SourcePath" = "8:..\\HeronEngine\\samples\\PrettyPrinting.heron"
+            "TargetName" = "8:PrettyPrinting.heron"
+            "Tag" = "8:"
+            "Folder" = "8:_0CE86F5FCBCE4DA6A16F9AF0F36C6927"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CAFB0AF447DE43D49A3B5A4A422C20AF"
+            {
+            "SourcePath" = "8:..\\HeronEngine\\samples\\AllSamples.heron"
+            "TargetName" = "8:AllSamples.heron"
+            "Tag" = "8:"
+            "Folder" = "8:_0CE86F5FCBCE4DA6A16F9AF0F36C6927"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1359,6 +1319,26 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D19F343DEE6847D09548B2526AEC8BE1"
+            {
+            "SourcePath" = "8:..\\HeronEngine\\samples\\NQueens.heron"
+            "TargetName" = "8:NQueens.heron"
+            "Tag" = "8:"
+            "Folder" = "8:_0CE86F5FCBCE4DA6A16F9AF0F36C6927"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D1A3D2F6387441809E1CC4DE398EA776"
             {
             "SourcePath" = "8:..\\HeronEngine\\tests\\TestClosures.heron"
@@ -1399,12 +1379,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D851EE8285F240A0AE675280518686CB"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DF84890F5B9D492CA3A769E0F3C6E31D"
             {
-            "SourcePath" = "8:..\\HeronEngine\\samples\\Squares.heron"
-            "TargetName" = "8:Squares.heron"
+            "SourcePath" = "8:..\\HeronEngine\\samples\\HeronToXMLDemo.heron"
+            "TargetName" = "8:HeronToXMLDemo.heron"
             "Tag" = "8:"
-            "Folder" = "8:_E788C95EA2F24378B5545FDBA7773858"
+            "Folder" = "8:_0CE86F5FCBCE4DA6A16F9AF0F36C6927"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1425,6 +1405,26 @@
             "TargetName" = "8:Macros.heron"
             "Tag" = "8:"
             "Folder" = "8:_51209FF2FC1949889C66C558EE4761C2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EF5B5EB7BB774EDBABCED78AB70214C9"
+            {
+            "SourcePath" = "8:..\\HeronEngine\\samples\\Fibonacci.heron"
+            "TargetName" = "8:Fibonacci.heron"
+            "Tag" = "8:"
+            "Folder" = "8:_0CE86F5FCBCE4DA6A16F9AF0F36C6927"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1520,6 +1520,17 @@
             "Property" = "8:TARGETDIR"
                 "Folders"
                 {
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_0CE86F5FCBCE4DA6A16F9AF0F36C6927"
+                    {
+                    "Name" = "8:samples"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_52AE1D07ED4B452BA0AD50BCF53A0012"
+                        "Folders"
+                        {
+                        }
+                    }
                     "{9EF0B969-E518-4E46-987F-47570745A589}:_38831DDC3AD84D79B5F60C1884688F30"
                     {
                     "Name" = "8:lib"
@@ -1584,17 +1595,6 @@
                                 {
                                 }
                             }
-                            "{9EF0B969-E518-4E46-987F-47570745A589}:_E788C95EA2F24378B5545FDBA7773858"
-                            {
-                            "Name" = "8:samples"
-                            "AlwaysCreate" = "11:FALSE"
-                            "Condition" = "8:"
-                            "Transitive" = "11:FALSE"
-                            "Property" = "8:_6BAC7FE1755A4DCA90DB357843EF5886"
-                                "Folders"
-                                {
-                                }
-                            }
                         }
                     }
                     "{9EF0B969-E518-4E46-987F-47570745A589}:_CC3B621966114701B5A259DE0989C653"
@@ -1637,15 +1637,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Heron"
-        "ProductCode" = "8:{B7448D61-A7DB-4503-B2AE-50CA147A4B5F}"
-        "PackageCode" = "8:{D9309BF8-F39F-4451-A9FC-27584C355000}"
+        "ProductCode" = "8:{3F08C128-B05D-47CE-9A73-64803E71385C}"
+        "PackageCode" = "8:{B6FCAAA4-C736-4F72-8186-BF358DAB8A35}"
         "UpgradeCode" = "8:{33D57F15-CCCC-4B06-81B6-2BD998B35E70}"
         "AspNetVersion" = "8:4.0.30128.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.3"
+        "ProductVersion" = "8:1.0.4"
         "Manufacturer" = "8:Christopher Diggins"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.heron-language.com"
@@ -2229,7 +2229,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_3C6FE1A5E93E45DA8C4D7506D4F14CAF"
             {
-            "SourcePath" = "8:..\\HeronEngine\\obj\\Debug\\HeronEngine.exe"
+            "SourcePath" = "8:..\\HeronEngine\\obj\\Release\\HeronEngine.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_61C1D9A1612F4E97949010E21031074B"
@@ -2341,7 +2341,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_D38E8C7E9CA7412D9044A34E7F4A0885"
             {
-            "SourcePath" = "8:..\\HeronEdit\\obj\\Debug\\HeronEdit.exe"
+            "SourcePath" = "8:..\\HeronEdit\\obj\\Release\\HeronEdit.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_61C1D9A1612F4E97949010E21031074B"

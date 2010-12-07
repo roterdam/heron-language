@@ -88,7 +88,7 @@ namespace HeronEngine
                 (LoopParams lp) => { }
                 );
 
-            return new ArrayValue(output);
+            return new ArrayValue(output, sv.GetElementType());
         }
 
         public override string ToString()

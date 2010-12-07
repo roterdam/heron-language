@@ -75,7 +75,7 @@ namespace HeronEngine
                 if (bools[i])
                     r.Add(ii.InternalAt(i));
             r.Capacity = r.Count;
-            return new ListValue(r);
+            return new ListValue(r, sv.GetElementType());
         }
 
         public override string ToString()

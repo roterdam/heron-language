@@ -175,7 +175,7 @@ namespace HeronEngine
                         return new DotNetList(ilist);
                     IEnumerable ie = o as IEnumerable;
                     if (ie != null)
-                        return new ListToIterValue(ie);
+                        return new ListToIterValue(ie, PrimitiveTypes.AnyType);
                     return DotNetObject.CreateDotNetObjectNoMarshal(o);
             }
         }
@@ -476,6 +476,11 @@ namespace HeronEngine
             {
                 return list.GetIndexable();
             }
+
+            public override HeronType GetElementType()
+            {
+                return PrimitiveTypes.AnyType;
+            }
         }
 
         public DotNetList(IList list)
@@ -577,5 +582,10 @@ namespace HeronEngine
         }
 
         #endregion
+
+        public override HeronType GetElementType()
+        {
+            return PrimitiveTypes.AnyType;
+        }
     }
 }

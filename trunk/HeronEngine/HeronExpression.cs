@@ -855,7 +855,7 @@ namespace HeronEngine
 
         public override HeronValue Eval(VM vm)
         {
-            ListValue list = new ListValue();
+            ListValue list = new ListValue(PrimitiveTypes.AnyType);
             foreach (Expression expr in exprs)
                 list.Add(vm.Eval(expr));
             return list;
