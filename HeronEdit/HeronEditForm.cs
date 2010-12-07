@@ -148,5 +148,10 @@ namespace HeronEdit
             if (!editor.SaveIfModified())
                 e.Cancel = true;
         }
+
+        private void copyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            editor.Copy();
+        }
     }
 }

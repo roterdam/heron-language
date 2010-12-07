@@ -103,7 +103,7 @@ namespace HeronEngine
 
         public override ListValue ToList()
         {
-            return new ListValue((IList)ToArray());
+            return new ListValue((IList)ToArray(), PrimitiveTypes.IntType);
         }
 
         public override HeronValue[] ToArray()
@@ -128,6 +128,11 @@ namespace HeronEngine
         public HeronValue InternalAt(int n)
         {
             return new IntValue(min + n);
+        }
+
+        public override HeronType GetElementType()
+        {
+            return PrimitiveTypes.IntType;
         }
     }
 
@@ -276,6 +281,8 @@ namespace HeronEngine
                 return ToList();
             return base.As(t);
         }
+
+        public abstract HeronType GetElementType();
     }
    
     /// <summary>
@@ -285,36 +292,40 @@ namespace HeronEngine
         : SeqValue, IInternalIndexable
     {
         List<HeronValue> list;
+        HeronType elementType;
 
-        public ListValue()
+        public ListValue(HeronType elementType)
         {
             list = new List<HeronValue>();
+            this.elementType = elementType;
         }
 
-        public ListValue(IEnumerable<HeronValue> xs)
+        public ListValue(IEnumerable<HeronValue> xs, HeronType elementType)
         {
             list = new List<HeronValue>(xs);
+            this.elementType = elementType;
         }
 
-        public ListValue(List<HeronValue> xs)
+        public ListValue(List<HeronValue> xs, HeronType elementType)
         {
             list = xs;
+            this.elementType = elementType;
         }
 
         public ListValue(IteratorValue val)
         {
             list = new List<HeronValue>();
-            while (val.MoveNext())
-            {
-                list.Add(val.GetValue());
-            }
+            while (val.MoveNext()) 
+                Add(val.GetValue());
+            elementType = val.GetElementType();
         }
 
-        public ListValue(IList xs)
+        public ListValue(IList xs, HeronType elementType)
         {
             list = new List<HeronValue>();
             foreach (Object x in xs) 
                 list.Add(DotNetObject.Marshal(x));
+            this.elementType = elementType;
         }
 
         [HeronVisible]
@@ -324,10 +335,8 @@ namespace HeronEngine
             int nFrom = from.GetValue();
             List<HeronValue> r = new List<HeronValue>();
             for (int i=0; i < nCnt; ++i)
-            {
                 r.Add(list[i + nFrom]);
-            }
-            return new ListValue(r);
+            return new ListValue(r, elementType);
         }
 
         [HeronVisible]
@@ -386,7 +395,7 @@ namespace HeronEngine
 
         public override IteratorValue GetIterator()
         {
-            return new ListToIterValue(list);
+            return new ListToIterValue(list, elementType);
         }
     
         public override ListValue ToList()
@@ -442,19 +451,27 @@ namespace HeronEngine
         {
             return this;
         }
+
+        public override HeronType GetElementType()
+        {
+            return elementType;
+        }
     }
 
     /// <summary>
-    /// Represents a collection which can be iterated over multiple times.
+    /// Represents a collection which can be iterated over multiple times,
+    /// but can't be resized.
     /// </summary>
     public class ArrayValue
         : SeqValue, IInternalIndexable
     {
         HeronValue[] array;
+        HeronType elementType;
 
-        public ArrayValue(HeronValue[] xs)
+        public ArrayValue(HeronValue[] xs, HeronType elementType)
         {
             array = xs;
+            this.elementType = elementType;
         }
 
         [HeronVisible]
@@ -470,12 +487,12 @@ namespace HeronEngine
 
         public override IteratorValue GetIterator()
         {
-            return new ListToIterValue(array);
+            return new ListToIterValue(array, elementType);
         }
 
         public override ListValue ToList()
         {
-            return new ListValue(new List<HeronValue>(array));
+            return new ListValue(new List<HeronValue>(array), elementType);
         }
 
         public override HeronValue GetAtIndex(HeronValue index)
@@ -535,6 +552,11 @@ namespace HeronEngine
         {
             return this;
         }
+
+        public override HeronType GetElementType()
+        {
+            return elementType;
+        }
     }
 
     public class SliceValue : SeqValue, IInternalIndexable
@@ -565,12 +587,12 @@ namespace HeronEngine
 
         public override IteratorValue GetIterator()
         {
-            return new ListToIterValue(GetEnumerable());
+            return new ListToIterValue(GetEnumerable(), list.GetElementType());
         }
 
         public override ListValue ToList()
         {
-            return new ListValue(GetEnumerable());
+            return new ListValue(GetEnumerable(), GetElementType());
         }
 
         public override IInternalIndexable GetIndexable()
@@ -618,32 +640,41 @@ namespace HeronEngine
                 throw new Exception("Can only index slices using integers");
             list.SetAtIndex(new IntValue(iv.GetValue() + from), val);
         }
+
+        public override HeronType GetElementType()
+        {
+            return list.GetElementType();
+        }
     }
 
     public class ListToIterValue
         : IteratorValue, IInternalIndexable
     {
         List<HeronValue> list;
+        HeronType elementType;
         int current;
 
-        public ListToIterValue(List<HeronValue> list)
+        public ListToIterValue(List<HeronValue> list, HeronType elementType)
         {
             this.list = list;
             current = 0;
+            this.elementType = elementType;
         }
 
-        public ListToIterValue(IEnumerable<HeronValue> iter)
+        public ListToIterValue(IEnumerable<HeronValue> iter, HeronType elementType)
         {
             list = new List<HeronValue>(iter);
             current = 0;
+            this.elementType = elementType;
         }
 
-        public ListToIterValue(IEnumerable iter)
+        public ListToIterValue(IEnumerable iter, HeronType elementType)
         {
             list = new List<HeronValue>();
             foreach (Object o in iter)
                 list.Add(HeronDotNet.Marshal(o));
             current = 0;
+            this.elementType = elementType;
         }
 
         public override bool MoveNext()
@@ -661,12 +692,12 @@ namespace HeronEngine
 
         public override IteratorValue Restart()
         {
-            return new ListToIterValue(list);
+            return new ListToIterValue(list, elementType);
         }
 
         public override ListValue ToList()
         {
-            return new ListValue(list);
+            return new ListValue(list, elementType);
         }
 
         public override HeronValue[] ToArray()
@@ -691,6 +722,11 @@ namespace HeronEngine
         public override IInternalIndexable GetIndexable()
         {
             return this;
+        }
+
+        public override HeronType GetElementType()
+        {
+            return elementType;
         }
     }
 }

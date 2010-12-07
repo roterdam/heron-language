@@ -25,7 +25,7 @@ namespace HeronEdit
     /// </summary>
     public partial class CodeEditControl : RichTextBox
     {
-        #region constants 
+        #region constants
         /// <summary>
         /// Identifies the horizontal scrollbar to the Windows API.
         /// </summary>
@@ -35,7 +35,7 @@ namespace HeronEdit
         /// Identifies the vertical scrollbar to the Windows API.
         /// </summary>
         const int SB_VERT = 1;
-        
+
         /// <summary>
         /// When pressing tab the following string is inserted instead. 
         /// </summary>
@@ -52,8 +52,8 @@ namespace HeronEdit
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         static extern IntPtr SendMessage(IntPtr hWnd, UInt32 Msg, IntPtr wParam, POINT point);
 
-        [DllImport("user32.dll", EntryPoint = "LockWindowUpdate", SetLastError = true, CharSet = CharSet.Auto)] 
-        static extern IntPtr LockWindow(IntPtr hWnd); 
+        [DllImport("user32.dll", EntryPoint = "LockWindowUpdate", SetLastError = true, CharSet = CharSet.Auto)]
+        static extern IntPtr LockWindow(IntPtr hWnd);
 
         [StructLayout(LayoutKind.Sequential)]
         public class POINT
@@ -83,14 +83,14 @@ namespace HeronEdit
         /// Manages the undo and redo stack
         /// </summary>
         UndoSystem undoer = new UndoSystem();
-        
+
         /// <summary>
         /// Used for StartRepaint() and StopRepaint() messages
         /// </summary>
         IntPtr eventMask;
         #endregion
 
-        #region property overrides 
+        #region property overrides
         public override string Text
         {
             get
@@ -110,7 +110,7 @@ namespace HeronEdit
                 }
             }
         }
-        #endregion 
+        #endregion
 
         /// <summary>
         /// Constructor
@@ -221,7 +221,7 @@ namespace HeronEdit
         /// <summary>
         /// The line index of the current selection point
         /// </summary>
-        public int CurrentLineIndex 
+        public int CurrentLineIndex
         {
             get { return GetLineFromCharIndex(SelectionStart); }
         }
@@ -282,13 +282,19 @@ namespace HeronEdit
             switch (e.KeyCode)
             {
                 case Keys.Enter:
-                    {    
+                    {
                         string s = CurrentLine;
                         int n = s.Length - s.TrimStart().Length;
                         string indent = s.Substring(0, n);
                         SelectedText = "\n" + indent;
                         int cnt = CountNested(s, '{', '}');
                         if (cnt > 0) SelectedText += TAB;
+                        e.Handled = true;
+                    }
+                    break;
+                case Keys.Tab:
+                    {
+                        SelectedText = TAB;
                         e.Handled = true;
                     }
                     break;
@@ -367,7 +373,7 @@ namespace HeronEdit
                 bSuspendNotifications = false;
             }
         }
-    
+
         /// <summary>
         /// Assures that pasting of code only cause plain-text 
         /// to be inserted, and replaces tab characters with whitespace.
@@ -396,14 +402,36 @@ namespace HeronEdit
         protected override void OnDragDrop(DragEventArgs drgevent)
         {
             bSuspendNotifications = true;
-            try 
-            { 
-                base.OnDragDrop(drgevent); 
+            try
+            {
+                base.OnDragDrop(drgevent);
             }
-            finally 
-            { 
-                bSuspendNotifications = false; 
+            finally
+            {
+                bSuspendNotifications = false;
             }
+        }
+
+        protected override void OnKeyUp(KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Tab)
+                e.Handled = true;
+            base.OnKeyUp(e);
+        }
+
+        protected override void OnKeyPress(KeyPressEventArgs e)
+        {
+            if (e.KeyChar == '\t')
+                e.Handled = true;
+            else if (e.KeyChar == '}')
+            {
+                if (CurrentLine.Trim().Length == 0)
+                {
+                    if (SelectionStart - CurrentLineStart >= 4)
+                        SelectionStart = SelectionStart - 4;
+                }
+            }
+            base.OnKeyPress(e);
         }
     }
 }

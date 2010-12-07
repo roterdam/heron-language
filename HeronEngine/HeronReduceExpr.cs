@@ -87,7 +87,7 @@ namespace HeronEngine
                 (LoopParams lp) => { }
                 );
 
-            return new ArrayValue(new HeronValue[] { result });
+            return new ArrayValue(new HeronValue[] { result }, sv.GetElementType());
         }
 
         public override Expression Optimize(OptimizationParams op)

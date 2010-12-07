@@ -144,9 +144,14 @@ namespace HeronEngine
             get { return PrimitiveTypes.RecordType; }
         }
 
+        public override HeronType GetElementType()
+        {
+            return PrimitiveTypes.AnyType;
+        }
+
         public override IteratorValue GetIterator()
         {
-            return new ListToIterValue(values);
+            return new ListToIterValue(values, PrimitiveTypes.AnyType);
         }
 
         public HeronValue GetValue(int n)
@@ -304,7 +309,7 @@ namespace HeronEngine
 
         public override IteratorValue GetIterator()
         {
-            return new ListToIterValue(values.Values);
+            return new ListToIterValue(values.Values, PrimitiveTypes.AnyType);
         }
 
         public string GetIndexField()
@@ -435,7 +440,12 @@ namespace HeronEngine
                 nCol = (column as IntValue).ToInt();
             else
                 throw new Exception("Can only retrieve columns by name (String) or index (Int)");
-            return new ListValue(GetValues(nCol));
+            return new ListValue(GetValues(nCol), layout.GetTypes()[nCol]);
+        }
+
+        public override HeronType GetElementType()
+        {
+            return PrimitiveTypes.AnyType;
         }
     }
 }

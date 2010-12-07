@@ -6,8 +6,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Diagnostics;
-using HeronEngine;
 using System.Reflection;
+
+using HeronEngine;
+using Peg;
 
 namespace HeronEdit
 {
@@ -706,7 +708,8 @@ namespace HeronEdit
                 vm.RegisterCommonWinFormTypes();
                 ModuleDefn m = vm.LoadModule(sFile);
                 vm.LoadDependentModules(sFile);
-                vm.ResolveTypesInModules();
+                vm.ResolveTypes
+                    ();
                 ModuleInstance mi = m.Instantiate(vm, new HeronValue[] { }, null) as ModuleInstance;
                 vm.RunMeta(mi);
                 HeronValue f = mi.GetFieldOrMethod("RunMacro");

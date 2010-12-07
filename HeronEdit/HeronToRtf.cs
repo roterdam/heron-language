@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Windows;
 using System.Windows.Forms;
 using HeronEngine;
+using Peg;
 
 namespace HeronEdit
 {
@@ -74,9 +75,9 @@ namespace HeronEdit
             switch (tt)
             {
                 case TokenType.Identifier:
-                    return 1;
-                case TokenType.Keyword:
                     return 2;
+                case TokenType.Keyword:
+                    return 1;
                 case TokenType.String:
                     return 3;
                 case TokenType.Number:
