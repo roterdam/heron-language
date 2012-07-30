@@ -108,6 +108,8 @@ Module variables have similar semantics to global functions and variables in oth
 
 This is an idea which was inspired by [http://gbracha.blogspot.com/2008/02/cutting-out-static.html this post by Gilad Bracha] the author of the [http://newspeaklanguage.org/ Newspeak] language.
 
+The other inspiration for the Heron module system is the Python module system, which has strengths and weaknesses. [http://washort.twistedmatrix.com/2011/01/modules-in-python-good-bad-and-ugly.html See here for an interesting look at Python modules].
+
 == How Classes Differ from Modules ==
 
 Modules bear a resemblance to classes: they can be instantiated, they have fields and member functions. However there are some differences:
@@ -130,8 +132,6 @@ Modules are loaded using a module searching mechanism determined by the implemen
   Q: Why does "Every program consists of at least one module"?
 
   A: A program by definition is a single module, and all of the modules inherited and imported by that module directly or indirectly. There is no "program" entity.    
-
-
 
 
 
